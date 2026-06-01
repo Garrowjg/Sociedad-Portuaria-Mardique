@@ -1,0 +1,940 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Empresa – Sociedad Portuaria Mardique</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        /* SCROLL PROGRESS */
+        #scroll-progress { position: fixed; top: 0; left: 0; height: 3px; width: 0%; background: linear-gradient(90deg, var(--accent-gold), var(--accent-cyan)); z-index: 9999; transition: width 0.1s linear; }
+
+        /* REVEAL ON SCROLL */
+        .reveal { opacity: 0; transform: translateY(32px); transition: opacity 0.65s cubic-bezier(0.4,0,0.2,1), transform 0.65s cubic-bezier(0.4,0,0.2,1); }
+        .reveal.visible { opacity: 1; transform: none; }
+        .reveal-left  { opacity: 0; transform: translateX(-44px); transition: opacity 0.65s ease, transform 0.65s ease; }
+        .reveal-right { opacity: 0; transform: translateX( 44px); transition: opacity 0.65s ease, transform 0.65s ease; }
+        .reveal-left.visible, .reveal-right.visible { opacity: 1; transform: none; }
+        .delay-1{transition-delay:.1s} .delay-2{transition-delay:.2s} .delay-3{transition-delay:.3s} .delay-4{transition-delay:.4s} .delay-5{transition-delay:.5s}
+
+    </style>
+
+    <style>
+        :root {
+            --primary-blue: #28648c;
+            --primary-dark: #1b4562;
+            --accent-gold: #f09a36;
+            --accent-cyan: #00a3e0;
+            --bg-light: #f5f7fa;
+            --text-light: #ffffff;
+            --text-muted: #94a3b8;
+            --text-dark: #1e293b;
+            --border-color: #e2e8f0;
+            --radius: 8px;
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; }
+        body { background-color: var(--text-light); color: var(--text-dark); overflow-x: hidden; -webkit-font-smoothing: antialiased; }
+        a { text-decoration: none; color: inherit; }
+        ul { list-style: none; }
+
+        .container { max-width: 1280px; margin: 0 auto; padding: 0 24px; width: 100%; }
+
+        /* BOTONES */
+        .btn {
+            display: inline-flex; align-items: center; justify-content: center;
+            padding: 12px 24px; font-size: 12.5px; font-weight: 700; border-radius: 6px;
+            cursor: pointer; transition: var(--transition); text-transform: uppercase;
+            letter-spacing: 0.5px; position: relative; overflow: hidden; z-index: 1;
+        }
+        .btn::after {
+            content: ''; position: absolute; top: 0; left: -100%; width: 50%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.25), transparent);
+            transform: skewX(-25deg); z-index: -1;
+        }
+        .btn:hover::after { left: 150%; transition: 0.55s ease-in-out; }
+        .btn i { margin-left: 8px; font-size: 11px; transition: var(--transition); }
+        .btn:hover i { transform: translateX(4px); }
+
+        .btn-orange { background-color: var(--accent-gold); color: var(--text-light); border: none; box-shadow: 0 4px 12px rgba(240,154,54,0.2); }
+        .btn-orange:hover { background-color: #d6852a; transform: translateY(-2px); box-shadow: 0 6px 18px rgba(240,154,54,0.35); }
+        .btn-outline { background-color: transparent; color: var(--text-light); border: 1px solid rgba(255,255,255,0.7); }
+        .btn-outline:hover { background-color: var(--text-light); color: var(--primary-blue); border-color: var(--text-light); transform: translateY(-2px); box-shadow: 0 6px 15px rgba(255,255,255,0.15); }
+        .btn-dark { background-color: var(--primary-blue); color: var(--text-light); border: none; }
+        .btn-dark:hover { background-color: var(--primary-dark); transform: translateY(-2px); box-shadow: 0 5px 15px rgba(40,100,140,0.2); }
+
+        /* HEADER STICKY */
+        header { background-color: var(--primary-dark); padding: 16px 0; position: sticky; top: 0; z-index: 500; box-shadow: 0 2px 20px rgba(0,0,0,0.15); transition: padding 0.3s ease; }
+        header.scrolled { padding: 11px 0; }
+        .header-content { display: flex; justify-content: space-between; align-items: center; }
+        .logo-box { display: flex; align-items: center; background: transparent; padding: 0; transition: var(--transition); }
+        .logo-box:hover { transform: scale(1.02); }
+        .logo-box img { height: 48px; width: auto; object-fit: contain; transition: height 0.3s ease; }
+        header.scrolled .logo-box img { height: 40px; width: auto; }
+        nav { flex: 1; display: flex; justify-content: center; padding-right: 20px; }
+        .nav-menu { display: flex; gap: 35px; align-items: center; }
+        .nav-menu li a {
+            color: rgba(255,255,255,0.75); font-size: 12.5px; font-weight: 500;
+            text-transform: uppercase; position: relative; padding: 8px 0;
+            letter-spacing: 0.5px; transition: color 0.25s ease;
+        }
+        .nav-menu li a::after {
+            content: ''; position: absolute; bottom: 0; left: 0; width: 0; height: 2px;
+            background-color: var(--accent-gold); transition: var(--transition);
+        }
+        .nav-menu li.active a, .nav-menu li a:hover { color: var(--text-light); font-weight: 600; }
+        .nav-menu li.active a::after, .nav-menu li a:hover::after { width: 100%; }
+        .nav-menu li a i { margin-left: 4px; font-size: 10px; vertical-align: middle; }
+        .header-contact-btn {
+            background-color: var(--accent-gold); color: var(--text-light); padding: 10px 22px;
+            border-radius: 4px; font-size: 12px; font-weight: 700; text-transform: uppercase;
+            letter-spacing: 0.5px; transition: var(--transition); display: flex; align-items: center; gap: 8px; white-space: nowrap;
+        }
+        .header-contact-btn:hover { background-color: #c9730e; transform: translateY(-2px); box-shadow: 0 4px 12px rgba(226,135,22,0.3); }
+
+        /* HERO DE PÁGINA INTERNA CON PARALLAX */
+        .page-hero {
+            position: relative; height: 400px; display: flex; align-items: flex-end;
+            overflow: hidden;
+        }
+        .page-hero-bg {
+            position: absolute; top: -80px; left: 0; width: 100%; height: calc(100% + 80px);
+            background-image: url('/images/EquipoMardique.png');
+            background-size: cover; background-position: center 40%;
+            z-index: 1; will-change: transform;
+        }
+        .page-hero::before {
+            content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+            background: linear-gradient(180deg, rgba(27,69,98,0.45) 0%, rgba(27,69,98,0.65) 45%, rgba(27,69,98,0.93) 100%);
+            z-index: 2;
+        }
+        /* Partículas hero */
+        .hero-particles { position: absolute; inset: 0; z-index: 2; overflow: hidden; pointer-events: none; }
+        .hero-particle { position: absolute; border-radius: 50%; background: rgba(240,154,54,0.12); animation: floatParticle linear infinite; }
+        @keyframes floatParticle { 0%,100%{transform:translateY(0) scale(1);opacity:.5} 50%{transform:translateY(-28px) scale(1.08);opacity:.2} }
+        .page-hero .container { position: relative; z-index: 3; padding-bottom: 52px; }
+        /* Scroll hint */
+        .scroll-hint { position: absolute; bottom: 18px; left: 50%; transform: translateX(-50%); z-index: 4; display: flex; flex-direction: column; align-items: center; gap: 6px; color: rgba(255,255,255,0.45); font-size: 10px; letter-spacing: 1.5px; text-transform: uppercase; animation: bounceDown 2s ease infinite; }
+        .scroll-hint i { font-size: 15px; }
+        @keyframes bounceDown { 0%,100%{transform:translateX(-50%) translateY(0)} 50%{transform:translateX(-50%) translateY(6px)} }
+        .page-hero-breadcrumb {
+            display: flex; align-items: center; gap: 8px; margin-bottom: 12px;
+        }
+        .page-hero-breadcrumb a { color: rgba(255,255,255,0.6); font-size: 12px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.4px; transition: color 0.2s; }
+        .page-hero-breadcrumb a:hover { color: var(--accent-gold); }
+        .page-hero-breadcrumb span { color: rgba(255,255,255,0.35); font-size: 10px; }
+        .page-hero-breadcrumb .current { color: rgba(255,255,255,0.9); font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.4px; }
+        .page-hero-title {
+            font-size: 44px; font-weight: 300; color: var(--text-light);
+            letter-spacing: -0.5px; line-height: 1.1;
+        }
+        .page-hero-title strong { font-weight: 800; color: var(--accent-gold); }
+        .page-hero-line {
+            width: 0; height: 3px; margin-top: 14px;
+            background: linear-gradient(90deg, var(--accent-gold), var(--accent-cyan));
+            border-radius: 2px; transition: width 1s ease 0.4s;
+        }
+        .page-hero-line.animate { width: 60px; }
+
+        /* BARRA DE INDICADORES */
+        .stats-strip {
+            background-color: var(--primary-dark); padding: 0; color: var(--text-light);
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+        .stats-container { display: flex; justify-content: space-between; align-items: stretch; }
+        .stat-item { display: flex; align-items: center; gap: 14px; position: relative; flex: 1; padding: 26px 16px; transition: background 0.3s; cursor: default; }
+        .stat-item:not(:last-child)::after { content: ''; position: absolute; right: 0; top: 10%; height: 80%; width: 1px; background-color: rgba(255,255,255,0.1); }
+        .stat-item:hover { background: rgba(255,255,255,0.04); }
+        .stat-icon { font-size: 30px; color: transparent; -webkit-text-stroke: 1px rgba(255,255,255,0.8); transition: var(--transition); }
+        .stat-item:hover .stat-icon { color: var(--accent-cyan); -webkit-text-stroke: 1px var(--accent-cyan); transform: scale(1.1); }
+        .stat-text h4 { font-size: 17px; font-weight: 700; margin-bottom: 1px; }
+        .stat-text p { font-size: 11.5px; color: var(--text-muted); line-height: 1.3; }
+
+        /* SOMOS MARDIQUE */
+        .about-intro { padding: 72px 0; background: var(--bg-light); }
+        .intro-layout { display: flex; gap: 56px; align-items: flex-start; }
+        .intro-text { flex: 1.3; }
+        .section-label { color: var(--accent-gold); font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px; display: flex; align-items: center; gap: 8px; }
+        .section-label::before { content: ''; display: inline-block; width: 24px; height: 2px; background: var(--accent-gold); border-radius: 1px; }
+        .intro-text h2 { font-size: 34px; font-weight: 700; color: var(--primary-dark); line-height: 1.15; margin-bottom: 20px; }
+        .intro-text h2 span { color: var(--accent-cyan); }
+        .intro-text p { font-size: 14px; line-height: 1.7; color: #556b82; margin-bottom: 14px; }
+        .intro-image-panel { flex: 1; position: relative; border-radius: 10px; overflow: hidden; }
+        .intro-image-panel img { width: 100%; height: 340px; object-fit: cover; display: block; border-radius: 10px; }
+        .intro-image-badge {
+            position: absolute; bottom: 20px; left: 20px; right: 20px;
+            background: rgba(27,69,98,0.92); backdrop-filter: blur(6px);
+            border: 1px solid rgba(255,255,255,0.1); border-radius: 8px;
+            padding: 14px 18px; color: var(--text-light);
+        }
+        .intro-image-badge h4 { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: var(--accent-gold); margin-bottom: 4px; }
+        .intro-image-badge p { font-size: 11.5px; color: rgba(255,255,255,0.8); line-height: 1.4; }
+
+        /* CARACTERÍSTICAS PORTUARIAS */
+        .features-section { background: var(--text-light); padding: 64px 0; border-top: 1px solid var(--border-color); }
+        .features-layout { display: flex; gap: 32px; align-items: flex-start; }
+        .features-left { flex: 1.2; }
+        .features-left h3 { font-size: 20px; font-weight: 700; color: var(--primary-dark); margin-bottom: 6px; }
+        .features-left > p { font-size: 13.5px; color: #556b82; margin-bottom: 28px; line-height: 1.6; }
+        .features-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+        .feature-card {
+            background: var(--bg-light); border: 1px solid var(--border-color);
+            border-radius: var(--radius); padding: 20px 18px;
+            display: flex; gap: 14px; align-items: flex-start;
+            transition: var(--transition); position: relative; overflow: hidden;
+        }
+        .feature-card::before {
+            content: ''; position: absolute; top: 0; left: 0; width: 3px; height: 0;
+            background: var(--accent-cyan); border-radius: 0 0 3px 3px; transition: var(--transition);
+        }
+        .feature-card:hover { transform: translateY(-4px); box-shadow: 0 10px 22px rgba(40,100,140,0.08); border-color: transparent; background: var(--text-light); }
+        .feature-card:hover::before { height: 100%; border-radius: 3px 0 0 3px; }
+        .feature-icon-wrap { width: 40px; height: 40px; border-radius: 8px; background: rgba(40,100,140,0.08); color: var(--primary-blue); display: flex; align-items: center; justify-content: center; font-size: 17px; flex-shrink: 0; transition: var(--transition); }
+        .feature-card:hover .feature-icon-wrap { background: var(--primary-blue); color: var(--text-light); }
+        .feature-card h4 { font-size: 13px; font-weight: 700; color: var(--primary-dark); margin-bottom: 4px; text-transform: uppercase; }
+        .feature-card p { font-size: 12px; color: #556b82; line-height: 1.45; }
+
+
+        /* MISIÓN Y VISIÓN — REDISEÑO SIN BUG DE PARALLAX */
+        .mv-section-wrapper {
+            padding: 90px 0;
+            background: var(--primary-dark);
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Fondo decorativo con imagen — sin overflow:hidden en el card para evitar el bug */
+        .mv-section-wrapper::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background-image: url('/images/VisionMision.png');
+            background-size: cover;
+            background-position: center;
+            background-attachment: scroll; /* scroll en vez de fixed: elimina el bug */
+            opacity: 0.18;
+            z-index: 0;
+        }
+
+        /* Gradiente sobre la imagen */
+        .mv-section-wrapper::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(160deg, rgba(27,69,98,0.6) 0%, rgba(27,35,60,0.75) 100%);
+            z-index: 1;
+        }
+
+        .mv-section-inner {
+            position: relative;
+            z-index: 2;
+        }
+
+        /* Header de la sección */
+        .mv-section-header {
+            text-align: center;
+            margin-bottom: 52px;
+        }
+
+        .mv-section-header .section-label {
+            justify-content: center;
+            color: var(--accent-gold);
+            margin-bottom: 14px;
+        }
+
+        .mv-section-header h2 {
+            font-size: 32px;
+            font-weight: 800;
+            color: var(--text-light);
+            letter-spacing: -0.5px;
+            line-height: 1.15;
+        }
+
+        .mv-section-header h2 span {
+            color: var(--accent-cyan);
+        }
+
+        .mv-divider {
+            width: 56px;
+            height: 3px;
+            background: linear-gradient(90deg, var(--accent-gold), var(--accent-cyan));
+            border-radius: 2px;
+            margin: 16px auto 0;
+        }
+
+        /* Grid de tarjetas */
+        .mv-cards-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 28px;
+            max-width: 980px;
+            margin: 0 auto;
+        }
+
+        .mv-item {
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 44px 36px;
+            text-align: left;
+            transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Línea de acento superior */
+        .mv-item::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--accent-gold), var(--accent-cyan));
+            transform: scaleX(0);
+            transform-origin: left;
+            transition: transform 0.4s ease;
+        }
+
+        .mv-item:hover::before {
+            transform: scaleX(1);
+        }
+
+        /* Resplandor de fondo al hover */
+        .mv-item::after {
+            content: '';
+            position: absolute;
+            top: -60px; right: -60px;
+            width: 160px; height: 160px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(0,163,224,0.12) 0%, transparent 70%);
+            opacity: 0;
+            transition: opacity 0.4s ease;
+        }
+
+        .mv-item:hover::after {
+            opacity: 1;
+        }
+
+        .mv-item:hover {
+            background: rgba(255, 255, 255, 0.08);
+            border-color: rgba(0,163,224,0.35);
+            transform: translateY(-6px);
+            box-shadow: 0 24px 48px rgba(0,0,0,0.25);
+        }
+
+        /* Ícono con fondo pill */
+        .mv-icon-wrap {
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+
+        .mv-icon-circle {
+            width: 52px;
+            height: 52px;
+            border-radius: 14px;
+            background: rgba(240,154,54,0.12);
+            border: 1px solid rgba(240,154,54,0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            transition: all 0.3s ease;
+        }
+
+        .mv-item:hover .mv-icon-circle {
+            background: rgba(240,154,54,0.22);
+            border-color: var(--accent-gold);
+            transform: rotate(-6deg) scale(1.08);
+        }
+
+        .mv-icon {
+            font-size: 22px;
+            color: var(--accent-gold);
+            transition: transform 0.3s ease, color 0.3s ease;
+        }
+
+        .mv-item h2 {
+            color: var(--text-light);
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: var(--accent-gold);
+        }
+
+        .mv-item h3 {
+            color: var(--text-light);
+            font-size: 22px;
+            font-weight: 800;
+            margin-bottom: 16px;
+            margin-top: 6px;
+            line-height: 1.2;
+        }
+
+        .mv-item p {
+            color: rgba(255, 255, 255, 0.75);
+            font-size: 14px;
+            line-height: 1.75;
+        }
+
+
+        /* PERMISOS OFICIALES */
+        .permits-section { background: var(--bg-light); padding: 72px 0; }
+        .permits-layout { display: flex; gap: 48px; align-items: flex-start; }
+        .permits-text { flex: 1; }
+        .permits-text h2 { font-size: 26px; font-weight: 700; color: var(--primary-dark); margin-bottom: 8px; margin-top: 10px; }
+        .permits-text > p { font-size: 13.5px; color: #556b82; line-height: 1.6; margin-bottom: 28px; }
+        .permits-list { display: flex; flex-direction: column; gap: 14px; }
+        .permit-item {
+            display: flex; align-items: flex-start; gap: 16px;
+            background: var(--text-light); border: 1px solid var(--border-color);
+            border-radius: var(--radius); padding: 18px 20px;
+            transition: var(--transition);
+        }
+        .permit-item:hover { transform: translateX(6px); box-shadow: 0 8px 20px rgba(40,100,140,0.06); border-left: 3px solid var(--accent-gold); padding-left: 17px; }
+        .permit-num { width: 32px; height: 32px; border-radius: 50%; background: rgba(240,154,54,0.1); color: var(--accent-gold); font-size: 13px; font-weight: 800; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+        .permit-item h4 { font-size: 12.5px; font-weight: 700; color: var(--primary-dark); margin-bottom: 3px; text-transform: uppercase; }
+        .permit-item p { font-size: 12px; color: #556b82; line-height: 1.4; }
+        .permits-certs { flex: 0.85; }
+        .permits-certs h3 { font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: var(--primary-dark); margin-bottom: 20px; margin-top: 10px; }
+        .certs-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+        .cert-card {
+            background: var(--text-light); border: 1px solid var(--border-color);
+            border-radius: var(--radius); padding: 24px 16px; text-align: center;
+            transition: var(--transition);
+        }
+        .cert-card:hover { transform: translateY(-4px); box-shadow: 0 10px 22px rgba(40,100,140,0.08); border-color: var(--accent-cyan); }
+        .cert-badge { width: 56px; height: 56px; border-radius: 50%; margin: 0 auto 12px; border: 2px solid rgba(40,100,140,0.15); display: flex; align-items: center; justify-content: center; font-size: 9px; font-weight: 800; color: var(--primary-blue); line-height: 1.2; }
+        .cert-card h4 { font-size: 12.5px; font-weight: 700; color: var(--primary-dark); margin-bottom: 4px; }
+        .cert-card p { font-size: 11px; color: #556b82; line-height: 1.4; }
+
+        /* CTA BAND */
+        .cta-band {
+            background: var(--primary-dark); padding: 56px 0; text-align: center;
+            position: relative; overflow: hidden;
+        }
+        .cta-band::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 3px; background: linear-gradient(90deg, var(--accent-gold), var(--accent-cyan), var(--accent-gold)); }
+        .cta-band h2 { font-size: 26px; font-weight: 700; color: var(--text-light); margin-bottom: 10px; }
+        .cta-band p { font-size: 14px; color: rgba(255,255,255,0.7); margin-bottom: 28px; }
+        .cta-buttons { display: flex; justify-content: center; gap: 14px; }
+
+        /* FOOTER */
+        footer { background-color: var(--primary-dark); padding: 64px 0 20px 0; font-size: 13px; color: var(--text-muted); }
+        .footer-grid { display: grid; grid-template-columns: 1.8fr 0.9fr 1.6fr 1.5fr; gap: 32px; margin-bottom: 40px; }
+        .footer-logo { background: rgba(255,255,255,0.95); padding: 5px 12px; border-radius: 6px; display: inline-flex; align-items: center; margin-bottom: 16px; }
+        .footer-logo img { height: 32px; object-fit: contain; }
+        .footer-desc { margin-bottom: 20px; line-height: 1.5; font-size: 12.5px; }
+        .social-icons { display: flex; gap: 10px; }
+        .social-icons a { display: flex; align-items: center; justify-content: center; width: 32px; height: 32px; border: 1px solid rgba(148,163,184,0.25); border-radius: 50%; color: var(--text-muted); transition: var(--transition); }
+        .social-icons a:hover { color: var(--text-light); border-color: var(--text-light); background-color: rgba(255,255,255,0.05); transform: translateY(-2px); }
+        .footer-title { color: var(--text-light); font-size: 13.5px; font-weight: 600; margin-bottom: 20px; text-transform: uppercase; }
+        .footer-links li { margin-bottom: 10px; }
+        .footer-links a { transition: var(--transition); font-size: 12.5px; }
+        .footer-links a:hover { color: var(--accent-gold); padding-left: 3px; }
+        .contact-info li { display: flex; gap: 10px; margin-bottom: 12px; align-items: flex-start; font-size: 12.5px; }
+        .contact-info i { margin-top: 3px; font-size: 13px; color: var(--text-light); }
+        .certs-container { display: flex; gap: 12px; }
+        .cert-item { text-align: center; flex: 1; }
+        .cert-circle { width: 50px; height: 50px; border: 1px solid rgba(148,163,184,0.3); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 8px auto; font-size: 8.5px; font-weight: 800; color: var(--text-light); background: rgba(255,255,255,0.02); transition: var(--transition); text-align: center; line-height: 1.2; padding: 4px; }
+        .cert-item:hover .cert-circle { border-color: var(--accent-cyan); box-shadow: 0 0 10px rgba(0,163,224,0.4); transform: scale(1.05); }
+        .cert-text { font-size: 9.5px; line-height: 1.2; }
+        .footer-bottom { border-top: 1px solid rgba(255,255,255,0.06); padding-top: 20px; display: flex; justify-content: space-between; font-size: 11.5px; }
+        .footer-bottom-links a { margin-left: 16px; transition: var(--transition); }
+        .footer-bottom-links a:hover { color: var(--text-light); }
+
+        /* RESPONSIVE */
+        @media (max-width: 1024px) {
+            .intro-layout, .features-layout, .permits-layout { flex-direction: column; }
+            .footer-grid { grid-template-columns: 1fr 1fr; }
+            .stats-container { flex-wrap: wrap; gap: 16px; }
+            .stat-item::after { display: none; }
+        }
+        @media (max-width: 768px) {
+            .nav-menu { display: none; }
+            nav { display: none; }
+            .header-contact-btn { display: none; }
+            .page-hero-title { font-size: 30px; }
+            .features-grid { grid-template-columns: 1fr; }
+            .certs-grid { grid-template-columns: 1fr; }
+            .footer-grid { grid-template-columns: 1fr; }
+            .cta-buttons { flex-direction: column; align-items: center; }
+
+            /* Ajustes Misión/Visión en móvil */
+            .mv-cards-grid { grid-template-columns: 1fr; gap: 20px; }
+            .mv-item { padding: 32px 24px; }
+        }
+    </style>
+</head>
+<body>
+<div id="scroll-progress"></div>
+
+<!-- HEADER -->
+<header id="main-header">
+    <div class="container header-content">
+        <a href="/inicio" class="logo-box">
+            <img src="/images/Logo.png" alt="Sociedad Portuaria Mardique">
+        </a>
+        <nav>
+            <ul class="nav-menu">
+                <li><a href="/inicio">INICIO</a></li>
+                <li class="active"><a href="/empresa">EMPRESA</a></li>
+                <li><a href="/servicios">SERVICIOS</a></li>
+                <li><a href="/tramites-en-linea">SERVICIO AL CLIENTE <i class="fas fa-chevron-down"></i></a></li>
+                <li><a href="/contacto">CONTACTO</a></li>
+                <li><a href="/galeria">GALERÍA</a></li>
+            </ul>
+        </nav>
+        <a href="/contacto" class="header-contact-btn">CONTÁCTANOS <i class="fas fa-phone-alt"></i></a>
+    </div>
+</header>
+
+<!-- HERO INTERNO -->
+<section class="page-hero">
+    <div class="page-hero-bg" id="heroBg"></div>
+    <div class="hero-particles" id="heroParticles"></div>
+    <div class="container">
+        <div class="page-hero-breadcrumb">
+            <a href="/inicio">INICIO</a>
+            <span><i class="fas fa-chevron-right" style="font-size:9px;"></i></span>
+            <span class="current">EMPRESA</span>
+        </div>
+        <h1 class="page-hero-title">
+            SOMOS <strong>MARDIQUE</strong>
+        </h1>
+        <div class="page-hero-line" id="heroLine"></div>
+    </div>
+    <div class="scroll-hint"><i class="fas fa-chevron-down"></i><span>Desplazar</span></div>
+</section>
+
+<!-- FRANJA DE ESTADÍSTICAS -->
+<div class="stats-strip">
+    <div class="container stats-container">
+        <div class="stat-item reveal delay-1">
+            <i class="fa-solid fa-anchor stat-icon"></i>
+            <div class="stat-text"><h4><span class="counter" data-target="15">0</span>m</h4><p>Profundidad del<br>canal de acceso</p></div>
+        </div>
+        <div class="stat-item reveal delay-2">
+            <i class="fa-solid fa-star stat-icon"></i>
+            <div class="stat-text"><h4><span class="counter" data-target="2014">0</span></h4><p>Zona franca portuaria<br>especial - DIAN</p></div>
+        </div>
+        <div class="stat-item reveal delay-3">
+            <i class="fa-solid fa-infinity stat-icon"></i>
+            <div class="stat-text"><h4>Multimodal</h4><p>Acceso marítimo<br>y fluvial simultáneo</p></div>
+        </div>
+        <div class="stat-item reveal delay-4">
+            <i class="fa-solid fa-award stat-icon"></i>
+            <div class="stat-text"><h4>ISO 9001</h4><p>Certificación en calidad<br>y seguridad</p></div>
+        </div>
+        <div class="stat-item reveal delay-5">
+            <i class="fa-solid fa-tower-cell stat-icon"></i>
+            <div class="stat-text"><h4>24/7</h4><p>Operaciones<br>continuas</p></div>
+        </div>
+    </div>
+</div>
+
+<!-- SOMOS MARDIQUE — INTRO -->
+<section class="about-intro">
+    <div class="container">
+        <div class="intro-layout">
+            <div class="intro-text reveal-left">
+                <div class="section-label">NUESTRA EMPRESA</div>
+                <h2>Un puerto de clase mundial<br>en <span>Colombia</span></h2>
+                <p>Sociedad Portuaria Mardique S.A. es un puerto multipropósito privado de uso público, ubicado estratégicamente en la Carretera Antigua Vía Barú, Corregimiento Santa Ana – Cartagena, Colombia.</p>
+                <p>Nuestra posición geoestratégica nos permite ser el único puerto con capacidad de disminuir trasbordos y cabotajes en las operaciones de importación y exportación de bienes, con conexión directa al interior del país a través del transporte multimodal fluvial y terrestre.</p>
+                <p>Contamos con concesión portuaria otorgada por Cormagdalena, y con más de 20 años de experiencia en la prestación de servicios portuarios y logísticos de excelencia.</p>
+                <div style="margin-top: 28px;">
+                    <a href="/servicios" class="btn btn-dark">NUESTROS SERVICIOS <i class="fas fa-arrow-right"></i></a>
+                </div>
+            </div>
+            <div class="intro-image-panel reveal-right">
+                <!-- Se cambió la URL externa de Unsplash a una ruta local 'SomosMardique.png' para que puedas controlarla tú mismo -->
+                <img src="/images/OperadorPortuario.png" alt="Puerto Mardique">
+                <div class="intro-image-badge">
+                    <h4>Registro Operador Portuario</h4>
+                    <p>Registrado como operador portuario ante la autoridad competente — Mayo 2021</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- CARACTERÍSTICAS PORTUARIAS Y LOGÍSTICAS -->
+<section class="features-section">
+    <div class="container">
+        <div style="margin-bottom: 36px;" class="reveal">
+            <div class="section-label">CAPACIDADES</div>
+            <h2 style="font-size:26px; font-weight:700; color:var(--primary-dark); margin-top:8px;">Características Portuarias y Logísticas</h2>
+        </div>
+        <div class="features-layout">
+            <div class="features-left">
+                <div class="features-grid">
+                    <div class="feature-card reveal delay-1">
+                        <div class="feature-icon-wrap"><i class="fas fa-bolt"></i></div>
+                        <div>
+                            <h4>Grúas Móviles</h4>
+                            <p>Operaciones seguras y eficientes de izaje con equipos de última generación para todo tipo de carga.</p>
+                        </div>
+                    </div>
+                    <div class="feature-card reveal delay-2">
+                        <div class="feature-icon-wrap"><i class="fas fa-flask"></i></div>
+                        <div>
+                            <h4>Hidrocarburos</h4>
+                            <p>Infraestructura especializada para manejo y almacenamiento de crudos y combustibles líquidos derivados del petróleo.</p>
+                        </div>
+                    </div>
+                    <div class="feature-card reveal delay-3">
+                        <!-- Corregido: Se reemplazó el ícono inválido 'fa-silo' por 'fa-warehouse' (bodega/silo de almacenamiento) para que se renderice correctamente en Font Awesome 6 -->
+                        <div class="feature-icon-wrap"><i class="fa-solid fa-warehouse"></i></div>
+                        <div>
+                            <h4>Silos para Gráneles</h4>
+                            <p>Sistemas de alta capacidad para manejo de gráneles sólidos con altos estándares de calidad y seguridad.</p>
+                        </div>
+                    </div>
+                    <div class="feature-card reveal delay-4">
+                        <div class="feature-icon-wrap"><i class="fas fa-cube"></i></div>
+                        <div>
+                            <h4>Contenedores</h4>
+                            <p>Manipulación integral y almacenamiento de contenedores con infraestructura especializada.</p>
+                        </div>
+                    </div>
+                    <div class="feature-card reveal delay-1">
+                        <div class="feature-icon-wrap"><i class="fas fa-clipboard-check"></i></div>
+                        <div>
+                            <h4>Carga General y de Proyecto</h4>
+                            <p>Manejo integral de carga general con soluciones logísticas a la medida del cliente.</p>
+                        </div>
+                    </div>
+                    <div class="feature-card reveal delay-2">
+                        <div class="feature-icon-wrap"><i class="fas fa-hard-hat"></i></div>
+                        <div>
+                            <h4>Shore Base</h4>
+                            <p>Soporte logístico especializado para la industria offshore y proyectos de gran envergadura.</p>
+                        </div>
+                    </div>
+                    <div class="feature-card reveal delay-3">
+                        <div class="feature-icon-wrap"><i class="fas fa-traffic-light"></i></div>
+                        <div>
+                            <h4>Transporte Terrestre</h4>
+                            <p>Operaciones de transporte terrestre integradas con la cadena logística portuaria.</p>
+                        </div>
+                    </div>
+                    <div class="feature-card reveal delay-4">
+                        <div class="feature-icon-wrap"><i class="fas fa-ferry"></i></div>
+                        <div>
+                            <h4>Transporte Fluvial</h4>
+                            <p>Operaciones fluviales con conexión directa al interior del país a través del río Magdalena.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PANEL ¿POR QUÉ ESCOGERNOS? -->
+            <div style="flex: 0.85; background: linear-gradient(145deg, var(--primary-blue) 0%, var(--primary-dark) 100%); border-radius: var(--radius); padding: 36px 28px; color: var(--text-light); display: flex; flex-direction: column; box-shadow: 0 15px 35px rgba(27,69,98,0.25); position: relative; overflow: hidden; border: 1px solid rgba(255,255,255,0.05);">
+                <div style="position:absolute; top:0; left:0; width:100%; height:3px; background: linear-gradient(90deg, var(--accent-gold), var(--accent-cyan));"></div>
+                <h3 style="font-size:17px; font-weight:800; margin-bottom:24px; text-transform:uppercase;">¿POR QUÉ ESCOGERNOS?</h3>
+                <div style="display:flex; flex-direction:column; gap:12px; margin-bottom:32px;">
+                    <div style="display:flex; align-items:center; gap:14px; padding:13px 15px; background:rgba(255,255,255,0.03); border-radius:6px; border:1px solid rgba(255,255,255,0.04); transition:var(--transition);" onmouseover="this.style.transform='translateX(5px)';this.style.background='rgba(255,255,255,0.07)'" onmouseout="this.style.transform='none';this.style.background='rgba(255,255,255,0.03)'">
+                        <div style="width:36px;height:36px;border-radius:6px;background:rgba(240,154,54,0.12);color:var(--accent-gold);display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;"><i class="fas fa-location-crosshairs"></i></div>
+                        <span style="font-size:13px;font-weight:600;">Localización Geoestratégica</span>
+                    </div>
+                    <div style="display:flex; align-items:center; gap:14px; padding:13px 15px; background:rgba(255,255,255,0.03); border-radius:6px; border:1px solid rgba(255,255,255,0.04); transition:var(--transition);" onmouseover="this.style.transform='translateX(5px)';this.style.background='rgba(255,255,255,0.07)'" onmouseout="this.style.transform='none';this.style.background='rgba(255,255,255,0.03)'">
+                        <div style="width:36px;height:36px;border-radius:6px;background:rgba(0,163,224,0.12);color:var(--accent-cyan);display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;"><i class="fas fa-ruler-combined"></i></div>
+                        <span style="font-size:13px;font-weight:600;">Infraestructura y extensión de área</span>
+                    </div>
+                    <div style="display:flex; align-items:center; gap:14px; padding:13px 15px; background:rgba(255,255,255,0.03); border-radius:6px; border:1px solid rgba(255,255,255,0.04); transition:var(--transition);" onmouseover="this.style.transform='translateX(5px)';this.style.background='rgba(255,255,255,0.07)'" onmouseout="this.style.transform='none';this.style.background='rgba(255,255,255,0.03)'">
+                        <div style="width:36px;height:36px;border-radius:6px;background:rgba(240,154,54,0.12);color:var(--accent-gold);display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;"><i class="fas fa-scale-balanced"></i></div>
+                        <span style="font-size:13px;font-weight:600;">Clima de inversión y regulación</span>
+                    </div>
+                    <div style="display:flex; align-items:center; gap:14px; padding:13px 15px; background:rgba(255,255,255,0.03); border-radius:6px; border:1px solid rgba(255,255,255,0.04); transition:var(--transition);" onmouseover="this.style.transform='translateX(5px)';this.style.background='rgba(255,255,255,0.07)'" onmouseout="this.style.transform='none';this.style.background='rgba(255,255,255,0.03)'">
+                        <div style="width:36px;height:36px;border-radius:6px;background:rgba(0,163,224,0.12);color:var(--accent-cyan);display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;"><i class="fas fa-network-wired"></i></div>
+                        <span style="font-size:13px;font-weight:600;">Conexión a centros logísticos nacionales</span>
+                    </div>
+                    <div style="display:flex; align-items:center; gap:14px; padding:13px 15px; background:rgba(255,255,255,0.03); border-radius:6px; border:1px solid rgba(255,255,255,0.04); transition:var(--transition);" onmouseover="this.style.transform='translateX(5px)';this.style.background='rgba(255,255,255,0.07)'" onmouseout="this.style.transform='none';this.style.background='rgba(255,255,255,0.03)'">
+                        <div style="width:36px;height:36px;border-radius:6px;background:rgba(240,154,54,0.12);color:var(--accent-gold);display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;"><i class="fas fa-ship"></i></div>
+                        <span style="font-size:13px;font-weight:600;">Terminal marítimo y fluvial simultáneo</span>
+                    </div>
+                    <div style="display:flex; align-items:center; gap:14px; padding:13px 15px; background:rgba(255,255,255,0.03); border-radius:6px; border:1px solid rgba(255,255,255,0.04); transition:var(--transition);" onmouseover="this.style.transform='translateX(5px)';this.style.background='rgba(255,255,255,0.07)'" onmouseout="this.style.transform='none';this.style.background='rgba(255,255,255,0.03)'">
+                        <div style="width:36px;height:36px;border-radius:6px;background:rgba(0,163,224,0.12);color:var(--accent-cyan);display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;"><i class="fas fa-mobile-screen-button"></i></div>
+                        <span style="font-size:13px;font-weight:600;">Trámites en línea disponibles</span>
+                    </div>
+                </div>
+                <a href="#" class="btn btn-orange" style="align-self:flex-start;">VER SERVICIOS <i class="fas fa-arrow-right"></i></a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- MISIÓN Y VISIÓN -->
+<section class="mv-section-wrapper">
+    <div class="container mv-section-inner">
+
+        <div class="mv-section-header reveal">
+            <div class="section-label">IDENTIDAD CORPORATIVA</div>
+            <h2>Nuestra <span>Razón de Ser</span></h2>
+            <div class="mv-divider"></div>
+        </div>
+
+        <div class="mv-cards-grid">
+
+            <div class="mv-item reveal delay-1">
+                <div class="mv-icon-wrap">
+                    <div class="mv-icon-circle">
+                        <i class="fas fa-bullseye mv-icon"></i>
+                    </div>
+                    <h2>Misión</h2>
+                </div>
+                <h3>Lo que hacemos hoy</h3>
+                <p>Prestar servicios portuarios y logísticos con excelencia, con mayores y mejores ventajas competitivas para nuestros usuarios y clientes; ofreciéndoles procesos eficientes, creados a la medida de sus necesidades.</p>
+            </div>
+
+            <div class="mv-item reveal delay-2">
+                <div class="mv-icon-wrap">
+                    <div class="mv-icon-circle" style="background:rgba(0,163,224,0.12); border-color:rgba(0,163,224,0.2);">
+                        <i class="fas fa-eye mv-icon" style="color:var(--accent-cyan);"></i>
+                    </div>
+                    <h2 style="color:var(--accent-cyan);">Visión</h2>
+                </div>
+                <h3>Hacia dónde vamos</h3>
+                <p>Ser la Terminal más importante en Colombia en prestación de servicios portuarios y logísticos, a través de una gran plataforma logística integrada por el transporte multimodal, que impulse el desarrollo de las diferentes regiones y actores del comercio exterior.</p>
+            </div>
+
+        </div>
+    </div>
+</section>
+
+<!-- PERMISOS OFICIALES + CERTIFICACIONES -->
+<section class="permits-section">
+    <div class="container">
+        <div class="permits-layout">
+            <div class="permits-text reveal-left">
+                <div class="section-label">RESPALDO LEGAL</div>
+                <h2>Cuenta con Permisos Oficiales</h2>
+                <p>Mardique opera bajo el más riguroso marco legal y regulatorio, con autorizaciones y permisos vigentes de las entidades competentes.</p>
+                <div class="permits-list">
+                    <div class="permit-item reveal delay-1">
+                        <div class="permit-num">1</div>
+                        <div>
+                            <h4>Concesión Portuaria</h4>
+                            <p>Otorgada por Cormagdalena para la operación de las facilidades fluviales y marítimas.</p>
+                        </div>
+                    </div>
+                    <div class="permit-item reveal delay-2">
+                        <div class="permit-num">2</div>
+                        <div>
+                            <h4>Licencia Ambiental</h4>
+                            <p>Otorgada por Cardique, garantizando estándares ambientales en todas las operaciones.</p>
+                        </div>
+                    </div>
+                    <div class="permit-item reveal delay-3">
+                        <div class="permit-num">3</div>
+                        <div>
+                            <h4>Autorización Ministerio de Minas</h4>
+                            <p>Para almacenamiento de crudos y combustibles líquidos derivados del petróleo.</p>
+                        </div>
+                    </div>
+                    <div class="permit-item reveal delay-4">
+                        <div class="permit-num">4</div>
+                        <div>
+                            <h4>Zona Franca Portuaria Especial — DIAN</h4>
+                            <p>Resolución 002639 — Abril de 2014. Beneficios tributarios y aduaneros para operaciones de comercio exterior.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="permits-certs reveal-right">
+                <div class="section-label">CALIDAD</div>
+                <h3>Certificaciones Vigentes</h3>
+                <div class="certs-grid">
+                    <div class="cert-card reveal delay-1">
+                        <div class="cert-badge">ISO<br>9001<br>2015</div>
+                        <h4>Gestión de Calidad</h4>
+                        <p>Sistema de gestión de calidad certificado por Bureau Veritas</p>
+                    </div>
+                    <div class="cert-card reveal delay-2">
+                        <div class="cert-badge">ISO<br>45001<br>2018</div>
+                        <h4>Seguridad y Salud</h4>
+                        <p>Gestión de seguridad y salud en el trabajo certificado internacionalmente</p>
+                    </div>
+                    <div class="cert-card reveal delay-3">
+                        <div class="cert-badge" style="font-size:8px;">OP<br>PORTUARIO<br>2021</div>
+                        <h4>Operador Portuario</h4>
+                        <p>Registro oficial como operador portuario — Mayo 2021</p>
+                    </div>
+                    <div class="cert-card reveal delay-4">
+                        <div class="cert-badge" style="font-size:8px;">ZONA<br>FRANCA<br>DIAN</div>
+                        <h4>Zona Franca</h4>
+                        <p>Portuaria especial otorgada por la DIAN desde 2014</p>
+                    </div>
+                </div>
+                <div style="margin-top: 20px; padding: 14px 18px; background: var(--text-light); border-radius: var(--radius); border: 1px solid var(--border-color); text-align: center;">
+                    <p style="font-size: 11.5px; color: #556b82; margin-bottom: 10px;">Reglamento técnico de operaciones</p>
+                    <a href="https://spmardique.com/wp-content/uploads/2024/01/REGLAMENTO_DE_CONDICIONES_TECNICO_DE_OPERACION.pdf" target="_blank" class="btn btn-dark" style="font-size: 11px; padding: 9px 18px;">VER REGLAMENTO <i class="fas fa-external-link-alt"></i></a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- CTA BAND -->
+<section class="cta-band reveal">
+    <div class="container">
+        <h2>¿Listo para trabajar con nosotros?</h2>
+        <p>Conozca todos los servicios que Mardique tiene disponibles para su operación.</p>
+        <div class="cta-buttons">
+            <a href="/servicios" class="btn btn-orange">CONOZCA NUESTROS SERVICIOS <i class="fas fa-arrow-right"></i></a>
+            <a href="/contacto" class="btn btn-outline">CONTÁCTENOS <i class="fas fa-phone-alt"></i></a>
+        </div>
+    </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+    <div class="container">
+        <div class="footer-grid">
+            <div>
+                <div class="footer-logo">
+                    <img src="/images/Logo.png" alt="Mardique">
+                </div>
+                <p class="footer-desc">Puerto multipropósito privado de uso público. Servicios portuarios y logísticos de excelencia en Cartagena, Colombia.</p>
+                <div class="social-icons">
+                    <a href="https://www.youtube.com/channel/UCaqN40lCIj_nm53aHPJEicQ" target="_blank"><i class="fab fa-youtube"></i></a>
+                    <a href="mailto:info@spmardique.com"><i class="fas fa-envelope"></i></a>
+                </div>
+            </div>
+            <div>
+                <p class="footer-title">Navegación</p>
+                <ul class="footer-links">
+                    <li><a href="/inicio">Inicio</a></li>
+                    <li><a href="/empresa">Empresa</a></li>
+                    <li><a href="/servicios">Servicios</a></li>
+                    <li><a href="/tramites-en-linea">Trámites en Línea</a></li>
+                    <li><a href="/galeria">Galería</a></li>
+                </ul>
+            </div>
+            <div>
+                <p class="footer-title">Contacto</p>
+                <ul class="contact-info">
+                    <li>
+                        <i class="fas fa-map-marker-alt"></i>
+                        <span>Carretera Antigua Vía Barú, Cl 7 Puerto 2, Corregimiento Santa Ana – Cartagena – Colombia</span>
+                    </li>
+                    <li>
+                        <i class="fas fa-envelope"></i>
+                        <span>info@spmardique.com</span>
+                    </li>
+                    <li>
+                        <i class="fas fa-clock"></i>
+                        <span>Operaciones 24/7</span>
+                    </li>
+                </ul>
+            </div>
+            <div>
+                <p class="footer-title">Certificaciones</p>
+                <div class="certs-container">
+                    <div class="cert-item">
+                        <div class="cert-circle">ISO<br>9001<br>2015</div>
+                        <p class="cert-text">Gestión de<br>Calidad</p>
+                    </div>
+                    <div class="cert-item">
+                        <div class="cert-circle">ISO<br>45001<br>2018</div>
+                        <p class="cert-text">Seguridad<br>Laboral</p>
+                    </div>
+                    <div class="cert-item">
+                        <div class="cert-circle" style="font-size:7.5px;">BUREAU<br>VERITAS</div>
+                        <p class="cert-text">Entidad<br>Certificadora</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <span>&copy; 2026 Sociedad Portuaria Mardique S.A. </a></span>
+            <div class="footer-bottom-links">
+                <a href="https://spmardique.com/wp-content/uploads/2024/01/REGLAMENTO_DE_CONDICIONES_TECNICO_DE_OPERACION.pdf" target="_blank">Reglamento Operativo</a>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<script>
+    /*<![CDATA[*/
+
+    document.addEventListener('DOMContentLoaded', function () {
+
+        /* 1 – SCROLL PROGRESS */
+        const bar = document.getElementById('scroll-progress');
+        window.addEventListener('scroll', () => {
+            bar.style.width = (window.scrollY / (document.documentElement.scrollHeight - window.innerHeight) * 100) + '%';
+        }, { passive: true });
+
+        /* 2 – HEADER SHRINK */
+        const hdr = document.getElementById('main-header');
+        window.addEventListener('scroll', () => hdr.classList.toggle('scrolled', window.scrollY > 60), { passive: true });
+
+        /* 3 – HERO PARALLAX */
+        const heroBg = document.getElementById('heroBg');
+        if (heroBg) {
+            window.addEventListener('scroll', () => {
+                if (window.scrollY < 700) heroBg.style.transform = 'translateY(' + (window.scrollY * 0.35) + 'px)';
+            }, { passive: true });
+        }
+
+        /* 4 – HERO LINE */
+        setTimeout(() => {
+            const line = document.getElementById('heroLine');
+            if (line) line.classList.add('animate');
+        }, 250);
+
+        /* 5 – PARTÍCULAS HERO */
+        const pc = document.getElementById('heroParticles');
+        if (pc) {
+            for (let i = 0; i < 12; i++) {
+                const el = document.createElement('div');
+                el.className = 'hero-particle';
+                const s = Math.random() * 90 + 20;
+                el.style.cssText = 'width:'+s+'px;height:'+s+'px;left:'+Math.random()*100+'%;top:'+Math.random()*100+'%;animation-duration:'+(Math.random()*6+5)+'s;animation-delay:'+(Math.random()*4)+'s;opacity:'+(Math.random()*0.2+0.05)+';';
+                pc.appendChild(el);
+            }
+        }
+
+        /* 6 – REVEAL ON SCROLL */
+        const io = new IntersectionObserver(entries => {
+            entries.forEach(e => {
+                if (e.isIntersecting) {
+                    e.target.classList.add('visible');
+                    io.unobserve(e.target);
+                }
+            });
+        }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+        document.querySelectorAll('.reveal, .reveal-left, .reveal-right').forEach(el => io.observe(el));
+
+        /* 7 – CONTADORES */
+        const co = new IntersectionObserver(entries => {
+            entries.forEach(e => {
+                if (!e.isIntersecting) return;
+                const tgt = parseInt(e.target.dataset.target);
+                const step = tgt / 50;
+                let cur = 0;
+                const t = setInterval(() => {
+                    cur += step;
+                    if (cur >= tgt) { e.target.textContent = tgt; clearInterval(t); }
+                    else e.target.textContent = Math.floor(cur);
+                }, 28);
+                co.unobserve(e.target);
+            });
+        }, { threshold: 0.5 });
+        document.querySelectorAll('.counter').forEach(c => co.observe(c));
+
+    });
+
+    /*]]>*/
+</script>
+
+</body>
+</html>

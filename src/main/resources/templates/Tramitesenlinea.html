@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trámites en Línea – Sociedad Portuaria Mardique</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-blue: #28648c; --primary-dark: #1b4562; --accent-gold: #f09a36;
+            --accent-cyan: #00a3e0; --bg-light: #f5f7fa; --text-light: #ffffff;
+            --text-muted: #94a3b8; --text-dark: #1e293b; --border-color: #e2e8f0;
+            --radius: 8px; --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; }
+        body { background: #fff; color: var(--text-dark); overflow-x: hidden; -webkit-font-smoothing: antialiased; }
+        a { text-decoration: none; color: inherit; } ul { list-style: none; }
+        .container { max-width: 1280px; margin: 0 auto; padding: 0 24px; width: 100%; }
+
+        /* SCROLL PROGRESS */
+        #scroll-progress { position: fixed; top: 0; left: 0; height: 3px; width: 0%; background: linear-gradient(90deg, var(--accent-gold), var(--accent-cyan)); z-index: 9999; transition: width 0.1s linear; }
+
+        /* BOTONES */
+        .btn { display: inline-flex; align-items: center; justify-content: center; padding: 12px 24px; font-size: 12.5px; font-weight: 700; border-radius: 6px; cursor: pointer; transition: var(--transition); text-transform: uppercase; letter-spacing: 0.5px; position: relative; overflow: hidden; z-index: 1; border: none; }
+        .btn::after { content: ''; position: absolute; top: 0; left: -100%; width: 50%; height: 100%; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.25), transparent); transform: skewX(-25deg); z-index: -1; }
+        .btn:hover::after { left: 150%; transition: 0.55s ease-in-out; }
+        .btn i { margin-left: 8px; font-size: 11px; transition: var(--transition); }
+        .btn:hover i { transform: translateX(4px); }
+        .btn-orange { background-color: var(--accent-gold); color: #fff; box-shadow: 0 4px 15px rgba(240,154,54,0.25); }
+        .btn-orange:hover { background-color: #d6852a; transform: translateY(-3px); box-shadow: 0 8px 20px rgba(240,154,54,0.4); }
+        .btn-outline-dark { background: transparent; color: var(--primary-dark); border: 2px solid var(--primary-dark); }
+        .btn-outline-dark:hover { background: var(--primary-dark); color: #fff; transform: translateY(-3px); }
+        .btn-outline-light { background: transparent; color: #fff; border: 1px solid rgba(255,255,255,0.6); }
+        .btn-outline-light:hover { background: #fff; color: var(--primary-blue); transform: translateY(-2px); }
+
+        /* HEADER */
+        header { background: var(--primary-dark); padding: 16px 0; position: sticky; top: 0; z-index: 500; box-shadow: 0 2px 20px rgba(0,0,0,0.15); transition: padding 0.3s ease; }
+        header.scrolled { padding: 11px 0; }
+        .header-content { display: flex; justify-content: space-between; align-items: center; }
+        .logo-box { display: flex; align-items: center; transition: var(--transition); }
+        .logo-box:hover { transform: scale(1.02); }
+        .logo-box img { height: 48px; width: auto; object-fit: contain; transition: height 0.3s ease; }
+        header.scrolled .logo-box img { height: 40px; width: auto; }
+        nav { flex: 1; display: flex; justify-content: center; padding-right: 20px; }
+        .nav-menu { display: flex; gap: 35px; align-items: center; }
+        .nav-menu li a { color: rgba(255,255,255,0.75); font-size: 12.5px; font-weight: 500; text-transform: uppercase; position: relative; padding: 8px 0; letter-spacing: 0.5px; transition: color 0.25s ease; }
+        .nav-menu li a::after { content: ''; position: absolute; bottom: 0; left: 0; width: 0; height: 2px; background: var(--accent-gold); transition: var(--transition); }
+        .nav-menu li.active a, .nav-menu li a:hover { color: #fff; font-weight: 600; }
+        .nav-menu li.active a::after, .nav-menu li a:hover::after { width: 100%; }
+        .nav-menu li a i { margin-left: 4px; font-size: 10px; vertical-align: middle; }
+        .header-contact-btn { background: var(--accent-gold); color: #fff; padding: 10px 22px; border-radius: 4px; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; transition: var(--transition); display: flex; align-items: center; gap: 8px; white-space: nowrap; }
+        .header-contact-btn:hover { background: #c9730e; transform: translateY(-2px); box-shadow: 0 4px 12px rgba(226,135,22,0.3); }
+
+        /* HERO */
+        .page-hero { position: relative; height: 420px; display: flex; align-items: flex-end; overflow: hidden; }
+        .page-hero-bg { position: absolute; top: -80px; left: 0; width: 100%; height: calc(100% + 80px); background-image: url('https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?auto=format&fit=crop&w=1600&q=80'); background-size: cover; background-position: center; z-index: 1; will-change: transform; }
+        .page-hero::before { content: ''; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(27,69,98,0.45) 0%, rgba(27,69,98,0.65) 45%, rgba(27,69,98,0.93) 100%); z-index: 2; }
+        .hero-particles { position: absolute; inset: 0; z-index: 2; overflow: hidden; pointer-events: none; }
+        .hero-particle { position: absolute; border-radius: 50%; background: rgba(240,154,54,0.12); animation: floatParticle linear infinite; }
+        @keyframes floatParticle { 0%,100%{transform:translateY(0) scale(1);opacity:.5} 50%{transform:translateY(-28px) scale(1.08);opacity:.2} }
+        .page-hero .container { position: relative; z-index: 3; padding-bottom: 52px; }
+        .page-hero-breadcrumb { display: flex; align-items: center; gap: 8px; margin-bottom: 14px; }
+        .page-hero-breadcrumb a { color: rgba(255,255,255,0.6); font-size: 12px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.4px; transition: color 0.2s; }
+        .page-hero-breadcrumb a:hover { color: var(--accent-gold); }
+        .page-hero-breadcrumb span { color: rgba(255,255,255,0.35); font-size: 10px; }
+        .page-hero-breadcrumb .current { color: rgba(255,255,255,0.9); font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.4px; }
+        .page-hero-title { font-size: 44px; font-weight: 300; color: #fff; letter-spacing: -0.5px; line-height: 1.1; }
+        .page-hero-title strong { font-weight: 800; color: var(--accent-gold); }
+        .page-hero-sub { color: rgba(255,255,255,0.7); font-size: 15px; margin-top: 12px; max-width: 520px; line-height: 1.6; }
+        .page-hero-line { width: 0; height: 3px; margin-top: 14px; background: linear-gradient(90deg, var(--accent-gold), var(--accent-cyan)); border-radius: 2px; transition: width 1s ease 0.4s; }
+        .page-hero-line.animate { width: 60px; }
+        .scroll-hint { position: absolute; bottom: 18px; left: 50%; transform: translateX(-50%); z-index: 4; display: flex; flex-direction: column; align-items: center; gap: 6px; color: rgba(255,255,255,0.45); font-size: 10px; letter-spacing: 1.5px; text-transform: uppercase; animation: bounceDown 2s ease infinite; }
+        .scroll-hint i { font-size: 15px; }
+        @keyframes bounceDown { 0%,100%{transform:translateX(-50%) translateY(0)} 50%{transform:translateX(-50%) translateY(6px)} }
+
+        /* SUB-NAV SERVICIO AL CLIENTE */
+        .sc-subnav { background: var(--primary-dark); position: sticky; top: 58px; z-index: 400; border-bottom: 1px solid rgba(255,255,255,0.06); box-shadow: 0 4px 20px rgba(0,0,0,0.18); }
+        .sc-subnav-inner { display: flex; overflow-x: auto; scrollbar-width: none; }
+        .sc-subnav-inner::-webkit-scrollbar { display: none; }
+        .snav-btn { display: flex; align-items: center; gap: 9px; padding: 16px 22px; color: rgba(255,255,255,0.5); font-size: 11.5px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; cursor: pointer; white-space: nowrap; border: none; box-shadow: inset 0 -2px 0 transparent; background: none; transition: color 0.25s, box-shadow 0.25s; flex-shrink: 0; }
+        .snav-btn i { font-size: 14px; }
+        .snav-btn:hover { color: rgba(255,255,255,0.85); }
+        .snav-btn.active { color: var(--accent-gold); box-shadow: inset 0 -2px 0 var(--accent-gold); }
+
+        /* REVEAL */
+        .reveal { opacity: 0; transform: translateY(32px); transition: opacity 0.65s cubic-bezier(0.4,0,0.2,1), transform 0.65s cubic-bezier(0.4,0,0.2,1); }
+        .reveal.visible { opacity: 1; transform: none; }
+        .delay-1{transition-delay:.1s} .delay-2{transition-delay:.2s} .delay-3{transition-delay:.3s} .delay-4{transition-delay:.4s}
+
+        /* INTRO STRIP */
+        .intro-strip { background: var(--bg-light); padding: 40px 0; border-bottom: 1px solid var(--border-color); }
+        .intro-strip .container { display: flex; align-items: center; gap: 40px; }
+        .intro-icon-box { width: 72px; height: 72px; border-radius: 50%; background: linear-gradient(135deg, var(--primary-blue), var(--accent-cyan)); display: flex; align-items: center; justify-content: center; flex-shrink: 0; box-shadow: 0 8px 24px rgba(40,100,140,0.25); }
+        .intro-icon-box i { font-size: 30px; color: #fff; }
+        .intro-text h2 { font-size: 22px; font-weight: 800; color: var(--primary-dark); margin-bottom: 6px; }
+        .intro-text p { font-size: 14px; color: #556b82; line-height: 1.65; }
+
+        /* SECTION */
+        .section-block { padding: 56px 0; }
+        .section-bg-light { background: var(--bg-light); }
+        .section-header { margin-bottom: 36px; }
+        .section-label { color: var(--primary-blue); font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; display: block; margin-bottom: 8px; }
+        .section-title { font-size: 28px; color: var(--primary-dark); font-weight: 800; }
+        .section-line { width: 50px; height: 3px; background: linear-gradient(90deg, var(--accent-gold), var(--accent-cyan)); margin-top: 12px; border-radius: 2px; }
+
+        /* FORMATO CARDS */
+        .formats-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 20px; }
+        .format-card { background: #fff; border-radius: var(--radius); border: 1px solid var(--border-color); padding: 28px; transition: var(--transition); position: relative; overflow: hidden; box-shadow: 0 4px 14px rgba(0,0,0,0.04); }
+        .format-card::before { content: ''; position: absolute; top: 0; left: 0; width: 4px; height: 100%; background: linear-gradient(180deg, var(--accent-gold), var(--accent-cyan)); border-radius: 4px 0 0 4px; transform: scaleY(0); transform-origin: bottom; transition: transform 0.35s ease; }
+        .format-card:hover { transform: translateY(-5px); box-shadow: 0 16px 40px rgba(27,69,98,0.1); border-color: transparent; }
+        .format-card:hover::before { transform: scaleY(1); }
+        .format-card-icon { width: 48px; height: 48px; border-radius: 10px; background: rgba(40,100,140,0.07); color: var(--primary-blue); font-size: 20px; display: flex; align-items: center; justify-content: center; margin-bottom: 16px; transition: var(--transition); }
+        .format-card:hover .format-card-icon { background: var(--primary-blue); color: #fff; transform: rotate(-8deg); }
+        .format-card h3 { font-size: 15.5px; font-weight: 700; color: var(--primary-dark); margin-bottom: 8px; }
+        .format-card p { font-size: 13px; color: #6b7f96; line-height: 1.6; margin-bottom: 20px; }
+        .format-card .email-hint { display: flex; align-items: center; gap: 8px; background: rgba(0,163,224,0.06); border-radius: 6px; padding: 8px 12px; margin-bottom: 16px; font-size: 12px; color: #556b82; }
+        .format-card .email-hint i { color: var(--accent-cyan); font-size: 13px; flex-shrink: 0; }
+        .format-card .email-hint a { color: var(--primary-blue); font-weight: 600; word-break: break-all; transition: color 0.2s; }
+        .format-card .email-hint a:hover { color: var(--accent-gold); }
+        .download-btn { display: inline-flex; align-items: center; gap: 8px; background: var(--accent-gold); color: #fff; padding: 9px 18px; border-radius: 6px; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.4px; transition: var(--transition); }
+        .download-btn:hover { background: #d6852a; transform: translateY(-2px); box-shadow: 0 6px 16px rgba(240,154,54,0.35); }
+        .download-btn i { font-size: 13px; }
+
+        /* CATEGORÍA HEADING */
+        .cat-heading { display: flex; align-items: center; gap: 16px; margin-bottom: 24px; }
+        .cat-heading-icon { width: 40px; height: 40px; border-radius: 8px; background: var(--primary-dark); color: var(--accent-gold); display: flex; align-items: center; justify-content: center; font-size: 16px; flex-shrink: 0; }
+        .cat-heading h2 { font-size: 20px; font-weight: 800; color: var(--primary-dark); }
+        .cat-heading .cat-line { flex: 1; height: 1px; background: linear-gradient(90deg, var(--border-color), transparent); }
+
+        /* NOTA DE PROCESO */
+        .process-note { background: linear-gradient(135deg, var(--primary-dark), #0d2a42); border-radius: var(--radius); padding: 32px 40px; color: #fff; display: flex; align-items: center; gap: 32px; margin-bottom: 48px; position: relative; overflow: hidden; box-shadow: 0 12px 32px rgba(27,69,98,0.2); }
+        .process-note::before { content: ''; position: absolute; inset: 0; background-image: linear-gradient(rgba(0,163,224,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(0,163,224,0.04) 1px, transparent 1px); background-size: 40px 40px; animation: gridShift 20s linear infinite; pointer-events: none; }
+        @keyframes gridShift { from{background-position:0 0} to{background-position:40px 40px} }
+        .process-note-icon { font-size: 42px; flex-shrink: 0; color: var(--accent-gold); position: relative; z-index: 1; }
+        .process-note-text { position: relative; z-index: 1; }
+        .process-note-text h3 { font-size: 18px; font-weight: 800; margin-bottom: 8px; }
+        .process-note-text p { font-size: 13.5px; color: rgba(255,255,255,0.8); line-height: 1.65; }
+
+        /* STEPS */
+        .steps-row { display: flex; gap: 0; margin-bottom: 48px; position: relative; }
+        .steps-row::before { content: ''; position: absolute; top: 28px; left: 28px; right: 28px; height: 2px; background: linear-gradient(90deg, var(--accent-gold), var(--accent-cyan)); z-index: 0; }
+        .step-item { flex: 1; text-align: center; position: relative; z-index: 1; padding: 0 12px; }
+        .step-num { width: 56px; height: 56px; border-radius: 50%; background: var(--primary-dark); color: var(--accent-gold); font-size: 18px; font-weight: 800; display: flex; align-items: center; justify-content: center; margin: 0 auto 14px; border: 3px solid var(--accent-gold); box-shadow: 0 0 0 6px #fff; transition: var(--transition); }
+        .step-item:hover .step-num { background: var(--accent-gold); color: #fff; transform: scale(1.08); }
+        .step-item h4 { font-size: 13.5px; font-weight: 700; color: var(--primary-dark); margin-bottom: 6px; }
+        .step-item p { font-size: 12px; color: #6b7f96; line-height: 1.5; }
+
+        /* CTA */
+        .cta-band { background: linear-gradient(135deg, var(--primary-dark) 0%, #0f2c42 100%); padding: 64px 0; text-align: center; position: relative; overflow: hidden; }
+        .cta-band::after { content: ''; position: absolute; bottom: -40px; right: -60px; width: 300px; height: 300px; border-radius: 50%; background: rgba(240,154,54,0.06); pointer-events: none; }
+        .cta-band h2 { font-size: 34px; color: white; font-weight: 800; margin-bottom: 12px; }
+        .cta-band p { color: rgba(255,255,255,0.7); font-size: 15px; margin-bottom: 32px; }
+        .cta-buttons { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; }
+
+        /* FOOTER */
+        footer { background: var(--primary-dark); padding: 64px 0 20px 0; font-size: 13px; color: var(--text-muted); }
+        .footer-grid { display: grid; grid-template-columns: 1.8fr 0.9fr 1.6fr 1.5fr; gap: 32px; margin-bottom: 40px; }
+        .footer-logo { background: rgba(255,255,255,0.95); padding: 5px 12px; border-radius: 6px; display: inline-flex; align-items: center; margin-bottom: 16px; }
+        .footer-logo img { height: 32px; object-fit: contain; }
+        .footer-desc { margin-bottom: 20px; line-height: 1.5; font-size: 12.5px; }
+        .social-icons { display: flex; gap: 10px; }
+        .social-icons a { display: flex; align-items: center; justify-content: center; width: 32px; height: 32px; border: 1px solid rgba(148,163,184,0.25); border-radius: 50%; color: var(--text-muted); transition: var(--transition); }
+        .social-icons a:hover { color: #fff; border-color: #fff; background: rgba(255,255,255,0.05); transform: translateY(-2px); }
+        .footer-title { color: #fff; font-size: 13.5px; font-weight: 600; margin-bottom: 20px; text-transform: uppercase; }
+        .footer-links li { margin-bottom: 10px; }
+        .footer-links a { transition: var(--transition); font-size: 12.5px; }
+        .footer-links a:hover { color: var(--accent-gold); padding-left: 3px; }
+        .contact-info li { display: flex; gap: 10px; margin-bottom: 12px; align-items: flex-start; font-size: 12.5px; }
+        .contact-info i { margin-top: 3px; font-size: 13px; color: #fff; }
+        .certs-container { display: flex; gap: 12px; }
+        .cert-item { text-align: center; flex: 1; }
+        .cert-circle { width: 50px; height: 50px; border: 1px solid rgba(148,163,184,0.3); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 8px auto; font-size: 8.5px; font-weight: 800; color: #fff; background: rgba(255,255,255,0.02); transition: var(--transition); }
+        .cert-item:hover .cert-circle { border-color: var(--accent-cyan); box-shadow: 0 0 10px rgba(0,163,224,0.4); transform: scale(1.05); }
+        .cert-text { font-size: 9.5px; line-height: 1.2; }
+        .footer-bottom { border-top: 1px solid rgba(255,255,255,0.06); padding-top: 20px; display: flex; justify-content: space-between; font-size: 11.5px; }
+        .footer-bottom-links a { margin-left: 16px; transition: var(--transition); }
+        .footer-bottom-links a:hover { color: #fff; }
+
+        /* RESPONSIVE */
+        @media (max-width: 768px) {
+            .nav-menu, nav, .header-contact-btn { display: none; }
+            .page-hero-title { font-size: 32px; }
+            .footer-grid { grid-template-columns: 1fr; }
+            .formats-grid { grid-template-columns: 1fr; }
+            .steps-row { flex-direction: column; gap: 24px; }
+            .steps-row::before { display: none; }
+            .process-note { flex-direction: column; text-align: center; padding: 28px 20px; }
+            .intro-strip .container { flex-direction: column; text-align: center; }
+            .sc-subnav { display: none; }
+        }
+    </style>
+</head>
+<body>
+<div id="scroll-progress"></div>
+
+<header id="main-header">
+    <div class="container header-content">
+        <a href="/inicio" class="logo-box">
+            <img src="/images/Logo.png" alt="Sociedad Portuaria Mardique">
+        </a>
+        <nav>
+            <ul class="nav-menu">
+                <li><a href="/inicio">INICIO</a></li>
+                <li><a href="/empresa">EMPRESA</a></li>
+                <li><a href="/servicios">SERVICIOS</a></li>
+                <li class="active"><a href="/tramites-en-linea">SERVICIO AL CLIENTE <i class="fas fa-chevron-down"></i></a></li>
+                <li><a href="/contacto">CONTACTO</a></li>
+                <li><a href="/galeria">GALERÍA</a></li>
+                </ul>
+        </nav>
+        <a href="/contacto" class="header-contact-btn">CONTÁCTANOS <i class="fas fa-phone-alt"></i></a>
+    </div>
+</header>
+
+<!-- HERO -->
+<section class="page-hero" id="hero">
+    <div class="page-hero-bg" id="heroBg"></div>
+    <div class="hero-particles" id="heroParticles"></div>
+    <div class="container">
+        <div class="page-hero-breadcrumb">
+            <a href="/inicio">INICIO</a>
+            <span>›</span>
+            <a href="/tramites-en-linea">SERVICIO AL CLIENTE</a>
+            <span>›</span>
+            <span class="current">TRÁMITES EN LÍNEA</span>
+        </div>
+        <h1 class="page-hero-title">Trámites <strong>en Línea</strong></h1>
+        <p class="page-hero-sub">Descargue y diligencie los formatos requeridos para iniciar sus operaciones con nosotros de manera ágil y segura.</p>
+        <div class="page-hero-line" id="heroLine"></div>
+    </div>
+    <div class="scroll-hint"><i class="fas fa-chevron-down"></i><span>Explorar</span></div>
+</section>
+
+<!-- SUB-NAV -->
+<nav class="sc-subnav" id="scSubnav">
+    <div class="container">
+        <div class="sc-subnav-inner">
+            <a href="/tramites-en-linea" class="snav-btn active"><i class="fas fa-file-alt"></i> Trámites en Línea</a>
+            <a href="/procedimientos" class="snav-btn"><i class="fas fa-clipboard-list"></i> Procedimientos</a>
+            <a href="/tarifas" class="snav-btn"><i class="fas fa-tags"></i> Tarifas</a>
+        </div>
+    </div>
+</nav>
+
+<!-- INTRO STRIP -->
+<div class="intro-strip reveal">
+    <div class="container">
+        <div class="intro-icon-box"><i class="fas fa-laptop-file"></i></div>
+        <div class="intro-text">
+            <h2>Formatos digitales para su gestión portuaria</h2>
+            <p>Con los trámites en línea, facilitamos la manera de realizar solicitudes de servicio, brindando respuesta oportuna y realizando la programación de los mismos. Descargue los formatos según su perfil.</p>
+        </div>
+    </div>
+</div>
+
+<!-- PROCESO -->
+<div class="section-block">
+    <div class="container">
+        <div class="process-note reveal">
+            <i class="fas fa-info-circle process-note-icon"></i>
+            <div class="process-note-text">
+                <h3>¿Cómo usar estos formatos?</h3>
+                <p>Descargue el formato correspondiente a su tipo de operación, diligencie todos los campos requeridos y envíelo al correo electrónico indicado en cada formulario. Nuestro equipo le responderá para programar y confirmar su servicio.</p>
+            </div>
+        </div>
+
+        <div class="steps-row reveal">
+            <div class="step-item">
+                <div class="step-num">1</div>
+                <h4>Descargue el formato</h4>
+                <p>Identifique el formulario según su categoría de operación.</p>
+            </div>
+            <div class="step-item">
+                <div class="step-num">2</div>
+                <h4>Diligencie el documento</h4>
+                <p>Complete todos los campos requeridos con información precisa.</p>
+            </div>
+            <div class="step-item">
+                <div class="step-num">3</div>
+                <h4>Envíe al correo indicado</h4>
+                <p>Remita el formato al correo especificado en cada sección.</p>
+            </div>
+            <div class="step-item">
+                <div class="step-num">4</div>
+                <h4>Reciba confirmación</h4>
+                <p>Nuestro equipo programará y confirmará su operación.</p>
+            </div>
+        </div>
+
+        <!-- CATEGORÍA 1: Clientes y Proveedores -->
+        <div class="cat-heading reveal">
+            <div class="cat-heading-icon"><i class="fas fa-users"></i></div>
+            <h2>Inscripción de Clientes y Proveedores</h2>
+            <div class="cat-line"></div>
+        </div>
+
+        <div class="formats-grid">
+            <div class="format-card reveal delay-1">
+                <div class="format-card-icon"><i class="fas fa-user-plus"></i></div>
+                <h3>Inscripción de Clientes</h3>
+                <p>Formato único de inscripción para usuarios nuevos que desean iniciar operaciones con la Sociedad Portuaria Mardique.</p>
+                <div class="email-hint">
+                    <i class="fas fa-envelope"></i>
+                    <span>Enviar a: <a href="mailto:proteccion@spmardique.com">proteccion@spmardique.com</a></span>
+                </div>
+                <a href="https://spmardique.com/wp-content/uploads/2022/11/FT-GC-SPM-001-Formato-unico-de-inscripcion-de-usuarios-2022.xlsx" class="download-btn"><i class="fas fa-download"></i> Descargar Formato</a>
+            </div>
+
+            <div class="format-card reveal delay-2">
+                <div class="format-card-icon"><i class="fas fa-shield-alt"></i></div>
+                <h3>Declaración Prevención LAFT</h3>
+                <p>Declaración de prevención de lavado de activos y financiación del terrorismo requerida para todos los usuarios.</p>
+                <div class="email-hint">
+                    <i class="fas fa-envelope"></i>
+                    <span>Enviar a: <a href="mailto:proteccion@spmardique.com">proteccion@spmardique.com</a></span>
+                </div>
+                <a href="https://spmardique.com/wp-content/uploads/2022/01/FT-GC-SPM-12-Declaración-preven.-LAFT-MARDIQUE.xlsx" class="download-btn"><i class="fas fa-download"></i> Descargar Formato</a>
+            </div>
+
+            <div class="format-card reveal delay-3">
+                <div class="format-card-icon"><i class="fas fa-certificate"></i></div>
+                <h3>Certificación Prevención LAFT</h3>
+                <p>Certificación formal de cumplimiento con las normas de prevención anti-lavado requerida por la entidad.</p>
+                <div class="email-hint">
+                    <i class="fas fa-envelope"></i>
+                    <span>Enviar a: <a href="mailto:proteccion@spmardique.com">proteccion@spmardique.com</a></span>
+                </div>
+                <a href="https://spmardique.com/wp-content/uploads/2022/01/FT-GC-SPM-11-Certificación-preven-MARDIQUE.-LAFT.xlsx" class="download-btn"><i class="fas fa-download"></i> Descargar Formato</a>
+            </div>
+
+            <div class="format-card reveal delay-4">
+                <div class="format-card-icon"><i class="fas fa-handshake"></i></div>
+                <h3>Acuerdo de Seguridad — Asociado de Negocio</h3>
+                <p>Acuerdo formal de seguridad portuaria que deben suscribir todos los asociados de negocio.</p>
+                <div class="email-hint">
+                    <i class="fas fa-envelope"></i>
+                    <span>Enviar a: <a href="mailto:proteccion@spmardique.com">proteccion@spmardique.com</a></span>
+                </div>
+                <a href="https://spmardique.com/wp-content/uploads/2022/11/FT-GPM-SPM-022-Acuerdo-de-seguridad-asociado-de-negocio.docx" class="download-btn"><i class="fas fa-download"></i> Descargar Formato</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- CATEGORÍA 2: Importadores / Exportadores -->
+<div class="section-block section-bg-light">
+    <div class="container">
+        <div class="cat-heading reveal">
+            <div class="cat-heading-icon"><i class="fas fa-ship"></i></div>
+            <h2>Importadores, Exportadores y Agencias de Aduana</h2>
+            <div class="cat-line"></div>
+        </div>
+
+        <div class="formats-grid">
+            <div class="format-card reveal delay-1">
+                <div class="format-card-icon"><i class="fas fa-calendar-check"></i></div>
+                <h3>Solicitudes Programables</h3>
+                <p>Formato para solicitar servicios programables de cargue, descargue y demás operaciones portuarias con anticipación.</p>
+                <div class="email-hint">
+                    <i class="fas fa-envelope"></i>
+                    <span>Enviar a: <a href="mailto:operaciones@spmardique.com">operaciones@spmardique.com</a></span>
+                </div>
+                <a href="https://spmardique.com/wp-content/uploads/2022/03/FT-GDA-SPM-002-Solicitudes-programables-15-03-2022.xlsx" class="download-btn"><i class="fas fa-download"></i> Descargar Formato</a>
+            </div>
+
+            <div class="format-card reveal delay-2">
+                <div class="format-card-icon"><i class="fas fa-boxes"></i></div>
+                <h3>Solicitud de Embarque</h3>
+                <p>Formato oficial para solicitar la programación de embarques de carga en los muelles de la Sociedad Portuaria Mardique.</p>
+                <div class="email-hint">
+                    <i class="fas fa-envelope"></i>
+                    <span>Enviar a: <a href="mailto:operaciones@spmardique.com">operaciones@spmardique.com</a></span>
+                </div>
+                <a href="https://spmardique.com/wp-content/uploads/2021/12/FT-GDA-SPM-003-Formato-solicitud-embarque.xlsx" class="download-btn"><i class="fas fa-download"></i> Descargar Formato</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- CATEGORÍA 3: Agencia Marítima -->
+<div class="section-block">
+    <div class="container">
+        <div class="cat-heading reveal">
+            <div class="cat-heading-icon"><i class="fas fa-anchor"></i></div>
+            <h2>Agencia Marítima</h2>
+            <div class="cat-line"></div>
+        </div>
+
+        <div class="formats-grid">
+            <div class="format-card reveal delay-1">
+                <div class="format-card-icon"><i class="fas fa-clipboard"></i></div>
+                <h3>Formato Booking</h3>
+                <p>Formato para realizar la reserva (booking) de espacios en los servicios marítimos y fluviales de Mardique.</p>
+                <div class="email-hint">
+                    <i class="fas fa-envelope"></i>
+                    <span>Enviar a: <a href="mailto:maritimo@spmardique.com">maritimo@spmardique.com</a></span>
+                </div>
+                <a href="https://spmardique.com/wp-content/uploads/2021/12/FT-GDA-SPM-005-Formato-booking-Mardique.xlsx" class="download-btn"><i class="fas fa-download"></i> Descargar Formato</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- CATEGORÍA 4: Autorización Ingreso/Salida -->
+<div class="section-block section-bg-light">
+    <div class="container">
+        <div class="cat-heading reveal">
+            <div class="cat-heading-icon"><i class="fas fa-id-card"></i></div>
+            <h2>Autorización de Ingreso y Salida de Personal, Materiales y Vehículos</h2>
+            <div class="cat-line"></div>
+        </div>
+
+        <div class="formats-grid">
+            <div class="format-card reveal delay-1">
+                <div class="format-card-icon"><i class="fas fa-door-open"></i></div>
+                <h3>Autorización de Ingreso y Salida</h3>
+                <p>Formato para solicitar acceso autorizado de personal, vehículos y materiales a las instalaciones portuarias.</p>
+                <div class="email-hint">
+                    <i class="fas fa-envelope"></i>
+                    <span>Enviar a: <a href="mailto:seguridad@spmardique.com">seguridad@spmardique.com</a> con copia a <a href="mailto:proteccion@spmardique.com">proteccion@spmardique.com</a></span>
+                </div>
+                <a href="https://spmardique.com/wp-content/uploads/2023/01/FT-GPM-SPM-010-Autorizacion-de-ingreso-y-salida-12-01-2022.xls" class="download-btn"><i class="fas fa-download"></i> Descargar Formato</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- CTA -->
+<section class="cta-band reveal">
+    <div class="container">
+        <h2>¿Necesita orientación con los trámites?</h2>
+        <p>Nuestro equipo de servicio al cliente está disponible para guiarle en cada paso del proceso.</p>
+        <div class="cta-buttons">
+            <a href="/procedimientos" class="btn btn-orange">Ver Procedimientos <i class="fas fa-arrow-right"></i></a>
+            <a href="/contacto" class="btn btn-outline-light">Contáctenos <i class="fas fa-phone-alt"></i></a>
+        </div>
+    </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+    <div class="container">
+        <div class="footer-grid">
+            <div>
+                <div class="footer-logo"><img src="/images/Logo.png" alt="Mardique Logo"></div>
+                <p class="footer-desc">Puerto multipropósito privado de uso público con servicios portuarios y de infraestructura para el desarrollo del país.</p>
+                <div class="social-icons">
+                    <a href="https://www.youtube.com/channel/UCaqN40lCIj_nm53aHPJEicQ" target="_blank"><i class="fab fa-youtube"></i></a>
+                    <a href="mailto:info@spmardique.com"><i class="fas fa-envelope"></i></a>
+                </div>
+            </div>
+            <div>
+                <h4 class="footer-title">ENLACES RÁPIDOS</h4>
+                <ul class="footer-links">
+                    <li><a href="/inicio">Inicio</a></li>
+                    <li><a href="/empresa">Empresa</a></li>
+                    <li><a href="/servicios">Servicios</a></li>
+                    <li><a href="/tramites-en-linea">Servicio al Cliente</a></li>
+                    <li><a href="/contacto">Contacto</a></li>
+                    <li><a href="/galeria">Galería</a></li>
+                </ul>
+            </div>
+            <div>
+                <div style="display:flex;gap:30px;">
+                    <div>
+                        <h4 class="footer-title">SERVICIO AL CLIENTE</h4>
+                        <ul class="footer-links">
+                            <li><a href="/tramites-en-linea">Trámites en Línea</a></li>
+                            <li><a href="/procedimientos">Procedimientos</a></li>
+                            <li><a href="/tarifas">Tarifas</a></li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h4 class="footer-title">CONTÁCTANOS</h4>
+                        <ul class="contact-info">
+                            <li><i class="fa-solid fa-location-dot"></i><span>Carretera Antigua Vía Barú, Cartagena</span></li>
+                            <li><i class="fa-solid fa-phone"></i><span>PBX: (57) (5) 669 0730</span></li>
+                            <li><i class="fa-solid fa-envelope"></i><span>info@spmardique.com</span></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div>
+                <h4 class="footer-title">CERTIFICACIONES</h4>
+                <div class="certs-container">
+                    <div class="cert-item"><div class="cert-circle">ISO<br>9001</div><p class="cert-text">Calidad</p></div>
+                    <div class="cert-item"><div class="cert-circle">ISO<br>45001</div><p class="cert-text">Seguridad</p></div>
+                    <div class="cert-item"><div class="cert-circle" style="font-size:7px;">ZONA<br>FRANCA<br>DIAN</div><p class="cert-text">Z. Franca</p></div>
+                </div>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <span>&copy; 2026 Sociedad Portuaria Mardique S.A. </a></span>
+            <div class="footer-bottom-links">
+                <a href="https://spmardique.com/wp-content/uploads/2024/01/REGLAMENTO_DE_CONDICIONES_TECNICO_DE_OPERACION.pdf" target="_blank">Reglamento Operativo</a>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<script>
+/*<![CDATA[*/
+
+    document.addEventListener('DOMContentLoaded', function () {
+        const bar = document.getElementById('scroll-progress');
+        window.addEventListener('scroll', () => {
+            bar.style.width = (window.scrollY / (document.documentElement.scrollHeight - window.innerHeight) * 100) + '%';
+        }, { passive: true });
+
+        const hdr = document.getElementById('main-header');
+        window.addEventListener('scroll', () => hdr.classList.toggle('scrolled', window.scrollY > 60), { passive: true });
+
+        const bg = document.getElementById('heroBg');
+        window.addEventListener('scroll', () => {
+            if (window.scrollY < 700) bg.style.transform = 'translateY(' + (window.scrollY * 0.35) + 'px)';
+        }, { passive: true });
+
+        setTimeout(() => document.getElementById('heroLine').classList.add('animate'), 250);
+
+        const pc = document.getElementById('heroParticles');
+        for (let i = 0; i < 12; i++) {
+            const el = document.createElement('div'); el.className = 'hero-particle';
+            const s = Math.random() * 90 + 20;
+            el.style.cssText = 'width:'+s+'px;height:'+s+'px;left:'+Math.random()*100+'%;top:'+Math.random()*100+'%;animation-duration:'+(Math.random()*6+5)+'s;animation-delay:'+(Math.random()*4)+'s;opacity:'+(Math.random()*0.2+0.05)+';';
+            pc.appendChild(el);
+        }
+
+        const io = new IntersectionObserver(entries => {
+            entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); io.unobserve(e.target); } });
+        }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+        document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+    });
+
+/*]]>*/
+</script>
+</body>
+</html>

@@ -1,0 +1,1126 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contacto – Sociedad Portuaria Mardique</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-blue: #28648c; --primary-dark: #1b4562; --accent-gold: #f09a36;
+            --accent-cyan: #00a3e0; --bg-light: #f5f7fa; --text-light: #ffffff;
+            --text-muted: #94a3b8; --text-dark: #1e293b; --border-color: #e2e8f0;
+            --radius: 8px; --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; }
+        body { background: #fff; color: var(--text-dark); overflow-x: hidden; -webkit-font-smoothing: antialiased; }
+        a { text-decoration: none; color: inherit; } ul { list-style: none; }
+        .container { max-width: 1280px; margin: 0 auto; padding: 0 24px; width: 100%; }
+
+        /* SCROLL PROGRESS */
+        #scroll-progress { position: fixed; top: 0; left: 0; height: 3px; width: 0%; background: linear-gradient(90deg, var(--accent-gold), var(--accent-cyan)); z-index: 9999; transition: width 0.1s linear; }
+
+        /* BOTONES */
+        .btn { display: inline-flex; align-items: center; justify-content: center; padding: 12px 24px; font-size: 12.5px; font-weight: 700; border-radius: 6px; cursor: pointer; transition: var(--transition); text-transform: uppercase; letter-spacing: 0.5px; position: relative; overflow: hidden; z-index: 1; border: none; }
+        .btn::after { content: ''; position: absolute; top: 0; left: -100%; width: 50%; height: 100%; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.25), transparent); transform: skewX(-25deg); z-index: -1; }
+        .btn:hover::after { left: 150%; transition: 0.55s ease-in-out; }
+        .btn i { margin-left: 8px; font-size: 11px; transition: var(--transition); }
+        .btn:hover i { transform: translateX(4px); }
+        .btn-orange { background-color: var(--accent-gold); color: #fff; box-shadow: 0 4px 15px rgba(240,154,54,0.25); }
+        .btn-orange:hover { background-color: #d6852a; transform: translateY(-3px); box-shadow: 0 8px 20px rgba(240,154,54,0.4); }
+        .btn-outline-light { background: transparent; color: #fff; border: 1px solid rgba(255,255,255,0.6); }
+        .btn-outline-light:hover { background: #fff; color: var(--primary-blue); transform: translateY(-2px); }
+
+        /* HEADER STICKY */
+        header { background: var(--primary-dark); padding: 16px 0; position: sticky; top: 0; z-index: 500; box-shadow: 0 2px 20px rgba(0,0,0,0.15); transition: padding 0.3s ease; }
+        header.scrolled { padding: 11px 0; }
+        .header-content { display: flex; justify-content: space-between; align-items: center; }
+        .logo-box { display: flex; align-items: center; background: transparent; padding: 0; transition: var(--transition); }
+        .logo-box:hover { transform: scale(1.02); }
+        .logo-box img { height: 48px; width: auto; object-fit: contain; transition: height 0.3s ease; }
+        header.scrolled .logo-box img { height: 40px; width: auto; }
+        nav { flex: 1; display: flex; justify-content: center; padding-right: 20px; }
+        .nav-menu { display: flex; gap: 35px; align-items: center; }
+        .nav-menu li a { color: rgba(255,255,255,0.75); font-size: 12.5px; font-weight: 500; text-transform: uppercase; position: relative; padding: 8px 0; letter-spacing: 0.5px; transition: color 0.25s ease; }
+        .nav-menu li a::after { content: ''; position: absolute; bottom: 0; left: 0; width: 0; height: 2px; background: var(--accent-gold); transition: var(--transition); }
+        .nav-menu li.active a, .nav-menu li a:hover { color: #fff; font-weight: 600; }
+        .nav-menu li.active a::after, .nav-menu li a:hover::after { width: 100%; }
+        .nav-menu li a i { margin-left: 4px; font-size: 10px; vertical-align: middle; }
+        .header-contact-btn { background: var(--accent-gold); color: #fff; padding: 10px 22px; border-radius: 4px; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; transition: var(--transition); display: flex; align-items: center; gap: 8px; white-space: nowrap; }
+        .header-contact-btn:hover { background: #c9730e; transform: translateY(-2px); box-shadow: 0 4px 12px rgba(226,135,22,0.3); }
+
+        /* ─── HERO CON IMAGEN DE FONDO ─── */
+        .page-hero {
+            position: relative;
+            height: 420px;
+            display: flex;
+            align-items: flex-end;
+            overflow: hidden;
+        }
+        /* Imagen de fondo */
+        .page-hero-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+            background-image: url('/images/contacto.png');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            will-change: transform;
+        }
+        /* Overlay oscuro para mejorar legibilidad del texto */
+        .page-hero-bg::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, rgba(13,42,66,0.75) 0%, rgba(27,69,98,0.7) 40%, rgba(10,30,50,0.85) 100%);
+            z-index: 1;
+        }
+        /* Overlay adicional para degradado inferior */
+        .page-hero::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(180deg, rgba(27,69,98,0.2) 0%, rgba(27,69,98,0.4) 60%, rgba(27,69,98,0.92) 100%);
+            z-index: 2;
+        }
+        /* Partículas flotantes */
+        .hero-particles {
+            position: absolute;
+            inset: 0;
+            z-index: 2;
+            overflow: hidden;
+            pointer-events: none;
+        }
+        .hero-particle {
+            position: absolute;
+            border-radius: 50%;
+            background: rgba(240,154,54,0.12);
+            animation: floatParticle linear infinite;
+        }
+        @keyframes floatParticle {
+            0%,100%{transform:translateY(0) scale(1);opacity:.5}
+            50%{transform:translateY(-28px) scale(1.08);opacity:.2}
+        }
+
+        .page-hero .container {
+            position: relative;
+            z-index: 3;
+            padding-bottom: 52px;
+        }
+        .page-hero-breadcrumb {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 14px;
+        }
+        .page-hero-breadcrumb a {
+            color: rgba(255,255,255,0.6);
+            font-size: 12px;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.4px;
+            transition: color 0.2s;
+        }
+        .page-hero-breadcrumb a:hover { color: var(--accent-gold); }
+        .page-hero-breadcrumb span { color: rgba(255,255,255,0.35); font-size: 10px; }
+        .page-hero-breadcrumb .current {
+            color: rgba(255,255,255,0.9);
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.4px;
+        }
+        .page-hero-title {
+            font-size: 44px;
+            font-weight: 300;
+            color: #fff;
+            letter-spacing: -0.5px;
+            line-height: 1.1;
+            animation: fadeInUp 0.7s ease 0.1s both;
+        }
+        .page-hero-title strong { font-weight: 800; color: var(--accent-gold); }
+        .page-hero-sub {
+            color: rgba(255,255,255,0.7);
+            font-size: 15px;
+            margin-top: 12px;
+            max-width: 500px;
+            line-height: 1.55;
+            animation: fadeInUp 0.7s ease 0.25s both;
+        }
+        .page-hero-line {
+            width: 0;
+            height: 3px;
+            margin-top: 16px;
+            background: linear-gradient(90deg, var(--accent-gold), var(--accent-cyan));
+            border-radius: 2px;
+            transition: width 1s ease 0.4s;
+        }
+        .page-hero-line.animate { width: 60px; }
+        @keyframes fadeInUp {
+            from{opacity:0;transform:translateY(20px)}
+            to{opacity:1;transform:none}
+        }
+
+        /* Anchors quick-nav */
+        .contact-nav { background: var(--primary-dark); border-bottom: 1px solid rgba(255,255,255,0.06); position: sticky; top: 74px; z-index: 400; box-shadow: 0 4px 20px rgba(0,0,0,0.18); transition: top 0.3s ease; }
+        .contact-nav-inner { display: flex; overflow-x: auto; scrollbar-width: none; }
+        .contact-nav-inner::-webkit-scrollbar { display: none; }
+        .cnav-btn { display: flex; align-items: center; gap: 9px; padding: 16px 26px; color: rgba(255,255,255,0.5); font-size: 11.5px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; cursor: pointer; white-space: nowrap; border: none; box-shadow: inset 0 -2px 0 transparent; background: none; transition: color 0.25s, box-shadow 0.25s; flex-shrink: 0; }
+        .cnav-btn i { font-size: 14px; }
+        .cnav-btn:hover { color: rgba(255,255,255,0.85); }
+        .cnav-btn.active { color: var(--accent-gold); box-shadow: inset 0 -2px 0 var(--accent-gold); }
+
+        /* ─── REVEAL ─── */
+        .reveal { opacity: 0; transform: translateY(32px); transition: opacity 0.65s cubic-bezier(0.4,0,0.2,1), transform 0.65s cubic-bezier(0.4,0,0.2,1); }
+        .reveal.visible { opacity: 1; transform: none; }
+        .reveal-left  { opacity: 0; transform: translateX(-44px); transition: opacity 0.65s ease, transform 0.65s ease; }
+        .reveal-right { opacity: 0; transform: translateX( 44px); transition: opacity 0.65s ease, transform 0.65s ease; }
+        .reveal-left.visible, .reveal-right.visible { opacity: 1; transform: none; }
+        .delay-1{transition-delay:.1s} .delay-2{transition-delay:.2s} .delay-3{transition-delay:.3s} .delay-4{transition-delay:.4s} .delay-5{transition-delay:.5s}
+
+        /* ─── SECTION HELPERS ─── */
+        .section-block { padding: 72px 0; }
+        .section-bg-light { background: var(--bg-light); }
+        .section-label { color: var(--primary-blue); font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; display: block; margin-bottom: 8px; }
+        .section-title { font-size: 30px; color: var(--primary-dark); font-weight: 800; line-height: 1.2; }
+        .section-line { width: 50px; height: 3px; background: linear-gradient(90deg, var(--accent-gold), var(--accent-cyan)); margin-top: 12px; border-radius: 2px; }
+
+        /* ─── CONTACTO FORM SECTION ─── */
+        #contactenos { scroll-margin-top: 120px; }
+        .contact-layout { display: grid; grid-template-columns: 1.1fr 1fr; gap: 56px; align-items: start; }
+
+        /* Info cards side */
+        .contact-info-cards { display: flex; flex-direction: column; gap: 16px; }
+        .cinfo-card {
+            background: #fff; border: 1px solid var(--border-color); border-radius: var(--radius);
+            padding: 22px 24px; display: flex; align-items: center; gap: 18px;
+            transition: var(--transition); position: relative; overflow: hidden;
+        }
+        .cinfo-card::before { content: ''; position: absolute; left: 0; top: 0; width: 3px; height: 100%; background: var(--accent-gold); transform: scaleY(0); transition: transform 0.3s ease; transform-origin: bottom; border-radius: 0 0 0 0; }
+        .cinfo-card:hover { transform: translateX(6px); box-shadow: 0 8px 24px rgba(40,100,140,0.1); border-color: transparent; }
+        .cinfo-card:hover::before { transform: scaleY(1); }
+        .cinfo-icon {
+            width: 48px; height: 48px; border-radius: 10px; flex-shrink: 0;
+            background: linear-gradient(135deg, var(--primary-blue), var(--primary-dark));
+            color: #fff; display: flex; align-items: center; justify-content: center;
+            font-size: 18px; box-shadow: 0 4px 12px rgba(40,100,140,0.2); transition: var(--transition);
+        }
+        .cinfo-card:hover .cinfo-icon { background: linear-gradient(135deg, var(--accent-gold), #d6852a); transform: scale(1.08) rotate(-4deg); }
+        .cinfo-text h4 { font-size: 13px; font-weight: 700; color: var(--primary-dark); text-transform: uppercase; letter-spacing: 0.3px; margin-bottom: 4px; }
+        .cinfo-text p { font-size: 13.5px; color: #556b82; line-height: 1.5; }
+        .cinfo-text a { color: var(--primary-blue); font-weight: 600; transition: color 0.2s; }
+        .cinfo-text a:hover { color: var(--accent-gold); }
+
+        /* Map block */
+        .contact-map-wrap {
+            border-radius: 12px; overflow: hidden; position: relative;
+            box-shadow: 0 20px 50px rgba(27,69,98,0.15), 0 0 0 1px rgba(40,100,140,0.1);
+            margin-top: 20px; height: 260px;
+        }
+        .contact-map-wrap iframe { width: 100%; height: 100%; border: none; display: block; }
+        .map-overlay-badge {
+            position: absolute; bottom: 14px; left: 14px;
+            background: rgba(27,69,98,0.95); color: #fff; padding: 8px 14px;
+            border-radius: 6px; font-size: 11.5px; font-weight: 600;
+            display: flex; align-items: center; gap: 8px; backdrop-filter: blur(6px);
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        .map-overlay-badge i { color: var(--accent-gold); }
+
+        /* Form */
+        .contact-form-box {
+            background: linear-gradient(145deg, var(--primary-blue) 0%, var(--primary-dark) 100%);
+            border-radius: 12px; padding: 44px 40px; color: #fff; position: relative; overflow: hidden;
+            box-shadow: 0 20px 50px rgba(27,69,98,0.25), 0 0 0 1px rgba(255,255,255,0.06);
+        }
+        .contact-form-box::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 3px; background: linear-gradient(90deg, var(--accent-gold), var(--accent-cyan)); }
+        .contact-form-box::after {
+            content: ''; position: absolute; bottom: -60px; right: -60px;
+            width: 240px; height: 240px; border-radius: 50%;
+            background: radial-gradient(circle, rgba(0,163,224,0.08) 0%, transparent 70%);
+            pointer-events: none;
+        }
+        .form-header { margin-bottom: 28px; position: relative; z-index: 1; }
+        .form-header h3 { font-size: 20px; font-weight: 800; color: #fff; text-transform: uppercase; margin-bottom: 8px; }
+        .form-header h3::after { content: ''; display: block; width: 40px; height: 3px; background: var(--accent-cyan); margin-top: 8px; border-radius: 2px; }
+        .form-header p { font-size: 13px; color: rgba(255,255,255,0.65); line-height: 1.55; margin-top: 14px; }
+        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; position: relative; z-index: 1; }
+        .form-group { display: flex; flex-direction: column; gap: 6px; }
+        .form-group.full { grid-column: 1 / -1; }
+        .form-group label { font-size: 11px; font-weight: 700; color: rgba(255,255,255,0.75); text-transform: uppercase; letter-spacing: 0.5px; }
+        .form-group input, .form-group textarea, .form-group select {
+            background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.12);
+            border-radius: 6px; padding: 12px 14px; color: #fff; font-size: 13.5px;
+            font-family: 'Plus Jakarta Sans', sans-serif; transition: var(--transition);
+            outline: none; width: 100%; resize: none;
+        }
+        .form-group input::placeholder, .form-group textarea::placeholder { color: rgba(255,255,255,0.35); }
+        .form-group input:focus, .form-group textarea:focus, .form-group select:focus { border-color: var(--accent-cyan); background: rgba(255,255,255,0.1); box-shadow: 0 0 0 3px rgba(0,163,224,0.15); }
+        .form-group select option { background: var(--primary-dark); color: #fff; }
+        .form-note { font-size: 11px; color: rgba(255,255,255,0.45); margin-top: 6px; position: relative; z-index: 1; }
+        .form-note span { color: var(--accent-gold); }
+        .btn-submit {
+            background: var(--accent-gold); color: #fff; border: none; border-radius: 6px;
+            padding: 14px 32px; font-size: 13px; font-weight: 700; text-transform: uppercase;
+            letter-spacing: 0.5px; cursor: pointer; display: flex; align-items: center; gap: 10px;
+            transition: var(--transition); position: relative; overflow: hidden; margin-top: 4px; z-index: 1;
+        }
+        .btn-submit::after { content: ''; position: absolute; top: 0; left: -100%; width: 50%; height: 100%; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.25), transparent); transform: skewX(-25deg); }
+        .btn-submit:hover::after { left: 150%; transition: 0.55s ease-in-out; }
+        .btn-submit:hover { background: #d6852a; transform: translateY(-2px); box-shadow: 0 8px 20px rgba(240,154,54,0.4); }
+        .btn-submit i { font-size: 13px; transition: var(--transition); }
+        .btn-submit:hover i { transform: translateX(4px); }
+        /* Success / sending states */
+        .form-status { margin-top: 14px; padding: 10px 16px; border-radius: 6px; font-size: 13px; font-weight: 600; display: none; align-items: center; gap: 10px; z-index: 1; position: relative; }
+        .form-status.success { display: flex; background: rgba(16,185,129,0.15); border: 1px solid rgba(16,185,129,0.3); color: #6ee7b7; }
+        .form-status.error { display: flex; background: rgba(239,68,68,0.15); border: 1px solid rgba(239,68,68,0.3); color: #fca5a5; }
+
+        /* ─── LÍNEAS DE ATENCIÓN ─── */
+        #lineas-de-atencion { scroll-margin-top: 120px; }
+        .section-header-flex { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 36px; }
+        .contacts-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
+        .contact-card {
+            background: #fff; border: 1px solid var(--border-color); border-radius: var(--radius);
+            padding: 28px 24px; position: relative; overflow: hidden; transition: var(--transition);
+        }
+        .contact-card::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 3px; background: linear-gradient(90deg, var(--accent-gold), var(--accent-cyan)); transform: scaleX(0); transition: transform 0.35s ease; transform-origin: left; }
+        .contact-card:hover { transform: translateY(-6px); box-shadow: 0 16px 32px rgba(40,100,140,0.12); border-color: transparent; }
+        .contact-card:hover::before { transform: scaleX(1); }
+        .cc-role { font-size: 10.5px; font-weight: 800; color: var(--accent-cyan); text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 8px; }
+        .cc-name { font-size: 16px; font-weight: 700; color: var(--primary-dark); margin-bottom: 14px; }
+        .cc-name small { display: block; font-size: 12px; font-weight: 500; color: var(--text-muted); margin-top: 2px; }
+        .cc-contacts { display: flex; flex-direction: column; gap: 8px; }
+        .cc-contact-row { display: flex; align-items: center; gap: 10px; font-size: 13px; color: #556b82; }
+        .cc-contact-row i { font-size: 13px; color: var(--primary-blue); width: 16px; flex-shrink: 0; }
+        .cc-contact-row a { color: var(--primary-blue); font-weight: 600; transition: color 0.2s; }
+        .cc-contact-row a:hover { color: var(--accent-gold); }
+        /* Email-only cards (no persona) */
+        .contact-card.email-only { background: linear-gradient(135deg, var(--bg-light), #edf2f8); }
+        .contact-card.email-only .cc-name { font-size: 14px; }
+
+        /* ─── PQRS SECTION ─── */
+        #pqrs { scroll-margin-top: 120px; }
+        .pqrs-layout { display: grid; grid-template-columns: 1fr 1.5fr; gap: 56px; align-items: start; }
+        .pqrs-info { }
+        .pqrs-info p { font-size: 14px; color: #556b82; line-height: 1.7; margin-bottom: 20px; }
+        .pqrs-types { display: flex; flex-direction: column; gap: 10px; margin-bottom: 24px; }
+        .pqrs-type-item {
+            display: flex; align-items: center; gap: 14px; padding: 13px 18px;
+            background: #fff; border-radius: 6px; border-left: 3px solid var(--accent-gold);
+            transition: var(--transition); box-shadow: 0 2px 8px rgba(40,100,140,0.05);
+        }
+        .pqrs-type-item:hover { transform: translateX(6px); box-shadow: 0 8px 20px rgba(40,100,140,0.1); border-left-color: var(--accent-cyan); }
+        .pqrs-type-item i { color: var(--accent-cyan); font-size: 17px; flex-shrink: 0; }
+        .pqrs-type-item div h5 { font-size: 13px; font-weight: 700; color: var(--primary-dark); }
+        .pqrs-type-item div p { font-size: 12px; color: #778899; margin: 2px 0 0; line-height: 1.4; }
+        .pqrs-guarantee { background: linear-gradient(135deg, var(--primary-blue), var(--primary-dark)); border-radius: var(--radius); padding: 18px 22px; color: #fff; display: flex; align-items: center; gap: 16px; }
+        .pqrs-guarantee i { font-size: 24px; color: var(--accent-gold); flex-shrink: 0; }
+        .pqrs-guarantee p { font-size: 12.5px; line-height: 1.55; color: rgba(255,255,255,0.85); }
+        .pqrs-guarantee strong { color: #fff; }
+
+        /* PQRS Form */
+        .pqrs-form-box {
+            background: var(--bg-light); border: 1px solid var(--border-color);
+            border-radius: 12px; padding: 40px 36px; position: relative; overflow: hidden;
+        }
+        .pqrs-form-box::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 3px; background: linear-gradient(90deg, var(--accent-gold), var(--accent-cyan)); }
+        .pqrs-form-header { margin-bottom: 28px; }
+        .pqrs-form-header h3 { font-size: 18px; font-weight: 800; color: var(--primary-dark); text-transform: uppercase; }
+        .pqrs-form-header h3::after { content: ''; display: block; width: 40px; height: 3px; background: linear-gradient(90deg, var(--accent-gold), var(--accent-cyan)); margin-top: 8px; border-radius: 2px; }
+        .pqrs-form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+        .pqrs-form-grid .full { grid-column: 1 / -1; }
+        .pfield { display: flex; flex-direction: column; gap: 6px; }
+        .pfield label { font-size: 11px; font-weight: 700; color: var(--primary-blue); text-transform: uppercase; letter-spacing: 0.5px; }
+        .pfield input, .pfield select, .pfield textarea {
+            background: #fff; border: 1px solid var(--border-color); border-radius: 6px;
+            padding: 11px 14px; color: var(--text-dark); font-size: 13.5px;
+            font-family: 'Plus Jakarta Sans', sans-serif; outline: none;
+            transition: var(--transition); width: 100%; resize: none;
+        }
+        .pfield input:focus, .pfield select:focus, .pfield textarea:focus { border-color: var(--primary-blue); box-shadow: 0 0 0 3px rgba(40,100,140,0.1); }
+        .pfield input::placeholder, .pfield textarea::placeholder { color: var(--text-muted); }
+        .pfield select option { color: var(--text-dark); }
+        .pqrs-note { font-size: 11px; color: var(--text-muted); margin-top: 8px; }
+        .pqrs-note span { color: var(--accent-gold); font-weight: 600; }
+        .btn-pqrs {
+            background: var(--primary-blue); color: #fff; border: none; border-radius: 6px;
+            padding: 14px 32px; font-size: 13px; font-weight: 700; text-transform: uppercase;
+            letter-spacing: 0.5px; cursor: pointer; display: flex; align-items: center; gap: 10px;
+            transition: var(--transition); margin-top: 6px; position: relative; overflow: hidden;
+        }
+        .btn-pqrs::after { content: ''; position: absolute; top: 0; left: -100%; width: 50%; height: 100%; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent); transform: skewX(-25deg); }
+        .btn-pqrs:hover::after { left: 150%; transition: 0.55s ease-in-out; }
+        .btn-pqrs:hover { background: var(--primary-dark); transform: translateY(-2px); box-shadow: 0 8px 20px rgba(27,69,98,0.25); }
+        .btn-pqrs i { transition: var(--transition); }
+        .btn-pqrs:hover i { transform: translateX(4px); }
+
+        /* ─── CTA BAND ─── */
+        .cta-band {
+            background: linear-gradient(135deg, var(--primary-dark) 0%, #0f2c42 100%);
+            padding: 72px 0; text-align: center; position: relative; overflow: hidden;
+        }
+        .cta-band::before {
+            content: ''; position: absolute; inset: 0; pointer-events: none;
+            background-image: linear-gradient(rgba(0,163,224,0.04) 1px,transparent 1px),
+            linear-gradient(90deg,rgba(0,163,224,0.04) 1px,transparent 1px);
+            background-size: 40px 40px; animation: gridShift 20s linear infinite;
+        }
+        @keyframes gridShift { from{background-position:0 0} to{background-position:40px 40px} }
+        .cta-band .container { position: relative; z-index: 1; }
+        .cta-band h2 { font-size: 34px; color: #fff; font-weight: 800; margin-bottom: 12px; }
+        .cta-band p { color: rgba(255,255,255,0.7); font-size: 15px; margin-bottom: 36px; }
+        .cta-buttons { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; }
+
+        /* ─── FOOTER ─── */
+        footer { background-color: var(--primary-dark); padding: 64px 0 20px; font-size: 13px; color: var(--text-muted); }
+        .footer-grid { display: grid; grid-template-columns: 1.8fr 0.9fr 1.6fr 1.5fr; gap: 32px; margin-bottom: 40px; }
+        .footer-logo { background: rgba(255,255,255,0.95); padding: 5px 12px; border-radius: 6px; display: inline-flex; align-items: center; margin-bottom: 16px; }
+        .footer-logo img { height: 32px; object-fit: contain; }
+        .footer-desc { margin-bottom: 20px; line-height: 1.5; font-size: 12.5px; }
+        .social-icons { display: flex; gap: 10px; }
+        .social-icons a { display: flex; align-items: center; justify-content: center; width: 32px; height: 32px; border: 1px solid rgba(148,163,184,0.25); border-radius: 50%; color: var(--text-muted); transition: var(--transition); }
+        .social-icons a:hover { color: #fff; border-color: #fff; background: rgba(255,255,255,0.05); transform: translateY(-2px); }
+        .footer-title { color: #fff; font-size: 13.5px; font-weight: 600; margin-bottom: 20px; text-transform: uppercase; }
+        .footer-links li { margin-bottom: 10px; }
+        .footer-links a { transition: var(--transition); font-size: 12.5px; }
+        .footer-links a:hover { color: var(--accent-gold); padding-left: 3px; }
+        .footer-contact-info li { display: flex; gap: 10px; margin-bottom: 12px; align-items: flex-start; font-size: 12.5px; }
+        .footer-contact-info i { margin-top: 3px; font-size: 13px; color: #fff; }
+        .certs-container { display: flex; gap: 12px; }
+        .cert-item { text-align: center; flex: 1; }
+        .cert-circle { width: 50px; height: 50px; border: 1px solid rgba(148,163,184,0.3); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 8px; font-size: 8.5px; font-weight: 800; color: #fff; background: rgba(255,255,255,0.02); transition: var(--transition); }
+        .cert-circle:hover { border-color: var(--accent-gold); background: rgba(240,154,54,0.1); }
+        .cert-circle i { font-size: 20px; color: #fff; }
+        .cert-item p { font-size: 10px; line-height: 1.4; color: var(--text-muted); }
+        .footer-bottom { display: flex; justify-content: space-between; align-items: center; padding-top: 20px; border-top: 1px solid rgba(255,255,255,0.06); flex-wrap: wrap; gap: 10px; }
+        .footer-bottom p { font-size: 11.5px; }
+        .footer-bottom a { color: var(--accent-gold); font-weight: 600; }
+        .footer-bottom a:hover { text-decoration: underline; }
+        .footer-legal-links { display: flex; gap: 20px; }
+        .footer-legal-links a { font-size: 11.5px; transition: color 0.2s; }
+        .footer-legal-links a:hover { color: #fff; }
+
+        /* ─── SCROLL HINT ─── */
+        .scroll-hint { position: absolute; bottom: 18px; left: 50%; transform: translateX(-50%); z-index: 4; display: flex; flex-direction: column; align-items: center; gap: 6px; color: rgba(255,255,255,0.45); font-size: 10px; letter-spacing: 1.5px; text-transform: uppercase; animation: bounceDown 2s ease infinite; }
+        .scroll-hint i { font-size: 15px; }
+        @keyframes bounceDown { 0%,100%{transform:translateX(-50%) translateY(0)} 50%{transform:translateX(-50%) translateY(6px)} }
+    </style>
+</head>
+<body>
+
+<div id="scroll-progress"></div>
+
+<!-- ─── HEADER ─── -->
+<header id="main-header">
+    <div class="container">
+        <div class="header-content">
+            <a href="/inicio" class="logo-box">
+                <img src="/images/Logo.png"
+                     alt="Mardique Logo"
+                     onerror="this.style.display='none'; this.parentElement.innerHTML='<span style=\'color:#fff;font-weight:800;font-size:18px;letter-spacing:-0.5px;\'>SP <span style=\'color:#f09a36;\'>MARDIQUE</span></span>'">
+            </a>
+            <nav>
+                <ul class="nav-menu">
+                    <li><a href="/inicio">INICIO</a></li>
+                    <li><a href="/empresa">EMPRESA</a></li>
+                    <li><a href="/servicios">SERVICIOS</a></li>
+                    <li><a href="/tramites-en-linea">SERVICIO AL CLIENTE <i class="fas fa-chevron-down"></i></a></li>
+                    <li class="active"><a href="/contacto">CONTACTO</a></li>
+                    <li><a href="/galeria">GALERÍA</a></li>
+                </ul>
+            </nav>
+            <a href="/contacto" class="header-contact-btn">
+                <i class="fa-solid fa-paper-plane"></i> Contáctenos
+            </a>
+        </div>
+    </div>
+</header>
+
+<!-- ─── HERO CON IMAGEN DE FONDO ─── -->
+<section class="page-hero">
+    <!-- Imagen de fondo: cambia la URL por la que necesites -->
+    <div class="page-hero-bg" style="background-image: url('/images/Contacto.png');"></div>
+    <div class="hero-particles" id="heroParticles"></div>
+    <div class="container">
+        <div class="page-hero-breadcrumb">
+            <a href="/inicio">Inicio</a>
+            <span><i class="fa-solid fa-chevron-right"></i></span>
+            <span class="current">Contacto</span>
+        </div>
+        <h1 class="page-hero-title">
+            Canales de <strong>Comunicación</strong>
+        </h1>
+        <p class="page-hero-sub">Estamos listos para atenderle. Contáctenos a través de cualquiera de nuestros canales y un representante le responderá a la brevedad.</p>
+        <div class="page-hero-line" id="heroLine"></div>
+    </div>
+    <div class="scroll-hint">
+        <i class="fa-solid fa-chevron-down"></i>
+        <span>Scroll</span>
+    </div>
+</section>
+
+<!-- ─── CONTACT QUICK NAV ─── -->
+<div class="contact-nav">
+    <div class="container">
+        <div class="contact-nav-inner">
+            <button class="cnav-btn active" onclick="scrollToSection('contactenos', this)">
+                <i class="fa-solid fa-envelope"></i> Contáctenos
+            </button>
+            <button class="cnav-btn" onclick="scrollToSection('lineas-de-atencion', this)">
+                <i class="fa-solid fa-phone"></i> Líneas de Atención
+            </button>
+            <button class="cnav-btn" onclick="scrollToSection('pqrs', this)">
+                <i class="fa-solid fa-file-lines"></i> PQRS
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- ─── SECCIÓN 1: CONTÁCTENOS ─── -->
+<section class="section-block" id="contactenos">
+    <div class="container">
+        <div class="contact-layout">
+
+            <!-- LEFT: Info + Map -->
+            <div>
+                <div class="reveal">
+                    <span class="section-label">Comuníquese con nosotros</span>
+                    <h2 class="section-title">Estamos aquí<br>para <strong style="color:var(--accent-gold)">ayudarle</strong></h2>
+                    <div class="section-line"></div>
+                    <p style="color:#556b82;font-size:14px;line-height:1.7;margin-top:18px;margin-bottom:28px;">
+                        En Sociedad Portuaria Mardique nos comprometemos a dar respuesta oportuna a todas sus solicitudes. Nuestro equipo se encuentra disponible para orientarle en sus operaciones portuarias, comerciales y logísticas.
+                    </p>
+                </div>
+
+                <div class="contact-info-cards">
+                    <div class="cinfo-card reveal delay-1">
+                        <div class="cinfo-icon"><i class="fa-solid fa-location-dot"></i></div>
+                        <div class="cinfo-text">
+                            <h4>Dirección</h4>
+                            <p>Carretera Antigua Vía Barú, Cl 7 Puerto 2,<br>Corregimiento Santa Ana – Cartagena – Colombia.</p>
+                        </div>
+                    </div>
+                    <div class="cinfo-card reveal delay-2">
+                        <div class="cinfo-icon"><i class="fa-solid fa-envelope"></i></div>
+                        <div class="cinfo-text">
+                            <h4>Correo General</h4>
+                            <p><a href="mailto:info@spmardique.com">info@spmardique.com</a></p>
+                        </div>
+                    </div>
+                    <div class="cinfo-card reveal delay-3">
+                        <div class="cinfo-icon"><i class="fa-brands fa-youtube"></i></div>
+                        <div class="cinfo-text">
+                            <h4>Canal YouTube</h4>
+                            <p><a href="https://www.youtube.com/channel/UCaqN40lCIj_nm53aHPJEicQ" target="_blank">Sociedad Portuaria Mardique S.A.</a></p>
+                        </div>
+                    </div>
+                    <div class="cinfo-card reveal delay-4">
+                        <div class="cinfo-icon"><i class="fa-solid fa-shield-halved"></i></div>
+                        <div class="cinfo-text">
+                            <h4>Certificaciones</h4>
+                            <p>ISO 9001:2015 &nbsp;·&nbsp; ISO 45001:2018 — <a href="https://www.bureauveritascertification.com" target="_blank">Bureau Veritas</a></p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Map -->
+                <div class="contact-map-wrap reveal" style="margin-top:24px;">
+                    <iframe
+                            src="https://maps.google.com/maps?q=Sociedad+Portuaria+Mardique+Cartagena+Colombia&t=&z=15&ie=UTF8&iwloc=&output=embed"
+                            allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"
+                            title="Ubicación Sociedad Portuaria Mardique"></iframe>
+                    <div class="map-overlay-badge">
+                        <i class="fa-solid fa-anchor"></i> Sociedad Portuaria Mardique S.A.
+                    </div>
+                </div>
+            </div>
+
+            <!-- RIGHT: Form -->
+            <div class="reveal-right">
+                <div class="contact-form-box">
+                    <div class="form-header">
+                        <h3>Envíenos un Mensaje</h3>
+                        <p>Complete el formulario y nuestro equipo se pondrá en contacto con usted a la brevedad posible.</p>
+                    </div>
+                    <div class="form-grid">
+                        <div class="form-group full">
+                            <label>Nombre y Apellidos <span style="color:var(--accent-gold)">*</span></label>
+                            <input type="text" id="cf-name" placeholder="Su nombre completo">
+                        </div>
+                        <div class="form-group">
+                            <label>Correo Electrónico <span style="color:var(--accent-gold)">*</span></label>
+                            <input type="email" id="cf-email" placeholder="correo@ejemplo.com">
+                        </div>
+                        <div class="form-group">
+                            <label>Celular <span style="color:var(--accent-gold)">*</span></label>
+                            <input type="tel" id="cf-phone" placeholder="+57 300 000 0000">
+                        </div>
+                        <div class="form-group full">
+                            <label>Asunto</label>
+                            <select id="cf-subject">
+                                <option value="" disabled selected>Seleccione un asunto</option>
+                                <option>Información de Servicios Portuarios</option>
+                                <option>Cotización de Servicios</option>
+                                <option>Trámites Aduaneros</option>
+                                <option>Zona Franca</option>
+                                <option>Talento Humano</option>
+                                <option>Otro</option>
+                            </select>
+                        </div>
+                        <div class="form-group full">
+                            <label>Mensaje <span style="color:var(--accent-gold)">*</span></label>
+                            <textarea id="cf-message" rows="5" placeholder="Escriba su consulta o mensaje aquí..."></textarea>
+                        </div>
+                    </div>
+                    <p class="form-note">Los campos marcados con <span>*</span> son obligatorios.</p>
+                    <button class="btn-submit" onclick="submitContactForm()">
+                        Enviar Mensaje <i class="fa-solid fa-paper-plane"></i>
+                    </button>
+                    <div id="cf-status" class="form-status"></div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</section>
+
+<!-- ─── SECCIÓN 2: LÍNEAS DE ATENCIÓN ─── -->
+<section class="section-block section-bg-light" id="lineas-de-atencion">
+    <div class="container">
+        <div class="reveal" style="margin-bottom:40px;">
+            <span class="section-label">Directorio de Contactos</span>
+            <h2 class="section-title">Líneas de <strong style="color:var(--accent-gold)">Atención</strong></h2>
+            <div class="section-line"></div>
+            <p style="color:#556b82;font-size:14px;line-height:1.7;margin-top:14px;max-width:600px;">
+                Ponemos a su disposición nuestros canales directos. Cada área cuenta con un representante especializado para atender sus requerimientos.
+            </p>
+        </div>
+
+        <div class="contacts-grid">
+
+            <!-- Gerente Comercial -->
+            <div class="contact-card reveal delay-1">
+                <p class="cc-role"><i class="fa-solid fa-briefcase" style="margin-right:5px"></i> Gerente Comercial</p>
+                <h3 class="cc-name">Alejandro Munera</h3>
+                <div class="cc-contacts">
+                    <div class="cc-contact-row">
+                        <i class="fa-solid fa-phone"></i>
+                        <a href="tel:3163895254">316 389 5254</a>
+                    </div>
+                    <div class="cc-contact-row">
+                        <i class="fa-solid fa-envelope"></i>
+                        <a href="mailto:amunera@spmardique.com">amunera@spmardique.com</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Representante Legal -->
+            <div class="contact-card reveal delay-2">
+                <p class="cc-role"><i class="fa-solid fa-scale-balanced" style="margin-right:5px"></i> Representante Legal</p>
+                <h3 class="cc-name">Beisy Martinez</h3>
+                <div class="cc-contacts">
+                    <div class="cc-contact-row">
+                        <i class="fa-solid fa-phone"></i>
+                        <a href="tel:3175025973">317 502 5973</a>
+                    </div>
+                    <div class="cc-contact-row">
+                        <i class="fa-solid fa-envelope"></i>
+                        <a href="mailto:bmartinez@spmardique.com">bmartinez@spmardique.com</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Gerente de Operaciones -->
+            <div class="contact-card reveal delay-3">
+                <p class="cc-role"><i class="fa-solid fa-gears" style="margin-right:5px"></i> Gerente de Operaciones</p>
+                <h3 class="cc-name">Landrus Rodriguez</h3>
+                <div class="cc-contacts">
+                    <div class="cc-contact-row">
+                        <i class="fa-solid fa-phone"></i>
+                        <a href="tel:3174383785">317 438 3785</a>
+                    </div>
+                    <div class="cc-contact-row">
+                        <i class="fa-solid fa-envelope"></i>
+                        <a href="mailto:lrodriguez@spmardique.com">lrodriguez@spmardique.com</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Gerencia Administrativa -->
+            <div class="contact-card reveal delay-1">
+                <p class="cc-role"><i class="fa-solid fa-building" style="margin-right:5px"></i> Gerencia Administrativa</p>
+                <h3 class="cc-name">Enrique Fernandez</h3>
+                <div class="cc-contacts">
+                    <div class="cc-contact-row">
+                        <i class="fa-solid fa-phone"></i>
+                        <a href="tel:3172635747">317 263 5747</a>
+                    </div>
+                    <div class="cc-contact-row">
+                        <i class="fa-solid fa-envelope"></i>
+                        <a href="mailto:efernandez@spmardique.com">efernandez@spmardique.com</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Seguridad -->
+            <div class="contact-card reveal delay-2">
+                <p class="cc-role"><i class="fa-solid fa-shield-halved" style="margin-right:5px"></i> Seguridad</p>
+                <h3 class="cc-name">Juan Laguado</h3>
+                <div class="cc-contacts">
+                    <div class="cc-contact-row">
+                        <i class="fa-solid fa-phone"></i>
+                        <a href="tel:3123661517">312 366 1517</a>
+                    </div>
+                    <div class="cc-contact-row">
+                        <i class="fa-solid fa-envelope"></i>
+                        <a href="mailto:seguridad@spmardique.com">seguridad@spmardique.com</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Documentación Aduanera -->
+            <div class="contact-card reveal delay-3">
+                <p class="cc-role"><i class="fa-solid fa-file-contract" style="margin-right:5px"></i> Documentación Aduanera</p>
+                <h3 class="cc-name">Oscar Pertuz</h3>
+                <div class="cc-contacts">
+                    <div class="cc-contact-row">
+                        <i class="fa-solid fa-phone"></i>
+                        <a href="tel:3017575518">301 757 5518</a>
+                    </div>
+                    <div class="cc-contact-row">
+                        <i class="fa-solid fa-envelope"></i>
+                        <a href="mailto:opertuz@spmardique.com">opertuz@spmardique.com</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Talento Humano -->
+            <div class="contact-card email-only reveal delay-1">
+                <p class="cc-role"><i class="fa-solid fa-users" style="margin-right:5px"></i> Talento Humano</p>
+                <h3 class="cc-name">Departamento RRHH</h3>
+                <div class="cc-contacts">
+                    <div class="cc-contact-row">
+                        <i class="fa-solid fa-envelope"></i>
+                        <a href="mailto:talentohumano@spmardique.com">talentohumano@spmardique.com</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Contabilidad -->
+            <div class="contact-card email-only reveal delay-2">
+                <p class="cc-role"><i class="fa-solid fa-calculator" style="margin-right:5px"></i> Contabilidad</p>
+                <h3 class="cc-name">Departamento Contable</h3>
+                <div class="cc-contacts">
+                    <div class="cc-contact-row">
+                        <i class="fa-solid fa-envelope"></i>
+                        <a href="mailto:contabilidad@spmardique.com">contabilidad@spmardique.com</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Coordinación de Operaciones -->
+            <div class="contact-card email-only reveal delay-3">
+                <p class="cc-role"><i class="fa-solid fa-anchor" style="margin-right:5px"></i> Coordinación de Operaciones</p>
+                <h3 class="cc-name">Coord. Operaciones</h3>
+                <div class="cc-contacts">
+                    <div class="cc-contact-row">
+                        <i class="fa-solid fa-envelope"></i>
+                        <a href="mailto:operaciones@spmardique.com">operaciones@spmardique.com</a>
+                    </div>
+                    <div class="cc-contact-row">
+                        <i class="fa-solid fa-envelope"></i>
+                        <a href="mailto:operaciones2@spmardique.com">operaciones2@spmardique.com</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Supervisor Zona Franca -->
+            <div class="contact-card email-only reveal delay-1">
+                <p class="cc-role"><i class="fa-solid fa-warehouse" style="margin-right:5px"></i> Supervisor Zona Franca</p>
+                <h3 class="cc-name">Zona Franca</h3>
+                <div class="cc-contacts">
+                    <div class="cc-contact-row">
+                        <i class="fa-solid fa-envelope"></i>
+                        <a href="mailto:zonafranca@spmardique.com">zonafranca@spmardique.com</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Inscripción Usuarios -->
+            <div class="contact-card email-only reveal delay-2">
+                <p class="cc-role"><i class="fa-solid fa-user-check" style="margin-right:5px"></i> Inscripción de Usuarios</p>
+                <h3 class="cc-name">Oficial de Cumplimiento</h3>
+                <div class="cc-contacts">
+                    <div class="cc-contact-row">
+                        <i class="fa-solid fa-envelope"></i>
+                        <a href="mailto:oficialcumplimiento@spmardique.com">oficialcumplimiento@spmardique.com</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Asistente Administrativa -->
+            <div class="contact-card email-only reveal delay-3">
+                <p class="cc-role"><i class="fa-solid fa-cart-shopping" style="margin-right:5px"></i> Asistente Adm. y Compras</p>
+                <h3 class="cc-name">Asistente Administrativa</h3>
+                <div class="cc-contacts">
+                    <div class="cc-contact-row">
+                        <i class="fa-solid fa-envelope"></i>
+                        <a href="mailto:compras@spmardique.com">compras@spmardique.com</a>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</section>
+
+<!-- ─── SECCIÓN 3: PQRS ─── -->
+<section class="section-block" id="pqrs">
+    <div class="container">
+        <div class="reveal" style="margin-bottom:40px;">
+            <span class="section-label">Canal Formal</span>
+            <h2 class="section-title">Quejas, Peticiones<br>y <strong style="color:var(--accent-gold)">Reclamos</strong></h2>
+            <div class="section-line"></div>
+        </div>
+
+        <div class="pqrs-layout">
+
+            <!-- Info col -->
+            <div>
+                <p class="reveal">Si no encontró respuesta a su inquietud, o tiene alguna queja o reclamo, puede diligenciar el formulario. Atendemos todas las solicitudes con un plazo máximo de respuesta establecido por ley.</p>
+
+                <div class="pqrs-types">
+                    <div class="pqrs-type-item reveal delay-1">
+                        <i class="fa-solid fa-hand-holding-hand"></i>
+                        <div>
+                            <h5>Petición</h5>
+                            <p>Solicitud de información, documentación o servicios específicos.</p>
+                        </div>
+                    </div>
+                    <div class="pqrs-type-item reveal delay-2">
+                        <i class="fa-solid fa-triangle-exclamation"></i>
+                        <div>
+                            <h5>Queja</h5>
+                            <p>Manifestación de inconformidad sobre la prestación del servicio.</p>
+                        </div>
+                    </div>
+                    <div class="pqrs-type-item reveal delay-3">
+                        <i class="fa-solid fa-rotate-left"></i>
+                        <div>
+                            <h5>Reclamo</h5>
+                            <p>Exigencia de cumplimiento de derechos adquiridos en un proceso.</p>
+                        </div>
+                    </div>
+                    <div class="pqrs-type-item reveal delay-4">
+                        <i class="fa-solid fa-lightbulb"></i>
+                        <div>
+                            <h5>Solicitud</h5>
+                            <p>Requerimiento particular que no encuadra en las categorías anteriores.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="pqrs-guarantee reveal">
+                    <i class="fa-solid fa-circle-check"></i>
+                    <p>Todas las PQRS recibidas son <strong>procesadas en un plazo no mayor a 15 días hábiles</strong> y recibirá confirmación de radicado en su correo de contacto.</p>
+                </div>
+            </div>
+
+            <!-- Form col -->
+            <div class="reveal-right">
+                <div class="pqrs-form-box">
+                    <div class="pqrs-form-header">
+                        <h3>Formulario PQRS</h3>
+                    </div>
+                    <div class="pqrs-form-grid">
+                        <div class="pfield">
+                            <label>Tipo de Documento <span style="color:var(--accent-gold)">*</span></label>
+                            <select id="pq-doctype">
+                                <option value="" disabled selected>Seleccione</option>
+                                <option value="NIT">NIT</option>
+                                <option value="CC">CC – Cédula de Ciudadanía</option>
+                                <option value="CE">CE – Cédula de Extranjería</option>
+                                <option value="PA">PA – Pasaporte</option>
+                                <option value="DE">DE – Documento Extranjero</option>
+                            </select>
+                        </div>
+                        <div class="pfield">
+                            <label>Número de Documento <span style="color:var(--accent-gold)">*</span></label>
+                            <input type="text" id="pq-docnum" placeholder="Ej. 123456789">
+                        </div>
+                        <div class="pfield full">
+                            <label>Nombre o Razón Social <span style="color:var(--accent-gold)">*</span></label>
+                            <input type="text" id="pq-name" placeholder="Nombre completo o empresa">
+                        </div>
+                        <div class="pfield">
+                            <label>Correo de Contacto <span style="color:var(--accent-gold)">*</span></label>
+                            <input type="email" id="pq-email" placeholder="correo@ejemplo.com">
+                        </div>
+                        <div class="pfield">
+                            <label>Teléfono de Contacto <span style="color:var(--accent-gold)">*</span></label>
+                            <input type="tel" id="pq-phone" placeholder="+57 300 000 0000">
+                        </div>
+                        <div class="pfield">
+                            <label>Tipo de Petición <span style="color:var(--accent-gold)">*</span></label>
+                            <select id="pq-type">
+                                <option value="" disabled selected>Seleccione</option>
+                                <option>Petición</option>
+                                <option>Queja</option>
+                                <option>Reclamo</option>
+                                <option>Solicitud</option>
+                            </select>
+                        </div>
+                        <div class="pfield">
+                            <label>Departamento <span style="color:var(--accent-gold)">*</span></label>
+                            <select id="pq-dept">
+                                <option value="" disabled selected>Seleccione</option>
+                                <option>Comercial</option>
+                                <option>Protección</option>
+                                <option>Operaciones</option>
+                                <option>RRHH</option>
+                                <option>Compras</option>
+                                <option>Servicios Generales</option>
+                                <option>Facturación</option>
+                                <option>IT</option>
+                                <option>Jurídica</option>
+                                <option>Gestión Aduanera</option>
+                            </select>
+                        </div>
+                        <div class="pfield full">
+                            <label>Descripción <span style="color:var(--accent-gold)">*</span></label>
+                            <textarea id="pq-desc" rows="5" placeholder="Describa detalladamente su solicitud, queja o reclamo..."></textarea>
+                        </div>
+                    </div>
+                    <p class="pqrs-note">Los campos marcados con <span>*</span> son obligatorios. Recibirá confirmación de radicado en su correo.</p>
+                    <button class="btn-pqrs" onclick="submitPQRS()">
+                        Radicar PQRS <i class="fa-solid fa-paper-plane"></i>
+                    </button>
+                    <div id="pq-status" class="form-status" style="background:rgba(240,154,54,0.1);border:1px solid rgba(240,154,54,0.3);color:var(--text-dark);"></div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</section>
+
+<!-- ─── CTA BAND ─── -->
+<section class="cta-band">
+    <div class="container">
+        <h2 class="reveal">¿Listo para operar con nosotros?</h2>
+        <p class="reveal delay-1">Únase a los clientes que confían en Mardique para sus operaciones portuarias y logísticas en el Caribe colombiano.</p>
+        <div class="cta-buttons reveal delay-2">
+            <a href="/servicios" class="btn btn-orange">Ver nuestros servicios <i class="fa-solid fa-arrow-right"></i></a>
+            <a href="https://spmardique.com/wp-content/uploads/2024/01/REGLAMENTO_DE_CONDICIONES_TECNICO_DE_OPERACION.pdf" target="_blank" class="btn btn-outline-light">Reglamento de Operaciones <i class="fa-solid fa-file-pdf"></i></a>
+        </div>
+    </div>
+</section>
+
+<!-- ─── FOOTER ─── -->
+<footer>
+    <div class="container">
+        <div class="footer-grid">
+            <div>
+                <div class="footer-logo">
+                    <img src="/images/Logo.png" alt="Mardique"
+                         onerror="this.parentElement.innerHTML='<span style=\'color:#1b4562;font-weight:800;font-size:15px;\'>SP MARDIQUE</span>'">
+                </div>
+                <p class="footer-desc">Puerto privado multipropósito en el Caribe colombiano. Comprometidos con la excelencia operativa y la satisfacción de nuestros clientes.</p>
+                <div class="social-icons">
+                    <a href="https://www.youtube.com/channel/UCaqN40lCIj_nm53aHPJEicQ" target="_blank" title="YouTube"><i class="fab fa-youtube"></i></a>
+                    <a href="mailto:info@spmardique.com" title="Correo"><i class="fas fa-envelope"></i></a>
+                </div>
+            </div>
+            <div>
+                <h4 class="footer-title">Navegación</h4>
+                <ul class="footer-links">
+                    <li><a href="/inicio">Inicio</a></li>
+                    <li><a href="/empresa">Empresa</a></li>
+                    <li><a href="/servicios">Servicios</a></li>
+                    <li><a href="/tramites-en-linea">Trámites en Línea</a></li>
+                    <li><a href="#">Tarifas</a></li>
+                    <li><a href="/galeria">Galería</a></li>
+                </ul>
+            </div>
+            <div>
+                <h4 class="footer-title">Contacto</h4>
+                <ul class="footer-contact-info">
+                    <li><i class="fas fa-map-marker-alt"></i><span>Carretera Antigua Vía Barú, Cl 7 Puerto 2, Corregimiento Santa Ana – Cartagena, Colombia.</span></li>
+                    <li><i class="fas fa-envelope"></i><a href="mailto:info@spmardique.com" style="color:var(--text-muted)">info@spmardique.com</a></li>
+                </ul>
+            </div>
+            <div>
+                <h4 class="footer-title">Certificaciones</h4>
+                <div class="certs-container">
+                    <div class="cert-item">
+                        <div class="cert-circle"><i class="fas fa-certificate"></i></div>
+                        <p>ISO<br>9001:2015</p>
+                    </div>
+                    <div class="cert-item">
+                        <div class="cert-circle"><i class="fas fa-hard-hat"></i></div>
+                        <p>ISO<br>45001:2018</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <span>&copy; 2026 Sociedad Portuaria Mardique S.A. </a></span>
+            <div class="footer-bottom-links">
+                <a href="https://spmardique.com/wp-content/uploads/2024/01/REGLAMENTO_DE_CONDICIONES_TECNICO_DE_OPERACION.pdf" target="_blank">Reglamento Operativo</a>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<script>
+    /*<![CDATA[*/
+
+    // ─── SCROLL PROGRESS ───
+    window.addEventListener('scroll', () => {
+        const scrolled = (window.scrollY / (document.documentElement.scrollHeight - window.innerHeight)) * 100;
+        document.getElementById('scroll-progress').style.width = scrolled + '%';
+    });
+
+    // ─── HEADER SHRINK + SYNC SUBNAV TOP ───
+    const header = document.getElementById('main-header');
+    const contactNav = document.querySelector('.contact-nav');
+    function syncNavTop() {
+        contactNav.style.top = header.getBoundingClientRect().height + 'px';
+    }
+    syncNavTop();
+    window.addEventListener('scroll', () => {
+        header.classList.toggle('scrolled', window.scrollY > 60);
+        syncNavTop();
+    });
+    window.addEventListener('resize', syncNavTop);
+
+    // ─── HERO LINE ANIMATE ───
+    setTimeout(() => document.getElementById('heroLine').classList.add('animate'), 300);
+
+    // ─── HERO PARTICLES ───
+    (function() {
+        const container = document.getElementById('heroParticles');
+        for (let i = 0; i < 14; i++) {
+            const p = document.createElement('div');
+            p.className = 'hero-particle';
+            const size = Math.random() * 80 + 20;
+            p.style.cssText = `
+                width:${size}px; height:${size}px;
+                left:${Math.random()*100}%; top:${Math.random()*100}%;
+                animation-duration:${Math.random()*10+8}s;
+                animation-delay:${Math.random()*-12}s;
+                opacity:${Math.random()*0.5};
+            `;
+            container.appendChild(p);
+        }
+    })();
+
+    // ─── REVEAL ON SCROLL ───
+    const revealObserver = new IntersectionObserver((entries) => {
+        entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); revealObserver.unobserve(e.target); } });
+    }, { threshold: 0.1, rootMargin: '0px 0px -50px 0px' });
+    document.querySelectorAll('.reveal, .reveal-left, .reveal-right').forEach(el => revealObserver.observe(el));
+
+    // ─── CONTACT NAV ACTIVE ───
+    function scrollToSection(id, btn) {
+        document.querySelectorAll('.cnav-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        const el = document.getElementById(id);
+        if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    // Update active nav on scroll
+    const sections = ['contactenos', 'lineas-de-atencion', 'pqrs'];
+    const cnavBtns = document.querySelectorAll('.cnav-btn');
+    window.addEventListener('scroll', () => {
+        let current = '';
+        sections.forEach(id => {
+            const el = document.getElementById(id);
+            if (el && window.scrollY + 160 >= el.offsetTop) current = id;
+        });
+        cnavBtns.forEach((btn, i) => {
+            btn.classList.toggle('active', sections[i] === current);
+        });
+    });
+
+    // ─── HERO PARALLAX ───
+    window.addEventListener('scroll', () => {
+        const bg = document.querySelector('.page-hero-bg');
+        if (bg) bg.style.transform = `translateY(${window.scrollY * 0.25}px)`;
+    });
+
+    // ─── FORM SUBMIT (Contact) ───
+    function submitContactForm() {
+        const name    = document.getElementById('cf-name').value.trim();
+        const email   = document.getElementById('cf-email').value.trim();
+        const phone   = document.getElementById('cf-phone').value.trim();
+        const message = document.getElementById('cf-message').value.trim();
+        const status  = document.getElementById('cf-status');
+
+        if (!name || !email || !phone || !message) {
+            status.className = 'form-status error';
+            status.style.display = 'flex';
+            status.innerHTML = '<i class="fa-solid fa-circle-exclamation"></i> Por favor complete todos los campos obligatorios.';
+            return;
+        }
+        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+            status.className = 'form-status error';
+            status.style.display = 'flex';
+            status.innerHTML = '<i class="fa-solid fa-circle-exclamation"></i> Por favor ingrese un correo electrónico válido.';
+            return;
+        }
+        // Simulate sending
+        const btn = document.querySelector('.btn-submit');
+        btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Enviando...';
+        btn.disabled = true;
+        setTimeout(() => {
+            status.className = 'form-status success';
+            status.style.display = 'flex';
+            status.innerHTML = '<i class="fa-solid fa-circle-check"></i> ¡Mensaje enviado con éxito! Nos pondremos en contacto pronto.';
+            btn.innerHTML = 'Enviar Mensaje <i class="fa-solid fa-paper-plane"></i>';
+            btn.disabled = false;
+            ['cf-name','cf-email','cf-phone','cf-message'].forEach(id => document.getElementById(id).value = '');
+            document.getElementById('cf-subject').selectedIndex = 0;
+        }, 1800);
+    }
+
+    // ─── PQRS SUBMIT ───
+    function submitPQRS() {
+        const required = ['pq-doctype','pq-docnum','pq-name','pq-email','pq-phone','pq-type','pq-dept','pq-desc'];
+        const status = document.getElementById('pq-status');
+        for (const id of required) {
+            if (!document.getElementById(id).value.trim()) {
+                status.className = 'form-status error';
+                status.style.display = 'flex';
+                status.innerHTML = '<i class="fa-solid fa-circle-exclamation"></i> Por favor complete todos los campos obligatorios.';
+                return;
+            }
+        }
+        const btn = document.querySelector('.btn-pqrs');
+        btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Radicando...';
+        btn.disabled = true;
+        setTimeout(() => {
+            const radicado = 'PQRS-' + Date.now().toString().slice(-8);
+            status.style.cssText = 'display:flex;background:rgba(16,185,129,0.12);border:1px solid rgba(16,185,129,0.35);color:#065f46;margin-top:14px;padding:12px 16px;border-radius:6px;font-size:13px;font-weight:600;align-items:center;gap:10px;';
+            status.innerHTML = `<i class="fa-solid fa-circle-check" style="color:#10b981"></i> PQRS radicada exitosamente. Número de radicado: <strong>${radicado}</strong>. Recibirá confirmación en su correo.`;
+            btn.innerHTML = 'Radicar PQRS <i class="fa-solid fa-paper-plane"></i>';
+            btn.disabled = false;
+            required.forEach(id => { document.getElementById(id).value = ''; });
+        }, 1800);
+    }
+
+    // Allow Enter to submit forms
+    document.addEventListener('keydown', e => {
+        if (e.key === 'Enter' && e.target.id.startsWith('cf-') && e.target.tagName !== 'TEXTAREA') submitContactForm();
+    });
+
+    /*]]>*/
+</script>
+</body>
+</html>
