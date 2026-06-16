@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mi Perfil — Portal Mardique</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/css/panel-nav.css">
+    <style>
+        *{margin:0;padding:0;box-sizing:border-box;}
+        body{font-family:'Plus Jakarta Sans',sans-serif;background:#f0f4f8;color:#1e293b;display:flex;flex-direction:column;min-height:100vh;}
+        :root{--pd:#1b4562;--pb:#28648c;--ag:#f09a36;--ac:#00a3e0;--bg:#f0f4f8;--sur:#ffffff;--bdr:#e2e8f2;--tx:#1e293b;--mx:#64748b;--r:8px;--rl:14px;--tr:all 0.3s cubic-bezier(0.4,0,0.2,1);--sh:0 1px 4px rgba(27,69,98,.06);--shm:0 6px 24px rgba(27,69,98,.10);}
+        header{background:var(--pd);position:sticky;top:0;z-index:500;box-shadow:0 2px 20px rgba(0,0,0,.18);}
+        .hdr{display:flex;justify-content:space-between;align-items:center;padding:13px 28px;gap:16px;}
+        .logo-box img{height:36px;width:auto;}
+        nav{flex:1;display:flex;justify-content:center;}
+        .nav-menu{display:flex;gap:20px;align-items:center;list-style:none;flex-wrap:wrap;justify-content:center;}
+        .nav-menu li a{color:rgba(255,255,255,.72);font-size:11px;font-weight:700;text-transform:uppercase;position:relative;padding:6px 0;letter-spacing:.4px;transition:color .25s;text-decoration:none;display:flex;align-items:center;gap:5px;}
+        .nav-menu li a::after{content:'';position:absolute;bottom:0;left:0;width:0;height:2px;background:var(--ag);transition:width .3s;}
+        .nav-menu li.active a,.nav-menu li a:hover{color:#fff;}
+        .nav-menu li.active a::after,.nav-menu li a:hover::after{width:100%;}
+        .hdr-right{display:flex;align-items:center;gap:10px;}
+        .hdr-user{color:rgba(255,255,255,.65);font-size:12px;}
+        .btn-logout{display:inline-flex;align-items:center;gap:5px;padding:7px 14px;border:none;border-radius:6px;background:#dc2626;color:#fff;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit;text-decoration:none;transition:var(--tr);}
+        .btn-logout:hover{background:#b91c1c;}
+        .mob-toggle{display:none;flex-direction:column;gap:5px;background:none;border:none;cursor:pointer;}
+        .mob-toggle span{width:22px;height:2px;background:#fff;border-radius:2px;}
+        .hero{background:linear-gradient(135deg,var(--pd) 0%,#0d2438 100%);padding:36px 32px 44px;position:relative;overflow:hidden;}
+        .hero::before{content:'';position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,.025) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.025) 1px,transparent 1px);background-size:32px 32px;}
+        .hero::after{content:'';position:absolute;bottom:-1px;left:0;right:0;height:40px;background:var(--bg);clip-path:ellipse(55% 100% at 50% 100%);}
+        .hero-inner{position:relative;z-index:1;max-width:800px;margin:0 auto;text-align:center;}
+        .hero h1{font-size:26px;font-weight:800;color:#fff;margin-bottom:6px;}
+        .hero h1 i{color:var(--ag);margin-right:8px;}
+        .hero p{font-size:13.5px;color:rgba(255,255,255,.65);}
+        .main-content{padding:36px 28px 48px;max-width:1000px;margin:0 auto;width:100%;flex:1;}
+        .card{background:var(--sur);border-radius:var(--rl);padding:28px;margin-bottom:24px;border:1.5px solid var(--bdr);box-shadow:var(--sh);transition:var(--tr);}
+        .card h2{font-size:16px;font-weight:800;color:var(--pd);margin-bottom:20px;display:flex;align-items:center;gap:8px;}
+        .form-row{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+        .field{margin-bottom:16px;}
+        .field label{display:block;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.3px;margin-bottom:5px;color:var(--mx);}
+        .field input{width:100%;padding:11px 14px;border-radius:var(--r);border:1.5px solid var(--bdr);font-size:14px;font-family:inherit;outline:none;transition:var(--tr);background:#fff;}
+        .field input:focus{border-color:var(--ag);box-shadow:0 0 0 3px rgba(240,154,54,.1);}
+        .field input[readonly]{background:#f8fafc;cursor:default;}
+        .btn{padding:10px 24px;border:none;border-radius:var(--r);font-size:13px;font-weight:700;font-family:inherit;cursor:pointer;transition:var(--tr);display:inline-flex;align-items:center;gap:7px;text-decoration:none;}
+        .btn-gold{background:var(--ag);color:#fff;}
+        .btn-gold:hover{background:#d67e1a;transform:translateY(-1px);}
+        .msg{padding:12px 16px;border-radius:var(--r);font-size:13px;margin-bottom:20px;display:flex;align-items:center;gap:8px;}
+        .msg-success{background:#f0fdf4;border:1px solid #bbf7d0;color:#16a34a;}
+        .footer{text-align:center;padding:20px;border-top:1px solid var(--bdr);color:#94a3b8;font-size:12px;background:var(--sur);margin-top:auto;}
+        .reveal{opacity:0;transform:translateY(20px);transition:all .55s cubic-bezier(.22,1,.36,1);}
+        .reveal.visible{opacity:1;transform:translateY(0);}
+        .modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:1000;align-items:center;justify-content:center;backdrop-filter:blur(3px);}
+        .modal-overlay.show{display:flex;}
+        .modal-box{background:#fff;border-radius:16px;padding:36px;width:100%;max-width:400px;text-align:center;}
+        .modal-box h2{font-size:18px;color:var(--pd);margin-bottom:8px;}
+        .modal-box p{font-size:13px;color:var(--mx);margin-bottom:24px;}
+        .modal-actions{display:flex;gap:10px;justify-content:center;}
+        .btn-outline{background:transparent;border:1.5px solid var(--bdr);color:var(--mx);padding:10px 20px;border-radius:var(--r);font-weight:600;cursor:pointer;}
+        .btn-outline:hover{border-color:var(--ag);color:var(--ag);}
+        .btn-red{background:#dc2626;color:#fff;padding:10px 22px;border-radius:var(--r);text-decoration:none;display:inline-flex;align-items:center;gap:6px;font-weight:700;}
+        .btn-red:hover{background:#b91c1c;}
+        .drawer-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:800;backdrop-filter:blur(2px);}
+        .mob-drawer{display:none;position:fixed;top:0;left:0;height:100%;width:280px;background:var(--pd);z-index:900;flex-direction:column;transform:translateX(-100%);transition:transform .35s cubic-bezier(.4,0,.2,1);}
+        .mob-drawer.open,.drawer-overlay.open{display:flex;transform:translateX(0);}
+        .drawer-hdr{display:flex;justify-content:space-between;padding:18px 20px;border-bottom:1px solid rgba(255,255,255,.08);}
+        .drawer-hdr img{height:32px;}
+        .drawer-close{background:none;border:none;color:rgba(255,255,255,.6);font-size:24px;cursor:pointer;}
+        .drawer-nav{padding:16px 12px;display:flex;flex-direction:column;gap:2px;}
+        .drawer-nav a{display:flex;align-items:center;gap:10px;padding:11px 12px;border-radius:8px;color:rgba(255,255,255,.72);font-size:13px;font-weight:600;text-decoration:none;}
+        .drawer-nav a:hover{background:rgba(255,255,255,.08);color:#fff;}
+        .drawer-nav a.active{background:rgba(240,154,54,.15);color:var(--ag);}
+        .drawer-div{height:1px;background:rgba(255,255,255,.07);margin:8px 0;}
+        .drawer-logout{background:#dc2626!important;color:#fff!important;}
+        @media(max-width:768px){header nav{display:none;}.mob-toggle{display:flex;}.hdr-user{display:none;}.hero{padding:28px 16px 36px;}.hero h1{font-size:20px;}.main-content{padding:24px 16px 32px;}.form-row{grid-template-columns:1fr;}}
+    </style>
+</head>
+<body>
+
+<header id="main-header">
+    <div class="hdr">
+        <a href="/user/inicio" class="logo-box"><img src="/images/Logo.png" alt="Mardique"></a>
+        <nav>
+            <ul class="nav-menu">
+                <li><a href="/user/inicio"><i class="fas fa-home"></i> Inicio</a></li>
+                <li><a href="/user/servicios"><i class="fas fa-concierge-bell"></i> Servicios</a></li>
+                <li><a href="/user/tramites"><i class="fas fa-file-contract"></i> Trámites</a></li>
+                <li><a href="/user/tarifas"><i class="fas fa-file-invoice-dollar"></i> Tarifas</a></li>
+                <li><a href="/user/payments"><i class="fas fa-credit-card"></i> Pagos</a></li>
+                <li><a href="/user/solicitudes"><i class="fas fa-file-alt"></i> Solicitudes</a></li>
+                <li class="active"><a href="/user/profile"><i class="fas fa-user"></i> Perfil</a></li>
+            </ul>
+        </nav>
+        <div class="hdr-right">
+            <span class="hdr-user" th:text="${#authentication.name}">usuario</span>
+            <button class="btn-logout" onclick="document.getElementById('logoutModal').classList.add('show')"><i class="fas fa-sign-out-alt"></i> Salir</button>
+        </div>
+        <button class="mob-toggle" id="mobileToggle"><span></span><span></span><span></span></button>
+    </div>
+</header>
+
+<div class="hero">
+    <div class="hero-inner">
+        <h1><i class="fas fa-user-circle"></i> Mi Perfil</h1>
+        <p>Administra tus datos personales</p>
+    </div>
+</div>
+
+<div class="main-content">
+    <div th:if="${success}" class="msg msg-success"><i class="fas fa-check-circle"></i> <span th:text="${success}">Perfil actualizado</span></div>
+
+    <div class="card reveal">
+        <h2><i class="fas fa-edit" style="color:var(--ag);"></i> Editar información personal</h2>
+        <form th:action="@{/user/profile/update}" method="post">
+            <div class="field"><label>Nombre de usuario</label><input type="text" th:value="${profileUser.username}" readonly></div>
+            <div class="form-row">
+                <div class="field"><label>Nombres</label><input type="text" name="nombres" th:value="${profileUser.nombres}" required></div>
+                <div class="field"><label>Apellidos</label><input type="text" name="apellidos" th:value="${profileUser.apellidos}" required></div>
+            </div>
+            <div class="field"><label>Correo electrónico</label><input type="email" name="email" th:value="${profileUser.email}" required></div>
+            <div class="field"><label>Teléfono</label><input type="text" name="telefono" th:value="${profileUser.telefono}" placeholder="+57 312 345 6789"></div>
+            <button type="submit" class="btn btn-gold"><i class="fas fa-save"></i> Guardar cambios</button>
+        </form>
+    </div>
+</div>
+
+<div class="footer">
+    &copy; 2026 Sociedad Portuaria Mardique S.A. · <a href="/inicio" style="color:var(--ac);text-decoration:none;">Volver al sitio público</a>
+</div>
+
+<div class="modal-overlay" id="logoutModal">
+    <div class="modal-box">
+        <i class="fas fa-sign-out-alt" style="font-size: 46px; color: var(--ag); margin-bottom: 12px; display: block;"></i>
+        <h2>Cerrar Sesión</h2>
+        <p>¿Estás seguro de que deseas cerrar tu sesión?</p>
+        <div class="modal-actions">
+            <button type="button" class="btn-outline" onclick="document.getElementById('logoutModal').classList.remove('show')">Cancelar</button>
+            <a href="/logout" class="btn-red"><i class="fas fa-sign-out-alt"></i> Cerrar Sesión</a>
+        </div>
+    </div>
+</div>
+
+<div class="drawer-overlay" id="drawerOverlay"></div>
+<nav class="mob-drawer" id="mobileDrawer">
+    <div class="drawer-hdr"><img src="/images/Logo.png" alt="Mardique"><button class="drawer-close" id="drawerClose">&times;</button></div>
+    <div class="drawer-nav">
+        <a href="/user/inicio"><i class="fas fa-home"></i> Inicio</a>
+        <a href="/user/servicios"><i class="fas fa-concierge-bell"></i> Servicios</a>
+        <a href="/user/tramites"><i class="fas fa-file-contract"></i> Trámites</a>
+        <a href="/user/tarifas"><i class="fas fa-file-invoice-dollar"></i> Tarifas</a>
+        <div class="drawer-div"></div>
+        <a href="/user/payments"><i class="fas fa-credit-card"></i> Pagos</a>
+        <a href="/user/solicitudes"><i class="fas fa-file-alt"></i> Solicitudes</a>
+        <a href="/user/profile" class="active"><i class="fas fa-user"></i> Perfil</a>
+        <div class="drawer-div"></div>
+        <a href="javascript:void(0)" onclick="document.getElementById('logoutModal').classList.add('show')" class="drawer-logout"><i class="fas fa-sign-out-alt"></i> Cerrar Sesión</a>
+    </div>
+</nav>
+
+<script>
+    document.getElementById('logoutModal')?.addEventListener('click',function(e){if(e.target===this)this.classList.remove('show');});
+    const obs=new IntersectionObserver(e=>{e.forEach(e=>{if(e.isIntersecting)e.target.classList.add('visible');});},{threshold:.1});
+    document.querySelectorAll('.reveal').forEach(el=>obs.observe(el));
+    const toggle=document.getElementById('mobileToggle'),drawer=document.getElementById('mobileDrawer'),overlay=document.getElementById('drawerOverlay'),close=document.getElementById('drawerClose');
+    const open=()=>{drawer.classList.add('open');overlay.classList.add('open');document.body.style.overflow='hidden';};
+    const closeDrw=()=>{drawer.classList.remove('open');overlay.classList.remove('open');document.body.style.overflow='';};
+    toggle?.addEventListener('click',open);close?.addEventListener('click',closeDrw);overlay?.addEventListener('click',closeDrw);
+</script>
+<script src="/js/panel-nav.js"></script>
+</body>
+</html>

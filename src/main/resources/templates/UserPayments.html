@@ -1,0 +1,1018 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mis Pagos — Portal Mardique</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/css/panel-nav.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background: #f0f4f8;
+            color: #1e293b;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        :root {
+            --pd: #1b4562;
+            --pb: #28648c;
+            --ag: #f09a36;
+            --ac: #00a3e0;
+            --bg: #f0f4f8;
+            --sur: #ffffff;
+            --bdr: #e2e8f2;
+            --tx: #1e293b;
+            --mx: #64748b;
+            --r: 8px;
+            --rl: 14px;
+            --tr: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            --sh: 0 1px 4px rgba(27, 69, 98, .06);
+            --shm: 0 6px 24px rgba(27, 69, 98, .10);
+        }
+
+        /* ─── HEADER ─── */
+        header {
+            background: var(--pd);
+            position: sticky;
+            top: 0;
+            z-index: 500;
+            box-shadow: 0 2px 20px rgba(0, 0, 0, .18);
+        }
+
+        .hdr {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 13px 28px;
+            gap: 16px;
+        }
+
+        .logo-box img {
+            height: 36px;
+            width: auto;
+        }
+
+        nav {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+        }
+
+        .nav-menu {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+            list-style: none;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .nav-menu li a {
+            color: rgba(255, 255, 255, .72);
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            position: relative;
+            padding: 6px 0;
+            letter-spacing: .4px;
+            transition: color .25s;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .nav-menu li a::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: var(--ag);
+            transition: width .3s;
+        }
+
+        .nav-menu li.active a,
+        .nav-menu li a:hover {
+            color: #fff;
+        }
+
+        .nav-menu li.active a::after,
+        .nav-menu li a:hover::after {
+            width: 100%;
+        }
+
+        .hdr-right {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .hdr-user {
+            color: rgba(255, 255, 255, .65);
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .btn-logout {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 7px 14px;
+            border: none;
+            border-radius: 6px;
+            background: #dc2626;
+            color: #fff;
+            font-size: 11px;
+            font-weight: 700;
+            cursor: pointer;
+            font-family: inherit;
+            text-decoration: none;
+            transition: var(--tr);
+        }
+
+        .btn-logout:hover {
+            background: #b91c1c;
+        }
+
+        .mob-toggle {
+            display: none;
+            flex-direction: column;
+            gap: 5px;
+            background: none;
+            border: none;
+            cursor: pointer;
+        }
+
+        .mob-toggle span {
+            width: 22px;
+            height: 2px;
+            background: #fff;
+            border-radius: 2px;
+        }
+
+        /* ─── HERO ─── */
+        .hero {
+            background: linear-gradient(135deg, var(--pd) 0%, #0d2438 100%);
+            padding: 36px 32px 44px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background-image: linear-gradient(rgba(255, 255, 255, .025) 1px, transparent 1px), linear-gradient(90deg, rgba(255, 255, 255, .025) 1px, transparent 1px);
+            background-size: 32px 32px;
+            pointer-events: none;
+        }
+
+        .hero::after {
+            content: '';
+            position: absolute;
+            bottom: -1px;
+            left: 0;
+            right: 0;
+            height: 40px;
+            background: var(--bg);
+            clip-path: ellipse(55% 100% at 50% 100%);
+        }
+
+        .hero-inner {
+            position: relative;
+            z-index: 1;
+            max-width: 800px;
+            margin: 0 auto;
+            text-align: center;
+        }
+
+        .hero h1 {
+            font-size: 26px;
+            font-weight: 800;
+            color: #fff;
+            margin-bottom: 6px;
+        }
+
+        .hero h1 i {
+            color: var(--ag);
+            margin-right: 8px;
+        }
+
+        .hero p {
+            font-size: 13.5px;
+            color: rgba(255, 255, 255, .65);
+        }
+
+        /* ─── MAIN CONTENT ─── */
+        .main-content {
+            padding: 36px 28px 48px;
+            max-width: 1200px;
+            margin: 0 auto;
+            width: 100%;
+            flex: 1;
+        }
+
+        /* Cards */
+        .card {
+            background: var(--sur);
+            border-radius: var(--rl);
+            padding: 28px;
+            margin-bottom: 28px;
+            border: 1.5px solid var(--bdr);
+            box-shadow: var(--sh);
+            transition: var(--tr);
+        }
+
+        .card:hover {
+            box-shadow: var(--shm);
+        }
+
+        .card h2 {
+            font-size: 16px;
+            font-weight: 800;
+            color: var(--pd);
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .card h2 i {
+            color: var(--ag);
+        }
+
+        /* Formulario */
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+
+        .field {
+            margin-bottom: 16px;
+        }
+
+        .field label {
+            display: block;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .3px;
+            margin-bottom: 5px;
+            color: var(--mx);
+        }
+
+        .field input,
+        .field select {
+            width: 100%;
+            padding: 11px 14px;
+            border-radius: var(--r);
+            border: 1.5px solid var(--bdr);
+            font-size: 14px;
+            font-family: inherit;
+            outline: none;
+            transition: var(--tr);
+            background: #fff;
+        }
+
+        .field input:focus,
+        .field select:focus {
+            border-color: var(--ag);
+            box-shadow: 0 0 0 3px rgba(240, 154, 54, .1);
+        }
+
+        .field input[type="file"] {
+            padding: 8px;
+            background: #f8fafc;
+        }
+
+        /* Botones */
+        .btn {
+            padding: 10px 24px;
+            border: none;
+            border-radius: var(--r);
+            font-size: 13px;
+            font-weight: 700;
+            font-family: inherit;
+            cursor: pointer;
+            transition: var(--tr);
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            text-decoration: none;
+        }
+
+        .btn-gold {
+            background: var(--ag);
+            color: #fff;
+        }
+
+        .btn-gold:hover {
+            background: #d67e1a;
+            transform: translateY(-1px);
+        }
+
+        /* Mensajes */
+        .msg {
+            padding: 12px 16px;
+            border-radius: var(--r);
+            font-size: 13px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .msg-success {
+            background: #f0fdf4;
+            border: 1px solid #bbf7d0;
+            color: #16a34a;
+        }
+
+        .msg-error {
+            background: #fef2f2;
+            border: 1px solid #fecaca;
+            color: #dc2626;
+        }
+
+        /* PSE Banner */
+        .pse-banner {
+            background: linear-gradient(135deg, #e0f2fe, #f0f9ff);
+            border: 1.5px solid #bae6fd;
+            border-radius: var(--rl);
+            padding: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 20px;
+            margin-bottom: 32px;
+            transition: var(--tr);
+        }
+
+        .pse-info {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+
+        .pse-info i {
+            font-size: 42px;
+            color: var(--pb);
+        }
+
+        .pse-info div strong {
+            font-size: 15px;
+            color: var(--pd);
+            display: block;
+            margin-bottom: 4px;
+        }
+
+        .pse-info div p {
+            font-size: 12.5px;
+            color: var(--mx);
+        }
+
+        .btn-pse {
+            background: var(--pd);
+            color: #fff;
+            padding: 10px 22px;
+            border-radius: var(--r);
+            text-decoration: none;
+            font-weight: 700;
+            font-size: 13px;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: var(--tr);
+            opacity: 0.7;
+            pointer-events: none;
+            cursor: not-allowed;
+        }
+
+        /* Section Title */
+        .section-title {
+            font-size: 15px;
+            font-weight: 800;
+            color: var(--pd);
+            margin: 24px 0 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .section-title i {
+            color: var(--ac);
+        }
+
+        /* Tabla */
+        .table-scroll {
+            overflow-x: auto;
+            border-radius: var(--rl);
+            border: 1.5px solid var(--bdr);
+            background: var(--sur);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+        }
+
+        th {
+            text-align: left;
+            padding: 14px;
+            background: #f8fafc;
+            font-weight: 700;
+            color: var(--pd);
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: .3px;
+            border-bottom: 2px solid #e2e8f0;
+        }
+
+        td {
+            padding: 12px 14px;
+            border-bottom: 1px solid #f1f5f9;
+            vertical-align: middle;
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        tr:hover td {
+            background: #f8fafc;
+        }
+
+        /* Estados */
+        .status {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 50px;
+            font-size: 11px;
+            font-weight: 700;
+        }
+
+        .status-pending {
+            background: #fef3c7;
+            color: #d97706;
+        }
+
+        .status-processed {
+            background: #d1fae5;
+            color: #16a34a;
+        }
+
+        /* Botón de ver comprobante */
+        .btn-view {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 5px 10px;
+            background: #e2e8f0;
+            color: var(--pd);
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: var(--tr);
+        }
+
+        .btn-view:hover {
+            background: var(--ag);
+            color: #fff;
+        }
+
+        /* Footer */
+        .footer {
+            text-align: center;
+            padding: 20px;
+            border-top: 1px solid var(--bdr);
+            color: #94a3b8;
+            font-size: 12px;
+            background: var(--sur);
+            margin-top: auto;
+        }
+
+        .footer a {
+            color: var(--ac);
+            text-decoration: none;
+        }
+
+        .footer a:hover {
+            text-decoration: underline;
+        }
+
+        /* Reveal Animation */
+        .reveal {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all .55s cubic-bezier(.22, 1, .36, 1);
+        }
+
+        .reveal.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Modal */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, .5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(3px);
+        }
+
+        .modal-overlay.show {
+            display: flex;
+            animation: fadeUp .2s ease;
+        }
+
+        .modal-box {
+            background: #fff;
+            border-radius: 16px;
+            padding: 36px;
+            width: 100%;
+            max-width: 400px;
+            box-shadow: 0 24px 64px rgba(0, 0, 0, .3);
+            text-align: center;
+        }
+
+        .modal-icon {
+            font-size: 46px;
+            color: var(--ag);
+            margin-bottom: 12px;
+        }
+
+        .modal-box h2 {
+            font-size: 18px;
+            color: var(--pd);
+            margin-bottom: 8px;
+        }
+
+        .modal-box p {
+            font-size: 13px;
+            color: var(--mx);
+            margin-bottom: 24px;
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+        }
+
+        .btn-cancel {
+            background: transparent;
+            border: 1.5px solid var(--bdr);
+            color: var(--mx);
+            padding: 10px 20px;
+            border-radius: var(--r);
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--tr);
+        }
+
+        .btn-cancel:hover {
+            border-color: var(--ag);
+            color: var(--ag);
+        }
+
+        .btn-red {
+            background: #dc2626;
+            color: #fff;
+            padding: 10px 22px;
+            border: none;
+            border-radius: var(--r);
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: var(--tr);
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            text-decoration: none;
+        }
+
+        .btn-red:hover {
+            background: #b91c1c;
+        }
+
+        @keyframes fadeUp {
+            from {
+                opacity: 0;
+                transform: translateY(12px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Drawer Móvil */
+        .drawer-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, .45);
+            z-index: 800;
+            backdrop-filter: blur(2px);
+        }
+
+        .drawer-overlay.open {
+            display: flex;
+        }
+
+        .mob-drawer {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 100%;
+            width: 280px;
+            background: var(--pd);
+            z-index: 900;
+            flex-direction: column;
+            transform: translateX(-100%);
+            transition: transform .35s cubic-bezier(.4, 0, .2, 1);
+        }
+
+        .mob-drawer.open {
+            display: flex;
+            transform: translateX(0);
+        }
+
+        .drawer-hdr {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 18px 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, .08);
+        }
+
+        .drawer-hdr img {
+            height: 32px;
+        }
+
+        .drawer-close {
+            background: none;
+            border: none;
+            color: rgba(255, 255, 255, .6);
+            font-size: 24px;
+            cursor: pointer;
+            line-height: 1;
+        }
+
+        .drawer-nav {
+            padding: 16px 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+            overflow-y: auto;
+            flex: 1;
+        }
+
+        .drawer-nav a {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 11px 12px;
+            border-radius: 8px;
+            color: rgba(255, 255, 255, .72);
+            font-size: 13px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: var(--tr);
+        }
+
+        .drawer-nav a:hover {
+            background: rgba(255, 255, 255, .08);
+            color: #fff;
+        }
+
+        .drawer-nav a.active {
+            background: rgba(240, 154, 54, .15);
+            color: var(--ag);
+        }
+
+        .drawer-div {
+            height: 1px;
+            background: rgba(255, 255, 255, .07);
+            margin: 8px 0;
+        }
+
+        .drawer-logout {
+            background: #dc2626 !important;
+            color: #fff !important;
+            border-radius: 8px;
+            margin-top: 4px;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            header nav {
+                display: none;
+            }
+            .mob-toggle {
+                display: flex;
+            }
+            .hdr-user {
+                display: none;
+            }
+            .hero {
+                padding: 28px 16px 36px;
+            }
+            .hero h1 {
+                font-size: 20px;
+            }
+            .main-content {
+                padding: 24px 16px 32px;
+            }
+            .form-row {
+                grid-template-columns: 1fr;
+                gap: 0;
+            }
+            .pse-banner {
+                flex-direction: column;
+                text-align: center;
+            }
+            .pse-info {
+                flex-direction: column;
+                text-align: center;
+            }
+            th, td {
+                padding: 10px;
+                font-size: 11px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<header id="main-header">
+    <div class="hdr">
+        <a href="/user/inicio" class="logo-box">
+            <img src="/images/Logo.png" alt="Mardique">
+        </a>
+        <nav>
+            <ul class="nav-menu">
+                <li><a href="/user/inicio"><i class="fas fa-home"></i> Inicio</a></li>
+                <li><a href="/user/servicios"><i class="fas fa-concierge-bell"></i> Servicios</a></li>
+                <li><a href="/user/tramites"><i class="fas fa-file-contract"></i> Trámites</a></li>
+                <li><a href="/user/tarifas"><i class="fas fa-file-invoice-dollar"></i> Tarifas</a></li>
+                <li class="active"><a href="/user/payments"><i class="fas fa-credit-card"></i> Pagos</a></li>
+                <li><a href="/user/solicitudes"><i class="fas fa-file-alt"></i> Solicitudes</a></li>
+                <li><a href="/user/profile"><i class="fas fa-user"></i> Perfil</a></li>
+            </ul>
+        </nav>
+        <div class="hdr-right">
+            <span class="hdr-user" th:text="${#authentication.name}">usuario</span>
+            <button class="btn-logout" onclick="document.getElementById('logoutModal').classList.add('show')">
+                <i class="fas fa-sign-out-alt"></i> Salir
+            </button>
+        </div>
+        <button class="mob-toggle" id="mobileToggle" aria-label="Abrir menú">
+            <span></span><span></span><span></span>
+        </button>
+    </div>
+</header>
+
+<div class="hero">
+    <div class="hero-inner">
+        <h1><i class="fas fa-credit-card"></i> Pagos en Línea</h1>
+        <p>Registre y consulte sus pagos realizados</p>
+    </div>
+</div>
+
+<div class="main-content">
+    <!-- Mensajes de éxito/error -->
+    <div th:if="${success}" class="msg msg-success reveal">
+        <i class="fas fa-check-circle"></i> <span th:text="${success}">Pago registrado exitosamente</span>
+    </div>
+    <div th:if="${error}" class="msg msg-error reveal">
+        <i class="fas fa-exclamation-circle"></i> <span th:text="${error}">Error al registrar el pago</span>
+    </div>
+
+    <!-- Formulario de registro de pago -->
+    <div class="card reveal">
+        <h2><i class="fas fa-plus-circle"></i> Registrar nuevo pago</h2>
+        <form th:action="@{/user/payment/register}" method="post" enctype="multipart/form-data">
+            <div class="form-row">
+                <div class="field">
+                    <label>Concepto</label>
+                    <select name="concepto" required>
+                        <option value="">Seleccione...</option>
+                        <option value="TASAS">Tasas</option>
+                        <option value="IMPUESTOS">Impuestos</option>
+                        <option value="MULTAS">Multas</option>
+                        <option value="SERVICIOS">Servicios</option>
+                        <option value="OTROS">Otros</option>
+                    </select>
+                </div>
+                <div class="field">
+                    <label>Monto</label>
+                    <input type="number" step="0.01" name="monto" required placeholder="0.00">
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="field">
+                    <label>Nro. Referencia</label>
+                    <input type="text" name="referencia" required placeholder="Número de referencia">
+                </div>
+                <div class="field">
+                    <label>Moneda</label>
+                    <select name="moneda">
+                        <option value="COP" selected>COP (Peso Colombiano)</option>
+                        <option value="USD">USD (Dólar)</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="field">
+                    <label>Fecha de pago</label>
+                    <input type="date" name="fechaPago" required>
+                </div>
+                <div class="field"></div>
+            </div>
+            <div class="field">
+                <label>Comprobante (imagen o PDF)</label>
+                <input type="file" name="comprobante" accept="image/*,.pdf" required>
+            </div>
+            <button type="submit" class="btn btn-gold">
+                <i class="fas fa-paper-plane"></i> REGISTRAR PAGO
+            </button>
+        </form>
+    </div>
+
+    <!-- Banner PSE -->
+    <div class="pse-banner reveal">
+        <div class="pse-info">
+            <i class="fas fa-university"></i>
+            <div>
+                <strong>Pago en línea PSE</strong>
+                <p>Paga de forma segura desde tu cuenta bancaria a través de PSE. Recibirás confirmación inmediata.</p>
+            </div>
+        </div>
+        <a href="#" class="btn-pse">
+            <i class="fas fa-arrow-right"></i> Pagar con PSE
+        </a>
+    </div>
+
+    <!-- Historial de pagos -->
+    <div class="section-title reveal">
+        <i class="fas fa-history"></i> Historial de pagos
+    </div>
+    <div class="table-scroll reveal">
+        <table>
+            <thead>
+            <tr>
+                <th>Concepto</th>
+                <th>Monto</th>
+                <th>Moneda</th>
+                <th>Referencia</th>
+                <th>Fecha</th>
+                <th>Comprobante</th>
+                <th>Estado</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="p : ${payments}">
+                <td th:text="${p.concepto}">Concepto</td>
+                <td>
+                    <strong th:if="${p.monto != null}" th:text="${#numbers.formatDecimal(p.monto, 1, 2)}">0.00</strong>
+                    <strong th:if="${p.monto == null}">-</strong>
+                </td>
+                <td th:text="${p.moneda}">COP</td>
+                <td th:text="${p.referencia}">REF123</td>
+                <td style="color: #94a3b8; font-size: 12px;">
+                    <span th:if="${p.fechaPago != null}" th:text="${#temporals.format(p.fechaPago, 'dd/MM/yyyy')}">fecha</span>
+                    <span th:if="${p.fechaPago == null}">-</span>
+                </td>
+                <td>
+                    <a th:if="${p.comprobantePath != null}" th:href="${p.comprobantePath}" target="_blank" class="btn-view">
+                        <i class="fas fa-file-pdf"></i> Ver
+                    </a>
+                    <a th:if="${p.comprobanteManualPath != null}" th:href="${p.comprobanteManualPath}" target="_blank" class="btn-view" style="background: var(--ag); color: #fff;">
+                        <i class="fas fa-file-invoice"></i> Manual
+                    </a>
+                    <span th:if="${p.comprobantePath == null and p.comprobanteManualPath == null}" style="color: #94a3b8;">-</span>
+                </td>
+                <td>
+                        <span class="status" th:classappend="${p.processed} ? 'status-processed' : 'status-pending'" th:text="${p.processed} ? 'Procesado' : 'Pendiente'">
+                            Pendiente
+                        </span>
+                </td>
+            </tr>
+            <tr th:if="${#lists.isEmpty(payments)}">
+                <td colspan="7" style="text-align: center; padding: 48px; color: #94a3b8;">
+                    <i class="fas fa-credit-card" style="font-size: 32px; margin-bottom: 12px; display: block;"></i>
+                    No ha realizado ningún pago
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Footer -->
+<div class="footer">
+    &copy; 2026 Sociedad Portuaria Mardique S.A. &middot; <a href="/inicio">Volver al sitio público</a>
+</div>
+
+<!-- Modal de Logout -->
+<div class="modal-overlay" id="logoutModal">
+    <div class="modal-box">
+        <i class="fas fa-sign-out-alt" style="font-size: 46px; color: var(--ag); margin-bottom: 12px; display: block;"></i>
+        <h2>Cerrar Sesión</h2>
+        <p>¿Estás seguro de que deseas cerrar tu sesión?</p>
+        <div class="modal-actions">
+            <button type="button" class="btn-outline" onclick="document.getElementById('logoutModal').classList.remove('show')">Cancelar</button>
+            <a href="/logout" class="btn-red"><i class="fas fa-sign-out-alt"></i> Cerrar Sesión</a>
+        </div>
+    </div>
+</div>
+
+<!-- Drawer Móvil -->
+<div class="drawer-overlay" id="drawerOverlay"></div>
+<nav class="mob-drawer" id="mobileDrawer" aria-label="Menú móvil">
+    <div class="drawer-hdr">
+        <img src="/images/Logo.png" alt="Mardique">
+        <button class="drawer-close" id="drawerClose" aria-label="Cerrar menú">&times;</button>
+    </div>
+    <div class="drawer-nav">
+        <a href="/user/inicio"><i class="fas fa-home"></i> Inicio</a>
+        <a href="/user/servicios"><i class="fas fa-concierge-bell"></i> Servicios</a>
+        <a href="/user/tramites"><i class="fas fa-file-contract"></i> Trámites</a>
+        <a href="/user/tarifas"><i class="fas fa-file-invoice-dollar"></i> Tarifas</a>
+        <div class="drawer-div"></div>
+        <a href="/user/payments" class="active"><i class="fas fa-credit-card"></i> Pagos</a>
+        <a href="/user/solicitudes"><i class="fas fa-file-alt"></i> Solicitudes</a>
+        <a href="/user/profile"><i class="fas fa-user"></i> Perfil</a>
+        <div class="drawer-div"></div>
+        <a href="javascript:void(0)" onclick="document.getElementById('logoutModal').classList.add('show')" class="drawer-logout">
+            <i class="fas fa-sign-out-alt"></i> Cerrar Sesión
+        </a>
+    </div>
+</nav>
+
+<script>
+    // Cerrar modal haciendo clic fuera
+    document.getElementById('logoutModal').addEventListener('click', function(e) {
+        if (e.target === this) this.classList.remove('show');
+    });
+
+    // Animaciones reveal al hacer scroll
+    const observer = new IntersectionObserver(entries => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('visible');
+            }
+        });
+    }, { threshold: 0.1 });
+    document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+    // Drawer móvil
+    const toggleBtn = document.getElementById('mobileToggle');
+    const drawer = document.getElementById('mobileDrawer');
+    const overlay = document.getElementById('drawerOverlay');
+    const closeBtn = document.getElementById('drawerClose');
+
+    function openDrawer() {
+        drawer.classList.add('open');
+        overlay.classList.add('open');
+        document.body.style.overflow = 'hidden';
+    }
+
+    function closeDrawer() {
+        drawer.classList.remove('open');
+        overlay.classList.remove('open');
+        document.body.style.overflow = '';
+    }
+
+    if (toggleBtn) toggleBtn.addEventListener('click', openDrawer);
+    if (closeBtn) closeBtn.addEventListener('click', closeDrawer);
+    if (overlay) overlay.addEventListener('click', closeDrawer);
+</script>
+<script src="/js/panel-nav.js"></script>
+</body>
+</html>

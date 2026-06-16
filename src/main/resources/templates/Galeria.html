@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,6 +8,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/css/inicio.css">
     <style>
         :root {
             --primary-blue: #28648c; --primary-dark: #1b4562; --accent-gold: #f09a36;
@@ -16,7 +17,7 @@
             --radius: 8px; --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; }
-        body { background: #fff; color: var(--text-dark); overflow-x: hidden; -webkit-font-smoothing: antialiased; }
+        body { background: #fff; color: var(--text-dark); -webkit-font-smoothing: antialiased; }
         a { text-decoration: none; color: inherit; } ul { list-style: none; }
         .container { max-width: 1280px; margin: 0 auto; padding: 0 24px; width: 100%; }
 
@@ -49,6 +50,38 @@
         .nav-menu li.active a, .nav-menu li a:hover { color: #fff; font-weight: 600; }
         .nav-menu li.active a::after, .nav-menu li a:hover::after { width: 100%; }
         .nav-menu li a i { margin-left: 4px; font-size: 10px; vertical-align: middle; }
+        .nav-menu li.dropdown { position: relative; }
+        .nav-menu li.dropdown .dropdown-trigger {
+            color: rgba(255,255,255,0.75); font-size: 12.5px; font-weight: 500;
+            text-transform: uppercase; padding: 8px 0; letter-spacing: 0.5px; cursor: default;
+            display: inline-block;
+        }
+        .nav-menu li.dropdown .dropdown-trigger i { margin-left: 4px; font-size: 10px; vertical-align: middle; }
+        .nav-menu li.dropdown:hover .dropdown-trigger,
+        .nav-menu li.dropdown.active .dropdown-trigger { color: #fff; font-weight: 600; }
+        .nav-menu li.dropdown .dropdown-menu {
+            position: absolute; top: 100%; left: 0; padding-top: 4px;
+            background: var(--primary-dark); min-width: 210px; border-radius: 10px;
+            padding: 6px 0; opacity: 0 !important; visibility: hidden !important;
+            box-shadow: 0 12px 40px rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.06);
+            z-index: 1000; list-style: none; pointer-events: none;
+        }
+        .nav-menu li.dropdown .dropdown-menu::before {
+            content: ''; position: absolute; top: -4px; left: 0; right: 0; height: 4px;
+        }
+        .nav-menu li.dropdown:last-child .dropdown-menu { left: auto; right: 0; }
+
+        .nav-menu li.dropdown .dropdown-menu li { display: block; margin: 0; padding: 0; }
+        .nav-menu li.dropdown .dropdown-menu li a {
+            display: block; width: 100%; padding: 10px 22px; margin: 0;
+            font-size: 12.5px; font-weight: 500; color: rgba(255,255,255,0.7);
+            text-transform: none; letter-spacing: 0.3px; text-decoration: none;
+            background: none; border: none; line-height: 1.4;
+            position: static; white-space: nowrap; box-sizing: border-box;
+        }
+        .nav-menu li.dropdown .dropdown-menu li a:hover {
+            color: #fff; background: rgba(255,255,255,0.04); padding-left: 26px;
+        }
         .header-contact-btn { background: var(--accent-gold); color: #fff; padding: 10px 22px; border-radius: 4px; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; transition: var(--transition); display: flex; align-items: center; gap: 8px; white-space: nowrap; }
         .header-contact-btn:hover { background: #c9730e; transform: translateY(-2px); box-shadow: 0 4px 12px rgba(226,135,22,0.3); }
 
@@ -223,7 +256,16 @@
         .footer-bottom { display: flex; justify-content: space-between; align-items: center; padding-top: 20px; border-top: 1px solid rgba(255,255,255,0.06); flex-wrap: wrap; gap: 10px; }
         .footer-bottom p { font-size: 11.5px; }
         .footer-bottom a { color: var(--accent-gold); font-weight: 600; }
+
+        @media (max-width: 768px) {
+            header nav, .header-contact-btn { display: none; }
+            .mobile-menu-toggle { display: flex; }
+            .mobile-nav-drawer { display: flex; }
+        }
     </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/turbolinks/5.2.0/turbolinks.min.js" integrity="sha512-9yZbQkMzUSvC3A6GH3kVs3qDCGMGZHrC4U4HUQR43ZB3i/SHSEbrnCgQ3hwXW8NqBntvSfGLA4N5wSQmFmdvXQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <style>body { animation: pageBlurIn 0.4s ease-out; } @keyframes pageBlurIn { from { filter: blur(4px); } to { filter: blur(0); } }</style>
+<script src="/js/inicio.js"></script>
 </head>
 <body>
 
@@ -243,18 +285,36 @@
                 <li><a href="/inicio">INICIO</a></li>
                 <li><a href="/empresa">EMPRESA</a></li>
                 <li><a href="/servicios">SERVICIOS</a></li>
-                <li><a href="/tramites-en-linea">SERVICIO AL CLIENTE <i class="fas fa-chevron-down"></i></a></li>
+                <li class="dropdown">
+                    <span class="dropdown-trigger">SERVICIO AL CLIENTE <i class="fas fa-chevron-down"></i></span>
+                    <ul class="dropdown-menu">
+                        <li><a href="/tramites-en-linea">TRÁMITES EN LÍNEA</a></li>
+                        <li><a href="/procedimientos">PROCEDIMIENTOS</a></li>
+                        <li><a href="/tarifas">TARIFAS</a></li>
+                    </ul>
+                </li>
                 <li><a href="/contacto">CONTACTO</a></li>
                 <li class="active"><a href="/galeria">GALERÍA</a></li>
-                </ul>
+                <li class="dropdown">
+                    <span class="dropdown-trigger">ACCESO <i class="fas fa-chevron-down"></i></span>
+                    <ul class="dropdown-menu">
+                        <li><a href="/login">INICIAR SESIÓN</a></li>
+                        <li><a href="/register">REGISTRARSE</a></li>
+                    </ul>
+                </li>
+            </ul>
             </nav>
             <a href="/contacto" class="header-contact-btn">
                 <i class="fa-solid fa-paper-plane"></i> Contáctenos
             </a>
+            <button class="mobile-menu-toggle" id="mobileToggle" aria-label="Abrir menú">
+                <span></span><span></span><span></span>
+            </button>
         </div>
     </div>
 </header>
 
+<div class="page-wrapper">
 <!-- ─── HERO ─── -->
 <section class="page-hero">
     <div class="page-hero-bg" id="heroBg"></div>
@@ -265,8 +325,8 @@
             <span><i class="fa-solid fa-chevron-right"></i></span>
             <span class="current">Galería</span>
         </div>
-        <h1 class="page-hero-title">Nuestras <strong>Instalaciones</strong></h1>
-        <p class="page-hero-sub">Conozca las instalaciones, equipos y operaciones del puerto multipropósito de Mardique en el Caribe colombiano.</p>
+        <h1 class="page-hero-title" th:utext="${pageContents['hero-title']} ?: 'Nuestras &lt;strong&gt;Instalaciones&lt;/strong&gt;'">Nuestras <strong>Instalaciones</strong></h1>
+        <p class="page-hero-sub" th:utext="${pageContents['hero-sub']} ?: 'Conozca las instalaciones, equipos y operaciones del puerto multipropósito de Mardique en el Caribe colombiano.'">Conozca las instalaciones, equipos y operaciones del puerto multipropósito de Mardique en el Caribe colombiano.</p>
         <div class="page-hero-line" id="heroLine"></div>
     </div>
     <div class="scroll-hint"><i class="fa-solid fa-chevron-down"></i><span>Scroll</span></div>
@@ -316,7 +376,17 @@
 <!-- ─── GALERÍA ─── -->
 <section class="gallery-section">
     <div class="container">
-        <div class="gallery-grid" id="galleryGrid">
+        <!-- ─── GALERÍA DINÁMICA ─── -->
+        <div class="gallery-grid" th:if="${not #lists.isEmpty(images)}">
+            <div class="gallery-item" th:each="img : ${images}">
+                <img th:src="@{${img.filePath}}" th:alt="${img.titulo}" loading="lazy">
+                <div class="gallery-item-overlay"><span class="gallery-item-tag" th:text="${img.categoria}">Categoría</span></div>
+                <div class="gallery-item-zoom"><i class="fa-solid fa-magnifying-glass-plus"></i></div>
+            </div>
+        </div>
+
+        <!-- ─── GALERÍA ESTÁTICA (FALLBACK) ─── -->
+        <div class="gallery-grid" id="galleryGrid" th:if="${#lists.isEmpty(images)}">
 
             <!-- AÉREAS DJI -->
             <div class="gallery-item reveal" data-category="aerea" data-src="https://spmardique.com/wp-content/uploads/2021/12/Editadas_0000_DJI_0108.jpg">
@@ -828,6 +898,41 @@
 <script>
 /*<![CDATA[*/
 
+    /* DROPDOWN MENU FIX */
+    document.querySelectorAll('.nav-menu li.dropdown .dropdown-menu').forEach(function(m) {
+        m.style.setProperty('opacity', '0', 'important');
+        m.style.setProperty('visibility', 'hidden', 'important');
+    });
+    document.querySelectorAll('.nav-menu li.dropdown').forEach(function(li) {
+        var menu = li.querySelector('.dropdown-menu');
+        if (!menu) return;
+        var timer;
+        li.addEventListener('mouseenter', function() {
+            clearTimeout(timer);
+            menu.style.setProperty('opacity', '1', 'important');
+            menu.style.setProperty('visibility', 'visible', 'important');
+            menu.style.pointerEvents = 'auto';
+        });
+        li.addEventListener('mouseleave', function() {
+            timer = setTimeout(function() {
+                menu.style.setProperty('opacity', '0', 'important');
+                menu.style.setProperty('visibility', 'hidden', 'important');
+                menu.style.pointerEvents = '';
+            }, 150);
+        });
+        menu.addEventListener('mouseenter', function() {
+            clearTimeout(timer);
+            menu.style.setProperty('opacity', '1', 'important');
+            menu.style.setProperty('visibility', 'visible', 'important');
+            menu.style.pointerEvents = 'auto';
+        });
+        menu.addEventListener('mouseleave', function() {
+            menu.style.setProperty('opacity', '0', 'important');
+            menu.style.setProperty('visibility', 'hidden', 'important');
+            menu.style.pointerEvents = '';
+        });
+    });
+
     // ─── SCROLL PROGRESS ───
     window.addEventListener('scroll', () => {
         document.getElementById('scroll-progress').style.width =
@@ -960,5 +1065,39 @@
 
 /*]]>*/
 </script>
+</div><div class="drawer-overlay" id="drawerOverlay"></div>
+
+<nav class="mobile-nav-drawer" id="mobileDrawer" aria-label="Menú móvil">
+    <div class="drawer-header">
+        <img src="/images/Logo.png" alt="Mardique">
+        <button class="drawer-close" id="drawerClose" aria-label="Cerrar menú">&times;</button>
+    </div>
+    <div class="drawer-nav">
+        <a href="/inicio">INICIO</a>
+        <a href="/empresa">EMPRESA</a>
+        <a href="/servicios">SERVICIOS</a>
+        <div class="drawer-divider"></div>
+        <button class="drawer-item" id="drawerServCliente">
+            SERVICIO AL CLIENTE <i class="fas fa-chevron-down drawer-chevron"></i>
+        </button>
+        <div class="drawer-submenu" id="subServCliente">
+            <a href="/tramites-en-linea">TRÁMITES EN LÍNEA</a>
+            <a href="/procedimientos">PROCEDIMIENTOS</a>
+            <a href="/tarifas">TARIFAS</a>
+        </div>
+        <a href="/contacto">CONTACTO</a>
+        <a href="/galeria" class="active">GALERÍA</a>
+        <div class="drawer-divider"></div>
+        <button class="drawer-item" id="drawerAcceso">
+            ACCESO <i class="fas fa-chevron-down drawer-chevron"></i>
+        </button>
+        <div class="drawer-submenu" id="subAcceso">
+            <a href="/login">INICIAR SESIÓN</a>
+            <a href="/register">REGISTRARSE</a>
+        </div>
+        <a href="/contacto" class="drawer-contact-btn"><i class="fas fa-phone-alt"></i> CONTÁCTANOS</a>
+    </div>
+</nav>
+
 </body>
 </html>

@@ -1,0 +1,1145 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Usuarios — Admin Mardique</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/css/panel-nav.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background: #f0f4f8;
+            color: #1e293b;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        :root {
+            --pd: #1b4562;
+            --pb: #28648c;
+            --ag: #f09a36;
+            --ac: #00a3e0;
+            --bg: #f0f4f8;
+            --sur: #ffffff;
+            --bdr: #e2e8f2;
+            --tx: #1e293b;
+            --mx: #64748b;
+            --r: 8px;
+            --rl: 14px;
+            --tr: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            --sh: 0 1px 4px rgba(27, 69, 98, .06);
+            --shm: 0 6px 24px rgba(27, 69, 98, .10);
+        }
+
+        header {
+            background: var(--pd);
+            position: sticky;
+            top: 0;
+            z-index: 500;
+            box-shadow: 0 2px 20px rgba(0, 0, 0, .18);
+        }
+
+        .hdr {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 13px 28px;
+            gap: 16px;
+        }
+
+        .logo-box img {
+            height: 36px;
+            width: auto;
+        }
+
+        nav {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+        }
+
+        .nav-menu {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+            list-style: none;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .nav-menu li a {
+            color: rgba(255, 255, 255, .72);
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            position: relative;
+            padding: 6px 0;
+            letter-spacing: .4px;
+            transition: color .25s;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .nav-menu li a::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: var(--ag);
+            transition: width .3s;
+        }
+
+        .nav-menu li.active a,
+        .nav-menu li a:hover {
+            color: #fff;
+        }
+
+        .nav-menu li.active a::after,
+        .nav-menu li a:hover::after {
+            width: 100%;
+        }
+
+        .hdr-right {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .hdr-user {
+            color: rgba(255, 255, 255, .65);
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .btn-logout {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 7px 14px;
+            border: none;
+            border-radius: 6px;
+            background: #dc2626;
+            color: #fff;
+            font-size: 11px;
+            font-weight: 700;
+            cursor: pointer;
+            font-family: inherit;
+            text-decoration: none;
+            transition: var(--tr);
+        }
+
+        .btn-logout:hover {
+            background: #b91c1c;
+        }
+
+        .mob-toggle {
+            display: none;
+            flex-direction: column;
+            gap: 5px;
+            background: none;
+            border: none;
+            cursor: pointer;
+        }
+
+        .mob-toggle span {
+            width: 22px;
+            height: 2px;
+            background: #fff;
+            border-radius: 2px;
+        }
+
+        .hero {
+            background: linear-gradient(135deg, var(--pd) 0%, #0d2438 100%);
+            padding: 36px 32px 44px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background-image: linear-gradient(rgba(255, 255, 255, .025) 1px, transparent 1px), linear-gradient(90deg, rgba(255, 255, 255, .025) 1px, transparent 1px);
+            background-size: 32px 32px;
+            pointer-events: none;
+        }
+
+        .hero::after {
+            content: '';
+            position: absolute;
+            bottom: -1px;
+            left: 0;
+            right: 0;
+            height: 40px;
+            background: var(--bg);
+            clip-path: ellipse(55% 100% at 50% 100%);
+        }
+
+        .hero-inner {
+            position: relative;
+            z-index: 1;
+            max-width: 800px;
+            margin: 0 auto;
+            text-align: center;
+        }
+
+        .hero h1 {
+            font-size: 26px;
+            font-weight: 800;
+            color: #fff;
+            margin-bottom: 6px;
+        }
+
+        .hero h1 i {
+            color: var(--ag);
+            margin-right: 8px;
+        }
+
+        .hero p {
+            font-size: 13.5px;
+            color: rgba(255, 255, 255, .65);
+        }
+
+        .main-content {
+            padding: 36px 28px 48px;
+            max-width: 1400px;
+            margin: 0 auto;
+            width: 100%;
+            flex: 1;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 32px;
+        }
+
+        .stat-card {
+            background: var(--sur);
+            border-radius: var(--rl);
+            padding: 20px;
+            border: 1.5px solid var(--bdr);
+            transition: var(--tr);
+            box-shadow: var(--sh);
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shm);
+            border-color: var(--ag);
+        }
+
+        .stat-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            flex-shrink: 0;
+        }
+
+        .stat-info {
+            flex: 1;
+        }
+
+        .stat-value {
+            font-size: 26px;
+            font-weight: 800;
+            color: var(--pd);
+            line-height: 1.1;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: var(--mx);
+            font-weight: 500;
+            margin-top: 4px;
+        }
+
+        /* Search Bar */
+        .search-bar {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+            background: var(--sur);
+            padding: 16px 20px;
+            border-radius: var(--rl);
+            border: 1.5px solid var(--bdr);
+        }
+
+        .search-bar input {
+            padding: 10px 16px;
+            border: 1.5px solid var(--bdr);
+            border-radius: var(--r);
+            font-size: 13px;
+            font-family: inherit;
+            flex: 1;
+            min-width: 200px;
+            outline: none;
+            transition: var(--tr);
+            background: #fff;
+        }
+
+        .search-bar input:focus {
+            border-color: var(--ag);
+            box-shadow: 0 0 0 3px rgba(240, 154, 54, .1);
+        }
+
+        .search-bar .filter-select {
+            padding: 10px 16px;
+            border: 1.5px solid var(--bdr);
+            border-radius: var(--r);
+            font-size: 13px;
+            font-family: inherit;
+            outline: none;
+            background: #fff;
+            color: var(--tx);
+            cursor: pointer;
+        }
+
+        .table-scroll {
+            overflow-x: auto;
+            border-radius: var(--rl);
+            border: 1.5px solid var(--bdr);
+            background: var(--sur);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+        }
+
+        th {
+            text-align: left;
+            padding: 14px;
+            background: #f8fafc;
+            font-weight: 700;
+            color: var(--pd);
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: .3px;
+            border-bottom: 2px solid #e2e8f0;
+        }
+
+        td {
+            padding: 12px 14px;
+            border-bottom: 1px solid #f1f5f9;
+            vertical-align: middle;
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        tr:hover td {
+            background: #f8fafc;
+        }
+
+        .user-info strong {
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--pd);
+        }
+
+        .user-info small {
+            font-size: 11px;
+            color: var(--mx);
+        }
+
+        .extra-info {
+            font-size: 11px;
+            color: var(--mx);
+            margin-top: 2px;
+        }
+
+        .truncate {
+            max-width: 180px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 50px;
+            font-size: 11px;
+            font-weight: 700;
+        }
+
+        .badge-admin {
+            background: #fef3c7;
+            color: #d97706;
+        }
+
+        .badge-editor {
+            background: #d1fae5;
+            color: #16a34a;
+        }
+
+        .badge-user {
+            background: #e0e7ff;
+            color: #4338ca;
+        }
+
+        .badge-persona {
+            background: #e0f2fe;
+            color: #0284c7;
+        }
+
+        .badge-cliente {
+            background: #fce7f3;
+            color: #db2777;
+        }
+
+        .badge-empresa {
+            background: #fef3c7;
+            color: #d97706;
+        }
+
+        .status-active {
+            color: #16a34a;
+            font-weight: 700;
+        }
+
+        .status-inactive {
+            color: #dc2626;
+            font-weight: 700;
+        }
+
+        /* Actions */
+        .actions {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 6px 12px;
+            border: none;
+            border-radius: var(--r);
+            font-size: 11px;
+            font-weight: 700;
+            font-family: inherit;
+            cursor: pointer;
+            transition: var(--tr);
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            text-decoration: none;
+        }
+
+        .btn-cyan {
+            background: var(--ac);
+            color: #fff;
+        }
+
+        .btn-cyan:hover {
+            background: #0284c7;
+            transform: translateY(-1px);
+        }
+
+        .btn-gold {
+            background: var(--ag);
+            color: #fff;
+        }
+
+        .btn-gold:hover {
+            background: #d67e1a;
+            transform: translateY(-1px);
+        }
+
+        .btn-green {
+            background: #16a34a;
+            color: #fff;
+        }
+
+        .btn-green:hover {
+            background: #15803d;
+            transform: translateY(-1px);
+        }
+
+        .btn-red {
+            background: #dc2626;
+            color: #fff;
+        }
+
+        .btn-red:hover {
+            background: #b91c1c;
+            transform: translateY(-1px);
+        }
+
+        .role-select {
+            padding: 5px 8px;
+            border-radius: var(--r);
+            border: 1.5px solid var(--bdr);
+            font-size: 11px;
+            font-family: inherit;
+            background: #fff;
+        }
+
+        .msg {
+            padding: 14px 18px;
+            border-radius: var(--r);
+            font-size: 13px;
+            margin-bottom: 24px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .msg-success {
+            background: #f0fdf4;
+            border: 1px solid #bbf7d0;
+            color: #16a34a;
+        }
+
+        .footer {
+            text-align: center;
+            padding: 20px;
+            border-top: 1px solid var(--bdr);
+            color: #94a3b8;
+            font-size: 12px;
+            background: var(--sur);
+            margin-top: auto;
+        }
+
+        .footer a {
+            color: var(--ac);
+            text-decoration: none;
+        }
+
+        .footer a:hover {
+            text-decoration: underline;
+        }
+
+        .reveal {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all .55s cubic-bezier(.22, 1, .36, 1);
+        }
+
+        .reveal.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, .5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(3px);
+        }
+
+        .modal-overlay.show {
+            display: flex;
+            animation: fadeUp .2s ease;
+        }
+
+        .modal-box {
+            background: #fff;
+            border-radius: 16px;
+            padding: 32px;
+            width: 100%;
+            max-width: 520px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 24px 64px rgba(0, 0, 0, .3);
+        }
+
+        .modal-box h2 {
+            font-size: 18px;
+            color: var(--pd);
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .modal-box h2 i {
+            color: var(--ag);
+        }
+
+        .modal-box .field {
+            margin-bottom: 16px;
+        }
+
+        .modal-box .field label {
+            display: block;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .3px;
+            color: var(--mx);
+            margin-bottom: 5px;
+        }
+
+        .modal-box .field input,
+        .modal-box .field select {
+            width: 100%;
+            padding: 10px 14px;
+            border: 1.5px solid var(--bdr);
+            border-radius: var(--r);
+            font-size: 13px;
+            font-family: inherit;
+            outline: none;
+            transition: var(--tr);
+        }
+
+        .modal-box .field input:focus,
+        .modal-box .field select:focus {
+            border-color: var(--ag);
+            box-shadow: 0 0 0 3px rgba(240, 154, 54, .1);
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+            margin-top: 20px;
+            padding-top: 16px;
+            border-top: 1px solid var(--bdr);
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 1.5px solid var(--bdr);
+            color: var(--mx);
+            padding: 10px 20px;
+            border-radius: var(--r);
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--tr);
+        }
+
+        .btn-outline:hover {
+            border-color: var(--ag);
+            color: var(--ag);
+        }
+
+        @keyframes fadeUp {
+            from {
+                opacity: 0;
+                transform: translateY(12px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .drawer-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, .45);
+            z-index: 800;
+            backdrop-filter: blur(2px);
+        }
+
+        .drawer-overlay.open {
+            display: flex;
+        }
+
+        .mob-drawer {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 100%;
+            width: 280px;
+            background: var(--pd);
+            z-index: 900;
+            flex-direction: column;
+            transform: translateX(-100%);
+            transition: transform .35s cubic-bezier(.4, 0, .2, 1);
+        }
+
+        .mob-drawer.open {
+            display: flex;
+            transform: translateX(0);
+        }
+
+        .drawer-hdr {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 18px 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, .08);
+        }
+
+        .drawer-hdr img {
+            height: 32px;
+        }
+
+        .drawer-close {
+            background: none;
+            border: none;
+            color: rgba(255, 255, 255, .6);
+            font-size: 24px;
+            cursor: pointer;
+            line-height: 1;
+        }
+
+        .drawer-nav {
+            padding: 16px 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+            overflow-y: auto;
+            flex: 1;
+        }
+
+        .drawer-nav a {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 11px 12px;
+            border-radius: 8px;
+            color: rgba(255, 255, 255, .72);
+            font-size: 13px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: var(--tr);
+        }
+
+        .drawer-nav a:hover {
+            background: rgba(255, 255, 255, .08);
+            color: #fff;
+        }
+
+        .drawer-nav a.active {
+            background: rgba(240, 154, 54, .15);
+            color: var(--ag);
+        }
+
+        .drawer-div {
+            height: 1px;
+            background: rgba(255, 255, 255, .07);
+            margin: 8px 0;
+        }
+
+        .drawer-logout {
+            background: #dc2626 !important;
+            color: #fff !important;
+            border-radius: 8px;
+            margin-top: 4px;
+        }
+
+        @media (max-width: 768px) {
+            header nav {
+                display: none;
+            }
+            .mob-toggle {
+                display: flex;
+            }
+            .hdr-user {
+                display: none;
+            }
+            .hero {
+                padding: 28px 16px 36px;
+            }
+            .hero h1 {
+                font-size: 20px;
+            }
+            .main-content {
+                padding: 24px 16px 32px;
+            }
+            .stats-grid {
+                gap: 12px;
+            }
+            .stat-card {
+                padding: 14px;
+            }
+            .stat-value {
+                font-size: 20px;
+            }
+            .search-bar {
+                padding: 12px;
+                flex-direction: column;
+                align-items: stretch;
+            }
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+            th, td {
+                padding: 8px;
+                font-size: 11px;
+            }
+            .actions {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<header id="main-header">
+    <div class="hdr">
+        <a href="/admin/dashboard" class="logo-box">
+            <img src="/images/Logo.png" alt="Mardique">
+        </a>
+        <nav>
+            <ul class="nav-menu">
+                <li><a href="/admin/dashboard"><i class="fas fa-chart-pie"></i> Dashboard</a></li>
+                <li class="active"><a href="/admin/users"><i class="fas fa-users-cog"></i> Usuarios</a></li>
+                <li><a href="/admin/solicitudes"><i class="fas fa-file-alt"></i> Solicitudes</a></li>
+                <li><a href="/admin/mensajes"><i class="fas fa-envelope"></i> Mensajes</a></li>
+                <li><a href="/admin/payments"><i class="fas fa-credit-card"></i> Pagos</a></li>
+                <li><a href="/admin/config"><i class="fas fa-cog"></i> Config</a></li>
+            </ul>
+        </nav>
+        <div class="hdr-right">
+            <span class="hdr-user" th:text="${#authentication.name}">admin</span>
+            <button class="btn-logout" onclick="document.getElementById('logoutModal').classList.add('show')">
+                <i class="fas fa-sign-out-alt"></i> Salir
+            </button>
+        </div>
+        <button class="mob-toggle" id="mobileToggle" aria-label="Abrir menú">
+            <span></span><span></span><span></span>
+        </button>
+    </div>
+</header>
+
+<div class="hero">
+    <div class="hero-inner">
+        <h1><i class="fas fa-users-cog"></i> Gestión de Usuarios</h1>
+        <p>Administre cuentas, roles y permisos de los usuarios</p>
+    </div>
+</div>
+
+<div class="main-content">
+    <div th:if="${success}" class="msg msg-success reveal">
+        <i class="fas fa-check-circle"></i> <span th:text="${success}">Operación exitosa</span>
+    </div>
+
+    <div class="stats-grid reveal">
+        <div class="stat-card">
+            <div class="stat-icon" style="background: rgba(0, 163, 224, 0.12); color: var(--ac);">
+                <i class="fas fa-users"></i>
+            </div>
+            <div class="stat-info">
+                <div class="stat-value" th:text="${totalUsers}">0</div>
+                <div class="stat-label">Total usuarios</div>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon" style="background: rgba(22, 163, 74, 0.12); color: #16a34a;">
+                <i class="fas fa-user-check"></i>
+            </div>
+            <div class="stat-info">
+                <div class="stat-value" th:text="${activeUsers}">0</div>
+                <div class="stat-label">Usuarios activos</div>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon" style="background: rgba(240, 154, 54, 0.12); color: var(--ag);">
+                <i class="fas fa-building"></i>
+            </div>
+            <div class="stat-info">
+                <div class="stat-value" th:text="${empresaUsers}">0</div>
+                <div class="stat-label">Empresas</div>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon" style="background: rgba(139, 92, 246, 0.12); color: #8b5cf6;">
+                <i class="fas fa-user-tag"></i>
+            </div>
+            <div class="stat-info">
+                <div class="stat-value" th:text="${clienteUsers}">0</div>
+                <div class="stat-label">Clientes</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="search-bar reveal">
+        <input type="text" id="searchInput" placeholder="Buscar por nombre, email o usuario..." onkeyup="filterTable()">
+        <select id="tipoFilter" class="filter-select" onchange="filterTable()">
+            <option value="">Todos los tipos</option>
+            <option value="PERSONA">Persona Natural</option>
+            <option value="CLIENTE">Cliente / Proveedor</option>
+            <option value="EMPRESA">Empresa</option>
+        </select>
+        <select id="roleFilter" class="filter-select" onchange="filterTable()">
+            <option value="">Todos los roles</option>
+            <option value="ROLE_ADMIN">Admin</option>
+            <option value="ROLE_EDITOR">Editor</option>
+            <option value="ROLE_USER">User</option>
+        </select>
+    </div>
+
+    <div class="table-scroll reveal">
+        <table id="usersTable">
+            <thead>
+            <tr>
+                <th>Usuario</th>
+                <th>Contacto</th>
+                <th>Tipo</th>
+                <th>NIT / Rif</th>
+                <th>Categoría</th>
+                <th>Rol</th>
+                <th>Estado</th>
+                <th>Acciones</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="u : ${users}" th:attr="data-username=${u.username},data-tipo=${u.tipo},data-role=${u.role}">
+                <td>
+                    <div class="user-info">
+                        <strong th:text="${u.nombres + ' ' + u.apellidos}">Nombre Apellido</strong>
+                        <small th:text="'@' + ${u.username}">usuario</small>
+                    </div>
+                </td>
+                <td>
+                    <div class="truncate" th:text="${u.email}">email@ejemplo.com</div>
+                    <div class="extra-info" th:text="${u.telefono ?: 'Sin teléfono'}">+57 300 123 4567</div>
+                </td>
+                <td>
+                        <span class="badge" th:classappend="${u.tipo == 'PERSONA' ? 'badge-persona' : (u.tipo == 'CLIENTE' ? 'badge-cliente' : 'badge-empresa')}" th:text="${u.tipo}">
+                            PERSONA
+                        </span>
+                </td>
+                <td><span class="extra-info" th:text="${u.nit ?: 'No registrado'}">123456789</span></td>
+                <td><span class="extra-info" th:text="${u.categoria ?: 'No registrada'}">Cliente</span></td>
+                <td>
+                        <span class="badge" th:classappend="${u.role == 'ROLE_ADMIN' ? 'badge-admin' : (u.role == 'ROLE_EDITOR' ? 'badge-editor' : 'badge-user')}" th:text="${u.role.replace('ROLE_','')}">
+                            USER
+                        </span>
+                </td>
+                <td>
+                        <span th:class="${u.enabled ? 'status-active' : 'status-inactive'}" th:text="${u.enabled ? 'Activo' : 'Inactivo'}">
+                            Activo
+                        </span>
+                </td>
+                <td>
+                    <div class="actions">
+                        <button class="btn btn-cyan" th:data-id="${u.id}" th:data-nombres="${u.nombres}" th:data-apellidos="${u.apellidos}" th:data-email="${u.email}" th:data-telefono="${u.telefono}" th:data-tipo="${u.tipo}" th:data-nit="${u.nit}" th:data-categoria="${u.categoria}" onclick="openEditModal(this)">
+                            <i class="fas fa-edit"></i> Editar
+                        </button>
+                        <form th:action="@{/admin/users/role/{id}(id=${u.id})}" method="post" style="display:flex;gap:4px;align-items:center;">
+                            <select name="role" class="role-select">
+                                <option value="ROLE_USER" th:selected="${u.role == 'ROLE_USER'}">USER</option>
+                                <option value="ROLE_EDITOR" th:selected="${u.role == 'ROLE_EDITOR'}">EDITOR</option>
+                                <option value="ROLE_ADMIN" th:selected="${u.role == 'ROLE_ADMIN'}">ADMIN</option>
+                            </select>
+                            <button type="submit" class="btn btn-gold"><i class="fas fa-sync-alt"></i></button>
+                        </form>
+                        <form th:action="@{/admin/users/toggle/{id}(id=${u.id})}" method="post" style="display:inline;">
+                            <button type="submit" th:class="${u.enabled ? 'btn btn-red' : 'btn btn-green'}">
+                                <i th:class="${u.enabled ? 'fas fa-ban' : 'fas fa-check'}"></i>
+                                <span th:text="${u.enabled ? 'Desactivar' : 'Activar'}"></span>
+                            </button>
+                        </form>
+                    </div>
+                </td>
+            </tr>
+            <tr th:if="${#lists.isEmpty(users)}">
+                <td colspan="8" style="text-align: center; padding: 48px; color: #94a3b8;">
+                    <i class="fas fa-users" style="font-size: 32px; margin-bottom: 12px; display: block;"></i>
+                    No hay usuarios registrados
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div class="footer">
+    &copy; 2026 Sociedad Portuaria Mardique S.A. &middot; <a href="/inicio">Volver al sitio público</a>
+</div>
+
+<div class="modal-overlay" id="editModal">
+    <div class="modal-box">
+        <h2><i class="fas fa-user-edit"></i> Editar Usuario</h2>
+        <form th:action="@{/admin/users/update/{id}(id=${editUserId})}" method="post" id="editForm">
+            <div class="form-row">
+                <div class="field">
+                    <label>Nombres</label>
+                    <input type="text" name="nombres" id="editNombres" required>
+                </div>
+                <div class="field">
+                    <label>Apellidos</label>
+                    <input type="text" name="apellidos" id="editApellidos" required>
+                </div>
+            </div>
+            <div class="field">
+                <label>Email</label>
+                <input type="email" name="email" id="editEmail" required>
+            </div>
+            <div class="field">
+                <label>Teléfono</label>
+                <input type="text" name="telefono" id="editTelefono">
+            </div>
+            <div class="field">
+                <label>Tipo</label>
+                <select name="tipo" id="editTipo" onchange="toggleEditTipo()">
+                    <option value="PERSONA">Persona Natural</option>
+                    <option value="CLIENTE">Cliente / Proveedor</option>
+                    <option value="EMPRESA">Empresa</option>
+                </select>
+            </div>
+            <div class="field" id="editNitField" style="display:none;">
+                <label>NIT / RIF</label>
+                <input type="text" name="nit" id="editNit">
+            </div>
+            <div class="field" id="editCategoriaField" style="display:none;">
+                <label>Categoría</label>
+                <select name="categoria" id="editCategoria">
+                    <option value="">Seleccione...</option>
+                    <option value="CLIENTE">Cliente</option>
+                    <option value="PROVEEDOR">Proveedor</option>
+                    <option value="AMBOS">Cliente y Proveedor</option>
+                </select>
+            </div>
+            <div class="modal-actions">
+                <button type="button" class="btn-outline" onclick="document.getElementById('editModal').classList.remove('show')">Cancelar</button>
+                <button type="submit" class="btn btn-gold"><i class="fas fa-save"></i> Guardar Cambios</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="modal-overlay" id="logoutModal">
+    <div class="modal-box">
+        <i class="fas fa-sign-out-alt" style="font-size: 46px; color: var(--ag); margin-bottom: 12px; display: block;"></i>
+        <h2>Cerrar Sesión</h2>
+        <p>¿Estás seguro de que deseas cerrar tu sesión?</p>
+        <div class="modal-actions">
+            <button type="button" class="btn-outline" onclick="document.getElementById('logoutModal').classList.remove('show')">Cancelar</button>
+            <a href="/logout" class="btn-red"><i class="fas fa-sign-out-alt"></i> Cerrar Sesión</a>
+        </div>
+    </div>
+</div>
+
+<div class="drawer-overlay" id="drawerOverlay"></div>
+<nav class="mob-drawer" id="mobileDrawer" aria-label="Menú móvil">
+    <div class="drawer-hdr">
+        <img src="/images/Logo.png" alt="Mardique">
+        <button class="drawer-close" id="drawerClose" aria-label="Cerrar menú">&times;</button>
+    </div>
+    <div class="drawer-nav">
+        <a href="/admin/dashboard"><i class="fas fa-chart-pie"></i> Dashboard</a>
+        <a href="/admin/users" class="active"><i class="fas fa-users-cog"></i> Usuarios</a>
+        <a href="/admin/solicitudes"><i class="fas fa-file-alt"></i> Solicitudes</a>
+        <a href="/admin/mensajes"><i class="fas fa-envelope"></i> Mensajes</a>
+        <a href="/admin/payments"><i class="fas fa-credit-card"></i> Pagos</a>
+        <a href="/admin/config"><i class="fas fa-cog"></i> Config</a>
+        <div class="drawer-div"></div>
+        <a href="javascript:void(0)" onclick="document.getElementById('logoutModal').classList.add('show')" class="drawer-logout">
+            <i class="fas fa-sign-out-alt"></i> Cerrar Sesión
+        </a>
+    </div>
+</nav>
+
+<script>
+    function filterTable() {
+        var input = document.getElementById('searchInput').value.toLowerCase();
+        var tipo = document.getElementById('tipoFilter').value;
+        var role = document.getElementById('roleFilter').value;
+        var rows = document.querySelectorAll('#usersTable tbody tr');
+        rows.forEach(function(row) {
+            if (row.querySelector('td[colspan]')) return;
+            var text = row.textContent.toLowerCase();
+            var rowTipo = row.getAttribute('data-tipo') || '';
+            var rowRole = row.getAttribute('data-role') || '';
+            var match = text.indexOf(input) > -1;
+            if (tipo && rowTipo !== tipo) match = false;
+            if (role && rowRole !== role) match = false;
+            row.style.display = match ? '' : 'none';
+        });
+    }
+
+    function openEditModal(el) {
+        document.getElementById('editNombres').value = el.getAttribute('data-nombres') || '';
+        document.getElementById('editApellidos').value = el.getAttribute('data-apellidos') || '';
+        document.getElementById('editEmail').value = el.getAttribute('data-email') || '';
+        document.getElementById('editTelefono').value = el.getAttribute('data-telefono') || '';
+        document.getElementById('editTipo').value = el.getAttribute('data-tipo') || 'PERSONA';
+        document.getElementById('editNit').value = el.getAttribute('data-nit') || '';
+        document.getElementById('editCategoria').value = el.getAttribute('data-categoria') || '';
+        var id = el.getAttribute('data-id');
+        document.getElementById('editForm').action = '/admin/users/update/' + id;
+        toggleEditTipo();
+        document.getElementById('editModal').classList.add('show');
+    }
+
+    function toggleEditTipo() {
+        var t = document.getElementById('editTipo').value;
+        document.getElementById('editNitField').style.display = t === 'EMPRESA' ? 'block' : 'none';
+        document.getElementById('editCategoriaField').style.display = t === 'CLIENTE' ? 'block' : 'none';
+    }
+
+    document.getElementById('editModal').addEventListener('click', function(e) {
+        if (e.target === this) this.classList.remove('show');
+    });
+    document.getElementById('logoutModal').addEventListener('click', function(e) {
+        if (e.target === this) this.classList.remove('show');
+    });
+
+    const observer = new IntersectionObserver(entries => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('visible');
+            }
+        });
+    }, { threshold: 0.1 });
+    document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+    const toggleBtn = document.getElementById('mobileToggle');
+    const drawer = document.getElementById('mobileDrawer');
+    const overlay = document.getElementById('drawerOverlay');
+    const closeBtn = document.getElementById('drawerClose');
+
+    function openDrawer() {
+        drawer.classList.add('open');
+        overlay.classList.add('open');
+        document.body.style.overflow = 'hidden';
+    }
+
+    function closeDrawer() {
+        drawer.classList.remove('open');
+        overlay.classList.remove('open');
+        document.body.style.overflow = '';
+    }
+
+    if (toggleBtn) toggleBtn.addEventListener('click', openDrawer);
+    if (closeBtn) closeBtn.addEventListener('click', closeDrawer);
+    if (overlay) overlay.addEventListener('click', closeDrawer);
+</script>
+<script src="/js/panel-nav.js"></script>
+</body>
+</html>

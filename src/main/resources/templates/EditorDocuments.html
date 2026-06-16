@@ -1,0 +1,1144 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Documentos — Editor Mardique</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/css/panel-nav.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background: #f0f4f8;
+            color: #1e293b;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        :root {
+            --pd: #1b4562;
+            --pb: #28648c;
+            --ag: #f09a36;
+            --ac: #00a3e0;
+            --bg: #f0f4f8;
+            --sur: #ffffff;
+            --bdr: #e2e8f2;
+            --tx: #1e293b;
+            --mx: #64748b;
+            --r: 8px;
+            --rl: 14px;
+            --tr: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            --sh: 0 1px 4px rgba(27, 69, 98, .06);
+            --shm: 0 6px 24px rgba(27, 69, 98, .10);
+        }
+
+        header {
+            background: var(--pd);
+            position: sticky;
+            top: 0;
+            z-index: 500;
+            box-shadow: 0 2px 20px rgba(0, 0, 0, .18);
+        }
+
+        .hdr {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 13px 28px;
+            gap: 16px;
+        }
+
+        .logo-box img {
+            height: 36px;
+            width: auto;
+        }
+
+        nav {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+        }
+
+        .nav-menu {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+            list-style: none;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .nav-menu li a {
+            color: rgba(255, 255, 255, .72);
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            position: relative;
+            padding: 6px 0;
+            letter-spacing: .4px;
+            transition: color .25s;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .nav-menu li a::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: var(--ag);
+            transition: width .3s;
+        }
+
+        .nav-menu li.active a,
+        .nav-menu li a:hover {
+            color: #fff;
+        }
+
+        .nav-menu li.active a::after,
+        .nav-menu li a:hover::after {
+            width: 100%;
+        }
+
+        .hdr-right {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .hdr-user {
+            color: rgba(255, 255, 255, .65);
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .btn-logout {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 7px 14px;
+            border: none;
+            border-radius: 6px;
+            background: #dc2626;
+            color: #fff;
+            font-size: 11px;
+            font-weight: 700;
+            cursor: pointer;
+            font-family: inherit;
+            text-decoration: none;
+            transition: var(--tr);
+        }
+
+        .btn-logout:hover {
+            background: #b91c1c;
+        }
+
+        .mob-toggle {
+            display: none;
+            flex-direction: column;
+            gap: 5px;
+            background: none;
+            border: none;
+            cursor: pointer;
+        }
+
+        .mob-toggle span {
+            width: 22px;
+            height: 2px;
+            background: #fff;
+            border-radius: 2px;
+        }
+
+        .hero {
+            background: linear-gradient(135deg, var(--pd) 0%, #0d2438 100%);
+            padding: 36px 32px 44px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background-image: linear-gradient(rgba(255, 255, 255, .025) 1px, transparent 1px), linear-gradient(90deg, rgba(255, 255, 255, .025) 1px, transparent 1px);
+            background-size: 32px 32px;
+            pointer-events: none;
+        }
+
+        .hero::after {
+            content: '';
+            position: absolute;
+            bottom: -1px;
+            left: 0;
+            right: 0;
+            height: 40px;
+            background: var(--bg);
+            clip-path: ellipse(55% 100% at 50% 100%);
+        }
+
+        .hero-inner {
+            position: relative;
+            z-index: 1;
+            max-width: 800px;
+            margin: 0 auto;
+            text-align: center;
+        }
+
+        .hero h1 {
+            font-size: 26px;
+            font-weight: 800;
+            color: #fff;
+            margin-bottom: 6px;
+        }
+
+        .hero h1 i {
+            color: var(--ag);
+            margin-right: 8px;
+        }
+
+        .hero p {
+            font-size: 13.5px;
+            color: rgba(255, 255, 255, .65);
+        }
+
+        .main-content {
+            padding: 36px 28px 48px;
+            max-width: 1400px;
+            margin: 0 auto;
+            width: 100%;
+            flex: 1;
+        }
+
+        .msg {
+            padding: 14px 18px;
+            border-radius: var(--r);
+            font-size: 13px;
+            margin-bottom: 24px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .msg-success {
+            background: #f0fdf4;
+            border: 1px solid #bbf7d0;
+            color: #16a34a;
+        }
+
+        .msg-error {
+            background: #fef2f2;
+            border: 1px solid #fecaca;
+            color: #dc2626;
+        }
+
+        /* Section Cards */
+        .section-card {
+            background: var(--sur);
+            border-radius: var(--rl);
+            padding: 28px;
+            margin-bottom: 28px;
+            border: 1.5px solid var(--bdr);
+            box-shadow: var(--sh);
+            transition: var(--tr);
+        }
+
+        .section-card:hover {
+            box-shadow: var(--shm);
+        }
+
+        .section-card h3 {
+            font-size: 16px;
+            font-weight: 800;
+            color: var(--pd);
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .card-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 20px;
+        }
+
+        .doc-card {
+            background: var(--bg);
+            border-radius: var(--r);
+            padding: 20px;
+            border: 1.5px solid var(--bdr);
+            transition: var(--tr);
+        }
+
+        .doc-card:hover {
+            border-color: var(--ag);
+            box-shadow: 0 4px 12px rgba(240, 154, 54, .1);
+        }
+
+        .doc-card-header {
+            display: flex;
+            align-items: flex-start;
+            gap: 14px;
+            margin-bottom: 12px;
+        }
+
+        .card-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            flex-shrink: 0;
+        }
+
+        .card-icon.assigned {
+            background: #d1fae5;
+            color: #16a34a;
+        }
+
+        .card-icon.missing {
+            background: #fef2f2;
+            color: #dc2626;
+        }
+
+        .card-info {
+            flex: 1;
+        }
+
+        .card-title {
+            font-size: 14px;
+            font-weight: 800;
+            color: var(--pd);
+            line-height: 1.3;
+        }
+
+        .card-sub {
+            font-size: 11px;
+            color: var(--mx);
+            margin-top: 4px;
+        }
+
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 11px;
+            font-weight: 700;
+            padding: 5px 12px;
+            border-radius: 50px;
+            margin: 12px 0;
+        }
+
+        .status-badge.assigned {
+            background: #d1fae5;
+            color: #16a34a;
+        }
+
+        .status-badge.missing {
+            background: #fef2f2;
+            color: #dc2626;
+        }
+
+        .email-info {
+            font-size: 11px;
+            color: var(--mx);
+            margin-top: 10px;
+            padding: 10px 12px;
+            background: #f8fafc;
+            border-radius: var(--r);
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .email-info-row {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            word-break: break-all;
+        }
+
+        .email-info-row i {
+            color: var(--ac);
+            width: 16px;
+        }
+
+        .card-actions {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-top: 12px;
+        }
+
+        /* Buttons */
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: var(--r);
+            font-size: 12px;
+            font-weight: 700;
+            font-family: inherit;
+            cursor: pointer;
+            transition: var(--tr);
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            text-decoration: none;
+        }
+
+        .btn-sm {
+            padding: 6px 12px;
+            font-size: 11px;
+        }
+
+        .btn-gold {
+            background: linear-gradient(135deg, var(--ag), #d67e1a);
+            color: #fff;
+        }
+
+        .btn-gold:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 6px 20px rgba(240, 154, 54, .3);
+        }
+
+        .btn-cyan {
+            background: var(--ac);
+            color: #fff;
+        }
+
+        .btn-cyan:hover {
+            background: #0284c7;
+            transform: translateY(-1px);
+        }
+
+        .btn-red {
+            background: #dc2626;
+            color: #fff;
+        }
+
+        .btn-red:hover {
+            background: #b91c1c;
+            transform: translateY(-1px);
+        }
+
+        .btn-success {
+            background: #16a34a;
+            color: #fff;
+        }
+
+        .btn-success:hover {
+            background: #15803d;
+            transform: translateY(-1px);
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 1.5px solid var(--bdr);
+            color: var(--mx);
+            padding: 10px 20px;
+            border-radius: var(--r);
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--tr);
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn-outline:hover {
+            border-color: var(--ag);
+            color: var(--ag);
+        }
+
+        .upload-area {
+            background: #f0fdf4;
+            border: 2px dashed #bbf7d0;
+            border-radius: var(--r);
+            padding: 18px;
+            margin-top: 14px;
+            display: none;
+        }
+
+        .upload-area.open {
+            display: block;
+            animation: fadeSlideDown 0.3s ease;
+        }
+
+        @keyframes fadeSlideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .upload-area h4 {
+            font-size: 13px;
+            font-weight: 800;
+            color: #16a34a;
+            margin-bottom: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .gen-form {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .field {
+            margin-bottom: 16px;
+        }
+
+        .field label {
+            display: block;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .3px;
+            color: var(--mx);
+            margin-bottom: 5px;
+        }
+
+        .field input,
+        .field select,
+        .field textarea {
+            width: 100%;
+            padding: 10px 14px;
+            border: 1.5px solid var(--bdr);
+            border-radius: var(--r);
+            font-size: 13px;
+            font-family: inherit;
+            outline: none;
+            transition: var(--tr);
+            background: #fff;
+        }
+
+        .field input:focus,
+        .field select:focus,
+        .field textarea:focus {
+            border-color: var(--ag);
+            box-shadow: 0 0 0 3px rgba(240, 154, 54, .1);
+        }
+
+        .field textarea {
+            resize: vertical;
+            min-height: 70px;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: var(--mx);
+            font-size: 13px;
+        }
+
+        .empty-state i {
+            font-size: 36px;
+            margin-bottom: 12px;
+            display: block;
+            color: var(--bdr);
+        }
+
+        .footer {
+            text-align: center;
+            padding: 20px;
+            border-top: 1px solid var(--bdr);
+            color: #94a3b8;
+            font-size: 12px;
+            background: var(--sur);
+            margin-top: auto;
+        }
+
+        .footer a {
+            color: var(--ac);
+            text-decoration: none;
+        }
+
+        .footer a:hover {
+            text-decoration: underline;
+        }
+
+        .reveal {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all .55s cubic-bezier(.22, 1, .36, 1);
+        }
+
+        .reveal.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, .5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(3px);
+        }
+
+        .modal-overlay.show {
+            display: flex;
+            animation: fadeUp .2s ease;
+        }
+
+        .modal-box {
+            background: #fff;
+            border-radius: 16px;
+            padding: 32px;
+            width: 100%;
+            max-width: 500px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 24px 64px rgba(0, 0, 0, .3);
+        }
+
+        .modal-box h2 {
+            font-size: 18px;
+            color: var(--pd);
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .modal-box h2 i {
+            color: var(--ag);
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+            margin-top: 20px;
+            padding-top: 16px;
+            border-top: 1px solid var(--bdr);
+        }
+
+        @keyframes fadeUp {
+            from {
+                opacity: 0;
+                transform: translateY(12px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .drawer-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, .45);
+            z-index: 800;
+            backdrop-filter: blur(2px);
+        }
+
+        .drawer-overlay.open {
+            display: flex;
+        }
+
+        .mob-drawer {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 100%;
+            width: 280px;
+            background: var(--pd);
+            z-index: 900;
+            flex-direction: column;
+            transform: translateX(-100%);
+            transition: transform .35s cubic-bezier(.4, 0, .2, 1);
+        }
+
+        .mob-drawer.open {
+            display: flex;
+            transform: translateX(0);
+        }
+
+        .drawer-hdr {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 18px 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, .08);
+        }
+
+        .drawer-hdr img {
+            height: 32px;
+        }
+
+        .drawer-close {
+            background: none;
+            border: none;
+            color: rgba(255, 255, 255, .6);
+            font-size: 24px;
+            cursor: pointer;
+            line-height: 1;
+        }
+
+        .drawer-nav {
+            padding: 16px 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+            overflow-y: auto;
+            flex: 1;
+        }
+
+        .drawer-nav a {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 11px 12px;
+            border-radius: 8px;
+            color: rgba(255, 255, 255, .72);
+            font-size: 13px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: var(--tr);
+        }
+
+        .drawer-nav a:hover {
+            background: rgba(255, 255, 255, .08);
+            color: #fff;
+        }
+
+        .drawer-nav a.active {
+            background: rgba(240, 154, 54, .15);
+            color: var(--ag);
+        }
+
+        .drawer-div {
+            height: 1px;
+            background: rgba(255, 255, 255, .07);
+            margin: 8px 0;
+        }
+
+        .drawer-logout {
+            background: #dc2626 !important;
+            color: #fff !important;
+            border-radius: 8px;
+            margin-top: 4px;
+        }
+
+        @media (max-width: 768px) {
+            header nav {
+                display: none;
+            }
+            .mob-toggle {
+                display: flex;
+            }
+            .hdr-user {
+                display: none;
+            }
+            .hero {
+                padding: 28px 16px 36px;
+            }
+            .hero h1 {
+                font-size: 20px;
+            }
+            .main-content {
+                padding: 24px 16px 32px;
+            }
+            .card-grid {
+                grid-template-columns: 1fr;
+                gap: 14px;
+            }
+            .gen-form {
+                grid-template-columns: 1fr;
+                gap: 0;
+            }
+            .section-card {
+                padding: 20px;
+            }
+            .modal-box {
+                margin: 16px;
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<header id="main-header">
+    <div class="hdr">
+        <a href="/editor/dashboard" class="logo-box">
+            <img src="/images/Logo.png" alt="Mardique">
+        </a>
+        <nav>
+            <ul class="nav-menu">
+                <li><a href="/editor/dashboard"><i class="fas fa-chart-pie"></i> Dashboard</a></li>
+                <li><a href="/editor/contacts"><i class="fas fa-address-book"></i> Contactos</a></li>
+                <li class="active"><a href="/editor/documents"><i class="fas fa-file-pdf"></i> Documentos</a></li>
+                <li><a href="/editor/gallery"><i class="fas fa-images"></i> Galería</a></li>
+                <li><a href="/editor/content"><i class="fas fa-edit"></i> Contenido web</a></li>
+                <li><a href="/editor/config"><i class="fas fa-tags"></i> Config Tarifas</a></li>
+            </ul>
+        </nav>
+        <div class="hdr-right">
+            <span class="hdr-user" th:text="${#authentication.name}">editor</span>
+            <button class="btn-logout" onclick="document.getElementById('logoutModal').classList.add('show')">
+                <i class="fas fa-sign-out-alt"></i> Salir
+            </button>
+        </div>
+        <button class="mob-toggle" id="mobileToggle" aria-label="Abrir menú">
+            <span></span><span></span><span></span>
+        </button>
+    </div>
+</header>
+
+<div class="hero">
+    <div class="hero-inner">
+        <h1><i class="fas fa-file-alt"></i> Documentos</h1>
+        <p>Administre los documentos del sitio</p>
+    </div>
+</div>
+
+<div class="main-content">
+    <div th:if="${success}" class="msg msg-success reveal">
+        <i class="fas fa-check-circle"></i> <span th:text="${success}">Operación exitosa</span>
+    </div>
+    <div th:if="${error}" class="msg msg-error reveal">
+        <i class="fas fa-exclamation-circle"></i> <span th:text="${error}">Error en la operación</span>
+    </div>
+
+    <div class="section-card reveal">
+        <h3><i class="fas fa-laptop" style="color: var(--ac);"></i> Trámites en Línea</h3>
+        <div class="card-grid">
+            <div th:each="card : ${tramiteCards}" class="doc-card">
+                <th:block th:with="doc=${tramiteCardDocs[card.key]}">
+                    <div class="doc-card-header">
+                        <div class="card-icon" th:classappend="${doc != null} ? 'assigned' : 'missing'">
+                            <i th:class="${doc != null} ? 'fas fa-check-circle' : 'fas fa-file-upload'"></i>
+                        </div>
+                        <div class="card-info">
+                            <div class="card-title" th:text="${card.label}">Nombre del trámite</div>
+                            <div class="card-sub" th:text="${doc != null} ? ('Asignado: ' + ${#temporals.format(doc.uploadedAt, 'dd/MM/yyyy')}) : 'Sin PDF asignado'">
+                                Estado
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="status-badge" th:classappend="${doc != null} ? 'assigned' : 'missing'">
+                        <i th:class="${doc != null} ? 'fas fa-check-circle' : 'fas fa-times-circle'"></i>
+                        <span th:text="${doc != null} ? 'PDF asignado' : 'Sin PDF'">Estado</span>
+                    </div>
+
+                    <div th:if="${doc != null}" class="email-info">
+                        <div class="email-info-row" th:if="${doc.email != null}">
+                            <i class="fas fa-envelope"></i>
+                            <span>Enviar a: <strong th:text="${doc.email}">correo@ejemplo.com</strong></span>
+                        </div>
+                        <div class="email-info-row" th:if="${doc.emailCc != null and !doc.emailCc.isEmpty()}">
+                            <i class="fas fa-copy"></i>
+                            <span>Cc: <strong th:text="${doc.emailCc}">cc@ejemplo.com</strong></span>
+                        </div>
+                        <div class="email-info-row" th:if="${doc.descripcion != null}">
+                            <i class="fas fa-info-circle"></i>
+                            <span th:text="${doc.descripcion}">Descripción del documento</span>
+                        </div>
+                    </div>
+
+                    <div class="card-actions" th:if="${doc != null}">
+                        <a th:href="${doc.filePath}" target="_blank" class="btn btn-cyan btn-sm">
+                            <i class="fas fa-eye"></i> Ver PDF
+                        </a>
+                        <button class="btn btn-cyan btn-sm" onclick="openMetaModal(this)"
+                                th:data-id="${doc.id}"
+                                th:data-email="${doc.email}"
+                                th:data-emailcc="${doc.emailCc}"
+                                th:data-descripcion="${doc.descripcion}">
+                            <i class="fas fa-sliders-h"></i> Metadatos
+                        </button>
+                        <form th:action="@{/editor/documents/delete/{id}(id=${doc.id})}" method="post" style="display:inline;" onsubmit="return confirm('¿Eliminar este documento?')">
+                            <button type="submit" class="btn btn-red btn-sm">
+                                <i class="fas fa-trash"></i> Eliminar
+                            </button>
+                        </form>
+                    </div>
+
+                    <div th:if="${doc == null}">
+                        <button class="btn btn-gold btn-sm" onclick="toggleUploadArea(this)">
+                            <i class="fas fa-upload"></i> Subir PDF
+                        </button>
+                        <div class="upload-area">
+                            <h4><i class="fas fa-file-pdf"></i> Subir PDF para <span th:text="${card.label}">Trámite</span></h4>
+                            <form th:action="@{/editor/documents/upload}" method="post" enctype="multipart/form-data">
+                                <div class="field">
+                                    <label>Nombre del documento</label>
+                                    <input type="text" name="nombre" th:value="${card.label}" required>
+                                </div>
+                                <input type="hidden" name="tipo" value="TRAMITE">
+                                <input type="hidden" name="cardKey" th:value="${card.key}">
+                                <div class="field">
+                                    <label>Descripción del documento</label>
+                                    <textarea name="descripcion" rows="2" placeholder="Ej: Formulario único de inscripción..."></textarea>
+                                </div>
+                                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px;">
+                                    <div class="field">
+                                        <label>Correo para envío</label>
+                                        <input type="email" name="email" placeholder="ej: oficial@spmardique.com">
+                                    </div>
+                                    <div class="field">
+                                        <label>Copia (Cc)</label>
+                                        <input type="email" name="emailCc" placeholder="ej: copia@spmardique.com">
+                                    </div>
+                                </div>
+                                <div class="field">
+                                    <label>Archivo PDF</label>
+                                    <input type="file" name="file" accept=".pdf" required>
+                                </div>
+                                <button type="submit" class="btn btn-success btn-sm">
+                                    <i class="fas fa-upload"></i> Subir documento
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </th:block>
+            </div>
+        </div>
+    </div>
+
+    <div class="section-card reveal">
+        <h3><i class="fas fa-clipboard-list" style="color: var(--ag);"></i> Procedimientos</h3>
+        <div class="card-grid" th:if="${!#lists.isEmpty(procedimientos)}">
+            <div th:each="d : ${procedimientos}" class="doc-card">
+                <div class="doc-card-header">
+                    <div class="card-icon assigned">
+                        <i class="fas fa-file-pdf"></i>
+                    </div>
+                    <div class="card-info">
+                        <div class="card-title" th:text="${d.nombre}">Nombre del documento</div>
+                        <div class="card-sub" th:text="${#temporals.format(d.uploadedAt, 'dd/MM/yyyy HH:mm')}">Fecha</div>
+                    </div>
+                </div>
+                <div class="status-badge assigned">
+                    <i class="fas fa-check-circle"></i> PDF subido
+                </div>
+                <div class="card-actions">
+                    <a th:href="${d.filePath}" target="_blank" class="btn btn-cyan btn-sm">
+                        <i class="fas fa-eye"></i> Ver PDF
+                    </a>
+                    <form th:action="@{/editor/documents/delete/{id}(id=${d.id})}" method="post" style="display:inline;" onsubmit="return confirm('¿Eliminar este documento?')">
+                        <button type="submit" class="btn btn-red btn-sm">
+                            <i class="fas fa-trash"></i> Eliminar
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <div th:if="${#lists.isEmpty(procedimientos)}" class="empty-state">
+            <i class="fas fa-folder-open"></i>
+            <p>No hay documentos de procedimientos</p>
+        </div>
+    </div>
+
+    <div class="section-card reveal">
+        <h3><i class="fas fa-dollar-sign" style="color: #16a34a;"></i> Tarifas</h3>
+        <div class="card-grid" th:if="${!#lists.isEmpty(tarifas)}">
+            <div th:each="d : ${tarifas}" class="doc-card">
+                <div class="doc-card-header">
+                    <div class="card-icon assigned">
+                        <i class="fas fa-file-pdf"></i>
+                    </div>
+                    <div class="card-info">
+                        <div class="card-title" th:text="${d.nombre}">Nombre del documento</div>
+                        <div class="card-sub" th:text="${#temporals.format(d.uploadedAt, 'dd/MM/yyyy HH:mm')}">Fecha</div>
+                    </div>
+                </div>
+                <div class="status-badge assigned">
+                    <i class="fas fa-check-circle"></i> PDF subido
+                </div>
+                <div class="card-actions">
+                    <a th:href="${d.filePath}" target="_blank" class="btn btn-cyan btn-sm">
+                        <i class="fas fa-eye"></i> Ver PDF
+                    </a>
+                    <form th:action="@{/editor/documents/delete/{id}(id=${d.id})}" method="post" style="display:inline;" onsubmit="return confirm('¿Eliminar este documento?')">
+                        <button type="submit" class="btn btn-red btn-sm">
+                            <i class="fas fa-trash"></i> Eliminar
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <div th:if="${#lists.isEmpty(tarifas)}" class="empty-state">
+            <i class="fas fa-folder-open"></i>
+            <p>No hay documentos de tarifas</p>
+        </div>
+    </div>
+
+    <div class="section-card reveal">
+        <h3><i class="fas fa-upload" style="color: var(--ag);"></i> Subir documento general</h3>
+        <form th:action="@{/editor/documents/upload}" method="post" enctype="multipart/form-data">
+            <div class="gen-form">
+                <div class="field">
+                    <label><i class="fas fa-tag"></i> Nombre del documento</label>
+                    <input type="text" name="nombre" required placeholder="Ej: Manual de procedimientos">
+                </div>
+                <div class="field">
+                    <label><i class="fas fa-folder"></i> Sección</label>
+                    <select name="tipo" required>
+                        <option value="TRAMITE">📋 Trámites en Línea</option>
+                        <option value="PROCEDIMIENTO">📄 Procedimientos</option>
+                        <option value="TARIFA">💰 Tarifas</option>
+                    </select>
+                </div>
+            </div>
+            <div class="field">
+                <label><i class="fas fa-file-pdf"></i> Archivo PDF</label>
+                <input type="file" name="file" accept=".pdf" required>
+            </div>
+            <button type="submit" class="btn btn-gold">
+                <i class="fas fa-upload"></i> Subir documento
+            </button>
+        </form>
+    </div>
+</div>
+
+<div class="footer">
+    &copy; 2026 Sociedad Portuaria Mardique S.A. &middot; <a href="/inicio">Volver al sitio público</a>
+</div>
+
+<div class="modal-overlay" id="metaModal">
+    <div class="modal-box">
+        <h2><i class="fas fa-sliders-h"></i> Editar metadatos</h2>
+        <form th:action="@{/editor/documents/meta}" method="post">
+            <input type="hidden" name="id" id="metaDocId">
+            <div class="field">
+                <label>Descripción del documento</label>
+                <textarea name="descripcion" id="metaDescripcion" rows="3" placeholder="Breve descripción de para qué sirve este documento..."></textarea>
+            </div>
+            <div class="field">
+                <label>Correo para envío</label>
+                <input type="email" name="email" id="metaEmail" placeholder="ej: oficial@spmardique.com">
+            </div>
+            <div class="field">
+                <label>Copia (Cc)</label>
+                <input type="email" name="emailCc" id="metaEmailCc" placeholder="ej: copia@spmardique.com">
+            </div>
+            <div class="modal-actions">
+                <button type="button" class="btn-outline" onclick="document.getElementById('metaModal').classList.remove('show')">Cancelar</button>
+                <button type="submit" class="btn btn-gold"><i class="fas fa-save"></i> Guardar cambios</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="modal-overlay" id="logoutModal">
+    <div class="modal-box">
+        <i class="fas fa-sign-out-alt" style="font-size: 46px; color: var(--ag); margin-bottom: 12px; display: block;"></i>
+        <h2>Cerrar Sesión</h2>
+        <p>¿Estás seguro de que deseas cerrar tu sesión?</p>
+        <div class="modal-actions">
+            <button type="button" class="btn-outline" onclick="document.getElementById('logoutModal').classList.remove('show')">Cancelar</button>
+            <a href="/logout" class="btn-red"><i class="fas fa-sign-out-alt"></i> Cerrar Sesión</a>
+        </div>
+    </div>
+</div>
+
+<div class="drawer-overlay" id="drawerOverlay"></div>
+<nav class="mob-drawer" id="mobileDrawer" aria-label="Menú móvil">
+    <div class="drawer-hdr">
+        <img src="/images/Logo.png" alt="Mardique">
+        <button class="drawer-close" id="drawerClose" aria-label="Cerrar menú">&times;</button>
+    </div>
+    <div class="drawer-nav">
+        <a href="/editor/dashboard"><i class="fas fa-chart-pie"></i> Dashboard</a>
+        <a href="/editor/contacts"><i class="fas fa-address-book"></i> Contactos</a>
+        <a href="/editor/documents" class="active"><i class="fas fa-file-pdf"></i> Documentos</a>
+        <a href="/editor/gallery"><i class="fas fa-images"></i> Galería</a>
+        <a href="/editor/content"><i class="fas fa-edit"></i> Contenido web</a>
+        <a href="/editor/config"><i class="fas fa-tags"></i> Config Tarifas</a>
+        <div class="drawer-div"></div>
+        <a href="javascript:void(0)" onclick="document.getElementById('logoutModal').classList.add('show')" class="drawer-logout">
+            <i class="fas fa-sign-out-alt"></i> Cerrar Sesión
+        </a>
+    </div>
+</nav>
+
+<script>
+    function toggleUploadArea(btn) {
+        const uploadArea = btn.parentElement.querySelector('.upload-area');
+        if (uploadArea) {
+            uploadArea.classList.toggle('open');
+        }
+    }
+
+    function openMetaModal(btn) {
+        document.getElementById('metaDocId').value = btn.getAttribute('data-id') || '';
+        document.getElementById('metaEmail').value = btn.getAttribute('data-email') || '';
+        document.getElementById('metaEmailCc').value = btn.getAttribute('data-emailcc') || '';
+        document.getElementById('metaDescripcion').value = btn.getAttribute('data-descripcion') || '';
+        document.getElementById('metaModal').classList.add('show');
+    }
+
+    document.getElementById('metaModal')?.addEventListener('click', function(e) {
+        if (e.target === this) this.classList.remove('show');
+    });
+    document.getElementById('logoutModal')?.addEventListener('click', function(e) {
+        if (e.target === this) this.classList.remove('show');
+    });
+
+    const observer = new IntersectionObserver(entries => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('visible');
+            }
+        });
+    }, { threshold: 0.1 });
+    document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+    const toggleBtn = document.getElementById('mobileToggle');
+    const drawer = document.getElementById('mobileDrawer');
+    const overlay = document.getElementById('drawerOverlay');
+    const closeBtn = document.getElementById('drawerClose');
+
+    function openDrawer() {
+        drawer.classList.add('open');
+        overlay.classList.add('open');
+        document.body.style.overflow = 'hidden';
+    }
+
+    function closeDrawer() {
+        drawer.classList.remove('open');
+        overlay.classList.remove('open');
+        document.body.style.overflow = '';
+    }
+
+    if (toggleBtn) toggleBtn.addEventListener('click', openDrawer);
+    if (closeBtn) closeBtn.addEventListener('click', closeDrawer);
+    if (overlay) overlay.addEventListener('click', closeDrawer);
+</script>
+<script src="/js/panel-nav.js"></script>
+</body>
+</html>

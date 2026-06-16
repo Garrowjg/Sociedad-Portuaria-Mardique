@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Servicios — Portal Mardique</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/css/panel-nav.css">
+    <style>
+        /* ── TOKENS BASADOS EN INICIO ── */
+        :root{
+            --pd:#1b4562; --pb:#28648c; --ag:#f09a36; --ac:#00a3e0;
+            --bg:#f0f4f8; --sur:#ffffff; --bdr:#e2e8f2;
+            --tx:#1e293b; --mx:#64748b;
+            --r:8px; --rl:14px;
+            --tr:all 0.3s cubic-bezier(0.4,0,0.2,1);
+            --sh:0 1px 4px rgba(27,69,98,.06);
+            --shm:0 6px 24px rgba(27,69,98,.10);
+        }
+        *{margin:0;padding:0;box-sizing:border-box;}
+        body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(--tx);}
+
+        /* ── HEADER ── */
+        header{background:var(--pd);padding:0;position:sticky;top:0;z-index:500;box-shadow:0 2px 20px rgba(0,0,0,.18);}
+        .hdr{display:flex;justify-content:space-between;align-items:center;padding:13px 28px;gap:16px;}
+        .logo-box img{height:36px;width:auto;object-fit:contain;display:block;}
+        nav{flex:1;display:flex;justify-content:center;}
+        .nav-menu{display:flex;gap:20px;align-items:center;list-style:none;flex-wrap:wrap;justify-content:center;}
+        .nav-menu li a{color:rgba(255,255,255,.72);font-size:11px;font-weight:700;text-transform:uppercase;position:relative;padding:6px 0;letter-spacing:.4px;transition:color .25s;text-decoration:none;display:flex;align-items:center;gap:5px;white-space:nowrap;}
+        .nav-menu li a::after{content:'';position:absolute;bottom:0;left:0;width:0;height:2px;background:var(--ag);transition:width .3s;}
+        .nav-menu li.active a,.nav-menu li a:hover{color:#fff;}
+        .nav-menu li.active a::after,.nav-menu li a:hover::after{width:100%;}
+        .hdr-right{display:flex;align-items:center;gap:10px;flex-shrink:0;}
+        .hdr-user{color:rgba(255,255,255,.65);font-size:12px;font-weight:500;white-space:nowrap;}
+        .btn-logout{display:inline-flex;align-items:center;gap:5px;padding:7px 14px;border:none;border-radius:6px;background:#dc2626;color:#fff;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.3px;cursor:pointer;font-family:inherit;text-decoration:none;transition:var(--tr);white-space:nowrap;}
+        .btn-logout:hover{background:#b91c1c;}
+        .mob-toggle{display:none;flex-direction:column;gap:5px;background:none;border:none;cursor:pointer;padding:4px;}
+        .mob-toggle span{display:block;width:22px;height:2px;background:#fff;border-radius:2px;transition:var(--tr);}
+
+        /* ── HERO SERVICIOS ── */
+        .hero{background:linear-gradient(135deg,var(--pd) 0%,#0d2438 100%);padding:52px 32px 60px;position:relative;overflow:hidden;text-align:center;}
+        .hero::before{content:'';position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,.025) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.025) 1px,transparent 1px);background-size:32px 32px;pointer-events:none;}
+        .hero::after{content:'';position:absolute;bottom:-1px;left:0;right:0;height:44px;background:var(--bg);clip-path:ellipse(55% 100% at 50% 100%);}
+        .hero-inner{position:relative;z-index:1;max-width:800px;margin:0 auto;}
+        .hero-badge{display:inline-flex;align-items:center;gap:6px;background:rgba(240,154,54,.15);border:1px solid rgba(240,154,54,.3);color:var(--ag);font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;padding:4px 12px;border-radius:50px;margin-bottom:16px;}
+        .hero h1{font-size:32px;font-weight:800;color:#fff;line-height:1.2;margin-bottom:8px;}
+        .hero h1 strong{color:var(--ag);}
+        .hero p{font-size:15px;color:rgba(255,255,255,.7);margin-bottom:8px;}
+
+        /* ── BODY & GRID INFOGRAFICO ── */
+        .body{padding:20px 28px 48px;max-width:1100px;margin:0 auto;}
+
+        .info-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:16px;margin-bottom:48px;}
+        .info-stat{background:var(--sur);border-radius:var(--rl);padding:24px 20px;text-align:center;border:1.5px solid var(--bdr);transition:var(--tr);box-shadow:var(--sh);}
+        .info-stat:hover{transform:translateY(-3px);box-shadow:var(--shm);border-color:var(--ac);}
+        .info-stat i{font-size:28px;color:var(--ac);margin-bottom:12px;}
+        .info-stat h4{font-size:22px;font-weight:800;color:var(--pd);}
+        .info-stat p{font-size:12.5px;color:var(--mx);margin-top:4px;font-weight:500;}
+
+        /* ── TARJETAS PREMIUM DE SERVICIOS ── */
+        .premium-service{display:flex;align-items:center;margin:32px 0;gap:0;}
+        .premium-service.reverse{flex-direction:row-reverse;}
+        .premium-img-box{flex:1.3;position:relative;border-radius:var(--rl);overflow:hidden;box-shadow:var(--shm);z-index:1;}
+        .premium-img-box img{width:100%;height:340px;object-fit:cover;display:block;transition:transform 0.6s ease;}
+        .premium-service:hover .premium-img-box img{transform:scale(1.05);}
+        .img-badge{position:absolute;top:16px;left:16px;background:var(--ag);color:#fff;padding:6px 16px;border-radius:50px;font-size:10.5px;font-weight:800;text-transform:uppercase;letter-spacing:.5px;opacity:0;transform:translateY(-8px);transition:all 0.35s ease;z-index:3;box-shadow:0 4px 12px rgba(240,154,54,.3);}
+        .premium-service:hover .img-badge{opacity:1;transform:translateY(0);}
+        .img-overlay{position:absolute;inset:0;background:rgba(27,69,98,.45);display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity 0.35s ease;z-index:2;}
+        .premium-service:hover .img-overlay{opacity:1;}
+        .img-overlay span{color:#fff;font-size:13px;font-weight:600;letter-spacing:.5px;transform:translateY(10px);transition:transform 0.35s ease;display:flex;align-items:center;gap:8px;background:rgba(255,255,255,.15);padding:10px 20px;border-radius:50px;backdrop-filter:blur(4px);border:1px solid rgba(255,255,255,.3);}
+        .premium-service:hover .img-overlay span{transform:translateY(0);}
+
+        /* Caja de texto superpuesta */
+        .premium-text-box{flex:1;padding:36px;background:var(--sur);border-radius:var(--rl);box-shadow:var(--shm);border-top:4px solid var(--ag);position:relative;z-index:2;margin-left:-80px;border-left:1.5px solid var(--bdr);border-right:1.5px solid var(--bdr);border-bottom:1.5px solid var(--bdr);}
+        .premium-service.reverse .premium-text-box{margin-left:0;margin-right:-80px;}
+
+        .category-label{color:var(--pb);font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;display:flex;align-items:center;gap:6px;}
+        .premium-text-box h3{font-size:24px;color:var(--pd);margin-bottom:12px;line-height:1.2;font-weight:800;}
+        .premium-text-box p{font-size:14px;color:var(--mx);line-height:1.65;margin-bottom:16px;}
+        .service-bullets{list-style:none;padding:0;margin:0;}
+        .service-bullets li{display:flex;align-items:flex-start;gap:10px;padding:6px 0;font-size:13.5px;color:var(--tx);font-weight:500;}
+        .service-bullets li i{color:var(--ac);font-size:15px;margin-top:3px;}
+
+        /* Separador */
+        .premium-divider{display:flex;align-items:center;justify-content:center;gap:12px;margin:24px 0;}
+        .premium-divider .line{flex:1;height:1px;background:linear-gradient(90deg,transparent,var(--bdr),transparent);}
+        .premium-divider .diamond{width:8px;height:8px;background:var(--ag);transform:rotate(45deg);border-radius:1px;box-shadow:0 0 8px rgba(240,154,54,.4);}
+
+        /* ── BOTONES Y ENLACES ── */
+        .center-link{text-align:center;margin:48px 0 20px;}
+        .btn{padding:12px 24px;border:none;border-radius:var(--r);font-size:13px;font-weight:700;font-family:inherit;cursor:pointer;transition:var(--tr);display:inline-flex;align-items:center;gap:8px;text-decoration:none;}
+        .btn-outline-d{background:var(--sur);border:1.5px solid var(--bdr);color:var(--tx);box-shadow:var(--sh);}
+        .btn-outline-d:hover{border-color:var(--ag);color:var(--ag);transform:translateY(-2px);box-shadow:var(--shm);}
+
+        /* ── FOOTER ── */
+        .pfooter{text-align:center;padding:20px;border-top:1px solid var(--bdr);color:var(--mx);font-size:12px;margin-top:20px;}
+        .pfooter a{color:var(--ac);text-decoration:none;font-weight:600;}
+
+        /* ── MODAL ── */
+        .modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:1000;align-items:center;justify-content:center;backdrop-filter:blur(3px);}
+        .modal-overlay.show{display:flex;animation:fadeUp .2s ease;}
+        .modal-box{background:#fff;border-radius:16px;padding:36px;width:100%;max-width:400px;box-shadow:0 24px 64px rgba(0,0,0,.3);text-align:center;}
+        .modal-icon{font-size:46px;color:var(--ag);margin-bottom:12px;}
+        .modal-box h2{font-size:18px;color:var(--pd);margin-bottom:8px;}
+        .modal-box p{font-size:13px;color:var(--mx);margin-bottom:24px;}
+        .modal-actions{display:flex;gap:10px;justify-content:center;}
+        .btn-cancel{background:transparent;border:1.5px solid var(--bdr);color:var(--mx);padding:10px 20px;border-radius:var(--r);font-size:13px;font-weight:600;font-family:inherit;cursor:pointer;transition:var(--tr);}
+        .btn-cancel:hover{border-color:var(--ag);color:var(--ag);}
+        .btn-red{background:#dc2626;color:#fff;padding:10px 22px;border:none;border-radius:var(--r);font-size:13px;font-weight:700;font-family:inherit;cursor:pointer;transition:var(--tr);display:inline-flex;align-items:center;gap:6px;text-decoration:none;}
+        .btn-red:hover{background:#b91c1c;}
+
+        /* ── DRAWER MÓVIL CORREGIDO ── */
+        .drawer-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:800;backdrop-filter:blur(2px);}
+        .mob-drawer{display:none;position:fixed;top:0;left:0;height:100%;width:280px;background:var(--pd);z-index:900;flex-direction:column;transform:translateX(-100%);transition:transform .35s cubic-bezier(.4,0,.2,1);}
+        .mob-drawer.open,.drawer-overlay.open{display:flex;transform:translateX(0);}
+        .drawer-hdr{display:flex;align-items:center;justify-content:space-between;padding:18px 20px;border-bottom:1px solid rgba(255,255,255,.08);}
+        .drawer-hdr img{height:32px;}
+        .drawer-close{background:none;border:none;color:rgba(255,255,255,.6);font-size:22px;cursor:pointer;line-height:1;}
+        .drawer-nav{padding:16px 12px;display:flex;flex-direction:column;gap:2px;overflow-y:auto;flex:1;}
+        .drawer-nav a{display:flex;align-items:center;gap:10px;padding:11px 12px;border-radius:8px;color:rgba(255,255,255,.72);font-size:13px;font-weight:600;text-decoration:none;transition:var(--tr);}
+        .drawer-nav a:hover{background:rgba(255,255,255,.08);color:#fff;}
+        .drawer-nav a.active{background:rgba(240,154,54,.15);color:var(--ag);}
+        .drawer-div{height:1px;background:rgba(255,255,255,.07);margin:8px 0;}
+        .drawer-logout{background:#dc2626!important;color:#fff!important;border-radius:8px;margin-top:4px;}
+
+        /* ── ANIMACIONES REVEAL ── */
+        .reveal{opacity:0;transform:translateY(20px);transition:all .55s cubic-bezier(.22,1,.36,1);}
+        .reveal.visible{opacity:1;transform:translateY(0);}
+        @keyframes fadeUp{from{opacity:0;transform:translateY(12px);}to{opacity:1;transform:translateY(0);}}
+
+        /* ── RESPONSIVE ── */
+        @media(max-width:1024px){
+            .premium-service{flex-direction:column!important;}
+            .premium-text-box{margin-left:0!important;margin-right:0!important;margin-top:-40px;border-top:4px solid var(--ag);}
+            .premium-img-box img{height:280px;}
+        }
+        @media(max-width:768px){
+            header nav{display:none;}
+            .mob-toggle{display:flex;}
+            .hdr-user{display:none;}
+            .hero{padding:40px 20px 48px;}
+            .hero h1{font-size:26px;}
+            .body{padding:20px 16px 32px;}
+            .premium-text-box{padding:24px;}
+        }
+    </style>
+</head>
+<body>
+
+<header id="main-header">
+    <div class="hdr">
+        <a href="/user/inicio" class="logo-box">
+            <img src="/images/Logo.png" alt="Mardique">
+        </a>
+        <nav>
+            <ul class="nav-menu">
+                <li><a href="/user/inicio"><i class="fas fa-home"></i> Inicio</a></li>
+                <li class="active"><a href="/user/servicios"><i class="fas fa-concierge-bell"></i> Servicios</a></li>
+                <li><a href="/user/tramites"><i class="fas fa-file-contract"></i> Trámites</a></li>
+                <li><a href="/user/tarifas"><i class="fas fa-file-invoice-dollar"></i> Tarifas</a></li>
+                <li><a href="/user/payments"><i class="fas fa-credit-card"></i> Pagos</a></li>
+                <li><a href="/user/solicitudes"><i class="fas fa-file-alt"></i> Solicitudes</a></li>
+                <li><a href="/user/profile"><i class="fas fa-user"></i> Perfil</a></li>
+            </ul>
+        </nav>
+        <div class="hdr-right">
+            <span class="hdr-user" th:text="${#authentication.name}">usuario</span>
+            <button class="btn-logout" onclick="document.getElementById('logoutModal').classList.add('show')">
+                <i class="fas fa-sign-out-alt"></i> Salir
+            </button>
+        </div>
+        <button class="mob-toggle" id="mobileToggle" aria-label="Abrir menú">
+            <span></span><span></span><span></span>
+        </button>
+    </div>
+</header>
+
+<div class="hero">
+    <div class="hero-inner">
+        <div class="hero-badge"><i class="fas fa-ship"></i> Operación Portuaria</div>
+        <h1>Nuestros <strong>Servicios</strong></h1>
+        <p>Conoce todo lo que Mardique tiene para ti y la logística de tu carga</p>
+    </div>
+</div>
+
+<div class="body">
+    <div class="info-grid reveal">
+        <div class="info-stat">
+            <i class="fa-solid fa-ship"></i>
+            <h4>150m</h4>
+            <p>Muelle marítimo</p>
+        </div>
+        <div class="info-stat">
+            <i class="fa-solid fa-water"></i>
+            <h4>15m</h4>
+            <p>Calado del canal</p>
+        </div>
+        <div class="info-stat">
+            <i class="fa-solid fa-oil-can"></i>
+            <h4>65K</h4>
+            <p>Capacidad MARPOL</p>
+        </div>
+        <div class="info-stat">
+            <i class="fa-solid fa-clock"></i>
+            <h4>24/7</h4>
+            <p>Operaciones continuas</p>
+        </div>
+    </div>
+
+    <div class="premium-service reveal">
+        <div class="premium-img-box">
+            <img src="/images/MuelleMaritimo.jpg" alt="Muelle Marítimo">
+            <span class="img-badge"><i class="fas fa-anchor"></i> Puerto</span>
+            <div class="img-overlay"><span><i class="fas fa-expand"></i> Ver instalación</span></div>
+        </div>
+        <div class="premium-text-box">
+            <span class="category-label"><i class="fas fa-tag"></i> Marítimo</span>
+            <h3>Muelle Marítimo</h3>
+            <p>Atraque y operación para naves de hasta 50.000 DWT con equipos de última generación.</p>
+            <ul class="service-bullets">
+                <li><i class="fas fa-check-circle"></i> Muelles de 150m con capacidad para buques Panamax</li>
+                <li><i class="fas fa-check-circle"></i> Grúas móviles Liebherr con capacidad de 100 ton</li>
+                <li><i class="fas fa-check-circle"></i> Sistemas de amarre y desamarre asistidos</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="premium-divider"><div class="line"></div><div class="diamond"></div><div class="line right"></div></div>
+
+    <div class="premium-service reverse reveal">
+        <div class="premium-img-box">
+            <img src="/images/MuelleFluvial.jpg" alt="Muelle Fluvial">
+            <span class="img-badge"><i class="fas fa-water"></i> Fluvial</span>
+            <div class="img-overlay"><span><i class="fas fa-expand"></i> Ver instalación</span></div>
+        </div>
+        <div class="premium-text-box">
+            <span class="category-label"><i class="fas fa-tag"></i> Fluvial</span>
+            <h3>Muelle Fluvial</h3>
+            <p>Canal de acceso con 15m de profundidad para barcazas y remolcadores garantizando maniobras eficientes.</p>
+            <ul class="service-bullets">
+                <li><i class="fas fa-check-circle"></i> Canal de acceso dragado permanentemente</li>
+                <li><i class="fas fa-check-circle"></i> Muelles marginales para operación fluvial</li>
+                <li><i class="fas fa-check-circle"></i> Conexión directa con el Río Magdalena</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="premium-divider"><div class="line"></div><div class="diamond"></div><div class="line right"></div></div>
+
+    <div class="premium-service reveal">
+        <div class="premium-img-box">
+            <img src="/images/ServiciosPortuarios.jpg" alt="Servicios Portuarios">
+            <span class="img-badge"><i class="fas fa-crane"></i> Portuario</span>
+            <div class="img-overlay"><span><i class="fas fa-expand"></i> Ver instalación</span></div>
+        </div>
+        <div class="premium-text-box">
+            <span class="category-label"><i class="fas fa-tag"></i> Portuario</span>
+            <h3>Servicios Portuarios</h3>
+            <p>Operaciones de carga y descarga con infraestructura moderna para todo tipo de mercancía.</p>
+            <ul class="service-bullets">
+                <li><i class="fas fa-check-circle"></i> Manejo de contenedores, gráneles y carga general</li>
+                <li><i class="fas fa-check-circle"></i> Básculas de alta precisión debidamente calibradas</li>
+                <li><i class="fas fa-check-circle"></i> Zona de almacenamiento techado y descubierto</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="premium-divider"><div class="line"></div><div class="diamond"></div><div class="line right"></div></div>
+
+    <div class="premium-service reverse reveal">
+        <div class="premium-img-box">
+            <img src="/images/PlataformaLogistica.jpg" alt="Plataforma Logística">
+            <span class="img-badge"><i class="fas fa-boxes"></i> Logística</span>
+            <div class="img-overlay"><span><i class="fas fa-expand"></i> Ver instalación</span></div>
+        </div>
+        <div class="premium-text-box">
+            <span class="category-label"><i class="fas fa-tag"></i> Logística</span>
+            <h3>Plataforma Logística</h3>
+            <p>Soluciones integrales de almacenamiento, distribución y gestión de inventarios para optimizar tus tiempos.</p>
+            <ul class="service-bullets">
+                <li><i class="fas fa-check-circle"></i> Bodegas especializadas con control de temperatura</li>
+                <li><i class="fas fa-check-circle"></i> Gestión de inventarios digitalizada en tiempo real</li>
+                <li><i class="fas fa-check-circle"></i> Patios amplios de maniobras y parqueo para tractomulas</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="center-link reveal">
+        <a href="/servicios" class="btn btn-outline-d"><i class="fas fa-external-link-alt"></i> Ver todos los servicios en el sitio público</a>
+    </div>
+
+    <div class="pfooter">
+        &copy; 2026 Sociedad Portuaria Mardique S.A. &middot; <a href="/inicio">Volver al sitio público</a>
+    </div>
+</div>
+
+<div class="modal-overlay" id="logoutModal">
+    <div class="modal-box">
+        <i class="fas fa-sign-out-alt" style="font-size: 46px; color: var(--ag); margin-bottom: 12px; display: block;"></i>
+        <h2>Cerrar Sesión</h2>
+        <p>¿Estás seguro de que deseas cerrar tu sesión?</p>
+        <div class="modal-actions">
+            <button type="button" class="btn-outline" onclick="document.getElementById('logoutModal').classList.remove('show')">Cancelar</button>
+            <a href="/logout" class="btn-red"><i class="fas fa-sign-out-alt"></i> Cerrar Sesión</a>
+        </div>
+    </div>
+</div>
+
+<div class="drawer-overlay" id="drawerOverlay"></div>
+<nav class="mob-drawer" id="mobileDrawer" aria-label="Menú móvil">
+    <div class="drawer-hdr">
+        <img src="/images/Logo.png" alt="Mardique">
+        <button class="drawer-close" id="drawerClose">&times;</button>
+    </div>
+    <div class="drawer-nav">
+        <a href="/user/inicio"><i class="fas fa-home"></i> Inicio</a>
+        <a href="/user/servicios" class="active"><i class="fas fa-concierge-bell"></i> Servicios</a>
+        <a href="/user/tramites"><i class="fas fa-file-contract"></i> Trámites</a>
+        <a href="/user/tarifas"><i class="fas fa-file-invoice-dollar"></i> Tarifas</a>
+        <div class="drawer-div"></div>
+        <a href="/user/payments"><i class="fas fa-credit-card"></i> Pagos</a>
+        <a href="/user/solicitudes"><i class="fas fa-file-alt"></i> Solicitudes</a>
+        <a href="/user/profile"><i class="fas fa-user"></i> Perfil</a>
+        <div class="drawer-div"></div>
+        <a href="javascript:void(0)" onclick="document.getElementById('logoutModal').classList.add('show')" class="drawer-logout"><i class="fas fa-sign-out-alt"></i> Cerrar Sesión</a>
+    </div>
+</nav>
+
+<script>
+    // Manejo de Modal
+    document.getElementById('logoutModal').addEventListener('click',function(e){if(e.target===this)this.classList.remove('show');});
+
+    // Observador de Reveal
+    const obs=new IntersectionObserver(en=>{en.forEach(e=>{if(e.isIntersecting)e.target.classList.add('visible');});},{threshold:.1});
+    document.querySelectorAll('.reveal').forEach(el=>obs.observe(el));
+
+    // Funciones del Drawer
+    const tog=document.getElementById('mobileToggle');
+    const drw=document.getElementById('mobileDrawer');
+    const ov=document.getElementById('drawerOverlay');
+    const cl=document.getElementById('drawerClose');
+    function openDrw(){drw.classList.add('open');ov.classList.add('open');document.body.style.overflow='hidden';}
+    function closeDrw(){drw.classList.remove('open');ov.classList.remove('open');document.body.style.overflow='';}
+    tog&&tog.addEventListener('click',openDrw);
+    cl&&cl.addEventListener('click',closeDrw);
+    ov&&ov.addEventListener('click',closeDrw);
+</script>
+<script src="/js/panel-nav.js"></script>
+</body>
+</html>

@@ -1,0 +1,1282 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contenido Web — Editor Mardique</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/css/panel-nav.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background: #f0f4f8;
+            color: #1e293b;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        :root {
+            --pd: #1b4562;
+            --pb: #28648c;
+            --ag: #f09a36;
+            --ac: #00a3e0;
+            --bg: #f0f4f8;
+            --sur: #ffffff;
+            --bdr: #e2e8f2;
+            --tx: #1e293b;
+            --mx: #64748b;
+            --r: 8px;
+            --rl: 14px;
+            --tr: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            --sh: 0 1px 4px rgba(27, 69, 98, .06);
+            --shm: 0 6px 24px rgba(27, 69, 98, .10);
+        }
+
+        header {
+            background: var(--pd);
+            position: sticky;
+            top: 0;
+            z-index: 500;
+            box-shadow: 0 2px 20px rgba(0, 0, 0, .18);
+        }
+
+        .hdr {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 13px 28px;
+            gap: 16px;
+        }
+
+        .logo-box img {
+            height: 36px;
+            width: auto;
+        }
+
+        nav {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+        }
+
+        .nav-menu {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+            list-style: none;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .nav-menu li a {
+            color: rgba(255, 255, 255, .72);
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            position: relative;
+            padding: 6px 0;
+            letter-spacing: .4px;
+            transition: color .25s;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .nav-menu li a::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: var(--ag);
+            transition: width .3s;
+        }
+
+        .nav-menu li.active a,
+        .nav-menu li a:hover {
+            color: #fff;
+        }
+
+        .nav-menu li.active a::after,
+        .nav-menu li a:hover::after {
+            width: 100%;
+        }
+
+        .hdr-right {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .hdr-user {
+            color: rgba(255, 255, 255, .65);
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .btn-logout {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 7px 14px;
+            border: none;
+            border-radius: 6px;
+            background: #dc2626;
+            color: #fff;
+            font-size: 11px;
+            font-weight: 700;
+            cursor: pointer;
+            font-family: inherit;
+            text-decoration: none;
+            transition: var(--tr);
+        }
+
+        .btn-logout:hover {
+            background: #b91c1c;
+        }
+
+        .mob-toggle {
+            display: none;
+            flex-direction: column;
+            gap: 5px;
+            background: none;
+            border: none;
+            cursor: pointer;
+        }
+
+        .mob-toggle span {
+            width: 22px;
+            height: 2px;
+            background: #fff;
+            border-radius: 2px;
+        }
+
+        .hero {
+            background: linear-gradient(135deg, var(--pd) 0%, #0d2438 100%);
+            padding: 36px 32px 44px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background-image: linear-gradient(rgba(255, 255, 255, .025) 1px, transparent 1px), linear-gradient(90deg, rgba(255, 255, 255, .025) 1px, transparent 1px);
+            background-size: 32px 32px;
+            pointer-events: none;
+        }
+
+        .hero::after {
+            content: '';
+            position: absolute;
+            bottom: -1px;
+            left: 0;
+            right: 0;
+            height: 40px;
+            background: var(--bg);
+            clip-path: ellipse(55% 100% at 50% 100%);
+        }
+
+        .hero-inner {
+            position: relative;
+            z-index: 1;
+            max-width: 800px;
+            margin: 0 auto;
+            text-align: center;
+        }
+
+        .hero h1 {
+            font-size: 26px;
+            font-weight: 800;
+            color: #fff;
+            margin-bottom: 6px;
+        }
+
+        .hero h1 i {
+            color: var(--ag);
+            margin-right: 8px;
+        }
+
+        .hero p {
+            font-size: 13.5px;
+            color: rgba(255, 255, 255, .65);
+        }
+
+        .main-content {
+            padding: 36px 28px 48px;
+            max-width: 1400px;
+            margin: 0 auto;
+            width: 100%;
+            flex: 1;
+        }
+
+        .msg {
+            padding: 14px 18px;
+            border-radius: var(--r);
+            font-size: 13px;
+            margin-bottom: 24px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .msg-success {
+            background: #f0fdf4;
+            border: 1px solid #bbf7d0;
+            color: #16a34a;
+        }
+
+        .msg-error {
+            background: #fef2f2;
+            border: 1px solid #fecaca;
+            color: #dc2626;
+        }
+
+        .editor-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 16px;
+            margin-bottom: 28px;
+            background: var(--sur);
+            border-radius: var(--rl);
+            padding: 20px 24px;
+            box-shadow: var(--sh);
+            border: 1.5px solid var(--bdr);
+        }
+
+        .editor-header h1 {
+            font-size: 18px;
+            font-weight: 800;
+            color: var(--pd);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .editor-header h1 i {
+            color: var(--ag);
+        }
+
+        .page-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: linear-gradient(135deg, var(--ag), #d67e1a);
+            color: #fff;
+            padding: 6px 16px;
+            border-radius: 50px;
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .5px;
+            margin-left: 8px;
+        }
+
+        .page-selector-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .page-selector-wrapper label {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--mx);
+            white-space: nowrap;
+        }
+
+        .page-selector {
+            padding: 10px 16px;
+            border-radius: var(--r);
+            border: 1.5px solid var(--bdr);
+            font-family: inherit;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--pd);
+            background: #fff;
+            cursor: pointer;
+            outline: none;
+            transition: var(--tr);
+            min-width: 220px;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%231b4562' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 12px center;
+            padding-right: 36px;
+        }
+
+        .page-selector:focus {
+            border-color: var(--ag);
+            box-shadow: 0 0 0 3px rgba(240, 154, 54, .1);
+        }
+
+        /* Page Grid */
+        .page-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 20px;
+            margin-top: 24px;
+        }
+
+        .page-card {
+            background: var(--sur);
+            border-radius: var(--rl);
+            padding: 28px 20px;
+            text-align: center;
+            border: 1.5px solid var(--bdr);
+            transition: var(--tr);
+            text-decoration: none;
+            color: inherit;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .page-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--ag), var(--ac));
+            transform: scaleX(0);
+            transition: transform .3s ease;
+            transform-origin: left;
+        }
+
+        .page-card:hover::before {
+            transform: scaleX(1);
+        }
+
+        .page-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shm);
+            border-color: transparent;
+        }
+
+        .page-card i {
+            font-size: 36px;
+            margin-bottom: 12px;
+            display: block;
+            color: var(--ac);
+        }
+
+        .page-card h3 {
+            font-size: 15px;
+            font-weight: 800;
+            color: var(--pd);
+            margin-bottom: 4px;
+        }
+
+        .page-card p {
+            font-size: 12px;
+            color: var(--mx);
+        }
+
+        .content-section {
+            margin-bottom: 24px;
+        }
+
+        .content-card {
+            background: var(--sur);
+            border-radius: var(--rl);
+            padding: 24px;
+            margin-bottom: 20px;
+            border: 1.5px solid var(--bdr);
+            border-left: 4px solid var(--ag);
+            transition: var(--tr);
+            animation: fadeIn .4s ease;
+            animation-fill-mode: both;
+        }
+
+        .content-card:hover {
+            box-shadow: var(--shm);
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .card-label {
+            font-size: 14px;
+            font-weight: 800;
+            color: var(--pd);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .card-label i {
+            color: var(--ag);
+        }
+
+        .card-key {
+            font-size: 10px;
+            color: var(--mx);
+            background: var(--bg);
+            padding: 4px 10px;
+            border-radius: 50px;
+            font-family: monospace;
+        }
+
+        .content-card textarea {
+            width: 100%;
+            padding: 12px 16px;
+            border-radius: var(--r);
+            border: 1.5px solid var(--bdr);
+            font-size: 13px;
+            font-family: monospace;
+            line-height: 1.6;
+            min-height: 100px;
+            resize: vertical;
+            outline: none;
+            transition: var(--tr);
+            background: #fafbfc;
+        }
+
+        .content-card textarea:focus {
+            border-color: var(--ag);
+            box-shadow: 0 0 0 3px rgba(240, 154, 54, .1);
+            background: #fff;
+        }
+
+        .content-card textarea.changed {
+            border-color: var(--ag);
+        }
+
+        .help-text {
+            font-size: 11px;
+            color: var(--mx);
+            margin-top: 10px;
+            padding: 10px 12px;
+            background: var(--bg);
+            border-radius: var(--r);
+            line-height: 1.6;
+        }
+
+        .help-text code {
+            background: #e2e8f0;
+            padding: 2px 5px;
+            border-radius: 3px;
+            font-size: 10px;
+            color: var(--pd);
+        }
+
+        .preview-box {
+            margin-top: 12px;
+            padding: 16px;
+            background: #fff;
+            border: 2px dashed var(--bdr);
+            border-radius: var(--r);
+            display: none;
+            animation: fadeIn .3s ease;
+            font-size: 13px;
+            line-height: 1.6;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .preview-box.open {
+            display: block;
+        }
+
+        .preview-label {
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--ag);
+            text-transform: uppercase;
+            letter-spacing: .5px;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .card-actions {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-top: 12px;
+        }
+
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: var(--r);
+            font-size: 12px;
+            font-weight: 700;
+            font-family: inherit;
+            cursor: pointer;
+            transition: var(--tr);
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            text-decoration: none;
+        }
+
+        .btn-sm {
+            padding: 6px 12px;
+            font-size: 11px;
+        }
+
+        .btn-lg {
+            padding: 12px 28px;
+            font-size: 13px;
+        }
+
+        .btn-gold {
+            background: linear-gradient(135deg, var(--ag), #d67e1a);
+            color: #fff;
+        }
+
+        .btn-gold:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 6px 20px rgba(240, 154, 54, .3);
+        }
+
+        .btn-gold:disabled {
+            opacity: .6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-cyan {
+            background: var(--ac);
+            color: #fff;
+        }
+
+        .btn-cyan:hover {
+            background: #0284c7;
+            transform: translateY(-1px);
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 1.5px solid var(--bdr);
+            color: var(--mx);
+        }
+
+        .btn-outline:hover {
+            border-color: var(--ag);
+            color: var(--ag);
+        }
+
+        .action-bar {
+            background: var(--sur);
+            border-radius: var(--rl);
+            padding: 20px 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 16px;
+            margin-top: 28px;
+            border: 1.5px solid var(--bdr);
+            position: sticky;
+            bottom: 0;
+            z-index: 50;
+        }
+
+        .action-bar .info {
+            font-size: 13px;
+            color: var(--mx);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .action-bar .info strong {
+            color: var(--pd);
+        }
+
+        .empty-state {
+            padding: 60px 20px;
+            text-align: center;
+            color: var(--mx);
+            background: var(--sur);
+            border-radius: var(--rl);
+            border: 1.5px solid var(--bdr);
+        }
+
+        .empty-state i {
+            font-size: 48px;
+            margin-bottom: 16px;
+            display: block;
+            color: var(--bdr);
+        }
+
+        .empty-state h3 {
+            font-size: 18px;
+            font-weight: 800;
+            color: var(--pd);
+            margin-bottom: 6px;
+        }
+
+        .empty-state p {
+            font-size: 13px;
+            max-width: 400px;
+            margin: 0 auto;
+        }
+
+        /* Spinner */
+        .spinner {
+            display: inline-block;
+            width: 14px;
+            height: 14px;
+            border: 2px solid rgba(255, 255, 255, .3);
+            border-top-color: #fff;
+            border-radius: 50%;
+            animation: spin .6s linear infinite;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            padding: 14px 20px;
+            border-radius: var(--r);
+            color: #fff;
+            font-size: 13px;
+            font-weight: 600;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, .15);
+            z-index: 2000;
+            transform: translateY(100px);
+            opacity: 0;
+            transition: all .4s ease;
+        }
+
+        .toast.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        .toast-success {
+            background: #16a34a;
+        }
+
+        .toast-error {
+            background: #dc2626;
+        }
+
+        .toast-warning {
+            background: var(--ag);
+        }
+
+        .footer {
+            text-align: center;
+            padding: 20px;
+            border-top: 1px solid var(--bdr);
+            color: #94a3b8;
+            font-size: 12px;
+            background: var(--sur);
+            margin-top: auto;
+        }
+
+        .footer a {
+            color: var(--ac);
+            text-decoration: none;
+        }
+
+        .footer a:hover {
+            text-decoration: underline;
+        }
+
+        .reveal {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all .55s cubic-bezier(.22, 1, .36, 1);
+        }
+
+        .reveal.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, .5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(3px);
+        }
+
+        .modal-overlay.show {
+            display: flex;
+            animation: fadeUp .2s ease;
+        }
+
+        .modal-box {
+            background: #fff;
+            border-radius: 16px;
+            padding: 36px;
+            width: 100%;
+            max-width: 400px;
+            box-shadow: 0 24px 64px rgba(0, 0, 0, .3);
+            text-align: center;
+        }
+
+        .modal-box h2 {
+            font-size: 18px;
+            color: var(--pd);
+            margin-bottom: 8px;
+        }
+
+        .modal-box p {
+            color: var(--mx);
+            font-size: 13px;
+            margin-bottom: 24px;
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+        }
+
+        @keyframes fadeUp {
+            from {
+                opacity: 0;
+                transform: translateY(12px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+
+        .drawer-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, .45);
+            z-index: 800;
+            backdrop-filter: blur(2px);
+        }
+
+        .drawer-overlay.open {
+            display: flex;
+        }
+
+        .mob-drawer {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 100%;
+            width: 280px;
+            background: var(--pd);
+            z-index: 900;
+            flex-direction: column;
+            transform: translateX(-100%);
+            transition: transform .35s cubic-bezier(.4, 0, .2, 1);
+        }
+
+        .mob-drawer.open {
+            display: flex;
+            transform: translateX(0);
+        }
+
+        .drawer-hdr {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 18px 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, .08);
+        }
+
+        .drawer-hdr img {
+            height: 32px;
+        }
+
+        .drawer-close {
+            background: none;
+            border: none;
+            color: rgba(255, 255, 255, .6);
+            font-size: 24px;
+            cursor: pointer;
+            line-height: 1;
+        }
+
+        .drawer-nav {
+            padding: 16px 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+            overflow-y: auto;
+            flex: 1;
+        }
+
+        .drawer-nav a {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 11px 12px;
+            border-radius: 8px;
+            color: rgba(255, 255, 255, .72);
+            font-size: 13px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: var(--tr);
+        }
+
+        .drawer-nav a:hover {
+            background: rgba(255, 255, 255, .08);
+            color: #fff;
+        }
+
+        .drawer-nav a.active {
+            background: rgba(240, 154, 54, .15);
+            color: var(--ag);
+        }
+
+        .drawer-div {
+            height: 1px;
+            background: rgba(255, 255, 255, .07);
+            margin: 8px 0;
+        }
+
+        .drawer-logout {
+            background: #dc2626 !important;
+            color: #fff !important;
+            border-radius: 8px;
+            margin-top: 4px;
+        }
+
+         .hero h1 {
+                font-size: 20px;
+            }
+            .main-content {
+                padding: 24px 16px 32px;
+            }
+            .editor-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            .page-selector-wrapper {
+                width: 100%;
+            }
+            .page-selector {
+                flex: 1;
+            }
+            .action-bar {
+                flex-direction: column;
+                text-align: center;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<header id="main-header">
+    <div class="hdr">
+        <a href="/editor/dashboard" class="logo-box">
+            <img src="/images/Logo.png" alt="Mardique">
+        </a>
+        <nav>
+            <ul class="nav-menu">
+                <li><a href="/editor/dashboard"><i class="fas fa-chart-pie"></i> Dashboard</a></li>
+                <li><a href="/editor/contacts"><i class="fas fa-address-book"></i> Contactos</a></li>
+                <li><a href="/editor/documents"><i class="fas fa-file-pdf"></i> Documentos</a></li>
+                <li><a href="/editor/gallery"><i class="fas fa-images"></i> Galería</a></li>
+                <li class="active"><a href="/editor/content"><i class="fas fa-edit"></i> Contenido web</a></li>
+                <li><a href="/editor/config"><i class="fas fa-tags"></i> Config Tarifas</a></li>
+            </ul>
+        </nav>
+        <div class="hdr-right">
+            <span class="hdr-user" th:text="${#authentication.name}">editor</span>
+            <button class="btn-logout" onclick="document.getElementById('logoutModal').classList.add('show')">
+                <i class="fas fa-sign-out-alt"></i> Salir
+            </button>
+        </div>
+        <button class="mob-toggle" id="mobileToggle" aria-label="Abrir menú">
+            <span></span><span></span><span></span>
+        </button>
+    </div>
+</header>
+
+<div class="hero">
+    <div class="hero-inner">
+        <h1><i class="fas fa-edit"></i> Editor de Contenido</h1>
+        <p>Gestión del contenido del sitio web</p>
+    </div>
+</div>
+
+<div class="main-content">
+    <div th:if="${success}" class="msg msg-success reveal">
+        <i class="fas fa-check-circle"></i> <span th:text="${success}">Contenido guardado exitosamente</span>
+    </div>
+    <div th:if="${error}" class="msg msg-error reveal">
+        <i class="fas fa-exclamation-circle"></i> <span th:text="${error}">Error al guardar el contenido</span>
+    </div>
+
+    <th:block th:if="${page == null and pageContents == null and contents == null}">
+        <div class="editor-header reveal">
+            <h1><i class="fas fa-edit"></i> Editar contenido web</h1>
+        </div>
+        <p style="margin-bottom: 16px; font-size: 13px; color: var(--mx);">
+            <i class="fas fa-info-circle"></i> Selecciona la página pública que deseas editar.
+        </p>
+        <div class="page-grid reveal">
+            <th:block th:each="p : ${allPages}">
+                <a th:href="@{/editor/content/{page}(page=${p})}" class="page-card">
+                    <i class="fas fa-file-alt"></i>
+                    <h3 th:text="${#strings.capitalize(#strings.replace(p, '-', ' '))}">Página</h3>
+                    <p>Editar contenido</p>
+                </a>
+            </th:block>
+            <th:block th:if="${allPages == null and pages == null}" th:each="p : ${ {'inicio','empresa','servicios','procedimientos','contacto','galeria','tramitesenlinea','tarifas'} }">
+                <a th:href="@{/editor/content/{page}(page=${p})}" class="page-card">
+                    <i class="fas fa-file-alt"></i>
+                    <h3 th:text="${#strings.capitalize(#strings.replace(p, '-', ' '))}">Página</h3>
+                    <p>Editar contenido</p>
+                </a>
+            </th:block>
+        </div>
+    </th:block>
+
+    <th:block th:if="${page != null}">
+        <div class="editor-header reveal">
+            <div>
+                <h1>
+                    <i class="fas fa-edit"></i> Editando:
+                    <span class="page-badge" th:text="${#strings.capitalize(#strings.replace(page, '-', ' '))}">Página</span>
+                </h1>
+            </div>
+            <div class="page-selector-wrapper">
+                <label for="pageSelect"><i class="fas fa-arrows-alt-h"></i> Cambiar página:</label>
+                <select id="pageSelect" class="page-selector" onchange="navigateToPage(this.value)">
+                    <option th:each="p : ${pages}" th:value="${p}" th:selected="${p == page}" th:text="${#strings.capitalize(#strings.replace(p, '-', ' '))}">Página</option>
+                </select>
+            </div>
+        </div>
+
+        <th:block th:if="${pageContents != null and #maps.size(pageContents) == 0 and contents == null}">
+            <div class="empty-state reveal">
+                <i class="fas fa-file-alt"></i>
+                <h3>Sin contenido</h3>
+                <p>Esta página no tiene bloques de contenido editables. Contacta al administrador del sistema.</p>
+            </div>
+        </th:block>
+
+        <div class="content-section" id="contentSection">
+            <th:block th:if="${pageContents != null}" th:each="entry : ${pageContents}">
+                <div class="content-card reveal" th:attr="data-key=${entry.key}">
+                    <div class="card-header">
+                        <div class="card-label">
+                            <i class="fas fa-pencil-alt"></i>
+                            <span th:text="${sectionLabels != null and sectionLabels.get(entry.key) != null} ? ${sectionLabels.get(entry.key)} : ${#strings.capitalize(#strings.replace(entry.key, '-', ' '))}">Sección</span>
+                        </div>
+                        <span class="card-key" th:text="'Clave: ' + ${entry.key}">key</span>
+                    </div>
+                    <textarea th:id="'textarea-' + ${entry.key}" th:attr="data-key=${entry.key}" th:text="${entry.value}" oninput="markChanged(this)"></textarea>
+                    <div class="help-text">
+                        <i class="fas fa-code"></i> Etiquetas HTML permitidas:
+                        <code>&lt;p&gt;</code> <code>&lt;strong&gt;</code> <code>&lt;em&gt;</code> <code>&lt;u&gt;</code>
+                        <code>&lt;a&gt;</code> <code>&lt;br&gt;</code> <code>&lt;ul&gt;</code> <code>&lt;ol&gt;</code>
+                        <code>&lt;li&gt;</code> <code>&lt;h1&gt;</code> <code>&lt;h2&gt;</code> <code>&lt;h3&gt;</code>
+                    </div>
+                    <div th:id="'preview-' + ${entry.key}" class="preview-box">
+                        <div class="preview-label"><i class="fas fa-eye"></i> Vista previa</div>
+                        <div th:id="'preview-content-' + ${entry.key}" class="preview-render"></div>
+                    </div>
+                    <div class="card-actions">
+                        <button type="button" class="btn btn-cyan btn-sm" th:attr="data-key=${entry.key}" onclick="togglePreview(this.getAttribute('data-key'))">
+                            <i class="fas fa-eye"></i> Vista previa
+                        </button>
+                        <button type="button" class="btn btn-outline btn-sm" th:attr="data-key=${entry.key}" onclick="restoreContent(this.getAttribute('data-key'))">
+                            <i class="fas fa-undo"></i> Restaurar original
+                        </button>
+                    </div>
+                </div>
+            </th:block>
+
+            <th:block th:if="${pageContents == null and contents != null and !#lists.isEmpty(contents)}" th:each="c : ${contents}">
+                <div class="content-card reveal" th:attr="data-key=${c.sectionKey}">
+                    <div class="card-header">
+                        <div class="card-label">
+                            <i class="fas fa-pencil-alt"></i>
+                            <span th:text="${c.label} ?: (${sectionLabels != null and sectionLabels.get(c.sectionKey) != null} ? ${sectionLabels.get(c.sectionKey)} : ${#strings.capitalize(#strings.replace(c.sectionKey, '-', ' '))})">Sección</span>
+                        </div>
+                        <span class="card-key" th:text="'Clave: ' + ${c.sectionKey}">key</span>
+                    </div>
+                    <textarea th:id="'textarea-' + ${c.sectionKey}" th:attr="data-key=${c.sectionKey}" th:text="${c.content}" oninput="markChanged(this)"></textarea>
+                    <div class="help-text">
+                        <i class="fas fa-code"></i> Etiquetas HTML permitidas:
+                        <code>&lt;p&gt;</code> <code>&lt;strong&gt;</code> <code>&lt;em&gt;</code> <code>&lt;u&gt;</code>
+                        <code>&lt;a&gt;</code> <code>&lt;br&gt;</code> <code>&lt;ul&gt;</code> <code>&lt;ol&gt;</code>
+                        <code>&lt;li&gt;</code> <code>&lt;h1&gt;</code> <code>&lt;h2&gt;</code> <code>&lt;h3&gt;</code>
+                    </div>
+                    <div th:id="'preview-' + ${c.sectionKey}" class="preview-box">
+                        <div class="preview-label"><i class="fas fa-eye"></i> Vista previa</div>
+                        <div th:id="'preview-content-' + ${c.sectionKey}" class="preview-render"></div>
+                    </div>
+                    <div class="card-actions">
+                        <button type="button" class="btn btn-cyan btn-sm" th:attr="data-key=${c.sectionKey}" onclick="togglePreview(this.getAttribute('data-key'))">
+                            <i class="fas fa-eye"></i> Vista previa
+                        </button>
+                        <button type="button" class="btn btn-outline btn-sm" th:attr="data-key=${c.sectionKey}" onclick="restoreContent(this.getAttribute('data-key'))">
+                            <i class="fas fa-undo"></i> Restaurar original
+                        </button>
+                    </div>
+                </div>
+            </th:block>
+
+            <th:block th:if="${pageContents == null and contents != null and #lists.isEmpty(contents)}">
+                <div class="empty-state reveal">
+                    <i class="fas fa-file-alt"></i>
+                    <h3>Sin contenido</h3>
+                    <p>Esta página no tiene bloques de contenido editables. Contacta al administrador del sistema.</p>
+                </div>
+            </th:block>
+        </div>
+
+        <div class="action-bar reveal">
+            <div class="info">
+                <i class="fas fa-info-circle"></i> Los cambios se guardan en <strong>todos</strong> los bloques simultáneamente.
+            </div>
+            <button type="button" class="btn btn-gold btn-lg" onclick="saveAll()">
+                <i class="fas fa-save"></i> Guardar todos los cambios
+            </button>
+        </div>
+    </th:block>
+</div>
+
+<div class="footer">
+    &copy; 2026 Sociedad Portuaria Mardique S.A. &middot; <a href="/inicio">Volver al sitio público</a>
+</div>
+
+<div class="modal-overlay" id="logoutModal">
+    <div class="modal-box">
+        <i class="fas fa-sign-out-alt" style="font-size: 46px; color: var(--ag); margin-bottom: 12px; display: block;"></i>
+        <h2>Cerrar Sesión</h2>
+        <p>¿Estás seguro de que deseas cerrar tu sesión?</p>
+        <div class="modal-actions">
+            <button type="button" class="btn-outline" onclick="document.getElementById('logoutModal').classList.remove('show')">Cancelar</button>
+            <a href="/logout" class="btn-red"><i class="fas fa-sign-out-alt"></i> Cerrar Sesión</a>
+        </div>
+    </div>
+</div>
+
+<!-- Drawer Móvil -->
+<div class="drawer-overlay" id="drawerOverlay"></div>
+<nav class="mob-drawer" id="mobileDrawer" aria-label="Menú móvil">
+    <div class="drawer-hdr">
+        <img src="/images/Logo.png" alt="Mardique">
+        <button class="drawer-close" id="drawerClose" aria-label="Cerrar menú">&times;</button>
+    </div>
+    <div class="drawer-nav">
+        <a href="/editor/dashboard"><i class="fas fa-chart-pie"></i> Dashboard</a>
+        <a href="/editor/contacts"><i class="fas fa-address-book"></i> Contactos</a>
+        <a href="/editor/documents"><i class="fas fa-file-pdf"></i> Documentos</a>
+        <a href="/editor/gallery"><i class="fas fa-images"></i> Galería</a>
+        <a href="/editor/content" class="active"><i class="fas fa-edit"></i> Contenido web</a>
+        <a href="/editor/config"><i class="fas fa-tags"></i> Config Tarifas</a>
+        <div class="drawer-div"></div>
+        <a href="javascript:void(0)" onclick="document.getElementById('logoutModal').classList.add('show')" class="drawer-logout">
+            <i class="fas fa-sign-out-alt"></i> Cerrar Sesión
+        </a>
+    </div>
+</nav>
+
+<script>
+    var changedKeys = new Set();
+    var currentPage = document.getElementById('pageSelect') ? document.getElementById('pageSelect').value : null;
+
+    document.getElementById('logoutModal')?.addEventListener('click', function(e) {
+        if (e.target === this) this.classList.remove('show');
+    });
+
+    function navigateToPage(page) {
+        window.location.href = '/editor/content/' + page;
+    }
+
+    function togglePreview(key) {
+        var preview = document.getElementById('preview-' + key);
+        var content = document.getElementById('preview-content-' + key);
+        var textarea = document.getElementById('textarea-' + key);
+        if (!preview || !content || !textarea) return;
+
+        if (preview.classList.contains('open')) {
+            preview.classList.remove('open');
+        } else {
+            content.innerHTML = textarea.value;
+            preview.classList.add('open');
+        }
+    }
+
+    function markChanged(el) {
+        var key = el.getAttribute('data-key');
+        changedKeys.add(key);
+        el.classList.add('changed');
+    }
+
+   function restoreContent(sectionKey) {
+        var page = document.getElementById('pageSelect') ? document.getElementById('pageSelect').value : currentPage;
+        if (!page) return;
+        if (!confirm('¿Restaurar el contenido original de este bloque? Los cambios no guardados se perderán.')) return;
+
+        fetch('/editor/content/restore/' + sectionKey + '?page=' + page)
+            .then(function(r) {
+                if (!r.ok) throw new Error('Error al restaurar');
+                return r.json();
+            })
+            .then(function(data) {
+                var textarea = document.getElementById('textarea-' + sectionKey);
+                if (!textarea) return;
+                textarea.value = data.content || data;
+                textarea.classList.remove('changed');
+                changedKeys.delete(sectionKey);
+                var pc = document.getElementById('preview-content-' + sectionKey);
+                if (pc) pc.innerHTML = textarea.value;
+                showToast('Contenido restaurado correctamente', 'success');
+            })
+            .catch(function() {
+                showToast('Error al restaurar el contenido', 'error');
+            });
+    }
+
+    function saveAll() {
+        var textareas = document.querySelectorAll('#contentSection textarea');
+        var page = document.getElementById('pageSelect') ? document.getElementById('pageSelect').value : currentPage;
+        if (!page || textareas.length === 0) return;
+
+        var promises = [];
+        var saveCount = 0, errorCount = 0;
+
+        textareas.forEach(function(ta) {
+            var key = ta.getAttribute('data-key');
+            var content = ta.value;
+            var fd = new URLSearchParams();
+            fd.append('page', page);
+            fd.append('sectionKey', key);
+            fd.append('content', content);
+
+            promises.push(
+                fetch('/editor/content/save', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    body: fd.toString()
+                })
+                    .then(function(resp) {
+                        if (!resp.ok) throw new Error('Error');
+                        saveCount++;
+                        ta.classList.remove('changed');
+                        changedKeys.delete(key);
+                    })
+                    .catch(function() {
+                        errorCount++;
+                        ta.style.borderColor = '#dc2626';
+                    })
+            );
+        });
+
+        var btn = document.querySelector('.action-bar .btn-gold');
+        if (!btn) return;
+        var originalHtml = btn.innerHTML;
+        btn.innerHTML = '<span class="spinner"></span> Guardando...';
+        btn.disabled = true;
+
+        Promise.all(promises).then(function() {
+            btn.innerHTML = originalHtml;
+            btn.disabled = false;
+            if (errorCount === 0) {
+                showToast('Todos los cambios guardados correctamente', 'success');
+            } else {
+                showToast(saveCount + ' guardados, ' + errorCount + ' errores', 'warning');
+            }
+        });
+    }
+
+    function showToast(msg, type) {
+        var old = document.querySelector('.toast');
+        if (old) old.remove();
+
+        var t = document.createElement('div');
+        t.className = 'toast toast-' + type;
+        t.textContent = msg;
+        document.body.appendChild(t);
+
+        requestAnimationFrame(function() {
+            t.classList.add('show');
+        });
+
+        setTimeout(function() {
+            t.classList.remove('show');
+            setTimeout(function() { t.remove(); }, 400);
+        }, 3000);
+    }
+
+    const observer = new IntersectionObserver(entries => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('visible');
+            }
+        });
+    }, { threshold: 0.1 });
+    document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+    const toggleBtn = document.getElementById('mobileToggle');
+    const drawer = document.getElementById('mobileDrawer');
+    const overlay = document.getElementById('drawerOverlay');
+    const closeBtn = document.getElementById('drawerClose');
+
+    function openDrawer() {
+        drawer.classList.add('open');
+        overlay.classList.add('open');
+        document.body.style.overflow = 'hidden';
+    }
+
+    function closeDrawer() {
+        drawer.classList.remove('open');
+        overlay.classList.remove('open');
+        document.body.style.overflow = '';
+    }
+
+    if (toggleBtn) toggleBtn.addEventListener('click', openDrawer);
+    if (closeBtn) closeBtn.addEventListener('click', closeDrawer);
+    if (overlay) overlay.addEventListener('click', closeDrawer);
+</script>
+<script src="/js/panel-nav.js"></script>
+</body>
+</html>

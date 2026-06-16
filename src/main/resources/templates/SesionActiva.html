@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sesi&oacute;n Activa — Mardique</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * { margin:0; padding:0; box-sizing:border-box; }
+        body { font-family:'Plus Jakarta Sans',sans-serif; background:linear-gradient(135deg, #1b4562 0%, #0f2a3a 100%); min-height:100vh; display:flex; align-items:center; justify-content:center; color:#fff; }
+        .card { background:rgba(255,255,255,0.97); border-radius:16px; padding:48px 40px; max-width:440px; width:90%; text-align:center; box-shadow:0 20px 60px rgba(0,0,0,0.3); }
+        .card .icon { font-size:48px; color:#f09a36; margin-bottom:16px; }
+        .card h1 { font-size:22px; font-weight:700; color:#1b4562; margin-bottom:8px; }
+        .card p { font-size:14px; color:#64748b; margin-bottom:24px; line-height:1.6; }
+        .card .btn-group { display:flex; gap:12px; justify-content:center; flex-wrap:wrap; }
+        .card .btn { padding:12px 24px; border:none; border-radius:8px; font-size:13px; font-weight:700; font-family:inherit; cursor:pointer; text-decoration:none; display:inline-flex; align-items:center; gap:8px; transition:all 0.3s; }
+        .card .btn-gold { background:linear-gradient(135deg,#f09a36,#d67e1a); color:#fff; }
+        .card .btn-gold:hover { transform:translateY(-1px); box-shadow:0 6px 20px rgba(240,154,54,0.35); }
+        .card .btn-outline { background:transparent; border:2px solid #d0d5dd; color:#475569; }
+        .card .btn-outline:hover { border-color:#f09a36; color:#f09a36; }
+        .card .logo { height:40px; margin-bottom:20px; }
+    </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/turbolinks/5.2.0/turbolinks.min.js" integrity="sha512-9yZbQkMzUSvC3A6GH3kVs3qDCGMGZHrC4U4HUQR43ZB3i/SHSEbrnCgQ3hwXW8NqBntvSfGLA4N5wSQmFmdvXQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <style>body { animation: pageBlurIn 0.4s ease-out; } @keyframes pageBlurIn { from { filter: blur(4px); } to { filter: blur(0); } }</style>
+</head>
+<body>
+    <div class="card">
+        <img src="/images/Logo.png" alt="Mardique" class="logo">
+        <div class="icon"><i class="fas fa-user-check"></i></div>
+        <h1>Sesi&oacute;n Activa</h1>
+        <p>Ya tiene una sesi&oacute;n iniciada. Para acceder a esta p&aacute;gina debe cerrar sesi&oacute;n primero.</p>
+        <div class="btn-group">
+            <a href="/dashboard" class="btn btn-gold"><i class="fas fa-tachometer-alt"></i> Ir al Dashboard</a>
+            <a href="/logout" class="btn btn-outline"><i class="fas fa-sign-out-alt"></i> Cerrar Sesi&oacute;n</a>
+        </div>
+    </div>
+</body>
+</html>
