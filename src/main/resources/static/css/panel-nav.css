@@ -12,8 +12,24 @@ header.scrolled .logo-box img {
 
 body {
     animation: pageBlurIn 0.35s ease-out;
+    scroll-behavior: smooth;
+    -webkit-overflow-scrolling: touch;
 }
 @keyframes pageBlurIn {
     from { filter: blur(6px); opacity: 0.85; }
     to   { filter: blur(0);   opacity: 1;    }
+}
+
+/* ─── HAMBURGUESA ANIMADA (bars → X) ─── */
+.mob-toggle span {
+    transition: transform 0.3s ease, opacity 0.2s !important;
+}
+.mob-toggle.open span:nth-child(1) {
+    transform: translateY(7px) rotate(45deg);
+}
+.mob-toggle.open span:nth-child(2) {
+    opacity: 0;
+}
+.mob-toggle.open span:nth-child(3) {
+    transform: translateY(-7px) rotate(-45deg);
 }
