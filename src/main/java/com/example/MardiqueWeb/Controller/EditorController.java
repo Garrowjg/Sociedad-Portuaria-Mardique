@@ -2,11 +2,8 @@ package com.example.MardiqueWeb.Controller;
 
 import com.example.MardiqueWeb.Entity.*;
 import com.example.MardiqueWeb.Repository.*;
+import com.example.MardiqueWeb.Service.CloudinaryService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.Resource;
-import org.springframework.core.io.UrlResource;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -15,15 +12,10 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.io.IOException;
-import java.net.MalformedURLException;
-import java.util.Set;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Controller
@@ -45,7 +37,8 @@ public class EditorController {
     @Autowired
     private SystemConfigRepository systemConfigRepository;
 
-    private final Path uploadDir = Paths.get("uploads");
+    @Autowired
+    private CloudinaryService cloudinaryService;
 
     private static final Set<String> ALLOWED_EXTENSIONS = Set.of("pdf", "png", "jpg", "jpeg", "gif", "webp", "svg", "doc", "docx", "xls", "xlsx");
     private static final Set<String> ALLOWED_IMAGE_EXTENSIONS = Set.of("png", "jpg", "jpeg", "gif", "webp", "svg");
@@ -137,12 +130,9 @@ public class EditorController {
             return "redirect:/editor/documents";
         }
         try {
-            Files.createDirectories(uploadDir.resolve(document.getTipo().toLowerCase()));
-            String fileName = System.currentTimeMillis() + "_" + file.getOriginalFilename();
-            Path targetPath = uploadDir.resolve(document.getTipo().toLowerCase()).resolve(fileName);
-            Files.copy(file.getInputStream(), targetPath, StandardCopyOption.REPLACE_EXISTING);
+            String url = cloudinaryService.uploadFile(file);
             document.setFileName(file.getOriginalFilename());
-            document.setFilePath("/uploads/" + document.getTipo().toLowerCase() + "/" + fileName);
+            document.setFilePath(url);
             document.setUploadedAt(LocalDate.now());
             document.setEmail(email);
             document.setEmailCc(emailCc);
@@ -199,12 +189,9 @@ public class EditorController {
             return "redirect:/editor/gallery";
         }
         try {
-            Files.createDirectories(uploadDir.resolve("gallery"));
-            String fileName = System.currentTimeMillis() + "_" + file.getOriginalFilename();
-            Path targetPath = uploadDir.resolve("gallery").resolve(fileName);
-            Files.copy(file.getInputStream(), targetPath, StandardCopyOption.REPLACE_EXISTING);
+            String url = cloudinaryService.uploadFile(file);
             image.setFileName(file.getOriginalFilename());
-            image.setFilePath("/uploads/gallery/" + fileName);
+            image.setFilePath(url);
             image.setUploadedAt(LocalDate.now());
             image.setActive(true);
             galleryImageRepository.save(image);

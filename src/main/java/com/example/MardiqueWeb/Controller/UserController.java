@@ -6,6 +6,7 @@ import com.example.MardiqueWeb.Repository.PaymentRepository;
 import com.example.MardiqueWeb.Repository.SystemConfigRepository;
 import com.example.MardiqueWeb.Repository.SolicitudRepository;
 import com.example.MardiqueWeb.Repository.UserRepository;
+import com.example.MardiqueWeb.Service.CloudinaryService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -16,10 +17,6 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
@@ -48,7 +45,8 @@ public class UserController {
     @Autowired
     private SystemConfigRepository systemConfigRepository;
 
-    private final Path uploadDir = Paths.get("uploads/comprobantes");
+    @Autowired
+    private CloudinaryService cloudinaryService;
 
     private static final Set<String> ALLOWED_EXTENSIONS = Set.of("pdf", "png", "jpg", "jpeg", "gif", "webp");
 
@@ -156,11 +154,8 @@ public class UserController {
                 return "redirect:/user/payments";
             }
             try {
-                Files.createDirectories(uploadDir);
-                String fileName = System.currentTimeMillis() + "_" + comprobante.getOriginalFilename();
-                Path targetPath = uploadDir.resolve(fileName);
-                Files.copy(comprobante.getInputStream(), targetPath, StandardCopyOption.REPLACE_EXISTING);
-                payment.setComprobanteUsuario("/uploads/comprobantes/" + fileName);
+                String url = cloudinaryService.uploadFile(comprobante);
+                payment.setComprobanteUsuario(url);
             } catch (IOException e) {
                 ra.addFlashAttribute("error", "Error al subir comprobante");
                 return "redirect:/user/payments";

@@ -2,6 +2,7 @@ package com.example.MardiqueWeb.Controller;
 
 import com.example.MardiqueWeb.Entity.*;
 import com.example.MardiqueWeb.Repository.*;
+import com.example.MardiqueWeb.Service.CloudinaryService;
 import com.example.MardiqueWeb.Service.PdfService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
@@ -13,10 +14,6 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import org.springframework.transaction.annotation.Transactional;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
 import java.util.List;
 import java.util.Set;
 
@@ -51,7 +48,8 @@ public class AdminController {
     @Autowired
     private PdfService pdfService;
 
-    private final Path uploadDir = Paths.get("uploads/pagos");
+    @Autowired
+    private CloudinaryService cloudinaryService;
 
     private static final Set<String> ALLOWED_EXTENSIONS = Set.of("pdf", "png", "jpg", "jpeg", "gif", "webp");
 
@@ -272,11 +270,9 @@ public class AdminController {
 
             if (generarPdf) {
                 try {
-                    Files.createDirectories(uploadDir);
                     byte[] pdfBytes = pdfService.generatePaymentReceipt(saved);
-                    String pdfName = "pago_" + paymentId + "_sistema.pdf";
-                    Files.write(uploadDir.resolve(pdfName), pdfBytes);
-                    saved.setComprobantePath("/uploads/pagos/" + pdfName);
+                    String url = cloudinaryService.uploadBytes(pdfBytes, "pago_" + paymentId + "_sistema.pdf");
+                    saved.setComprobantePath(url);
                     paymentRepository.save(saved);
                 } catch (Exception e) {
                     ra.addFlashAttribute("error", "Pago confirmado pero error al generar PDF: " + e.getMessage());
@@ -290,10 +286,8 @@ public class AdminController {
                     return "redirect:/admin/payments";
                 }
                 try {
-                    Files.createDirectories(uploadDir);
-                    String manualName = "pago_" + paymentId + "_manual_" + comprobanteManual.getOriginalFilename();
-                    Files.copy(comprobanteManual.getInputStream(), uploadDir.resolve(manualName), StandardCopyOption.REPLACE_EXISTING);
-                    saved.setComprobanteManualPath("/uploads/pagos/" + manualName);
+                    String url = cloudinaryService.uploadFile(comprobanteManual);
+                    saved.setComprobanteManualPath(url);
                     paymentRepository.save(saved);
                 } catch (IOException e) {
                     ra.addFlashAttribute("error", "Pago confirmado pero error al guardar archivo manual: " + e.getMessage());

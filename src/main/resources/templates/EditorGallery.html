@@ -814,8 +814,8 @@
     <div class="gallery-grid">
         <div th:each="img : ${images}" class="gallery-card reveal">
             <div class="img-wrap">
-                <img th:if="${img.filePath != null and img.filePath.startsWith('/uploads/')}" th:src="@{${img.filePath}}" th:alt="${img.titulo}">
-                <i th:unless="${img.filePath != null and img.filePath.startsWith('/uploads/')}" class="fas fa-image no-img"></i>
+                <img th:if="${img.filePath != null and !img.filePath.isEmpty()}" th:src="${img.filePath}" th:alt="${img.titulo}">
+                <i th:unless="${img.filePath != null and !img.filePath.isEmpty()}" class="fas fa-image no-img"></i>
             </div>
             <div class="card-body">
                 <h4 th:text="${img.titulo}">Título de la imagen</h4>
