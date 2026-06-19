@@ -87,6 +87,34 @@
         </div>
     </div>
     <div th:replace="~{Inicio :: footer}"></div>
+    <div class="drawer-overlay" id="drawerOverlay"></div>
+    <nav class="mobile-nav-drawer" id="mobileDrawer" aria-label="Men&uacute; m&oacute;vil">
+        <div class="drawer-header">
+            <img src="/images/Logo.png" alt="Mardique">
+            <button class="drawer-close" id="drawerClose" aria-label="Cerrar men&uacute;">&times;</button>
+        </div>
+        <div class="drawer-nav">
+            <a href="/inicio">INICIO</a>
+            <a href="/empresa">EMPRESA</a>
+            <a href="/servicios">SERVICIOS</a>
+            <div class="drawer-divider"></div>
+            <button class="drawer-item" id="drawerServCliente">SERVICIO AL CLIENTE <i class="fas fa-chevron-down drawer-chevron"></i></button>
+            <div class="drawer-submenu" id="subServCliente">
+                <a href="/tramites-en-linea">TR&Aacute;MITES EN L&Iacute;NEA</a>
+                <a href="/procedimientos">PROCEDIMIENTOS</a>
+                <a href="/tarifas">TARIFAS</a>
+            </div>
+            <a href="/contacto">CONTACTO</a>
+            <a href="/galeria">GALER&Iacute;A</a>
+            <div class="drawer-divider"></div>
+            <button class="drawer-item" id="drawerAcceso">ACCESO <i class="fas fa-chevron-down drawer-chevron"></i></button>
+            <div class="drawer-submenu" id="subAcceso">
+                <a href="/login">INICIAR SESI&Oacute;N</a>
+                <a href="/register">REGISTRARSE</a>
+            </div>
+            <a href="/contacto" class="drawer-contact-btn"><i class="fas fa-phone-alt"></i> CONT&Aacute;CTANOS</a>
+        </div>
+    </nav>
     <script>window.addEventListener('scroll',()=>{document.getElementById('main-header')?.classList.toggle('scrolled',window.scrollY>60);});</script>
 </body>
 </html>
