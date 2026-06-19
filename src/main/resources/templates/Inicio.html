@@ -129,18 +129,30 @@
                 <ul class="route-benefits"><li><i class="fa-solid fa-route"></i> Conectividad Global Directa</li><li><i class="fa-solid fa-ship"></i> Reducción de Tiempos de Tránsito</li><li><i class="fa-solid fa-map-location-dot"></i> Acceso Multimodal al Interior</li></ul>
             </div>
             <div class="strategic-map reveal-right">
-                <canvas id="globeCanvas"></canvas>
-                <div id="globeInfoCard" class="globe-detail-card">
-                    <img id="globeInfoImg" src="" alt="Puerto" class="globe-card-img" style="display:none;">
-                    <div class="globe-card-body">
-                        <div class="globe-card-tag" id="globeInfoTag">PUERTO</div>
-                        <h4 id="globeInfoTitle">Cartagena</h4>
-                        <p id="globeInfoDesc">Puerto multipropósito privado con conexión directa al interior del país.</p>
+                <button class="globe-mobile-toggle" id="globeToggle" type="button">
+                    <span class="globe-toggle-icon"><i class="fas fa-globe-americas"></i></span>
+                    <span class="globe-toggle-body">
+                        <span class="globe-toggle-title">CONECTIVIDAD GLOBAL</span>
+                        <span class="globe-toggle-sub">Toca para explorar el mapa interactivo</span>
+                    </span>
+                    <span class="globe-toggle-action">
+                        <i class="fas fa-chevron-down globe-toggle-arrow"></i>
+                    </span>
+                </button>
+                <div class="globe-collapse" id="globeCollapse">
+                    <canvas id="globeCanvas"></canvas>
+                    <div id="globeInfoCard" class="globe-detail-card">
+                        <img id="globeInfoImg" src="" alt="Puerto" class="globe-card-img" style="display:none;">
+                        <div class="globe-card-body">
+                            <div class="globe-card-tag" id="globeInfoTag">PUERTO</div>
+                            <h4 id="globeInfoTitle">Cartagena</h4>
+                            <p id="globeInfoDesc">Puerto multipropósito privado con conexión directa al interior del país.</p>
+                        </div>
                     </div>
+                    <div class="globe-hint"><i class="fas fa-hand-pointer"></i> Arrastra · Rueda = Zoom</div>
+                    <div class="globe-zoom-controls"><button class="globe-zoom-btn" id="zoomIn">+</button><button class="globe-zoom-btn" id="zoomOut">−</button><button class="globe-zoom-btn" id="zoomReset">⟳</button></div>
+                    <div class="globe-legend"><div class="globe-legend-item"><div class="globe-legend-dot" style="background:#f09a36;box-shadow:0 0 6px #f09a36"></div>HUB Mardique</div><div class="globe-legend-item"><div class="globe-legend-dot" style="background:#00a3e0;box-shadow:0 0 6px #00a3e0"></div>Rutas activas</div></div>
                 </div>
-                <div class="globe-hint"><i class="fas fa-hand-pointer"></i> Arrastra · Rueda = Zoom</div>
-                <div class="globe-zoom-controls"><button class="globe-zoom-btn" id="zoomIn">+</button><button class="globe-zoom-btn" id="zoomOut">−</button><button class="globe-zoom-btn" id="zoomReset">⟳</button></div>
-                <div class="globe-legend"><div class="globe-legend-item"><div class="globe-legend-dot" style="background:#f09a36;box-shadow:0 0 6px #f09a36"></div>HUB Mardique</div><div class="globe-legend-item"><div class="globe-legend-dot" style="background:#00a3e0;box-shadow:0 0 6px #00a3e0"></div>Rutas activas</div></div>
             </div>
         </div>
     </div>

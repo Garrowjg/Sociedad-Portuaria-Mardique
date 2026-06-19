@@ -65,33 +65,34 @@
         .status-aprobado{background:#d1fae5;color:#16a34a;}
         .status-rechazado{background:#fef2f2;color:#dc2626;}
         .pfooter {
-            background: linear-gradient(180deg, var(--pd) 0%, #0d2438 100%);
             text-align: center;
-            padding: 20px 28px;
-            border-top: none;
+            padding: 22px 28px;
+            border-top: 1px solid var(--bdr);
             color: var(--mx);
             font-size: 12px;
-            position: relative;
             margin-top: auto;
+            background: var(--bg);
+            position: relative;
         }
         .pfooter::before {
             content: '';
             position: absolute;
-            top: 0; left: 0; right: 0;
-            height: 3px;
-            background: linear-gradient(90deg, var(--ag), var(--ac), var(--ag));
-            opacity: .4;
+            top: 0; left: 15%;
+            width: 70%;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--ag), transparent);
+            opacity: .35;
         }
-        .pfooter .pfooter-links {
+        .pfooter-links {
             display: flex;
             align-items: center;
             justify-content: center;
             flex-wrap: wrap;
-            gap: 6px 14px;
-            margin-bottom: 8px;
+            gap: 4px 18px;
+            margin-bottom: 4px;
         }
-        .pfooter .pfooter-links a {
-            color: var(--ac);
+        .pfooter-links a {
+            color: var(--mx);
             text-decoration: none;
             transition: color .2s;
             display: inline-flex;
@@ -99,9 +100,9 @@
             gap: 5px;
             font-size: 12px;
         }
-        .pfooter .pfooter-links a:hover { color: var(--ag); }
-        .pfooter .pfooter-sep { color: rgba(148,163,184,.3); font-size: 9px; }
-        .pfooter .pfooter-copy { color: rgba(148,163,184,.6); font-size: 11px; }
+        .pfooter-links a:hover { color: var(--ag); }
+        .pfooter-sep { color: var(--bdr); font-size: 9px; }
+        .pfooter-copy { color: var(--mx); font-size: 11px; }
         .reveal{opacity:0;transform:translateY(20px);transition:all .55s cubic-bezier(.22,1,.36,1);}
         .reveal.visible{opacity:1;transform:translateY(0);}
         .modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:1000;align-items:center;justify-content:center;}

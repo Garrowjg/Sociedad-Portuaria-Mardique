@@ -177,7 +177,7 @@ document.addEventListener('keydown', e => { if (e.key === 'Escape') closeLightbo
         }
     });
 
-    const stars = Array.from({ length: 350 }, () => ({
+    const stars = Array.from({ length: 150 }, () => ({
         x: Math.random(), y: Math.random(),
         size: Math.random() * 1.8 + 0.1,
         opacity: Math.random() * 0.7 + 0.1,
@@ -186,24 +186,11 @@ document.addEventListener('keydown', e => { if (e.key === 'Escape') closeLightbo
         color: Math.random() > 0.82 ? (Math.random() > 0.5 ? '#8ab4ff' : '#ffb07a') : '#ffffff'
     }));
 
-    const brightStars = stars.filter(s => s.size > 1.3);
-    const constLines = [];
-    for (let i = 0; i < brightStars.length; i++) {
-        for (let j = i + 1; j < brightStars.length; j++) {
-            const dx = brightStars[i].x - brightStars[j].x;
-            const dy = brightStars[i].y - brightStars[j].y;
-            const dist = Math.hypot(dx, dy);
-            if (dist < 0.05 && dist > 0.008 && Math.random() < 0.2) {
-                constLines.push({ from: brightStars[i], to: brightStars[j], opacity: Math.random() * 0.12 + 0.03 });
-            }
-        }
-    }
-
     const shootingStars = Array.from({ length: 3 }, () => ({
         active: false, x: 0, y: 0, dx: 0, dy: 0, life: 0, maxLife: 0, timer: Math.random() * 300, speed: 0
     }));
 
-    const clouds = Array.from({ length: 18 }, () => ({
+    const clouds = Array.from({ length: 8 }, () => ({
         lonOffset: Math.random() * 360 - 180,
         latOffset: (Math.random() - 0.5) * 100,
         size: Math.random() * 40 + 12,
@@ -215,7 +202,7 @@ document.addEventListener('keydown', e => { if (e.key === 'Escape') closeLightbo
     const dataPulses = [];
     let pulseTimer = 0;
     const ORBIT_TILT = 0.35;
-    const ORBIT_POINTS = 150;
+    const ORBIT_POINTS = 80;
     let ripples = [];
 
     const CONTINENTS = [
@@ -376,16 +363,6 @@ document.addEventListener('keydown', e => { if (e.key === 'Escape') closeLightbo
     function drawStars() {
         const now = Date.now() * 0.001;
         ctx.save();
-        constLines.forEach(cl => {
-            const f = cl.from, t2 = cl.to;
-            ctx.globalAlpha = cl.opacity * 0.4;
-            ctx.strokeStyle = 'rgba(180,200,240,0.5)';
-            ctx.lineWidth = 0.3;
-            ctx.beginPath();
-            ctx.moveTo(f.x * canvas.width, f.y * canvas.height);
-            ctx.lineTo(t2.x * canvas.width, t2.y * canvas.height);
-            ctx.stroke();
-        });
         stars.forEach(s => {
             const twinkle = Math.sin(now * s.twinkleSpeed * 12 + s.twinkleOffset) * 0.35 + 0.65;
             ctx.globalAlpha = s.opacity * twinkle;
@@ -456,11 +433,8 @@ document.addEventListener('keydown', e => { if (e.key === 'Escape') closeLightbo
             ctx.fill();
             ctx.strokeStyle = `rgba(0, 255, 180, ${0.45 * alpha})`;
             ctx.lineWidth = 0.8; ctx.stroke();
-            ctx.shadowColor = `rgba(0, 255, 200, ${0.18 * alpha})`;
-            ctx.shadowBlur = 8;
-            ctx.strokeStyle = `rgba(0, 255, 180, ${0.12 * alpha})`;
-            ctx.lineWidth = 2.2; ctx.stroke();
-            ctx.shadowBlur = 0;
+            ctx.strokeStyle = `rgba(0, 200, 255, ${0.08 * alpha})`;
+            ctx.lineWidth = 1.8; ctx.stroke();
         });
     }
 
@@ -636,8 +610,8 @@ document.addEventListener('keydown', e => { if (e.key === 'Escape') closeLightbo
         ROUTES.forEach((route, idx) => {
             const dest = NODES[route.to];
             const pts = [];
-            for (let i = 0; i <= 120; i++) {
-                const pt = slerp(hub.lon, hub.lat, dest.lon, dest.lat, i/120);
+            for (let i = 0; i <= 60; i++) {
+                const pt = slerp(hub.lon, hub.lat, dest.lon, dest.lat, i/60);
                 const p = project(pt.lon, pt.lat); pts.push(p);
             }
             const pulse = Math.sin(Date.now()*0.0007 + idx*1.5)*0.3+0.5;
@@ -858,7 +832,7 @@ document.addEventListener('keydown', e => { if (e.key === 'Escape') closeLightbo
             canvas.style.cursor = over ? 'pointer' : 'grab';
         }
         particles.forEach(p => { p.t += p.speed; if (p.t > 1) p.t = 0; });
-        requestAnimationFrame(loop);
+        if (isRunning) requestAnimationFrame(loop);
     }
 
     /* --- EVENTS --- */
@@ -918,7 +892,52 @@ document.addEventListener('keydown', e => { if (e.key === 'Escape') closeLightbo
     document.getElementById('zoomOut')?.addEventListener('click', () => { targetZoom = Math.max(ZOOM_MIN, targetZoom-ZOOM_STEP*1.5); });
     document.getElementById('zoomReset')?.addEventListener('click', () => { targetZoom = 1.0; });
     canvas.style.cursor = 'grab';
-    resize();
+    let isRunning = false;
+
+    const sectionEl = document.querySelector('.strategic-section') || canvas;
+    const obs = new IntersectionObserver(function(entries) {
+        entries.forEach(function(e) {
+            if (e.isIntersecting) {
+                if (!isRunning && canvas.width > 0 && canvas.height > 0) {
+                    isRunning = true;
+                    resize();
+                    loop();
+                }
+            } else {
+                isRunning = false;
+            }
+        });
+    }, { threshold: 0.1, rootMargin: '0px' });
+    obs.observe(sectionEl);
+
+    var globeToggle = document.getElementById('globeToggle');
+    var globeCollapse = document.getElementById('globeCollapse');
+    if (globeToggle && globeCollapse) {
+        var strategicMap = document.querySelector('.strategic-map');
+        globeToggle.addEventListener('click', function() {
+            var isExpanded = globeCollapse.classList.contains('expanded');
+            if (isExpanded) {
+                globeCollapse.classList.remove('expanded');
+                if (strategicMap) strategicMap.classList.remove('expanded');
+                globeToggle.classList.remove('active');
+                isRunning = false;
+                canvas.width = 0;
+                canvas.height = 0;
+            } else {
+                globeCollapse.classList.add('expanded');
+                if (strategicMap) strategicMap.classList.add('expanded');
+                globeToggle.classList.add('active');
+                setTimeout(function() {
+                    resize();
+                    if (!isRunning && canvas.width > 0 && canvas.height > 0) {
+                        isRunning = true;
+                        loop();
+                    }
+                }, 50);
+            }
+        });
+    }
+
     window.addEventListener('resize', resize);
-    loop();
+    resize();
 })();
