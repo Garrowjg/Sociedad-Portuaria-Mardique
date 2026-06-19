@@ -544,33 +544,142 @@
         .cta-band p { color: rgba(255,255,255,0.7); font-size: 15px; margin-bottom: 36px; }
         .cta-buttons { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; }
 
-        footer { background-color: var(--primary-dark); padding: 64px 0 20px; font-size: 13px; color: var(--text-muted); }
-        .footer-grid { display: grid; grid-template-columns: 1.8fr 0.9fr 1.6fr 1.5fr; gap: 32px; margin-bottom: 40px; }
-        .footer-logo { background: rgba(255,255,255,0.95); padding: 5px 12px; border-radius: 6px; display: inline-flex; align-items: center; margin-bottom: 16px; }
-        .footer-logo img { height: 32px; object-fit: contain; }
-        .footer-desc { margin-bottom: 20px; line-height: 1.5; font-size: 12.5px; }
+        footer {
+            background: linear-gradient(180deg, var(--primary-dark) 0%, #0a1a2b 100%);
+            padding: 60px 0 0 0;
+            font-size: 13px;
+            color: var(--text-muted);
+            position: relative;
+        }
+        footer::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--accent-gold), var(--accent-cyan), var(--accent-gold));
+            opacity: .5;
+        }
+        .footer-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1.8fr 1.2fr;
+            gap: 40px;
+            margin-bottom: 40px;
+        }
+        .footer-logo {
+            background: rgba(255,255,255,0.95);
+            padding: 6px 14px;
+            border-radius: 8px;
+            display: inline-flex;
+            align-items: center;
+            margin-bottom: 18px;
+        }
+        .footer-logo img { height: 34px; object-fit: contain; }
+        .footer-desc { margin-bottom: 20px; line-height: 1.65; font-size: 12.5px; color: rgba(148,163,184,.85); }
         .social-icons { display: flex; gap: 10px; }
-        .social-icons a { display: flex; align-items: center; justify-content: center; width: 32px; height: 32px; border: 1px solid rgba(148,163,184,0.25); border-radius: 50%; color: var(--text-muted); transition: var(--transition); }
-        .social-icons a:hover { color: #fff; border-color: #fff; background: rgba(255,255,255,0.05); transform: translateY(-2px); }
-        .footer-title { color: #fff; font-size: 13.5px; font-weight: 600; margin-bottom: 20px; text-transform: uppercase; }
+        .social-icons a {
+            display: flex; align-items: center; justify-content: center;
+            width: 36px; height: 36px;
+            border: 1px solid rgba(148,163,184,.2);
+            border-radius: 50%;
+            color: #94a3b8;
+            transition: all .3s ease;
+            font-size: 14px;
+        }
+        .social-icons a:hover {
+            color: #fff;
+            border-color: var(--accent-gold);
+            background: rgba(240,154,54,.12);
+            transform: translateY(-3px);
+            box-shadow: 0 4px 12px rgba(240,154,54,.2);
+        }
+        .footer-title {
+            color: #fff;
+            font-size: 12px;
+            font-weight: 800;
+            margin-bottom: 20px;
+            text-transform: uppercase;
+            letter-spacing: .8px;
+            position: relative;
+            padding-bottom: 10px;
+        }
+        .footer-title::after {
+            content: '';
+            position: absolute;
+            bottom: 0; left: 0;
+            width: 26px; height: 2.5px;
+            background: var(--accent-gold);
+            border-radius: 2px;
+        }
+        .footer-links { list-style: none; padding: 0; }
         .footer-links li { margin-bottom: 10px; }
-        .footer-links a { transition: var(--transition); font-size: 12.5px; }
-        .footer-links a:hover { color: var(--accent-gold); padding-left: 3px; }
-        .footer-contact-info li { display: flex; gap: 10px; margin-bottom: 12px; align-items: flex-start; font-size: 12.5px; }
-        .footer-contact-info i { margin-top: 3px; font-size: 13px; color: #fff; }
-        .certs-container { display: flex; gap: 12px; }
+        .footer-links a {
+            transition: all .25s ease;
+            font-size: 12.5px;
+            color: rgba(148,163,184,.85);
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .footer-links a:hover {
+            color: var(--accent-gold);
+            padding-left: 5px;
+        }
+        .footer-contact-info { list-style: none; padding: 0; }
+        .footer-contact-info li {
+            display: flex; gap: 10px;
+            margin-bottom: 14px;
+            align-items: flex-start;
+            font-size: 12.5px;
+            color: rgba(148,163,184,.85);
+        }
+        .footer-contact-info i { margin-top: 3px; font-size: 14px; color: var(--accent-gold); }
+        .certs-container { display: flex; gap: 14px; }
         .cert-item { text-align: center; flex: 1; }
-        .cert-circle { width: 50px; height: 50px; border: 1px solid rgba(148,163,184,0.3); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 8px; font-size: 8.5px; font-weight: 800; color: #fff; background: rgba(255,255,255,0.02); transition: var(--transition); }
-        .cert-circle:hover { border-color: var(--accent-gold); background: rgba(240,154,54,0.1); }
-        .cert-circle i { font-size: 20px; color: #fff; }
-        .cert-item p { font-size: 10px; line-height: 1.4; color: var(--text-muted); }
-        .footer-bottom { display: flex; justify-content: space-between; align-items: center; padding-top: 20px; border-top: 1px solid rgba(255,255,255,0.06); flex-wrap: wrap; gap: 10px; }
-        .footer-bottom p { font-size: 11.5px; }
-        .footer-bottom a { color: var(--accent-gold); font-weight: 600; }
-        .footer-bottom a:hover { text-decoration: underline; }
-        .footer-legal-links { display: flex; gap: 20px; }
-        .footer-legal-links a { font-size: 11.5px; transition: color 0.2s; }
-        .footer-legal-links a:hover { color: #fff; }
+        .cert-circle {
+            width: 54px; height: 54px;
+            border: 1.5px solid rgba(148,163,184,.2);
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            margin: 0 auto 10px auto;
+            font-size: 8px;
+            font-weight: 800;
+            color: #fff;
+            transition: all .35s ease;
+            background: rgba(255,255,255,.03);
+        }
+        .cert-item:hover .cert-circle {
+            border-color: var(--accent-gold);
+            box-shadow: 0 0 16px rgba(240,154,54,.25);
+            transform: scale(1.08);
+        }
+        .cert-item p { font-size: 9.5px; line-height: 1.3; color: rgba(148,163,184,.75); }
+        .footer-bottom {
+            border-top: 1px solid rgba(255,255,255,.05);
+            padding: 18px 0;
+            text-align: center;
+            font-size: 12px;
+        }
+        .footer-bottom-links {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 18px;
+            flex-wrap: wrap;
+            margin-top: 6px;
+        }
+        .footer-bottom-links a {
+            color: rgba(148,163,184,.7);
+            text-decoration: none;
+            transition: all .25s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 12px;
+            margin-left: 0;
+        }
+        .footer-bottom-links a:hover { color: #fff; }
+        .footer-bottom-links a i { font-size: 11px; }
 
         .scroll-hint { position: absolute; bottom: 18px; left: 50%; transform: translateX(-50%); z-index: 4; display: flex; flex-direction: column; align-items: center; gap: 6px; color: rgba(255,255,255,0.45); font-size: 10px; letter-spacing: 1.5px; text-transform: uppercase; animation: bounceDown 2s ease infinite; }
         .scroll-hint i { font-size: 15px; }
@@ -647,14 +756,14 @@
             .cta-buttons { flex-direction: column; gap: 10px; }
             .cta-buttons .btn { width: 100%; justify-content: center; padding: 13px 20px; font-size: 11.5px; }
 
-            footer { padding: 40px 0 16px; }
-            .footer-grid { grid-template-columns: 1fr; gap: 24px; text-align: center; }
+            footer { padding: 48px 0 0; }
+            .footer-grid { grid-template-columns: 1fr; gap: 28px; }
             .footer-logo { justify-content: center; }
             .social-icons { justify-content: center; }
-            .footer-bottom { flex-direction: column; text-align: center; gap: 6px; }
+            .footer-grid > div:nth-child(3) > div { flex-direction: column; gap: 20px; }
+            .footer-bottom { flex-direction: column; gap: 10px; text-align: center; }
             .footer-bottom-links { justify-content: center; }
             .footer-contact-info li { justify-content: center; }
-            .cert-item p { font-size: 9px; }
             .certs-container { justify-content: center; }
 
             #contactenos { scroll-margin-top: 100px; }
@@ -1100,13 +1209,14 @@
             </div>
         </div>
         <div class="footer-bottom">
-            <span>&copy; 2026 Sociedad Portuaria Mardique S.A. </a></span>
+            <span>&copy; 2026 Sociedad Portuaria Mardique S.A. Todos los derechos reservados.</span>
             <div class="footer-bottom-links">
-                <a href="https://spmardique.com/wp-content/uploads/2024/01/REGLAMENTO_DE_CONDICIONES_TECNICO_DE_OPERACION.pdf" target="_blank">Reglamento Operativo</a>
+                <a href="https://spmardique.com/wp-content/uploads/2024/01/REGLAMENTO_DE_CONDICIONES_TECNICO_DE_OPERACION.pdf" target="_blank"><i class="fas fa-file-pdf"></i> Reglamento Operativo</a>
+                <a href="#"><i class="fas fa-shield-alt"></i> Políticas de Privacidad</a>
+                <a href="#"><i class="fas fa-shield-halved"></i> Políticas de Seguridad</a>
             </div>
         </div>
-    </div>
-</footer>
+    </footer>
 
 <div class="modal-overlay" id="confirmModal">
     <div class="modal-box" style="max-width:420px;">

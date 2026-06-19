@@ -15,14 +15,8 @@
             box-sizing: border-box;
         }
 
-        body {
-            font-family: 'Plus Jakarta Sans', sans-serif;
-            background: #f0f4f8;
-            color: #1e293b;
-            display: flex;
-            flex-direction: column;
-            min-height: 100vh;
-        }
+        body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(--tx);animation:pageBlurIn 0.35s ease-out;}
+        @keyframes pageBlurIn{from{filter:blur(6px);opacity:.85;}to{filter:blur(0);opacity:1;}}
 
         :root {
             --pd: #1b4562;
@@ -42,13 +36,9 @@
         }
 
         /* ─── HEADER ─── */
-        header {
-            background: var(--pd);
-            position: sticky;
-            top: 0;
-            z-index: 500;
-            box-shadow: 0 2px 20px rgba(0, 0, 0, .18);
-        }
+        header{background:var(--pd);padding:0;position:sticky;top:0;z-index:500;box-shadow:0 2px 20px rgba(0,0,0,.18);transition:padding .3s ease,box-shadow .3s ease;}
+        header.scrolled{padding:6px 0!important;box-shadow:0 4px 24px rgba(0,0,0,.25);}
+        header.scrolled .logo-box img{height:30px!important;width:auto;}
 
         .hdr {
             display: flex;
@@ -58,10 +48,7 @@
             gap: 16px;
         }
 
-        .logo-box img {
-            height: 36px;
-            width: auto;
-        }
+        .logo-box img{height:36px;width:auto;object-fit:contain;display:block;transition:height .3s ease;}
 
         nav {
             flex: 1;
@@ -147,21 +134,19 @@
             background: #b91c1c;
         }
 
-        .mob-toggle {
-            display: none;
-            flex-direction: column;
-            gap: 5px;
-            background: none;
-            border: none;
-            cursor: pointer;
+        .mobile-menu-toggle{
+            display:none;flex-direction:column;justify-content:center;align-items:center;gap:5px;
+            width:40px;height:40px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);
+            border-radius:8px;cursor:pointer;transition:background .2s;flex-shrink:0;padding:0;
         }
-
-        .mob-toggle span {
-            width: 22px;
-            height: 2px;
-            background: #fff;
-            border-radius: 2px;
+        .mobile-menu-toggle:hover{background:rgba(255,255,255,.1);}
+        .mobile-menu-toggle span{
+            display:block;width:20px;height:2px;background:rgba(255,255,255,.85);border-radius:2px;
+            transition:transform .3s ease,opacity .2s;pointer-events:none;
         }
+        .mobile-menu-toggle.open span:nth-child(1){transform:translateY(7px) rotate(45deg);}
+        .mobile-menu-toggle.open span:nth-child(2){opacity:0;}
+        .mobile-menu-toggle.open span:nth-child(3){transform:translateY(-7px) rotate(-45deg);}
 
         /* ─── HERO ─── */
         .hero {
@@ -383,26 +368,8 @@
             transform: translateY(-1px);
         }
 
-        .btn-outline {
-            background: transparent;
-            border: 1.5px solid var(--bdr);
-            color: var(--mx);
-            padding: 10px 20px;
-            border-radius: var(--r);
-            font-size: 13px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: var(--tr);
-            text-decoration: none;
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-        }
-
-        .btn-outline:hover {
-            border-color: var(--ag);
-            color: var(--ag);
-        }
+        .btn-cancel{background:transparent;border:1.5px solid var(--bdr);color:var(--mx);padding:10px 20px;border-radius:var(--r);font-size:13px;font-weight:600;font-family:inherit;cursor:pointer;transition:var(--tr);text-decoration:none;display:inline-flex;align-items:center;gap:6px;}
+        .btn-cancel:hover{border-color:var(--ag);color:var(--ag);}
 
         /* Gallery Grid */
         .gallery-grid {
@@ -526,24 +493,44 @@
         }
 
         /* Footer */
-        .footer {
+        .pfooter {
+            background: linear-gradient(180deg, var(--pd) 0%, #0d2438 100%);
             text-align: center;
-            padding: 20px;
-            border-top: 1px solid var(--bdr);
-            color: #94a3b8;
+            padding: 20px 28px;
+            border-top: none;
+            color: var(--mx);
             font-size: 12px;
-            background: var(--sur);
+            position: relative;
             margin-top: auto;
         }
-
-        .footer a {
+        .pfooter::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--ag), var(--ac), var(--ag));
+            opacity: .4;
+        }
+        .pfooter .pfooter-links {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 6px 14px;
+            margin-bottom: 8px;
+        }
+        .pfooter .pfooter-links a {
             color: var(--ac);
             text-decoration: none;
+            transition: color .2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 12px;
         }
-
-        .footer a:hover {
-            text-decoration: underline;
-        }
+        .pfooter .pfooter-links a:hover { color: var(--ag); }
+        .pfooter .pfooter-sep { color: rgba(148,163,184,.3); font-size: 9px; }
+        .pfooter .pfooter-copy { color: rgba(148,163,184,.6); font-size: 11px; }
 
         .reveal {
             opacity: 0;
@@ -600,6 +587,8 @@
             justify-content: center;
         }
 
+        .modal-actions .btn-red{padding:10px 22px;font-size:13px;}
+
         @keyframes fadeUp {
             from {
                 opacity: 0;
@@ -612,112 +601,37 @@
         }
 
         /* Drawer Móvil */
-        .drawer-overlay {
-            display: none;
-            position: fixed;
-            inset: 0;
-            background: rgba(0, 0, 0, .45);
-            z-index: 800;
-            backdrop-filter: blur(2px);
+        .drawer-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.52);z-index:9998;backdrop-filter:blur(2px);}
+        .drawer-overlay.open{display:block;}
+        .mobile-nav-drawer{
+            position:fixed;top:0;right:0;
+            width:280px;height:100vh;
+            background:var(--pd);
+            box-shadow:-6px 0 28px rgba(0,0,0,.55);
+            z-index:9999;display:flex;flex-direction:column;
+            transform:translateX(100%);
+            transition:transform .32s cubic-bezier(.4,0,.2,1),visibility .32s cubic-bezier(.4,0,.2,1);
+            overflow-y:auto;overflow-x:hidden;visibility:hidden;
         }
-
-        .drawer-overlay.open {
-            display: flex;
-        }
-
-        .mob-drawer {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            height: 100%;
-            width: 280px;
-            background: var(--pd);
-            z-index: 900;
-            flex-direction: column;
-            transform: translateX(-100%);
-            transition: transform .35s cubic-bezier(.4, 0, .2, 1);
-        }
-
-        .mob-drawer.open {
-            display: flex;
-            transform: translateX(0);
-        }
-
-        .drawer-hdr {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 18px 20px;
-            border-bottom: 1px solid rgba(255, 255, 255, .08);
-        }
-
-        .drawer-hdr img {
-            height: 32px;
-        }
-
-        .drawer-close {
-            background: none;
-            border: none;
-            color: rgba(255, 255, 255, .6);
-            font-size: 24px;
-            cursor: pointer;
-            line-height: 1;
-        }
-
-        .drawer-nav {
-            padding: 16px 12px;
-            display: flex;
-            flex-direction: column;
-            gap: 2px;
-            overflow-y: auto;
-            flex: 1;
-        }
-
-        .drawer-nav a {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            padding: 11px 12px;
-            border-radius: 8px;
-            color: rgba(255, 255, 255, .72);
-            font-size: 13px;
-            font-weight: 600;
-            text-decoration: none;
-            transition: var(--tr);
-        }
-
-        .drawer-nav a:hover {
-            background: rgba(255, 255, 255, .08);
-            color: #fff;
-        }
-
-        .drawer-nav a.active {
-            background: rgba(240, 154, 54, .15);
-            color: var(--ag);
-        }
-
-        .drawer-div {
-            height: 1px;
-            background: rgba(255, 255, 255, .07);
-            margin: 8px 0;
-        }
-
-        .drawer-logout {
-            background: #dc2626 !important;
-            color: #fff !important;
-            border-radius: 8px;
-            margin-top: 4px;
-        }
+        .mobile-nav-drawer.open{transform:translateX(0);visibility:visible;}
+        .drawer-header{display:flex;align-items:center;justify-content:space-between;padding:14px 18px;border-bottom:1px solid rgba(255,255,255,.07);background:rgba(0,0,0,.18);flex-shrink:0;}
+        .drawer-header img{height:34px;width:auto;object-fit:contain;}
+        .drawer-close{width:32px;height:32px;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.10);border-radius:6px;color:rgba(255,255,255,.6);font-size:18px;line-height:1;cursor:pointer;transition:background .2s,color .2s;flex-shrink:0;padding:0;}
+        .drawer-close:hover{background:rgba(240,154,54,.15);color:var(--ag);border-color:rgba(240,154,54,.3);}
+        .drawer-nav{display:flex;flex-direction:column;padding:8px 0 24px;flex:1;}
+        .drawer-nav > a{display:block;padding:13px 20px;color:rgba(255,255,255,.78);font-size:12.5px;font-weight:600;text-transform:uppercase;letter-spacing:.6px;text-decoration:none;border-left:3px solid transparent;background:none;transition:background .18s,color .18s,border-color .18s;white-space:nowrap;line-height:1.2;}
+        .drawer-nav > a:hover,.drawer-nav > a:active{background:rgba(255,255,255,.04);color:#fff;border-left-color:var(--ag);}
+        .drawer-nav > a.active{color:var(--ag);border-left-color:var(--ag);}
+        .drawer-divider{height:1px;background:rgba(255,255,255,.06);margin:6px 18px;}
+        .drawer-logout-btn{display:flex;align-items:center;justify-content:center;gap:8px;margin:14px 18px 0;padding:13px 16px;background:#dc2626;color:#fff;border-radius:6px;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;text-decoration:none;transition:background .2s;border-left:none!important;cursor:pointer;border:none;font-family:inherit;width:calc(100% - 36px);}
+        .drawer-logout-btn:hover{background:#b91c1c!important;color:#fff!important;}
 
         /* Responsive */
         @media (max-width: 768px) {
             header nav {
                 display: none;
             }
-            .mob-toggle {
-                display: flex;
-            }
+            .mobile-menu-toggle{display:flex;}
             .hdr-user {
                 display: none;
             }
@@ -767,7 +681,7 @@
                 <i class="fas fa-sign-out-alt"></i> Salir
             </button>
         </div>
-        <button class="mob-toggle" id="mobileToggle" aria-label="Abrir menú">
+        <button class="mobile-menu-toggle" id="mobileToggle" aria-label="Abrir menú">
             <span></span><span></span><span></span>
         </button>
     </div>
@@ -847,9 +761,18 @@
     </div>
 </div>
 
-<div class="footer">
-    &copy; 2026 Sociedad Portuaria Mardique S.A. &middot; <a href="/inicio">Volver al sitio público</a>
-</div>
+    <div class="pfooter">
+        <div class="pfooter-links">
+            <a href="/inicio"><i class="fas fa-globe"></i> Sitio público</a>
+            <span class="pfooter-sep">|</span>
+            <a href="https://spmardique.com/wp-content/uploads/2024/01/REGLAMENTO_DE_CONDICIONES_TECNICO_DE_OPERACION.pdf" target="_blank"><i class="fas fa-file-pdf"></i> Reglamento Operativo</a>
+            <span class="pfooter-sep">|</span>
+            <a href="#"><i class="fas fa-shield-alt"></i> Políticas de Privacidad</a>
+            <span class="pfooter-sep">|</span>
+            <a href="#"><i class="fas fa-shield-halved"></i> Políticas de Seguridad</a>
+        </div>
+        <div class="pfooter-copy">&copy; 2026 Sociedad Portuaria Mardique S.A. Todos los derechos reservados.</div>
+    </div>
 
 <div class="modal-overlay" id="logoutModal">
     <div class="modal-box">
@@ -857,15 +780,18 @@
         <h2>Cerrar Sesión</h2>
         <p>¿Estás seguro de que deseas cerrar tu sesión?</p>
         <div class="modal-actions">
-            <button type="button" class="btn-outline" onclick="document.getElementById('logoutModal').classList.remove('show')">Cancelar</button>
-            <a href="/logout" class="btn-red"><i class="fas fa-sign-out-alt"></i> Cerrar Sesión</a>
+            <button type="button" class="btn-cancel" onclick="document.getElementById('logoutModal').classList.remove('show')">Cancelar</button>
+            <a href="/logout" class="btn btn-red"><i class="fas fa-sign-out-alt"></i> Cerrar Sesión</a>
         </div>
     </div>
 </div>
 
+<!-- Overlay oscuro del drawer -->
 <div class="drawer-overlay" id="drawerOverlay"></div>
-<nav class="mob-drawer" id="mobileDrawer" aria-label="Menú móvil">
-    <div class="drawer-hdr">
+
+<!-- Drawer de navegación móvil -->
+<nav class="mobile-nav-drawer" id="mobileDrawer" aria-label="Menú móvil">
+    <div class="drawer-header">
         <img src="/images/Logo.png" alt="Mardique">
         <button class="drawer-close" id="drawerClose" aria-label="Cerrar menú">&times;</button>
     </div>
@@ -876,47 +802,49 @@
         <a href="/editor/gallery" class="active"><i class="fas fa-images"></i> Galería</a>
         <a href="/editor/content"><i class="fas fa-edit"></i> Contenido web</a>
         <a href="/editor/config"><i class="fas fa-tags"></i> Config Tarifas</a>
-        <div class="drawer-div"></div>
-        <a href="javascript:void(0)" onclick="document.getElementById('logoutModal').classList.add('show')" class="drawer-logout">
+        <div class="drawer-divider"></div>
+        <button class="drawer-logout-btn" onclick="closeDrw();document.getElementById('logoutModal').classList.add('show')">
             <i class="fas fa-sign-out-alt"></i> Cerrar Sesión
-        </a>
+        </button>
     </div>
 </nav>
 
 <script>
+    const mainHdr = document.getElementById('main-header');
+    window.addEventListener('scroll', () => {
+        mainHdr.classList.toggle('scrolled', window.scrollY > 40);
+    }, { passive: true });
+
+    const obs = new IntersectionObserver(entries => {
+        entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+    }, { threshold: 0.1 });
+    document.querySelectorAll('.reveal').forEach(el => obs.observe(el));
+
     document.getElementById('logoutModal').addEventListener('click', function(e) {
         if (e.target === this) this.classList.remove('show');
     });
 
-    const observer = new IntersectionObserver(entries => {
-        entries.forEach(entry => {
-            if (entry.isIntersecting) {
-                entry.target.classList.add('visible');
-            }
-        });
-    }, { threshold: 0.1 });
-    document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+    const tog  = document.getElementById('mobileToggle');
+    const drw  = document.getElementById('mobileDrawer');
+    const ov   = document.getElementById('drawerOverlay');
+    const cl   = document.getElementById('drawerClose');
 
-    const toggleBtn = document.getElementById('mobileToggle');
-    const drawer = document.getElementById('mobileDrawer');
-    const overlay = document.getElementById('drawerOverlay');
-    const closeBtn = document.getElementById('drawerClose');
-
-    function openDrawer() {
-        drawer.classList.add('open');
-        overlay.classList.add('open');
+    function openDrw() {
+        drw.classList.add('open');
+        ov.classList.add('open');
+        tog.classList.add('open');
         document.body.style.overflow = 'hidden';
     }
-
-    function closeDrawer() {
-        drawer.classList.remove('open');
-        overlay.classList.remove('open');
+    function closeDrw() {
+        drw.classList.remove('open');
+        ov.classList.remove('open');
+        tog.classList.remove('open');
         document.body.style.overflow = '';
     }
 
-    if (toggleBtn) toggleBtn.addEventListener('click', openDrawer);
-    if (closeBtn) closeBtn.addEventListener('click', closeDrawer);
-    if (overlay) overlay.addEventListener('click', closeDrawer);
+    tog && tog.addEventListener('click', () => drw.classList.contains('open') ? closeDrw() : openDrw());
+    cl  && cl.addEventListener('click', closeDrw);
+    ov  && ov.addEventListener('click', closeDrw);
 </script>
 <script src="/js/panel-nav.js"></script>
 </body>
