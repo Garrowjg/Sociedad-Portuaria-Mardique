@@ -104,14 +104,28 @@ document.addEventListener('DOMContentLoaded', function () {
     document.querySelectorAll('.counter').forEach(c => co.observe(c));
 });
 
+var IMAGE_DATA = {
+    'Puerto1.png': { title: 'Carga y Descarga de Precisión', desc: 'Maniobras ágiles y seguras de mercancías a granel y sacos de gran formato directamente hacia el transporte terrestre.' },
+    'Puerto2.png': { title: 'Capacidad a Gran Escala', desc: 'Infraestructura robusta diseñada para el atraque de buques de gran calado, respaldada por asistencia especializada de remolcadores.' },
+    'Puerto3.png': { title: 'Conectividad Multimodal', desc: 'Plataforma operativa y muelles estratégicos optimizados para la transferencia eficiente de mercancías por vías fluviales y marítimas.' },
+    'Puerto4.png': { title: 'Infraestructura de Vanguardia', desc: 'Equipamiento de última generación, zonas de almacenamiento y personal altamente calificado para el control y despacho seguro de la carga.' },
+};
+
 function openLightbox(src) {
-    const lbImg = document.getElementById('lightboxImg');
-    const lb = document.getElementById('lightbox');
+    var lbImg = document.getElementById('lightboxImg');
+    var lb = document.getElementById('lightbox');
     if (lbImg && lb) {
-        lbImg.src = src;
+        lbImg.src = '/images/' + src;
         lb.classList.add('open');
         document.body.style.overflow = 'hidden';
     }
+    var d = IMAGE_DATA[src] || { title: 'Puerto Mardique', desc: 'Infraestructura portuaria de clase mundial.' };
+    var t = document.getElementById('lbTitle');
+    var p = document.getElementById('lbDesc');
+    var l = document.getElementById('lbLabel');
+    if (t) t.textContent = d.title;
+    if (p) p.textContent = d.desc;
+    if (l) l.textContent = 'MARDIQUE';
 }
 function closeLightbox() {
     const lb = document.getElementById('lightbox');

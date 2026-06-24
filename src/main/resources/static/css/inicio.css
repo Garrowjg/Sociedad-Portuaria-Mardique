@@ -256,6 +256,52 @@ nav { flex: 1; display: flex; justify-content: center; padding-right: 20px; }
     background: none; border: none; line-height: 1;
 }
 .lightbox-close:hover { color: var(--accent-gold); }
+.lightbox-card {
+    position: absolute;
+    bottom: 28px;
+    left: 50%;
+    transform: translateX(-50%) translateY(8px);
+    background: rgba(4,16,32,0.92);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(240,154,54,0.25);
+    border-radius: 12px;
+    padding: 16px 24px;
+    max-width: 500px;
+    width: 90%;
+    text-align: center;
+    color: #fff;
+    opacity: 0;
+    transition: opacity 0.3s ease, transform 0.3s ease;
+    pointer-events: none;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+}
+.lightbox.open .lightbox-card {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+}
+.lightbox-card .lb-label {
+    font-size: 9px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: var(--accent-gold);
+    margin-bottom: 4px;
+    opacity: 0.8;
+}
+.lightbox-card .lb-title {
+    font-size: 15px;
+    font-weight: 800;
+    color: #fff;
+    margin-bottom: 4px;
+    line-height: 1.3;
+}
+.lightbox-card .lb-desc {
+    font-size: 12.5px;
+    color: rgba(255,255,255,0.75);
+    line-height: 1.5;
+    margin: 0;
+}
 .strategic-section {
     background: linear-gradient(160deg, #f5f7fa 0%, #eaeff6 100%);
     padding: 88px 0; overflow: hidden; position: relative;

@@ -785,9 +785,9 @@
                 <a th:if="${cardDocs[c.key] != null}" th:href="${cardDocs[c.key].filePath}" target="_blank" class="btn-download">
                     <i class="fas fa-download"></i> Descargar Formato
                 </a>
-                <span th:unless="${cardDocs[c.key] != null}" class="btn-pending">
-                    <i class="fas fa-clock"></i> Próximamente
-                </span>
+<span th:unless="${cardDocs[c.key] != null}" class="btn-pending">
+    <i class="fas fa-info-circle"></i> Consulte en puerto
+</span>
             </div>
         </div>
     </div>

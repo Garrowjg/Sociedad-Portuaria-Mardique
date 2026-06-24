@@ -395,6 +395,25 @@
         .lightbox-overlay img { max-width:95%; max-height:95%; object-fit:contain; border-radius:8px; box-shadow:0 20px 60px rgba(0,0,0,0.5); animation:fadeSlideUp 0.3s ease; }
         .lightbox-close { position:absolute; top:20px; right:30px; color:#fff; font-size:32px; cursor:pointer; transition:opacity 0.2s; background:none; border:none; font-family:inherit; z-index:1; }
         .lightbox-close:hover { opacity:0.7; }
+        .lightbox-overlay .lightbox-card {
+            position: absolute; bottom: 28px; left: 50%; transform: translateX(-50%) translateY(8px);
+            background: rgba(4,16,32,0.92); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(240,154,54,0.25); border-radius: 12px;
+            padding: 16px 24px; max-width: 500px; width: 90%; text-align: center;
+            color: #fff; opacity: 0; transition: opacity 0.3s ease, transform 0.3s ease;
+            pointer-events: none; box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+        }
+        .lightbox-overlay.show .lightbox-card { opacity: 1; transform: translateX(-50%) translateY(0); }
+        .lightbox-overlay .lightbox-card .lb-label {
+            font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px;
+            color: var(--accent-gold); margin-bottom: 4px; opacity: 0.8;
+        }
+        .lightbox-overlay .lightbox-card .lb-title {
+            font-size: 15px; font-weight: 800; color: #fff; margin-bottom: 4px; line-height: 1.3;
+        }
+        .lightbox-overlay .lightbox-card .lb-desc {
+            font-size: 12.5px; color: rgba(255,255,255,0.75); line-height: 1.5; margin: 0;
+        }
         .img-overlay span { cursor:pointer; }
 
     </style>
@@ -800,12 +819,26 @@
     }
 
     /* LIGHTBOX */
+    var SV_IMAGE_DATA = {
+        'MuelleMaritimo.jpg': { title: 'Muelle Marítimo', desc: 'Operaciones de muellaje y atraque de embarcaciones respaldadas por infraestructura robusta y tecnología de precisión para garantizar la eficiencia en cada maniobra.' },
+        'MuelleFluvial.jpg': { title: 'Muelle Fluvial', desc: 'Conexión estratégica que permite operaciones de muellaje y atraque simultáneo de convoy, remolcadores y embarcaciones marítimas y fluviales.' },
+        'ServiciosPortuarios.jpg': { title: 'Servicios Portuarios', desc: 'Personal altamente calificado, equipos de última tecnología e infraestructura para el manejo integral de carga, almacenamiento y control de inventarios.' },
+        'PlataformaLogistica.jpg': { title: 'Plataforma Logística', desc: 'Hub regional con bodegas, patios de maniobras y conexiones estratégicas para la distribución eficiente de mercancías a nivel nacional e internacional.' },
+    };
     function openLightbox(el) {
         const img = el.closest('.premium-img-box').querySelector('img');
         if (!img) return;
         const lb = document.getElementById('lightbox');
         lb.querySelector('img').src = img.src;
         lb.classList.add('show');
+        var name = img.src.split('/').pop();
+        var d = SV_IMAGE_DATA[name] || { title: 'Instalación', desc: 'Infraestructura portuaria de clase mundial.' };
+        var t = document.getElementById('lbTitleS');
+        var p = document.getElementById('lbDescS');
+        var l = document.getElementById('lbLabelS');
+        if (t) t.textContent = d.title;
+        if (p) p.textContent = d.desc;
+        if (l) l.textContent = 'MARDIQUE';
     }
     document.getElementById('lightbox').addEventListener('click', function(e) {
         if (e.target === this || e.target.classList.contains('lightbox-close')) {
@@ -818,8 +851,14 @@
 
 <div class="lightbox-overlay" id="lightbox">
     <button class="lightbox-close" onclick="this.closest('.lightbox-overlay').classList.remove('show')">&times;</button>
-    <img src="" alt="Instalación">
-</div><div class="drawer-overlay" id="drawerOverlay"></div>
+    <img src="" alt="Instalaci&oacute;n">
+    <div class="lightbox-card">
+        <div class="lb-label" id="lbLabelS">MARDIQUE</div>
+        <h4 class="lb-title" id="lbTitleS">Instalaci&oacute;n</h4>
+        <p class="lb-desc" id="lbDescS">Descripci&oacute;n de la instalaci&oacute;n</p>
+    </div>
+</div>
+<div class="drawer-overlay" id="drawerOverlay"></div>
 
 <nav class="mobile-nav-drawer" id="mobileDrawer" aria-label="Menú móvil">
     <div class="drawer-header">
