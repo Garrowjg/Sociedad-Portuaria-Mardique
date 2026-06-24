@@ -79,15 +79,22 @@
         .premium-img-box{flex:1.3;position:relative;border-radius:var(--rl);overflow:hidden;box-shadow:var(--shm);z-index:1;}
         .premium-img-box img{width:100%;height:340px;object-fit:cover;display:block;transition:transform 0.6s ease;}
         .premium-service:hover .premium-img-box img{transform:scale(1.05);}
-        .img-badge{position:absolute;top:16px;left:16px;background:var(--ag);color:#fff;padding:6px 16px;border-radius:50px;font-size:10.5px;font-weight:800;text-transform:uppercase;letter-spacing:.5px;opacity:0;transform:translateY(-8px);transition:all 0.35s ease;z-index:3;box-shadow:0 4px 12px rgba(240,154,54,.3);}
+        .img-badge{position:absolute;top:16px;left:16px;background:var(--ag);color:#fff;padding:6px 16px;border-radius:50px;font-size:10.5px;font-weight:800;text-transform:uppercase;letter-spacing:.5px;opacity:0;transform:translateY(-8px);transition:all 0.35s ease;z-index:20;box-shadow:0 4px 12px rgba(240,154,54,.3);}
         .premium-service:hover .img-badge{opacity:1;transform:translateY(0);}
+
+        /* Mover el botón amarillo a la derecha en las secciones invertidas (Fluvial y Logística) */
+        .premium-service.reverse .img-badge {
+            left: auto;
+            right: 16px;
+        }
+
         .img-overlay{position:absolute;inset:0;background:rgba(27,69,98,.45);display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity 0.35s ease;z-index:2;}
         .premium-service:hover .img-overlay{opacity:1;}
-        .img-overlay span{color:#fff;font-size:13px;font-weight:600;letter-spacing:.5px;transform:translateY(10px);transition:transform 0.35s ease;display:flex;align-items:center;gap:8px;background:rgba(255,255,255,.15);padding:10px 20px;border-radius:50px;backdrop-filter:blur(4px);border:1px solid rgba(255,255,255,.3);}
+        .img-overlay span{color:#fff;font-size:13px;font-weight:600;letter-spacing:.5px;transform:translateY(10px);transition:transform 0.35s ease;display:flex;align-items:center;gap:8px;background:rgba(255,255,255,.15);padding:10px 20px;border-radius:50px;backdrop-filter:blur(4px);border:1px solid rgba(255,255,255,.3);cursor:pointer;}
         .premium-service:hover .img-overlay span{transform:translateY(0);}
 
         /* Caja de texto superpuesta */
-        .premium-text-box{flex:1;padding:36px;background:var(--sur);border-radius:var(--rl);box-shadow:var(--shm);border-top:4px solid var(--ag);position:relative;z-index:2;margin-left:-80px;border-left:1.5px solid var(--bdr);border-right:1.5px solid var(--bdr);border-bottom:1.5px solid var(--bdr);}
+        .premium-text-box{flex:1;padding:36px;background:var(--sur);border-radius:var(--rl);box-shadow:var(--shm);border-top:4px solid var(--ag);position:relative;z-index:1;margin-left:-80px;border-left:1.5px solid var(--bdr);border-right:1.5px solid var(--bdr);border-bottom:1.5px solid var(--bdr);}
         .premium-service.reverse .premium-text-box{margin-left:0;margin-right:-80px;}
 
         .category-label{color:var(--pb);font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;display:flex;align-items:center;gap:6px;}
@@ -201,6 +208,8 @@
             .premium-service{flex-direction:column!important;}
             .premium-text-box{margin-left:0!important;margin-right:0!important;margin-top:-40px;border-top:4px solid var(--ag);}
             .premium-img-box img{height:280px;}
+            /* Resetear posición del badge en responsive (cuando ya no hay superposición lateral) */
+            .premium-service.reverse .img-badge { left: 16px; right: auto; }
         }
         @media(max-width:768px){
             header nav{display:none;}
@@ -211,17 +220,52 @@
             .body{padding:20px 16px 32px;}
             .premium-text-box{padding:24px;}
         }
-        /* ── LIGHTBOX ── */
-        .lightbox{position:fixed;inset:0;background:rgba(4,16,32,0.95);z-index:9000;display:none;align-items:center;justify-content:center;backdrop-filter:blur(8px);cursor:zoom-out;}
-        .lightbox.open{display:flex;}
-        .lightbox-img{max-width:85vw;max-height:80vh;object-fit:contain;border-radius:8px;box-shadow:0 30px 60px rgba(0,0,0,0.6);}
-        .lightbox-close{position:absolute;top:24px;right:30px;font-size:30px;color:rgba(255,255,255,0.7);cursor:pointer;transition:color 0.2s;background:none;border:none;line-height:1;z-index:1;}
-        .lightbox-close:hover{color:var(--ag);}
-        .lightbox-card{position:absolute;bottom:28px;left:50%;transform:translateX(-50%) translateY(8px);background:rgba(4,16,32,0.92);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border:1px solid rgba(240,154,54,0.25);border-radius:12px;padding:16px 24px;max-width:500px;width:90%;text-align:center;color:#fff;opacity:0;transition:opacity 0.3s ease,transform 0.3s ease;pointer-events:none;box-shadow:0 8px 32px rgba(0,0,0,0.5);}
-        .lightbox.open .lightbox-card{opacity:1;transform:translateX(-50%) translateY(0);}
-        .lightbox-card .lb-label{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:var(--ag);margin-bottom:4px;opacity:0.8;}
-        .lightbox-card .lb-title{font-size:15px;font-weight:800;color:#fff;margin-bottom:4px;line-height:1.3;}
-        .lightbox-card .lb-desc{font-size:12.5px;color:rgba(255,255,255,0.75);line-height:1.5;margin:0;}
+        /* ── CARRUSEL MODAL ── */
+        .carousel-overlay{display:none;position:fixed;inset:0;background:rgba(10,18,32,0.92);z-index:9999;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);animation:carouselFadeIn 0.25s ease;}
+        .carousel-overlay.open{display:flex;}
+        @keyframes carouselFadeIn{from{opacity:0}to{opacity:1}}
+        .carousel-modal{position:relative;background:#0e1a2b;border-radius:16px;width:100%;max-width:820px;box-shadow:0 30px 80px rgba(0,0,0,0.6);overflow:hidden;display:flex;flex-direction:column;animation:carouselSlideUp 0.3s cubic-bezier(.22,.68,0,1.2);}
+        @keyframes carouselSlideUp{from{transform:translateY(40px) scale(0.97);opacity:0}to{transform:none;opacity:1}}
+        .carousel-close{position:absolute;top:12px;right:12px;background:rgba(15,25,42,0.85);border:1.5px solid rgba(255,255,255,0.22);color:#fff;font-size:18px;width:46px;height:46px;border-radius:50%;cursor:pointer;z-index:20;display:flex;align-items:center;justify-content:center;transition:background 0.2s,border-color 0.2s,color 0.2s;box-shadow:0 4px 16px rgba(0,0,0,0.45);}
+        .carousel-close:hover{background:#C9A84C;border-color:#C9A84C;color:#0e1a2b;}
+        .carousel-img-wrap{position:relative;width:100%;aspect-ratio:16/9;background:#07111e;overflow:hidden;}
+        .carousel-img{width:100%;height:100%;object-fit:cover;display:block;transition:opacity 0.3s ease;}
+        .carousel-img.fading{opacity:0;}
+        .carousel-arrow{position:absolute;top:50%;transform:translateY(-50%);background:rgba(10,18,32,0.55);border:1.5px solid rgba(255,255,255,0.15);color:#fff;width:44px;height:44px;border-radius:50%;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background 0.2s,border-color 0.2s;z-index:5;}
+        .carousel-arrow:hover{background:rgba(201,168,76,0.75);border-color:#C9A84C;}
+        .carousel-arrow-left{left:14px;}
+        .carousel-arrow-right{right:14px;}
+        .carousel-info{padding:22px 28px 12px;}
+        .carousel-label{font-size:11px;font-weight:800;letter-spacing:2px;color:#C9A84C;margin-bottom:6px;font-family:'Plus Jakarta Sans',sans-serif;}
+        .carousel-title{font-size:20px;font-weight:700;color:#fff;margin:0 0 8px;font-family:'Plus Jakarta Sans',sans-serif;}
+        .carousel-desc{font-size:14px;color:#8da8c8;margin:0;line-height:1.65;font-family:'Plus Jakarta Sans',sans-serif;}
+        .carousel-thumbs{display:flex;gap:10px;padding:10px 28px 0;overflow-x:auto;scrollbar-width:thin;scrollbar-color:#1B2A4A transparent;}
+        .carousel-thumbs::-webkit-scrollbar{height:4px;}
+        .carousel-thumbs::-webkit-scrollbar-thumb{background:#1B2A4A;border-radius:4px;}
+        .carousel-thumb{flex-shrink:0;width:72px;height:50px;border-radius:8px;overflow:hidden;border:2px solid transparent;cursor:pointer;transition:border-color 0.2s,transform 0.2s;background:#07111e;}
+        .carousel-thumb img{width:100%;height:100%;object-fit:cover;display:block;opacity:0.55;transition:opacity 0.2s;}
+        .carousel-thumb:hover img{opacity:0.85;}
+        .carousel-thumb.active{border-color:#C9A84C;transform:scale(1.06);}
+        .carousel-thumb.active img{opacity:1;}
+        .carousel-dots{display:flex;justify-content:center;gap:8px;padding:14px 28px 20px;}
+        .carousel-dot{width:8px;height:8px;border-radius:50%;background:rgba(255,255,255,0.2);border:none;cursor:pointer;transition:background 0.2s,transform 0.2s;padding:0;}
+        .carousel-dot.active{background:#C9A84C;transform:scale(1.3);}
+        @media(max-width:640px){
+            .carousel-overlay{padding:12px;align-items:center;justify-content:center;}
+            .carousel-modal{border-radius:14px;width:100%;max-width:100%;max-height:92vh;overflow:hidden;display:flex;flex-direction:column;}
+            .carousel-img-wrap{aspect-ratio:1/1;flex-shrink:0;}
+            .carousel-close{width:48px;height:48px;font-size:20px;top:10px;right:10px;background:rgba(10,18,32,0.88);border-color:rgba(255,255,255,0.25);}
+            .carousel-arrow{width:52px;height:52px;font-size:20px;background:rgba(10,18,32,0.65);}
+            .carousel-arrow-left{left:8px;}
+            .carousel-arrow-right{right:8px;}
+            .carousel-info{padding:14px 16px 8px;flex-shrink:0;}
+            .carousel-label{font-size:10px;margin-bottom:4px;}
+            .carousel-title{font-size:16px;margin-bottom:6px;}
+            .carousel-desc{font-size:13px;line-height:1.5;}
+            .carousel-thumbs{padding:8px 16px 0;gap:8px;flex-shrink:0;}
+            .carousel-thumb{width:60px;height:44px;border-radius:7px;}
+            .carousel-dots{padding:10px 16px 14px;gap:10px;flex-shrink:0;}
+        }
     </style>
 </head>
 <body>
@@ -286,11 +330,12 @@
         </div>
     </div>
 
+    <!-- Servicio 1: Marítimo -->
     <div class="premium-service reveal">
         <div class="premium-img-box">
             <img src="/images/MuelleMaritimo.jpg" alt="Muelle Marítimo">
             <span class="img-badge"><i class="fas fa-anchor"></i> Puerto</span>
-            <div class="img-overlay"><span onclick="openLightbox(this)"><i class="fas fa-expand"></i> Ver instalación</span></div>
+            <div class="img-overlay"><span onclick="openServiceLightbox(this)"><i class="fas fa-expand"></i> Ver instalación</span></div>
         </div>
         <div class="premium-text-box">
             <span class="category-label"><i class="fas fa-tag"></i> Marítimo</span>
@@ -306,11 +351,12 @@
 
     <div class="premium-divider"><div class="line"></div><div class="diamond"></div><div class="line right"></div></div>
 
+    <!-- Servicio 2: Fluvial (Invertido) -->
     <div class="premium-service reverse reveal">
         <div class="premium-img-box">
             <img src="/images/MuelleFluvial.jpg" alt="Muelle Fluvial">
             <span class="img-badge"><i class="fas fa-water"></i> Fluvial</span>
-            <div class="img-overlay"><span onclick="openLightbox(this)"><i class="fas fa-expand"></i> Ver instalación</span></div>
+            <div class="img-overlay"><span onclick="openServiceLightbox(this)"><i class="fas fa-expand"></i> Ver instalación</span></div>
         </div>
         <div class="premium-text-box">
             <span class="category-label"><i class="fas fa-tag"></i> Fluvial</span>
@@ -326,11 +372,12 @@
 
     <div class="premium-divider"><div class="line"></div><div class="diamond"></div><div class="line right"></div></div>
 
+    <!-- Servicio 3: Portuario -->
     <div class="premium-service reveal">
         <div class="premium-img-box">
             <img src="/images/ServiciosPortuarios.jpg" alt="Servicios Portuarios">
             <span class="img-badge"><i class="fas fa-crane"></i> Portuario</span>
-            <div class="img-overlay"><span onclick="openLightbox(this)"><i class="fas fa-expand"></i> Ver instalación</span></div>
+            <div class="img-overlay"><span onclick="openServiceLightbox(this)"><i class="fas fa-expand"></i> Ver instalación</span></div>
         </div>
         <div class="premium-text-box">
             <span class="category-label"><i class="fas fa-tag"></i> Portuario</span>
@@ -346,11 +393,12 @@
 
     <div class="premium-divider"><div class="line"></div><div class="diamond"></div><div class="line right"></div></div>
 
+    <!-- Servicio 4: Logística (Invertido) -->
     <div class="premium-service reverse reveal">
         <div class="premium-img-box">
             <img src="/images/PlataformaLogistica.jpg" alt="Plataforma Logística">
             <span class="img-badge"><i class="fas fa-boxes"></i> Logística</span>
-            <div class="img-overlay"><span onclick="openLightbox(this)"><i class="fas fa-expand"></i> Ver instalación</span></div>
+            <div class="img-overlay"><span onclick="openServiceLightbox(this)"><i class="fas fa-expand"></i> Ver instalación</span></div>
         </div>
         <div class="premium-text-box">
             <span class="category-label"><i class="fas fa-tag"></i> Logística</span>
@@ -382,6 +430,7 @@
     </div>
 </div>
 
+<!-- Modal Cerrar Sesión -->
 <div class="modal-overlay" id="logoutModal">
     <div class="modal-box">
         <i class="fas fa-sign-out-alt" style="font-size: 46px; color: var(--ag); margin-bottom: 12px; display: block;"></i>
@@ -394,17 +443,32 @@
     </div>
 </div>
 
-<div class="lightbox" id="lightbox" onclick="closeLightbox()">
-    <button class="lightbox-close" onclick="closeLightbox()">&times;</button>
-    <img class="lightbox-img" id="lightboxImg" src="" alt="">
-    <div class="lightbox-card">
-        <div class="lb-label" id="lbLabelS">MARDIQUE</div>
-        <h4 class="lb-title" id="lbTitleS">Instalaci&oacute;n</h4>
-        <p class="lb-desc" id="lbDescS">Descripci&oacute;n de la instalaci&oacute;n</p>
+<!-- ===== CARRUSEL MODAL ===== -->
+<div class="carousel-overlay" id="carouselOverlay" onclick="handleCarouselOverlayClick(event)">
+    <div class="carousel-modal" id="carouselModal">
+        <button class="carousel-close" onclick="closeCarousel()" aria-label="Cerrar">
+            <i class="fas fa-times"></i>
+        </button>
+        <div class="carousel-img-wrap">
+            <img class="carousel-img" id="carouselImg" src="" alt="">
+            <button class="carousel-arrow carousel-arrow-left" onclick="carouselNav(-1)" aria-label="Anterior">
+                <i class="fas fa-chevron-left"></i>
+            </button>
+            <button class="carousel-arrow carousel-arrow-right" onclick="carouselNav(1)" aria-label="Siguiente">
+                <i class="fas fa-chevron-right"></i>
+            </button>
+        </div>
+        <div class="carousel-info">
+            <div class="carousel-label" id="carouselLabel">MARDIQUE</div>
+            <h4 class="carousel-title" id="carouselTitle">Instalación</h4>
+            <p class="carousel-desc" id="carouselDesc">Descripción de la instalación</p>
+        </div>
+        <div class="carousel-thumbs" id="carouselThumbs"></div>
+        <div class="carousel-dots" id="carouselDots"></div>
     </div>
 </div>
 
-<!-- Overlay oscuro del drawer -->
+<!-- Overlay oscuro del drawer móvil -->
 <div class="drawer-overlay" id="drawerOverlay"></div>
 
 <!-- Drawer de navegación móvil -->
@@ -430,82 +494,129 @@
 </nav>
 
 <script>
-    // ── Scroll shrink header ──
-    const mainHdr = document.getElementById('main-header');
+    // ── 1. Scroll shrink header ──
     window.addEventListener('scroll', () => {
-        mainHdr.classList.toggle('scrolled', window.scrollY > 40);
-    }, { passive: true });
-
-    // ── Reveal on scroll ──
-    const obs = new IntersectionObserver(entries => {
-        entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
-    }, { threshold: 0.1 });
-    document.querySelectorAll('.reveal').forEach(el => obs.observe(el));
-
-    // ── Logout modal: cerrar al click fuera ──
-    document.getElementById('logoutModal').addEventListener('click', function(e) {
-        if (e.target === this) this.classList.remove('show');
+        const header = document.getElementById('main-header');
+        if (window.scrollY > 20) {
+            header.classList.add('scrolled');
+        } else {
+            header.classList.remove('scrolled');
+        }
     });
 
-    // ── Drawer móvil ──
-    const tog  = document.getElementById('mobileToggle');
-    const drw  = document.getElementById('mobileDrawer');
-    const ov   = document.getElementById('drawerOverlay');
-    const cl   = document.getElementById('drawerClose');
+    // ── 2. Menu Móvil (Drawer) ──
+    const mobileToggle = document.getElementById('mobileToggle');
+    const mobileDrawer = document.getElementById('mobileDrawer');
+    const drawerOverlay = document.getElementById('drawerOverlay');
+    const drawerClose = document.getElementById('drawerClose');
 
     function openDrw() {
-        drw.classList.add('open');
-        ov.classList.add('open');
-        tog.classList.add('open');
-        document.body.style.overflow = 'hidden';
+        mobileToggle.classList.add('open');
+        mobileDrawer.classList.add('open');
+        drawerOverlay.classList.add('open');
     }
+
     function closeDrw() {
-        drw.classList.remove('open');
-        ov.classList.remove('open');
-        tog.classList.remove('open');
-        document.body.style.overflow = '';
+        mobileToggle.classList.remove('open');
+        mobileDrawer.classList.remove('open');
+        drawerOverlay.classList.remove('open');
     }
 
-    tog && tog.addEventListener('click', () => drw.classList.contains('open') ? closeDrw() : openDrw());
-    cl  && cl.addEventListener('click', closeDrw);
-    ov  && ov.addEventListener('click', closeDrw);
-
-    // ── Lightbox ──
-    var SV_IMAGE_DATA = {
-        'MuelleMaritimo.jpg': { title: 'Muelle Marítimo', desc: 'Atraque y operación para naves de hasta 50.000 DWT con equipos de última generación y muelles de 150m.' },
-        'MuelleFluvial.jpg': { title: 'Muelle Fluvial', desc: 'Canal de acceso con 15m de profundidad para barcazas y remolcadores garantizando maniobras eficientes.' },
-        'ServiciosPortuarios.jpg': { title: 'Servicios Portuarios', desc: 'Operaciones de carga y descarga con infraestructura moderna para todo tipo de mercancía.' },
-        'PlataformaLogistica.jpg': { title: 'Plataforma Logística', desc: 'Soluciones integrales de almacenamiento, distribución y gestión de inventarios para optimizar tus tiempos.' },
-    };
-    function openLightbox(el) {
-        var img = el.closest('.premium-img-box').querySelector('img');
-        if (!img) return;
-        var lb = document.getElementById('lightbox');
-        lb.querySelector('img').src = img.src;
-        lb.classList.add('open');
-        document.body.style.overflow = 'hidden';
-        var name = img.src.split('/').pop();
-        var d = SV_IMAGE_DATA[name] || { title: 'Instalación', desc: 'Infraestructura portuaria de clase mundial.' };
-        var t = document.getElementById('lbTitleS');
-        var p = document.getElementById('lbDescS');
-        var l = document.getElementById('lbLabelS');
-        if (t) t.textContent = d.title;
-        if (p) p.textContent = d.desc;
-        if (l) l.textContent = 'MARDIQUE';
-    }
-    function closeLightbox() {
-        var lb = document.getElementById('lightbox');
-        if (lb) {
-            lb.classList.remove('open');
-            document.body.style.overflow = '';
-        }
-    }
-    document.getElementById('lightbox').addEventListener('click', function(e) {
-        if (e.target === this || e.target.classList.contains('lightbox-close')) {
-            closeLightbox();
+    mobileToggle.addEventListener('click', () => {
+        if (mobileDrawer.classList.contains('open')) {
+            closeDrw();
+        } else {
+            openDrw();
         }
     });
+
+    drawerClose.addEventListener('click', closeDrw);
+    drawerOverlay.addEventListener('click', closeDrw);
+
+    // ── 3. Animación Scroll Reveal ──
+    const reveals = document.querySelectorAll('.reveal');
+    const revealOnScroll = () => {
+        reveals.forEach(el => {
+            const rect = el.getBoundingClientRect();
+            if (rect.top < window.innerHeight * 0.9) {
+                el.classList.add('visible');
+            }
+        });
+    };
+    window.addEventListener('scroll', revealOnScroll);
+    window.addEventListener('load', revealOnScroll);
+
+    // ── 4. Lógica de Carrusel / Lightbox ──
+    const servicesData = [
+        { img: '/images/MuelleMaritimo.jpg', label: 'MARÍTIMO', title: 'Muelle Marítimo', desc: 'Atraque y operación para naves de hasta 50.000 DWT con equipos de última generación.' },
+        { img: '/images/MuelleFluvial.jpg', label: 'FLUVIAL', title: 'Muelle Fluvial', desc: 'Canal de acceso con 15m de profundidad para barcazas y remolcadores garantizando maniobras eficientes.' },
+        { img: '/images/ServiciosPortuarios.jpg', label: 'PORTUARIO', title: 'Servicios Portuarios', desc: 'Operaciones de carga y descarga con infraestructura moderna para todo tipo de mercancía.' },
+        { img: '/images/PlataformaLogistica.jpg', label: 'LOGÍSTICA', title: 'Plataforma Logística', desc: 'Soluciones integrales de almacenamiento, distribución y gestión de inventarios para optimizar tus tiempos.' }
+    ];
+    let currentIdx = 0;
+
+    function openServiceLightbox(element) {
+        const imgBox = element.closest('.premium-img-box');
+        const imgSrc = imgBox.querySelector('img').getAttribute('src');
+        currentIdx = servicesData.findIndex(s => s.img === imgSrc);
+        if (currentIdx === -1) currentIdx = 0;
+
+        renderCarousel();
+        document.getElementById('carouselOverlay').classList.add('open');
+    }
+
+    function closeCarousel() {
+        document.getElementById('carouselOverlay').classList.remove('open');
+    }
+
+    function handleCarouselOverlayClick(e) {
+        if (e.target.id === 'carouselOverlay') {
+            closeCarousel();
+        }
+    }
+
+    function carouselNav(dir) {
+        currentIdx += dir;
+        if (currentIdx < 0) currentIdx = servicesData.length - 1;
+        if (currentIdx >= servicesData.length) currentIdx = 0;
+        renderCarousel();
+    }
+
+    function renderCarousel() {
+        const data = servicesData[currentIdx];
+        const imgEl = document.getElementById('carouselImg');
+
+        imgEl.classList.add('fading');
+        setTimeout(() => {
+            imgEl.src = data.img;
+            imgEl.alt = data.title;
+            document.getElementById('carouselLabel').textContent = data.label;
+            document.getElementById('carouselTitle').textContent = data.title;
+            document.getElementById('carouselDesc').textContent = data.desc;
+            imgEl.classList.remove('fading');
+        }, 150);
+
+        // Renderizar Miniaturas (Thumbs)
+        const thumbsContainer = document.getElementById('carouselThumbs');
+        thumbsContainer.innerHTML = '';
+        servicesData.forEach((s, idx) => {
+            const thumb = document.createElement('div');
+            thumb.className = `carousel-thumb ${idx === currentIdx ? 'active' : ''}`;
+            thumb.innerHTML = `<img src="${s.img}" alt="Thumb">`;
+            thumb.onclick = () => { currentIdx = idx; renderCarousel(); };
+            thumbsContainer.appendChild(thumb);
+        });
+
+        // Renderizar Puntos (Dots)
+        const dotsContainer = document.getElementById('carouselDots');
+        dotsContainer.innerHTML = '';
+        servicesData.forEach((_, idx) => {
+            const dot = document.createElement('button');
+            dot.className = `carousel-dot ${idx === currentIdx ? 'active' : ''}`;
+            dot.onclick = () => { currentIdx = idx; renderCarousel(); };
+            dotsContainer.appendChild(dot);
+        });
+    }
 </script>
-<script src="/js/panel-nav.js"></script>
 </body>
 </html>

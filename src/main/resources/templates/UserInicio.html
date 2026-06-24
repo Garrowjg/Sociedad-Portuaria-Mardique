@@ -202,17 +202,54 @@
 
         @keyframes fadeUp{from{opacity:0;transform:translateY(12px);}to{opacity:1;transform:translateY(0);}}
 
-        /* ── LIGHTBOX ── */
-        .lightbox{position:fixed;inset:0;background:rgba(4,16,32,0.95);z-index:9000;display:none;align-items:center;justify-content:center;backdrop-filter:blur(8px);cursor:zoom-out;}
-        .lightbox.open{display:flex;}
-        .lightbox-img{max-width:85vw;max-height:80vh;border-radius:8px;box-shadow:0 30px 60px rgba(0,0,0,0.6);}
-        .lightbox-close{position:absolute;top:24px;right:30px;font-size:30px;color:rgba(255,255,255,0.7);cursor:pointer;transition:color 0.2s;background:none;border:none;line-height:1;z-index:1;}
-        .lightbox-close:hover{color:var(--ag);}
-        .lightbox-card{position:absolute;bottom:28px;left:50%;transform:translateX(-50%) translateY(8px);background:rgba(4,16,32,0.92);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border:1px solid rgba(240,154,54,0.25);border-radius:12px;padding:16px 24px;max-width:500px;width:90%;text-align:center;color:#fff;opacity:0;transition:opacity 0.3s ease,transform 0.3s ease;pointer-events:none;box-shadow:0 8px 32px rgba(0,0,0,0.5);}
-        .lightbox.open .lightbox-card{opacity:1;transform:translateX(-50%) translateY(0);}
-        .lightbox-card .lb-label{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:var(--ag);margin-bottom:4px;opacity:0.8;}
-        .lightbox-card .lb-title{font-size:15px;font-weight:800;color:#fff;margin-bottom:4px;line-height:1.3;}
-        .lightbox-card .lb-desc{font-size:12.5px;color:rgba(255,255,255,0.75);line-height:1.5;margin:0;}
+        /* ── CARRUSEL MODAL (desde inicio.js) ── */
+        .carousel-overlay{display:none;position:fixed;inset:0;background:rgba(10,18,32,0.92);z-index:9999;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);animation:carouselFadeIn 0.25s ease;}
+        .carousel-overlay.open{display:flex;}
+        @keyframes carouselFadeIn{from{opacity:0}to{opacity:1}}
+        .carousel-modal{position:relative;background:#0e1a2b;border-radius:16px;width:100%;max-width:820px;box-shadow:0 30px 80px rgba(0,0,0,0.6);overflow:hidden;display:flex;flex-direction:column;animation:carouselSlideUp 0.3s cubic-bezier(.22,.68,0,1.2);}
+        @keyframes carouselSlideUp{from{transform:translateY(40px) scale(0.97);opacity:0}to{transform:none;opacity:1}}
+        .carousel-close{position:absolute;top:12px;right:12px;background:rgba(15,25,42,0.85);border:1.5px solid rgba(255,255,255,0.22);color:#fff;font-size:18px;width:46px;height:46px;border-radius:50%;cursor:pointer;z-index:20;display:flex;align-items:center;justify-content:center;transition:background 0.2s,border-color 0.2s,color 0.2s;box-shadow:0 4px 16px rgba(0,0,0,0.45);}
+        .carousel-close:hover{background:#C9A84C;border-color:#C9A84C;color:#0e1a2b;}
+        .carousel-img-wrap{position:relative;width:100%;aspect-ratio:16/9;background:#07111e;overflow:hidden;}
+        .carousel-img{width:100%;height:100%;object-fit:cover;display:block;transition:opacity 0.3s ease;}
+        .carousel-img.fading{opacity:0;}
+        .carousel-arrow{position:absolute;top:50%;transform:translateY(-50%);background:rgba(10,18,32,0.55);border:1.5px solid rgba(255,255,255,0.15);color:#fff;width:44px;height:44px;border-radius:50%;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background 0.2s,border-color 0.2s;z-index:5;}
+        .carousel-arrow:hover{background:rgba(201,168,76,0.75);border-color:#C9A84C;}
+        .carousel-arrow-left{left:14px;}
+        .carousel-arrow-right{right:14px;}
+        .carousel-info{padding:22px 28px 12px;}
+        .carousel-label{font-size:11px;font-weight:800;letter-spacing:2px;color:#C9A84C;margin-bottom:6px;font-family:'Plus Jakarta Sans',sans-serif;}
+        .carousel-title{font-size:20px;font-weight:700;color:#fff;margin:0 0 8px;font-family:'Plus Jakarta Sans',sans-serif;}
+        .carousel-desc{font-size:14px;color:#8da8c8;margin:0;line-height:1.65;font-family:'Plus Jakarta Sans',sans-serif;}
+        .carousel-thumbs{display:flex;gap:10px;padding:10px 28px 0;overflow-x:auto;scrollbar-width:thin;scrollbar-color:#1B2A4A transparent;}
+        .carousel-thumbs::-webkit-scrollbar{height:4px;}
+        .carousel-thumbs::-webkit-scrollbar-thumb{background:#1B2A4A;border-radius:4px;}
+        .carousel-thumb{flex-shrink:0;width:72px;height:50px;border-radius:8px;overflow:hidden;border:2px solid transparent;cursor:pointer;transition:border-color 0.2s,transform 0.2s;background:#07111e;}
+        .carousel-thumb img{width:100%;height:100%;object-fit:cover;display:block;opacity:0.55;transition:opacity 0.2s;}
+        .carousel-thumb:hover img{opacity:0.85;}
+        .carousel-thumb.active{border-color:#C9A84C;transform:scale(1.06);}
+        .carousel-thumb.active img{opacity:1;}
+        .carousel-dots{display:flex;justify-content:center;gap:8px;padding:14px 28px 20px;}
+        .carousel-dot{width:8px;height:8px;border-radius:50%;background:rgba(255,255,255,0.2);border:none;cursor:pointer;transition:background 0.2s,transform 0.2s;padding:0;}
+        .carousel-dot.active{background:#C9A84C;transform:scale(1.3);}
+        @media(max-width:640px){
+            .carousel-overlay{padding:12px;align-items:center;justify-content:center;}
+            .carousel-modal{border-radius:14px;width:100%;max-width:100%;max-height:92vh;overflow:hidden;display:flex;flex-direction:column;}
+            .carousel-img-wrap{aspect-ratio:1/1;flex-shrink:0;}
+            .carousel-close{width:48px;height:48px;font-size:20px;top:10px;right:10px;background:rgba(10,18,32,0.88);border-color:rgba(255,255,255,0.25);}
+            .carousel-arrow{width:52px;height:52px;font-size:20px;background:rgba(10,18,32,0.65);}
+            .carousel-arrow-left{left:8px;}
+            .carousel-arrow-right{right:8px;}
+            .carousel-info{padding:14px 16px 8px;flex-shrink:0;}
+            .carousel-label{font-size:10px;margin-bottom:4px;}
+            .carousel-title{font-size:16px;margin-bottom:6px;}
+            .carousel-desc{font-size:13px;line-height:1.5;}
+            .carousel-thumbs{padding:8px 16px 0;gap:8px;flex-shrink:0;}
+            .carousel-thumb{width:60px;height:44px;border-radius:7px;}
+            .carousel-dots{padding:10px 16px 14px;gap:10px;flex-shrink:0;}
+        }
+
+        /* ── RESPONSIVE ── */
 
         /* ── RESPONSIVE ── */
         @media(max-width:768px){
@@ -350,13 +387,28 @@
     </div>
 </div>
 
-<div class="lightbox" id="lightbox" onclick="closeLightbox()">
-    <button class="lightbox-close" onclick="closeLightbox()">&times;</button>
-    <img class="lightbox-img" id="lightboxImg" src="" alt="">
-    <div class="lightbox-card">
-        <div class="lb-label" id="lbLabel">MARDIQUE</div>
-        <h4 class="lb-title" id="lbTitle">Puerto Mardique</h4>
-        <p class="lb-desc" id="lbDesc">Descripci&oacute;n de la imagen</p>
+<!-- ===== CARRUSEL MODAL ===== -->
+<div class="carousel-overlay" id="carouselOverlay" onclick="handleCarouselOverlayClick(event)">
+    <div class="carousel-modal" id="carouselModal">
+        <button class="carousel-close" onclick="closeCarousel()" aria-label="Cerrar">
+            <i class="fas fa-times"></i>
+        </button>
+        <div class="carousel-img-wrap">
+            <img class="carousel-img" id="carouselImg" src="" alt="">
+            <button class="carousel-arrow carousel-arrow-left" onclick="carouselNav(-1)" aria-label="Anterior">
+                <i class="fas fa-chevron-left"></i>
+            </button>
+            <button class="carousel-arrow carousel-arrow-right" onclick="carouselNav(1)" aria-label="Siguiente">
+                <i class="fas fa-chevron-right"></i>
+            </button>
+        </div>
+        <div class="carousel-info">
+            <div class="carousel-label" id="carouselLabel">MARDIQUE</div>
+            <h4 class="carousel-title" id="carouselTitle">Puerto Mardique</h4>
+            <p class="carousel-desc" id="carouselDesc">Descripci&oacute;n de la imagen</p>
+        </div>
+        <div class="carousel-thumbs" id="carouselThumbs"></div>
+        <div class="carousel-dots" id="carouselDots"></div>
     </div>
 </div>
 
@@ -438,38 +490,8 @@
     tog && tog.addEventListener('click', () => drw.classList.contains('open') ? closeDrw() : openDrw());
     cl  && cl.addEventListener('click', closeDrw);
     ov  && ov.addEventListener('click', closeDrw);
-
-    // ── Lightbox ──
-    var IMAGE_DATA = {
-        'Puerto1.png': { title: 'Carga y Descarga de Precisión', desc: 'Maniobras ágiles y seguras de mercancías a granel y sacos de gran formato directamente hacia el transporte terrestre.' },
-        'Puerto2.png': { title: 'Capacidad a Gran Escala', desc: 'Infraestructura robusta diseñada para el atraque de buques de gran calado, respaldada por asistencia especializada de remolcadores.' },
-        'Puerto3.png': { title: 'Conectividad Multimodal', desc: 'Plataforma operativa y muelles estratégicos optimizados para la transferencia eficiente de mercancías por vías fluviales y marítimas.' },
-        'Puerto4.png': { title: 'Infraestructura de Vanguardia', desc: 'Equipamiento de última generación, zonas de almacenamiento y personal altamente calificado para el control y despacho seguro de la carga.' },
-    };
-    function openLightbox(src) {
-        var lbImg = document.getElementById('lightboxImg');
-        var lb = document.getElementById('lightbox');
-        if (lbImg && lb) {
-            lbImg.src = '/images/' + src;
-            lb.classList.add('open');
-            document.body.style.overflow = 'hidden';
-        }
-        var d = IMAGE_DATA[src] || { title: 'Puerto Mardique', desc: 'Infraestructura portuaria de clase mundial.' };
-        var t = document.getElementById('lbTitle');
-        var p = document.getElementById('lbDesc');
-        var l = document.getElementById('lbLabel');
-        if (t) t.textContent = d.title;
-        if (p) p.textContent = d.desc;
-        if (l) l.textContent = 'MARDIQUE';
-    }
-    function closeLightbox() {
-        var lb = document.getElementById('lightbox');
-        if (lb) {
-            lb.classList.remove('open');
-            document.body.style.overflow = '';
-        }
-    }
 </script>
+<script src="/js/inicio.js"></script>
 <script src="/js/panel-nav.js"></script>
 </body>
 </html>

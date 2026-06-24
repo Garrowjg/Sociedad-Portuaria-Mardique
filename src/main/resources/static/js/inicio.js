@@ -111,30 +111,132 @@ var IMAGE_DATA = {
     'Puerto4.png': { title: 'Infraestructura de Vanguardia', desc: 'Equipamiento de última generación, zonas de almacenamiento y personal altamente calificado para el control y despacho seguro de la carga.' },
 };
 
-function openLightbox(src) {
-    var lbImg = document.getElementById('lightboxImg');
-    var lb = document.getElementById('lightbox');
-    if (lbImg && lb) {
-        lbImg.src = '/images/' + src;
-        lb.classList.add('open');
+/* Catálogo de imágenes para la página de Servicios (mismo carrusel, otro set) */
+var SERVICIOS_IMAGE_DATA = {
+    'MuelleMaritimo.jpg': { title: 'Muelle Marítimo', desc: 'Operaciones de muellaje y atraque de embarcaciones respaldadas por infraestructura robusta y tecnología de precisión para garantizar la eficiencia en cada maniobra.' },
+    'MuelleFluvial.jpg': { title: 'Muelle Fluvial', desc: 'Conexión estratégica que permite operaciones de muellaje y atraque simultáneo de convoy, remolcadores y embarcaciones marítimas y fluviales.' },
+    'ServiciosPortuarios.jpg': { title: 'Servicios Portuarios', desc: 'Personal altamente calificado, equipos de última tecnología e infraestructura para el manejo integral de carga, almacenamiento y control de inventarios.' },
+    'PlataformaLogistica.jpg': { title: 'Plataforma Logística', desc: 'Hub regional con bodegas, patios de maniobras y conexiones estratégicas para la distribución eficiente de mercancías a nivel nacional e internacional.' },
+};
+
+/* ============================================================
+   CARRUSEL MODAL — Mardique (reutilizable en cualquier página)
+   ============================================================ */
+var carouselIndex = 0;
+var CURRENT_IMAGE_DATA = IMAGE_DATA;
+var CAROUSEL_IMAGES = Object.keys(IMAGE_DATA);
+
+/**
+ * Abre el carrusel modal.
+ * @param {string} src - nombre del archivo de imagen (ej: 'Puerto1.png').
+ * @param {object} [dataset] - opcional, diccionario { archivo: {title, desc} } a usar.
+ *                              Si no se pasa, se usa IMAGE_DATA (set de Inicio) por defecto.
+ */
+function openLightbox(src, dataset) {
+    CURRENT_IMAGE_DATA = dataset || IMAGE_DATA;
+    CAROUSEL_IMAGES = Object.keys(CURRENT_IMAGE_DATA);
+    var idx = CAROUSEL_IMAGES.indexOf(src);
+    if (idx === -1) idx = 0;
+    carouselIndex = idx;
+    _buildCarousel();
+    var overlay = document.getElementById('carouselOverlay');
+    if (overlay) {
+        overlay.classList.add('open');
         document.body.style.overflow = 'hidden';
     }
-    var d = IMAGE_DATA[src] || { title: 'Puerto Mardique', desc: 'Infraestructura portuaria de clase mundial.' };
-    var t = document.getElementById('lbTitle');
-    var p = document.getElementById('lbDesc');
-    var l = document.getElementById('lbLabel');
-    if (t) t.textContent = d.title;
-    if (p) p.textContent = d.desc;
-    if (l) l.textContent = 'MARDIQUE';
+    _updateCarousel(false);
 }
-function closeLightbox() {
-    const lb = document.getElementById('lightbox');
-    if (lb) {
-        lb.classList.remove('open');
+
+function closeCarousel() {
+    var overlay = document.getElementById('carouselOverlay');
+    if (overlay) {
+        overlay.classList.remove('open');
         document.body.style.overflow = '';
     }
 }
-document.addEventListener('keydown', e => { if (e.key === 'Escape') closeLightbox(); });
+
+/* Mantiene compatibilidad si algo llama closeLightbox() directamente */
+function closeLightbox() { closeCarousel(); }
+
+function handleCarouselOverlayClick(e) {
+    if (e.target === document.getElementById('carouselOverlay')) closeCarousel();
+}
+
+function carouselNav(dir) {
+    carouselIndex = (carouselIndex + dir + CAROUSEL_IMAGES.length) % CAROUSEL_IMAGES.length;
+    _updateCarousel(true);
+}
+
+function _buildCarousel() {
+    var thumbsEl = document.getElementById('carouselThumbs');
+    var dotsEl   = document.getElementById('carouselDots');
+    if (!thumbsEl || !dotsEl) return;
+    thumbsEl.innerHTML = '';
+    dotsEl.innerHTML   = '';
+    CAROUSEL_IMAGES.forEach(function(key, i) {
+        /* miniaturas */
+        var th = document.createElement('div');
+        th.className = 'carousel-thumb' + (i === carouselIndex ? ' active' : '');
+        th.setAttribute('data-idx', i);
+        th.onclick = function() { carouselIndex = i; _updateCarousel(true); };
+        var img = document.createElement('img');
+        img.src = '/images/' + key;
+        img.alt = (CURRENT_IMAGE_DATA[key] && CURRENT_IMAGE_DATA[key].title) || '';
+        th.appendChild(img);
+        thumbsEl.appendChild(th);
+
+        /* dots */
+        var dot = document.createElement('button');
+        dot.className = 'carousel-dot' + (i === carouselIndex ? ' active' : '');
+        dot.setAttribute('aria-label', 'Imagen ' + (i + 1));
+        dot.setAttribute('data-idx', i);
+        dot.onclick = function() { carouselIndex = i; _updateCarousel(true); };
+        dotsEl.appendChild(dot);
+    });
+}
+
+function _updateCarousel(animate) {
+    var src  = CAROUSEL_IMAGES[carouselIndex];
+    var data = CURRENT_IMAGE_DATA[src] || { title: 'Puerto Mardique', desc: 'Infraestructura portuaria de clase mundial.' };
+
+    var imgEl   = document.getElementById('carouselImg');
+    var titleEl = document.getElementById('carouselTitle');
+    var descEl  = document.getElementById('carouselDesc');
+    var labelEl = document.getElementById('carouselLabel');
+
+    if (imgEl) {
+        if (animate) {
+            imgEl.classList.add('fading');
+            setTimeout(function() {
+                imgEl.src = '/images/' + src;
+                imgEl.classList.remove('fading');
+            }, 250);
+        } else {
+            imgEl.src = '/images/' + src;
+        }
+    }
+    if (titleEl) titleEl.textContent = data.title;
+    if (descEl)  descEl.textContent  = data.desc;
+    if (labelEl) labelEl.textContent = 'MARDIQUE';
+
+    /* actualizar thumbs activos */
+    document.querySelectorAll('.carousel-thumb').forEach(function(el) {
+        el.classList.toggle('active', parseInt(el.getAttribute('data-idx')) === carouselIndex);
+    });
+    /* actualizar dots activos */
+    document.querySelectorAll('.carousel-dot').forEach(function(el) {
+        el.classList.toggle('active', parseInt(el.getAttribute('data-idx')) === carouselIndex);
+    });
+}
+
+/* Teclado: flechas para navegar, Escape para cerrar */
+document.addEventListener('keydown', function(e) {
+    var overlay = document.getElementById('carouselOverlay');
+    if (!overlay || !overlay.classList.contains('open')) return;
+    if (e.key === 'Escape')    closeCarousel();
+    if (e.key === 'ArrowRight') carouselNav(1);
+    if (e.key === 'ArrowLeft')  carouselNav(-1);
+});
 
 /* ============================================================
    GLOBE 3D PREMIUM v2 — DISEÑO CORPORATIVO

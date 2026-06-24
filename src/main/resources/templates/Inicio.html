@@ -21,15 +21,277 @@
 </head>
 <body>
 <div id="scroll-progress"></div>
-<div class="lightbox" id="lightbox" onclick="closeLightbox()">
-    <button class="lightbox-close" onclick="closeLightbox()">&times;</button>
-    <img class="lightbox-img" id="lightboxImg" src="" alt="">
-    <div class="lightbox-card" id="lightboxCard">
-        <div class="lb-label" id="lbLabel">MARDIQUE</div>
-        <h4 class="lb-title" id="lbTitle">Puerto Mardique</h4>
-        <p class="lb-desc" id="lbDesc">Descripci&oacute;n de la imagen</p>
+<!-- ===== CARRUSEL MODAL ===== -->
+<div class="carousel-overlay" id="carouselOverlay" onclick="handleCarouselOverlayClick(event)">
+    <div class="carousel-modal" id="carouselModal">
+        <!-- Botón cerrar -->
+        <button class="carousel-close" onclick="closeCarousel()" aria-label="Cerrar">
+            <i class="fas fa-times"></i>
+        </button>
+
+        <!-- Imagen principal -->
+        <div class="carousel-img-wrap">
+            <img class="carousel-img" id="carouselImg" src="" alt="">
+            <!-- Flechas de navegación sobre la imagen -->
+            <button class="carousel-arrow carousel-arrow-left" onclick="carouselNav(-1)" aria-label="Anterior">
+                <i class="fas fa-chevron-left"></i>
+            </button>
+            <button class="carousel-arrow carousel-arrow-right" onclick="carouselNav(1)" aria-label="Siguiente">
+                <i class="fas fa-chevron-right"></i>
+            </button>
+        </div>
+
+        <!-- Descripción -->
+        <div class="carousel-info">
+            <div class="carousel-label" id="carouselLabel">MARDIQUE</div>
+            <h4 class="carousel-title" id="carouselTitle">Puerto Mardique</h4>
+            <p class="carousel-desc" id="carouselDesc">Descripción de la imagen</p>
+        </div>
+
+        <!-- Miniaturas -->
+        <div class="carousel-thumbs" id="carouselThumbs"></div>
+
+        <!-- Indicadores (dots) -->
+        <div class="carousel-dots" id="carouselDots"></div>
     </div>
 </div>
+
+<style>
+    /* ── CARRUSEL MODAL ─────────────────────────────────── */
+    .carousel-overlay {
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: rgba(10,18,32,0.92);
+        z-index: 9999;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+        backdrop-filter: blur(6px);
+        -webkit-backdrop-filter: blur(6px);
+        animation: carouselFadeIn 0.25s ease;
+    }
+    .carousel-overlay.open { display: flex; }
+    @keyframes carouselFadeIn { from { opacity:0; } to { opacity:1; } }
+
+    .carousel-modal {
+        position: relative;
+        background: #0e1a2b;
+        border-radius: 16px;
+        width: 100%;
+        max-width: 820px;
+        box-shadow: 0 30px 80px rgba(0,0,0,0.6);
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+        animation: carouselSlideUp 0.3s cubic-bezier(.22,.68,0,1.2);
+    }
+    @keyframes carouselSlideUp { from { transform: translateY(40px) scale(0.97); opacity:0; } to { transform: none; opacity:1; } }
+
+    .carousel-close {
+        position: absolute;
+        top: 12px; right: 12px;
+        background: rgba(15,25,42,0.85);
+        border: 1.5px solid rgba(255,255,255,0.22);
+        color: #fff;
+        font-size: 18px;
+        width: 46px; height: 46px;
+        border-radius: 50%;
+        cursor: pointer;
+        z-index: 20;
+        display: flex; align-items: center; justify-content: center;
+        transition: background 0.2s, border-color 0.2s, color 0.2s;
+        box-shadow: 0 4px 16px rgba(0,0,0,0.45);
+    }
+    .carousel-close:hover {
+        background: #C9A84C;
+        border-color: #C9A84C;
+        color: #0e1a2b;
+    }
+
+    /* Imagen principal */
+    .carousel-img-wrap {
+        position: relative;
+        width: 100%;
+        aspect-ratio: 16/9;
+        background: #07111e;
+        overflow: hidden;
+    }
+    .carousel-img {
+        width: 100%; height: 100%;
+        object-fit: cover;
+        display: block;
+        transition: opacity 0.3s ease;
+    }
+    .carousel-img.fading { opacity: 0; }
+
+    /* Flechas */
+    .carousel-arrow {
+        position: absolute;
+        top: 50%; transform: translateY(-50%);
+        background: rgba(10,18,32,0.55);
+        border: 1.5px solid rgba(255,255,255,0.15);
+        color: #fff;
+        width: 44px; height: 44px;
+        border-radius: 50%;
+        font-size: 16px;
+        cursor: pointer;
+        display: flex; align-items: center; justify-content: center;
+        transition: background 0.2s, border-color 0.2s;
+        z-index: 5;
+    }
+    .carousel-arrow:hover { background: rgba(201,168,76,0.75); border-color: #C9A84C; }
+    .carousel-arrow-left  { left:  14px; }
+    .carousel-arrow-right { right: 14px; }
+
+    /* Info */
+    .carousel-info {
+        padding: 22px 28px 12px;
+    }
+    .carousel-label {
+        font-size: 11px;
+        font-weight: 800;
+        letter-spacing: 2px;
+        color: #C9A84C;
+        margin-bottom: 6px;
+        font-family: 'Plus Jakarta Sans', sans-serif;
+    }
+    .carousel-title {
+        font-size: 20px;
+        font-weight: 700;
+        color: #fff;
+        margin: 0 0 8px;
+        font-family: 'Plus Jakarta Sans', sans-serif;
+    }
+    .carousel-desc {
+        font-size: 14px;
+        color: #8da8c8;
+        margin: 0;
+        line-height: 1.65;
+        font-family: 'Plus Jakarta Sans', sans-serif;
+    }
+
+    /* Miniaturas */
+    .carousel-thumbs {
+        display: flex;
+        gap: 10px;
+        padding: 10px 28px 0;
+        overflow-x: auto;
+        scrollbar-width: thin;
+        scrollbar-color: #1B2A4A transparent;
+    }
+    .carousel-thumbs::-webkit-scrollbar { height: 4px; }
+    .carousel-thumbs::-webkit-scrollbar-thumb { background: #1B2A4A; border-radius: 4px; }
+
+    .carousel-thumb {
+        flex-shrink: 0;
+        width: 72px; height: 50px;
+        border-radius: 8px;
+        overflow: hidden;
+        border: 2px solid transparent;
+        cursor: pointer;
+        transition: border-color 0.2s, transform 0.2s;
+        background: #07111e;
+    }
+    .carousel-thumb img {
+        width: 100%; height: 100%;
+        object-fit: cover;
+        display: block;
+        opacity: 0.55;
+        transition: opacity 0.2s;
+    }
+    .carousel-thumb:hover img { opacity: 0.85; }
+    .carousel-thumb.active {
+        border-color: #C9A84C;
+        transform: scale(1.06);
+    }
+    .carousel-thumb.active img { opacity: 1; }
+
+    /* Dots */
+    .carousel-dots {
+        display: flex;
+        justify-content: center;
+        gap: 8px;
+        padding: 14px 28px 20px;
+    }
+    .carousel-dot {
+        width: 8px; height: 8px;
+        border-radius: 50%;
+        background: rgba(255,255,255,0.2);
+        border: none;
+        cursor: pointer;
+        transition: background 0.2s, transform 0.2s;
+        padding: 0;
+    }
+    .carousel-dot.active {
+        background: #C9A84C;
+        transform: scale(1.3);
+    }
+
+    /* ── Responsive móvil ──────────────────────────────── */
+    @media (max-width: 640px) {
+        .carousel-overlay {
+            padding: 12px;
+            align-items: center;
+            justify-content: center;
+        }
+        .carousel-modal {
+            border-radius: 14px;
+            width: 100%;
+            max-width: 100%;
+            max-height: 92vh;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+        /* Imagen: cuadrada y que llene el ancho */
+        .carousel-img-wrap {
+            aspect-ratio: 1/1;
+            flex-shrink: 0;
+        }
+        /* Botón X: fuera de la imagen, esquina del modal */
+        .carousel-close {
+            width: 48px; height: 48px;
+            font-size: 20px;
+            top: 10px; right: 10px;
+            background: rgba(10,18,32,0.88);
+            border-color: rgba(255,255,255,0.25);
+        }
+        /* Flechas más grandes y fáciles de tocar */
+        .carousel-arrow {
+            width: 52px; height: 52px;
+            font-size: 20px;
+            background: rgba(10,18,32,0.65);
+        }
+        .carousel-arrow-left  { left: 8px; }
+        .carousel-arrow-right { right: 8px; }
+        /* Info */
+        .carousel-info {
+            padding: 14px 16px 8px;
+            flex-shrink: 0;
+        }
+        .carousel-label { font-size: 10px; margin-bottom: 4px; }
+        .carousel-title { font-size: 16px; margin-bottom: 6px; }
+        .carousel-desc  { font-size: 13px; line-height: 1.5; }
+        /* Miniaturas */
+        .carousel-thumbs {
+            padding: 8px 16px 0;
+            gap: 8px;
+            flex-shrink: 0;
+        }
+        .carousel-thumb {
+            width: 60px; height: 44px;
+            border-radius: 7px;
+        }
+        /* Dots */
+        .carousel-dots {
+            padding: 10px 16px 14px;
+            gap: 10px;
+            flex-shrink: 0;
+        }
+        .carousel-dot { width: 9px; height: 9px; }
+    }
+</style>
 <header id="main-header">
     <div class="container header-content">
         <a href="/inicio" class="logo-box">
@@ -69,158 +331,158 @@
 
 
 <div class="page-wrapper">
-<!-- Overlay oscuro detrás del drawer -->
-<section class="hero">
-    <div class="hero-yt-bg">
-        <video autoplay muted loop playsinline>
-            <source src="/videos/VideoCorporativo.mp4" type="video/mp4">
-        </video>
-        <div class="hero-yt-block"></div>
-    </div>
-    <div class="hero-particles" id="heroParticles"></div>
-    <div class="container">
-        <div class="hero-content">
-            <div class="hero-badge"><i class="fas fa-anchor"></i> Puerto Multipropósito · Cartagena, Colombia</div>
-            <h1 class="hero-title">
-                SOCIEDAD PORTUARIA
-                <strong><span class="typed-wrap" id="typedText"></span></strong>
-            </h1>
-            <div class="hero-line" id="heroLine"></div>
-            <p class="hero-desc">Un puerto multipropósito privado de uso público con servicios portuarios y de infraestructura de clase mundial.</p>
-            <div class="hero-buttons">
-                <a href="/servicios" class="btn btn-orange">NUESTROS SERVICIOS <i class="fas fa-arrow-right"></i></a>
-                <a href="/empresa" class="btn btn-outline">CONÓCENOS <i class="fas fa-arrow-right"></i></a>
-            </div>
+    <!-- Overlay oscuro detrás del drawer -->
+    <section class="hero">
+        <div class="hero-yt-bg">
+            <video autoplay muted loop playsinline>
+                <source src="/videos/VideoCorporativo.mp4" type="video/mp4">
+            </video>
+            <div class="hero-yt-block"></div>
         </div>
-    </div>
-    <div class="scroll-hint"><i class="fas fa-chevron-down"></i><span>Explorar</span></div>
-</section>
-<div class="stats-strip">
-    <div class="container stats-container">
-        <div class="stat-item reveal delay-1"><i class="fa-solid fa-ship stat-icon"></i><div class="stat-text"><h4><span class="counter" data-target="15">0</span>m</h4><p>Profundidad del<br>canal de acceso</p></div></div>
-        <div class="stat-item reveal delay-2"><i class="fa-solid fa-crane stat-icon"></i><div class="stat-text"><h4>+<span class="counter" data-target="20">0</span> Años</h4><p>De experiencia en<br>servicios portuarios</p></div></div>
-        <div class="stat-item reveal delay-3"><i class="fa-solid fa-cubes stat-icon"></i><div class="stat-text"><h4><span class="counter" data-target="5">0</span></h4><p>Terminales especializadas<br>para todo tipo de carga</p></div></div>
-        <div class="stat-item reveal delay-4"><i class="fa-solid fa-file-contract stat-icon"></i><div class="stat-text"><h4>ISO 9001, 45001</h4><p>Certificaciones en calidad,<br>ambiente y seguridad</p></div></div>
-        <div class="stat-item reveal delay-5"><i class="fa-solid fa-clock stat-icon"></i><div class="stat-text"><h4>24/7</h4><p>Operaciones<br>continuas</p></div></div>
-    </div>
-</div>
-<section class="services-section">
-    <div class="container section-layout">
-        <div class="services-left">
-            <h4 class="services-title reveal">NUESTROS SERVICIOS</h4>
-            <div class="services-grid">
-                <div class="service-card reveal delay-1"><i class="fa-solid fa-truck-pickup"></i><h3>GRÚAS MÓVILES</h3><p>Operaciones seguras y eficientes con equipos de última generación.</p></div>
-                <div class="service-card reveal delay-2"><i class="fa-solid fa-oil-can"></i><h3>HIDROCARBUROS</h3><p>Infraestructura especializada para almacenamiento y manejo de hidrocarburos.</p></div>
-                <div class="service-card reveal delay-3"><i class="fa-solid fa-warehouse"></i><h3>GRÁNELES</h3><p>Silos y sistemas de manejo de gráneles sólidos con altos estándares.</p></div>
-                <div class="service-card reveal delay-1"><i class="fa-solid fa-box"></i><h3>CONTENEDORES</h3><p>Servicios integrales para la manipulación y almacenamiento.</p></div>
-                <div class="service-card reveal delay-2"><i class="fa-solid fa-truck-moving"></i><h3>CARGA GENERAL</h3><p>Manejo de carga general y de proyecto con soluciones a la medida.</p></div>
-                <div class="service-card reveal delay-3"><i class="fa-solid fa-anchor"></i><h3>SHORE BASE</h3><p>Soporte logístico para la industria offshore y proyectos especiales.</p></div>
-            </div>
-            <div class="services-left-bottom"><a href="/servicios" class="btn btn-dark reveal">VER TODOS LOS SERVICIOS <i class="fas fa-arrow-right"></i></a></div>
-        </div>
-        <div class="why-us-right reveal-right">
-            <div><h3>¿POR QUÉ ESCOGERNOS?</h3><div class="why-us-list"><div class="why-us-item"><div class="why-icon-wrapper"><i class="fa-solid fa-network-wired"></i></div><span class="why-text">Infraestructura moderna y estratégica</span></div><div class="why-us-item"><div class="why-icon-wrapper"><i class="fa-solid fa-users-gear"></i></div><span class="why-text">Talento humano calificado</span></div><div class="why-us-item"><div class="why-icon-wrapper"><i class="fa-solid fa-seedling"></i></div><span class="why-text">Compromiso con la sostenibilidad</span></div><div class="why-us-item"><div class="why-icon-wrapper"><i class="fa-solid fa-shield-halved"></i></div><span class="why-text">Operaciones seguras y eficientes</span></div><div class="why-us-item"><div class="why-icon-wrapper"><i class="fa-solid fa-handshake-angle"></i></div><span class="why-text">Cercanía y atención personalizada</span></div></div></div>
-            <a href="/empresa" class="btn btn-orange" style="width:100%;">CONOCE MÁS SOBRE NOSOTROS <i class="fas fa-arrow-right"></i></a>
-        </div>
-    </div>
-</section>
-<section class="strategic-section">
-    <div class="container">
-        <div class="strategic-layout">
-            <div class="strategic-text reveal-left">
-                <div class="section-label-globe">CONECTIVIDAD GLOBAL</div>
-                <h2><strong>POSICIÓN</strong> ESTRATÉGICA</h2>
-                <p class="lead">Nuestra posición estratégica nos convierte en el único puerto con capacidad de disminuir trasbordos y cabotajes en las operaciones de importación y exportación de bienes con conexión directa al interior del país.</p>
-                <ul class="route-benefits"><li><i class="fa-solid fa-route"></i> Conectividad Global Directa</li><li><i class="fa-solid fa-ship"></i> Reducción de Tiempos de Tránsito</li><li><i class="fa-solid fa-map-location-dot"></i> Acceso Multimodal al Interior</li></ul>
-            </div>
-            <div class="strategic-map reveal-right">
-                <button class="globe-mobile-toggle" id="globeToggle" type="button">
-                    <span class="globe-toggle-icon"><i class="fas fa-globe-americas"></i></span>
-                    <span class="globe-toggle-body">
-                        <span class="globe-toggle-title">CONECTIVIDAD GLOBAL</span>
-                        <span class="globe-toggle-sub">Toca para explorar el mapa interactivo</span>
-                    </span>
-                    <span class="globe-toggle-action">
-                        <i class="fas fa-chevron-down globe-toggle-arrow"></i>
-                    </span>
-                </button>
-                <div class="globe-collapse" id="globeCollapse">
-                    <canvas id="globeCanvas"></canvas>
-                    <div id="globeInfoCard" class="globe-detail-card">
-                        <img id="globeInfoImg" src="" alt="Puerto" class="globe-card-img" style="display:none;">
-                        <div class="globe-card-body">
-                            <div class="globe-card-tag" id="globeInfoTag">PUERTO</div>
-                            <h4 id="globeInfoTitle">Cartagena</h4>
-                            <p id="globeInfoDesc">Puerto multipropósito privado con conexión directa al interior del país.</p>
-                        </div>
-                    </div>
-                    <div class="globe-hint"><i class="fas fa-hand-pointer"></i> Arrastra · Rueda = Zoom</div>
-                    <div class="globe-zoom-controls"><button class="globe-zoom-btn" id="zoomIn">+</button><button class="globe-zoom-btn" id="zoomOut">−</button><button class="globe-zoom-btn" id="zoomReset">⟳</button></div>
-                    <div class="globe-legend"><div class="globe-legend-item"><div class="globe-legend-dot" style="background:#f09a36;box-shadow:0 0 6px #f09a36"></div>HUB Mardique</div><div class="globe-legend-item"><div class="globe-legend-dot" style="background:#00a3e0;box-shadow:0 0 6px #00a3e0"></div>Rutas activas</div></div>
+        <div class="hero-particles" id="heroParticles"></div>
+        <div class="container">
+            <div class="hero-content">
+                <div class="hero-badge"><i class="fas fa-anchor"></i> Puerto Multipropósito · Cartagena, Colombia</div>
+                <h1 class="hero-title">
+                    SOCIEDAD PORTUARIA
+                    <strong><span class="typed-wrap" id="typedText"></span></strong>
+                </h1>
+                <div class="hero-line" id="heroLine"></div>
+                <p class="hero-desc">Un puerto multipropósito privado de uso público con servicios portuarios y de infraestructura de clase mundial.</p>
+                <div class="hero-buttons">
+                    <a href="/servicios" class="btn btn-orange">NUESTROS SERVICIOS <i class="fas fa-arrow-right"></i></a>
+                    <a href="/empresa" class="btn btn-outline">CONÓCENOS <i class="fas fa-arrow-right"></i></a>
                 </div>
             </div>
         </div>
-    </div>
-</section>
-<section class="about-gallery">
-    <div class="container ag-layout">
-        <div class="ag-text reveal-left"><h4>SOBRE MARDIQUE</h4><h2>Comprometidos con el desarrollo del país y la región.</h2><p>Generamos desarrollo y bienestar para la región a través de operaciones responsables, seguras y sostenibles. Más de dos décadas de experiencia nos respaldan.</p><a href="/empresa" class="btn btn-outline">CONOCE MÁS <i class="fas fa-arrow-right"></i></a></div>
-        <div class="ag-gallery reveal-right">
-            <div class="gallery-item" onclick="openLightbox('Puerto1.png')"><img src="/images/Puerto1.png" alt="Puerto 1" class="gallery-img"><div class="gallery-item-overlay"><i class="fas fa-expand-alt"></i></div></div>
-            <div class="gallery-item" onclick="openLightbox('Puerto2.png')"><img src="/images/Puerto2.png" alt="Puerto 2" class="gallery-img"><div class="gallery-item-overlay"><i class="fas fa-expand-alt"></i></div></div>
-            <div class="gallery-item" onclick="openLightbox('Puerto3.png')"><img src="/images/Puerto3.png" alt="Puerto 3" class="gallery-img"><div class="gallery-item-overlay"><i class="fas fa-expand-alt"></i></div></div>
-            <div class="gallery-item" onclick="openLightbox('Puerto4.png')"><img src="/images/Puerto4.png" alt="Puerto 4" class="gallery-img"><div class="gallery-item-overlay"><i class="fas fa-expand-alt"></i></div></div>
+        <div class="scroll-hint"><i class="fas fa-chevron-down"></i><span>Explorar</span></div>
+    </section>
+    <div class="stats-strip">
+        <div class="container stats-container">
+            <div class="stat-item reveal delay-1"><i class="fa-solid fa-ship stat-icon"></i><div class="stat-text"><h4><span class="counter" data-target="15">0</span>m</h4><p>Profundidad del<br>canal de acceso</p></div></div>
+            <div class="stat-item reveal delay-2"><i class="fa-solid fa-crane stat-icon"></i><div class="stat-text"><h4>+<span class="counter" data-target="20">0</span> Años</h4><p>De experiencia en<br>servicios portuarios</p></div></div>
+            <div class="stat-item reveal delay-3"><i class="fa-solid fa-cubes stat-icon"></i><div class="stat-text"><h4><span class="counter" data-target="5">0</span></h4><p>Terminales especializadas<br>para todo tipo de carga</p></div></div>
+            <div class="stat-item reveal delay-4"><i class="fa-solid fa-file-contract stat-icon"></i><div class="stat-text"><h4>ISO 9001, 45001</h4><p>Certificaciones en calidad,<br>ambiente y seguridad</p></div></div>
+            <div class="stat-item reveal delay-5"><i class="fa-solid fa-clock stat-icon"></i><div class="stat-text"><h4>24/7</h4><p>Operaciones<br>continuas</p></div></div>
         </div>
     </div>
-</section>
-<section class="cta-band"><div class="container reveal"><h2>¿Listo para operar con nosotros?</h2><p>Conozca todas las soluciones que Mardique tiene disponibles para su operación.</p><div class="cta-buttons"><a href="/servicios" class="btn btn-orange">VER TODOS LOS SERVICIOS <i class="fas fa-arrow-right"></i></a><a href="/contacto" class="btn btn-outline-light">CONTÁCTENOS <i class="fas fa-phone-alt"></i></a></div></div></section>
-<footer><div class="container"><div class="footer-grid"><div><div class="footer-logo"><img src="/images/Logo.png" alt="Mardique Logo"></div><p class="footer-desc">Puerto multipropósito privado de uso público con servicios portuarios y de infraestructura para el desarrollo del país.</p><div class="social-icons"><a href="#"><i class="fa-brands fa-facebook-f"></i></a><a href="#"><i class="fa-brands fa-linkedin-in"></i></a><a href="#"><i class="fa-brands fa-instagram"></i></a><a href="#"><i class="fa-brands fa-youtube"></i></a></div></div><div><h4 class="footer-title">ENLACES RÁPIDOS</h4><ul class="footer-links"><li><a href="/inicio">Inicio</a></li><li><a href="/empresa">Empresa</a></li><li><a href="/servicios">Servicios</a></li><li><a href="/tramites-en-linea">Servicio al Cliente</a></li><li><a href="/contacto">Contacto</a></li><li><a href="/galeria">Galería</a></li></ul></div><div><div style="display:flex;gap:30px;"><div><h4 class="footer-title">SERVICIOS</h4><ul class="footer-links"><li><a href="#">Grúas Móviles</a></li><li><a href="#">Hidrocarburos</a></li><li><a href="#">Gráneles</a></li><li><a href="#">Contenedores</a></li><li><a href="#">Carga General</a></li></ul></div><div><h4 class="footer-title">CONTÁCTANOS</h4><ul class="contact-info"><li><i class="fa-solid fa-location-dot"></i> Km 7 Vía a Mamonal, Cartagena</li><li><i class="fa-solid fa-phone"></i> PBX: (57) (5) 669 0730</li><li><i class="fa-solid fa-envelope"></i> info@spmardique.com</li></ul></div></div></div><div><h4 class="footer-title">CERTIFICACIONES</h4><div class="certs-container"><div class="cert-item"><div class="cert-circle"><i class="fas fa-certificate"></i></div><p>ISO<br>9001</p></div><div class="cert-item"><div class="cert-circle"><i class="fas fa-hard-hat"></i></div><p>ISO<br>45001</p></div></div></div></div><div class="footer-bottom">
-            <span>&copy; 2026 Sociedad Portuaria Mardique S.A. Todos los derechos reservados.</span>
-            <div class="footer-bottom-links">
-                <a href="https://spmardique.com/wp-content/uploads/2024/01/REGLAMENTO_DE_CONDICIONES_TECNICO_DE_OPERACION.pdf" target="_blank"><i class="fas fa-file-pdf"></i> Reglamento Operativo</a>
-                <a href="#"><i class="fas fa-shield-alt"></i> Políticas de Privacidad</a>
-                <a href="#"><i class="fas fa-shield-halved"></i> Políticas de Seguridad</a>
+    <section class="services-section">
+        <div class="container section-layout">
+            <div class="services-left">
+                <h4 class="services-title reveal">NUESTROS SERVICIOS</h4>
+                <div class="services-grid">
+                    <div class="service-card reveal delay-1"><i class="fa-solid fa-truck-pickup"></i><h3>GRÚAS MÓVILES</h3><p>Operaciones seguras y eficientes con equipos de última generación.</p></div>
+                    <div class="service-card reveal delay-2"><i class="fa-solid fa-oil-can"></i><h3>HIDROCARBUROS</h3><p>Infraestructura especializada para almacenamiento y manejo de hidrocarburos.</p></div>
+                    <div class="service-card reveal delay-3"><i class="fa-solid fa-warehouse"></i><h3>GRÁNELES</h3><p>Silos y sistemas de manejo de gráneles sólidos con altos estándares.</p></div>
+                    <div class="service-card reveal delay-1"><i class="fa-solid fa-box"></i><h3>CONTENEDORES</h3><p>Servicios integrales para la manipulación y almacenamiento.</p></div>
+                    <div class="service-card reveal delay-2"><i class="fa-solid fa-truck-moving"></i><h3>CARGA GENERAL</h3><p>Manejo de carga general y de proyecto con soluciones a la medida.</p></div>
+                    <div class="service-card reveal delay-3"><i class="fa-solid fa-anchor"></i><h3>SHORE BASE</h3><p>Soporte logístico para la industria offshore y proyectos especiales.</p></div>
+                </div>
+                <div class="services-left-bottom"><a href="/servicios" class="btn btn-dark reveal">VER TODOS LOS SERVICIOS <i class="fas fa-arrow-right"></i></a></div>
             </div>
-        </div></div></footer>
-<script src="/js/inicio.js"></script>
-<script>
-    /*<![CDATA[*/
-    // ── Dropdowns escritorio (hover) ──────────────────────────
-    document.querySelectorAll('.nav-menu li.dropdown .dropdown-menu').forEach(function(m) {
-        m.style.setProperty('opacity', '0', 'important');
-        m.style.setProperty('visibility', 'hidden', 'important');
-    });
-    document.querySelectorAll('.nav-menu li.dropdown').forEach(function(li) {
-        var menu = li.querySelector('.dropdown-menu');
-        if (!menu) return;
-        var timer;
-        li.addEventListener('mouseenter', function() {
-            clearTimeout(timer);
-            menu.style.setProperty('opacity', '1', 'important');
-            menu.style.setProperty('visibility', 'visible', 'important');
-            menu.style.pointerEvents = 'auto';
+            <div class="why-us-right reveal-right">
+                <div><h3>¿POR QUÉ ESCOGERNOS?</h3><div class="why-us-list"><div class="why-us-item"><div class="why-icon-wrapper"><i class="fa-solid fa-network-wired"></i></div><span class="why-text">Infraestructura moderna y estratégica</span></div><div class="why-us-item"><div class="why-icon-wrapper"><i class="fa-solid fa-users-gear"></i></div><span class="why-text">Talento humano calificado</span></div><div class="why-us-item"><div class="why-icon-wrapper"><i class="fa-solid fa-seedling"></i></div><span class="why-text">Compromiso con la sostenibilidad</span></div><div class="why-us-item"><div class="why-icon-wrapper"><i class="fa-solid fa-shield-halved"></i></div><span class="why-text">Operaciones seguras y eficientes</span></div><div class="why-us-item"><div class="why-icon-wrapper"><i class="fa-solid fa-handshake-angle"></i></div><span class="why-text">Cercanía y atención personalizada</span></div></div></div>
+                <a href="/empresa" class="btn btn-orange" style="width:100%;">CONOCE MÁS SOBRE NOSOTROS <i class="fas fa-arrow-right"></i></a>
+            </div>
+        </div>
+    </section>
+    <section class="strategic-section">
+        <div class="container">
+            <div class="strategic-layout">
+                <div class="strategic-text reveal-left">
+                    <div class="section-label-globe">CONECTIVIDAD GLOBAL</div>
+                    <h2><strong>POSICIÓN</strong> ESTRATÉGICA</h2>
+                    <p class="lead">Nuestra posición estratégica nos convierte en el único puerto con capacidad de disminuir trasbordos y cabotajes en las operaciones de importación y exportación de bienes con conexión directa al interior del país.</p>
+                    <ul class="route-benefits"><li><i class="fa-solid fa-route"></i> Conectividad Global Directa</li><li><i class="fa-solid fa-ship"></i> Reducción de Tiempos de Tránsito</li><li><i class="fa-solid fa-map-location-dot"></i> Acceso Multimodal al Interior</li></ul>
+                </div>
+                <div class="strategic-map reveal-right">
+                    <button class="globe-mobile-toggle" id="globeToggle" type="button">
+                        <span class="globe-toggle-icon"><i class="fas fa-globe-americas"></i></span>
+                        <span class="globe-toggle-body">
+                        <span class="globe-toggle-title">CONECTIVIDAD GLOBAL</span>
+                        <span class="globe-toggle-sub">Toca para explorar el mapa interactivo</span>
+                    </span>
+                        <span class="globe-toggle-action">
+                        <i class="fas fa-chevron-down globe-toggle-arrow"></i>
+                    </span>
+                    </button>
+                    <div class="globe-collapse" id="globeCollapse">
+                        <canvas id="globeCanvas"></canvas>
+                        <div id="globeInfoCard" class="globe-detail-card">
+                            <img id="globeInfoImg" src="" alt="Puerto" class="globe-card-img" style="display:none;">
+                            <div class="globe-card-body">
+                                <div class="globe-card-tag" id="globeInfoTag">PUERTO</div>
+                                <h4 id="globeInfoTitle">Cartagena</h4>
+                                <p id="globeInfoDesc">Puerto multipropósito privado con conexión directa al interior del país.</p>
+                            </div>
+                        </div>
+                        <div class="globe-hint"><i class="fas fa-hand-pointer"></i> Arrastra · Rueda = Zoom</div>
+                        <div class="globe-zoom-controls"><button class="globe-zoom-btn" id="zoomIn">+</button><button class="globe-zoom-btn" id="zoomOut">−</button><button class="globe-zoom-btn" id="zoomReset">⟳</button></div>
+                        <div class="globe-legend"><div class="globe-legend-item"><div class="globe-legend-dot" style="background:#f09a36;box-shadow:0 0 6px #f09a36"></div>HUB Mardique</div><div class="globe-legend-item"><div class="globe-legend-dot" style="background:#00a3e0;box-shadow:0 0 6px #00a3e0"></div>Rutas activas</div></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <section class="about-gallery">
+        <div class="container ag-layout">
+            <div class="ag-text reveal-left"><h4>SOBRE MARDIQUE</h4><h2>Comprometidos con el desarrollo del país y la región.</h2><p>Generamos desarrollo y bienestar para la región a través de operaciones responsables, seguras y sostenibles. Más de dos décadas de experiencia nos respaldan.</p><a href="/empresa" class="btn btn-outline">CONOCE MÁS <i class="fas fa-arrow-right"></i></a></div>
+            <div class="ag-gallery reveal-right">
+                <div class="gallery-item" onclick="openLightbox('Puerto1.png')"><img src="/images/Puerto1.png" alt="Puerto 1" class="gallery-img"><div class="gallery-item-overlay"><i class="fas fa-expand-alt"></i></div></div>
+                <div class="gallery-item" onclick="openLightbox('Puerto2.png')"><img src="/images/Puerto2.png" alt="Puerto 2" class="gallery-img"><div class="gallery-item-overlay"><i class="fas fa-expand-alt"></i></div></div>
+                <div class="gallery-item" onclick="openLightbox('Puerto3.png')"><img src="/images/Puerto3.png" alt="Puerto 3" class="gallery-img"><div class="gallery-item-overlay"><i class="fas fa-expand-alt"></i></div></div>
+                <div class="gallery-item" onclick="openLightbox('Puerto4.png')"><img src="/images/Puerto4.png" alt="Puerto 4" class="gallery-img"><div class="gallery-item-overlay"><i class="fas fa-expand-alt"></i></div></div>
+            </div>
+        </div>
+    </section>
+    <section class="cta-band"><div class="container reveal"><h2>¿Listo para operar con nosotros?</h2><p>Conozca todas las soluciones que Mardique tiene disponibles para su operación.</p><div class="cta-buttons"><a href="/servicios" class="btn btn-orange">VER TODOS LOS SERVICIOS <i class="fas fa-arrow-right"></i></a><a href="/contacto" class="btn btn-outline-light">CONTÁCTENOS <i class="fas fa-phone-alt"></i></a></div></div></section>
+    <footer><div class="container"><div class="footer-grid"><div><div class="footer-logo"><img src="/images/Logo.png" alt="Mardique Logo"></div><p class="footer-desc">Puerto multipropósito privado de uso público con servicios portuarios y de infraestructura para el desarrollo del país.</p><div class="social-icons"><a href="#"><i class="fa-brands fa-facebook-f"></i></a><a href="#"><i class="fa-brands fa-linkedin-in"></i></a><a href="#"><i class="fa-brands fa-instagram"></i></a><a href="#"><i class="fa-brands fa-youtube"></i></a></div></div><div><h4 class="footer-title">ENLACES RÁPIDOS</h4><ul class="footer-links"><li><a href="/inicio">Inicio</a></li><li><a href="/empresa">Empresa</a></li><li><a href="/servicios">Servicios</a></li><li><a href="/tramites-en-linea">Servicio al Cliente</a></li><li><a href="/contacto">Contacto</a></li><li><a href="/galeria">Galería</a></li></ul></div><div><div style="display:flex;gap:30px;"><div><h4 class="footer-title">SERVICIOS</h4><ul class="footer-links"><li><a href="#">Grúas Móviles</a></li><li><a href="#">Hidrocarburos</a></li><li><a href="#">Gráneles</a></li><li><a href="#">Contenedores</a></li><li><a href="#">Carga General</a></li></ul></div><div><h4 class="footer-title">CONTÁCTANOS</h4><ul class="contact-info"><li><i class="fa-solid fa-location-dot"></i> Km 7 Vía a Mamonal, Cartagena</li><li><i class="fa-solid fa-phone"></i> PBX: (57) (5) 669 0730</li><li><i class="fa-solid fa-envelope"></i> info@spmardique.com</li></ul></div></div></div><div><h4 class="footer-title">CERTIFICACIONES</h4><div class="certs-container"><div class="cert-item"><div class="cert-circle"><i class="fas fa-certificate"></i></div><p>ISO<br>9001</p></div><div class="cert-item"><div class="cert-circle"><i class="fas fa-hard-hat"></i></div><p>ISO<br>45001</p></div></div></div></div><div class="footer-bottom">
+        <span>&copy; 2026 Sociedad Portuaria Mardique S.A. Todos los derechos reservados.</span>
+        <div class="footer-bottom-links">
+            <a href="https://spmardique.com/wp-content/uploads/2024/01/REGLAMENTO_DE_CONDICIONES_TECNICO_DE_OPERACION.pdf" target="_blank"><i class="fas fa-file-pdf"></i> Reglamento Operativo</a>
+            <a href="#"><i class="fas fa-shield-alt"></i> Políticas de Privacidad</a>
+            <a href="#"><i class="fas fa-shield-halved"></i> Políticas de Seguridad</a>
+        </div>
+    </div></div></footer>
+    <script src="/js/inicio.js"></script>
+    <script>
+        /*<![CDATA[*/
+        // ── Dropdowns escritorio (hover) ──────────────────────────
+        document.querySelectorAll('.nav-menu li.dropdown .dropdown-menu').forEach(function(m) {
+            m.style.setProperty('opacity', '0', 'important');
+            m.style.setProperty('visibility', 'hidden', 'important');
         });
-        li.addEventListener('mouseleave', function() {
-            timer = setTimeout(function() {
+        document.querySelectorAll('.nav-menu li.dropdown').forEach(function(li) {
+            var menu = li.querySelector('.dropdown-menu');
+            if (!menu) return;
+            var timer;
+            li.addEventListener('mouseenter', function() {
+                clearTimeout(timer);
+                menu.style.setProperty('opacity', '1', 'important');
+                menu.style.setProperty('visibility', 'visible', 'important');
+                menu.style.pointerEvents = 'auto';
+            });
+            li.addEventListener('mouseleave', function() {
+                timer = setTimeout(function() {
+                    menu.style.setProperty('opacity', '0', 'important');
+                    menu.style.setProperty('visibility', 'hidden', 'important');
+                    menu.style.pointerEvents = '';
+                }, 150);
+            });
+            menu.addEventListener('mouseenter', function() {
+                clearTimeout(timer);
+                menu.style.setProperty('opacity', '1', 'important');
+                menu.style.setProperty('visibility', 'visible', 'important');
+                menu.style.pointerEvents = 'auto';
+            });
+            menu.addEventListener('mouseleave', function() {
                 menu.style.setProperty('opacity', '0', 'important');
                 menu.style.setProperty('visibility', 'hidden', 'important');
                 menu.style.pointerEvents = '';
-            }, 150);
+            });
         });
-        menu.addEventListener('mouseenter', function() {
-            clearTimeout(timer);
-            menu.style.setProperty('opacity', '1', 'important');
-            menu.style.setProperty('visibility', 'visible', 'important');
-            menu.style.pointerEvents = 'auto';
-        });
-        menu.addEventListener('mouseleave', function() {
-            menu.style.setProperty('opacity', '0', 'important');
-            menu.style.setProperty('visibility', 'hidden', 'important');
-            menu.style.pointerEvents = '';
-        });
-    });
 
-</script>
+    </script>
 </div><div class="drawer-overlay" id="drawerOverlay"></div>
 
 <!-- Drawer de navegación móvil -->
