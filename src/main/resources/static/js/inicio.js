@@ -293,14 +293,18 @@ document.addEventListener('keydown', function(e) {
         }
     });
 
-    const stars = Array.from({ length: 150 }, () => ({
-        x: Math.random(), y: Math.random(),
-        size: Math.random() * 1.8 + 0.1,
-        opacity: Math.random() * 0.7 + 0.1,
-        twinkleSpeed: Math.random() * 0.02 + 0.003,
-        twinkleOffset: Math.random() * Math.PI * 2,
-        color: Math.random() > 0.82 ? (Math.random() > 0.5 ? '#8ab4ff' : '#ffb07a') : '#ffffff'
-    }));
+    const stars = Array.from({ length: 150 }, (_, idx) => {
+        const isFeature = idx < 5; /* un puñado de estrellas "destacadas" con destello marcado */
+        return {
+            x: Math.random(), y: Math.random(),
+            size: isFeature ? Math.random() * 1.2 + 2.2 : Math.random() * 1.8 + 0.1,
+            opacity: isFeature ? Math.random() * 0.3 + 0.6 : Math.random() * 0.7 + 0.1,
+            twinkleSpeed: isFeature ? Math.random() * 0.01 + 0.002 : Math.random() * 0.02 + 0.003,
+            twinkleOffset: Math.random() * Math.PI * 2,
+            color: isFeature ? (Math.random() > 0.5 ? '#bcd8ff' : '#ffe0b0') : (Math.random() > 0.82 ? (Math.random() > 0.5 ? '#8ab4ff' : '#ffb07a') : '#ffffff'),
+            isFeature
+        };
+    });
 
     const shootingStars = Array.from({ length: 3 }, () => ({
         active: false, x: 0, y: 0, dx: 0, dy: 0, life: 0, maxLife: 0, timer: Math.random() * 300, speed: 0
@@ -312,6 +316,15 @@ document.addEventListener('keydown', function(e) {
         size: Math.random() * 40 + 12,
         driftSpeed: 0.00008 + Math.random() * 0.00015,
         opacity: Math.random() * 0.10 + 0.03,
+        phase: Math.random() * Math.PI * 2
+    }));
+    /* Segunda capa de nubes, más pequeñas y lentas: da parallax y sensación de dos altitudes */
+    const cloudsFar = Array.from({ length: 10 }, () => ({
+        lonOffset: Math.random() * 360 - 180,
+        latOffset: (Math.random() - 0.5) * 110,
+        size: Math.random() * 22 + 8,
+        driftSpeed: 0.00003 + Math.random() * 0.00006,
+        opacity: Math.random() * 0.06 + 0.02,
         phase: Math.random() * Math.PI * 2
     }));
 
@@ -492,6 +505,14 @@ document.addEventListener('keydown', function(e) {
                 ctx.globalAlpha = s.opacity * twinkle * 0.15;
                 ctx.beginPath(); ctx.arc(sx, sy, s.size * 4, 0, Math.PI * 2); ctx.fill();
             }
+            if (s.isFeature) {
+                ctx.globalAlpha = s.opacity * twinkle * 0.5;
+                ctx.strokeStyle = s.color;
+                ctx.lineWidth = 0.6;
+                const flareLen = s.size * 5;
+                ctx.beginPath(); ctx.moveTo(sx - flareLen, sy); ctx.lineTo(sx + flareLen, sy); ctx.stroke();
+                ctx.beginPath(); ctx.moveTo(sx, sy - flareLen); ctx.lineTo(sx, sy + flareLen); ctx.stroke();
+            }
         });
         ctx.restore();
     }
@@ -547,10 +568,30 @@ document.addEventListener('keydown', function(e) {
             const sunBoost = Math.max(0, Math.min(0.3, facing * 0.4));
             ctx.fillStyle = `rgba(160, 240, 130, ${sunBoost * 0.06})`;
             ctx.fill();
+            /* Relieve sutil: un par de manchas de sombra/luz internas para romper el color plano */
+            ctx.save();
+            ctx.clip();
+            const relief = ctx.createRadialGradient(
+                cont.points[0] ? project(cont.points[0][0], cont.points[0][1]).x : cx,
+                cont.points[0] ? project(cont.points[0][0], cont.points[0][1]).y : cy,
+                0,
+                cx, cy, R * zoomScale * 0.9
+            );
+            relief.addColorStop(0, `rgba(255,255,255,${0.05 * alpha})`);
+            relief.addColorStop(0.5, `rgba(0,20,10,${0.05 * alpha})`);
+            relief.addColorStop(1, `rgba(0,10,5,${0.09 * alpha})`);
+            ctx.fillStyle = relief; ctx.fill();
+            ctx.restore();
             ctx.strokeStyle = `rgba(0, 255, 180, ${0.45 * alpha})`;
             ctx.lineWidth = 0.8; ctx.stroke();
-            ctx.strokeStyle = `rgba(0, 200, 255, ${0.08 * alpha})`;
+            ctx.strokeStyle = `rgba(0, 200, 255, ${0.10 * alpha})`;
             ctx.lineWidth = 1.8; ctx.stroke();
+            ctx.save();
+            ctx.shadowColor = 'rgba(0,220,190,0.5)';
+            ctx.shadowBlur = 6 * alpha;
+            ctx.strokeStyle = `rgba(0, 230, 200, ${0.18 * alpha})`;
+            ctx.lineWidth = 0.6; ctx.stroke();
+            ctx.restore();
         });
     }
 
@@ -566,12 +607,23 @@ document.addEventListener('keydown', function(e) {
         ctx.fillStyle = sh; ctx.fill();
         ctx.restore();
         const grd = ctx.createRadialGradient(cx - effectiveR*0.3, cy - effectiveR*0.35, effectiveR*0.02, cx, cy, effectiveR);
-        grd.addColorStop(0, '#1d7abc');
-        grd.addColorStop(0.2, '#0d4880');
-        grd.addColorStop(0.45, '#082c58');
-        grd.addColorStop(0.7, '#051a36');
-        grd.addColorStop(1, '#020a18');
+        grd.addColorStop(0, '#2a8fd4');
+        grd.addColorStop(0.18, '#1479b8');
+        grd.addColorStop(0.4, '#0a3d70');
+        grd.addColorStop(0.65, '#051f42');
+        grd.addColorStop(0.85, '#020e24');
+        grd.addColorStop(1, '#010610');
         ctx.beginPath(); ctx.arc(cx, cy, effectiveR, 0, Math.PI*2); ctx.fillStyle = grd; ctx.fill();
+        /* Terminador día/noche: oscurece el lado opuesto a la luz para dar volumen real de esfera */
+        ctx.save();
+        ctx.beginPath(); ctx.arc(cx, cy, effectiveR, 0, Math.PI*2); ctx.clip();
+        const term = ctx.createRadialGradient(cx + effectiveR*0.55, cy + effectiveR*0.6, 0, cx + effectiveR*0.55, cy + effectiveR*0.6, effectiveR*1.35);
+        term.addColorStop(0, 'rgba(0,0,0,0)');
+        term.addColorStop(0.55, 'rgba(0,3,12,0.10)');
+        term.addColorStop(0.8, 'rgba(0,2,10,0.38)');
+        term.addColorStop(1, 'rgba(0,1,6,0.62)');
+        ctx.beginPath(); ctx.arc(cx, cy, effectiveR, 0, Math.PI*2); ctx.fillStyle = term; ctx.fill();
+        ctx.restore();
         const shimmerAngle = Date.now() * 0.00008;
         const sx = cx + Math.cos(shimmerAngle) * effectiveR * 0.25;
         const sy = cy + Math.sin(shimmerAngle * 0.7) * effectiveR * 0.2;
@@ -595,19 +647,28 @@ document.addEventListener('keydown', function(e) {
         ctx.restore();
         drawAtmosphere();
         const sunGrd = ctx.createRadialGradient(cx - effectiveR*0.40, cy - effectiveR*0.42, 0, cx - effectiveR*0.06, cy - effectiveR*0.06, effectiveR*0.65);
-        sunGrd.addColorStop(0, 'rgba(255,255,255,0.22)');
-        sunGrd.addColorStop(0.3, 'rgba(255,255,255,0.07)');
+        sunGrd.addColorStop(0, 'rgba(255,255,255,0.10)');
+        sunGrd.addColorStop(0.3, 'rgba(255,255,255,0.03)');
         sunGrd.addColorStop(1, 'rgba(255,255,255,0)');
         ctx.beginPath(); ctx.arc(cx, cy, effectiveR, 0, Math.PI*2); ctx.fillStyle = sunGrd; ctx.fill();
+        /* Highlight especular puntual y contenido, tipo esfera pulida (sutil) */
+        ctx.save();
+        ctx.beginPath(); ctx.arc(cx, cy, effectiveR, 0, Math.PI*2); ctx.clip();
+        const spec = ctx.createRadialGradient(cx - effectiveR*0.34, cy - effectiveR*0.38, 0, cx - effectiveR*0.34, cy - effectiveR*0.38, effectiveR*0.16);
+        spec.addColorStop(0, 'rgba(255,255,255,0.14)');
+        spec.addColorStop(0.5, 'rgba(230,245,255,0.04)');
+        spec.addColorStop(1, 'rgba(230,245,255,0)');
+        ctx.beginPath(); ctx.arc(cx - effectiveR*0.34, cy - effectiveR*0.38, effectiveR*0.16, 0, Math.PI*2); ctx.fillStyle = spec; ctx.fill();
+        ctx.restore();
         ctx.beginPath(); ctx.arc(cx, cy, effectiveR, 0, Math.PI*2);
         ctx.strokeStyle = 'rgba(0,180,255,0.25)'; ctx.lineWidth = 1.2; ctx.stroke();
         if (zoomScale < 1.4) {
-            const fa = Math.max(0, Math.min(0.4, (1.4 - zoomScale) * 0.5));
+            const fa = Math.max(0, Math.min(0.18, (1.4 - zoomScale) * 0.22));
             ctx.save(); ctx.globalAlpha = fa;
             const fg = ctx.createRadialGradient(cx, cy, effectiveR*0.05, cx, cy, effectiveR*1.15);
             fg.addColorStop(0, 'rgba(200,230,255,0)');
-            fg.addColorStop(0.7, 'rgba(200,230,255,0.015)');
-            fg.addColorStop(1, 'rgba(210,235,255,0.10)');
+            fg.addColorStop(0.7, 'rgba(200,230,255,0.01)');
+            fg.addColorStop(1, 'rgba(210,235,255,0.05)');
             ctx.fillStyle = fg; ctx.beginPath(); ctx.arc(cx, cy, effectiveR*1.15, 0, Math.PI*2); ctx.fill();
             ctx.restore();
         }
@@ -619,13 +680,19 @@ document.addEventListener('keydown', function(e) {
         const pulse = Math.sin(now * 0.25) * 0.10 + 0.90;
         const hueShift = (Math.sin(now * 0.08) * 15 + 205) | 0;
         ctx.save();
-        const g = ctx.createRadialGradient(cx, cy, effectiveR*0.88, cx, cy, effectiveR*1.25);
+        const g = ctx.createRadialGradient(cx, cy, effectiveR*0.88, cx, cy, effectiveR*1.22);
         g.addColorStop(0, 'rgba(0,100,200,0)');
-        g.addColorStop(0.2, `rgba(0,${180 + Math.sin(now*0.15)*30},255,${0.18 * pulse})`);
-        g.addColorStop(0.5, `hsla(${hueShift},100%,60%,${0.10 * pulse})`);
-        g.addColorStop(0.8, `hsla(${hueShift + 30},80%,50%,${0.04 * pulse})`);
+        g.addColorStop(0.2, `rgba(0,${180 + Math.sin(now*0.15)*30},255,${0.10 * pulse})`);
+        g.addColorStop(0.5, `hsla(${hueShift},100%,60%,${0.05 * pulse})`);
+        g.addColorStop(0.8, `hsla(${hueShift + 30},80%,50%,${0.02 * pulse})`);
         g.addColorStop(1, 'rgba(0,40,120,0)');
-        ctx.beginPath(); ctx.arc(cx, cy, effectiveR*1.25, 0, Math.PI*2); ctx.fillStyle = g; ctx.fill();
+        ctx.beginPath(); ctx.arc(cx, cy, effectiveR*1.22, 0, Math.PI*2); ctx.fillStyle = g; ctx.fill();
+        /* Anillo delgado y discreto justo en el borde, para "sellar" el limbo del planeta */
+        const rim = ctx.createRadialGradient(cx, cy, effectiveR*0.98, cx, cy, effectiveR*1.03);
+        rim.addColorStop(0, 'rgba(120,210,255,0)');
+        rim.addColorStop(0.6, `rgba(140,220,255,${0.14 * pulse})`);
+        rim.addColorStop(1, 'rgba(140,220,255,0)');
+        ctx.beginPath(); ctx.arc(cx, cy, effectiveR*1.03, 0, Math.PI*2); ctx.fillStyle = rim; ctx.fill();
         const h = ctx.createRadialGradient(cx - effectiveR*0.35, cy - effectiveR*0.40, 0, cx - effectiveR*0.08, cy - effectiveR*0.08, effectiveR*0.85);
         h.addColorStop(0, `rgba(120,200,255,${0.10 * pulse})`);
         h.addColorStop(0.5, `rgba(80,180,255,${0.05 * pulse})`);
@@ -664,17 +731,33 @@ document.addEventListener('keydown', function(e) {
             const scale = effectiveR / 200;
             const sz = c.size * scale;
             ctx.save();
-            ctx.globalAlpha = Math.min(0.30, c.opacity * zf);
+            ctx.globalAlpha = Math.min(0.42, c.opacity * zf * 1.6);
             const g = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, sz);
-            g.addColorStop(0, 'rgba(255,255,255,0.25)');
-            g.addColorStop(0.5, 'rgba(255,255,255,0.10)');
+            g.addColorStop(0, 'rgba(255,255,255,0.34)');
+            g.addColorStop(0.5, 'rgba(255,255,255,0.14)');
             g.addColorStop(1, 'rgba(255,255,255,0)');
             ctx.fillStyle = g; ctx.beginPath(); ctx.arc(p.x, p.y, sz, 0, Math.PI*2); ctx.fill();
             const ox = Math.cos(c.phase)*sz*0.5, oy = Math.sin(c.phase*0.7)*sz*0.5;
             const g2 = ctx.createRadialGradient(p.x+ox, p.y+oy, 0, p.x+ox, p.y+oy, sz*0.6);
-            g2.addColorStop(0, 'rgba(255,255,255,0.12)');
+            g2.addColorStop(0, 'rgba(255,255,255,0.18)');
             g2.addColorStop(1, 'rgba(255,255,255,0)');
             ctx.fillStyle = g2; ctx.beginPath(); ctx.arc(p.x+ox, p.y+oy, sz*0.6, 0, Math.PI*2); ctx.fill();
+            ctx.restore();
+        });
+        cloudsFar.forEach(c => {
+            const lon = c.lonOffset + Date.now() * c.driftSpeed;
+            const lat = c.latOffset + Math.sin(Date.now()*0.00005 + c.phase) * 8;
+            const p = project(lon, lat);
+            if (p.z < 0.15) return;
+            const effectiveR = R * zoomScale;
+            const scale = effectiveR / 200;
+            const sz = c.size * scale;
+            ctx.save();
+            ctx.globalAlpha = Math.min(0.22, c.opacity * zf);
+            const g = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, sz);
+            g.addColorStop(0, 'rgba(255,255,255,0.20)');
+            g.addColorStop(1, 'rgba(255,255,255,0)');
+            ctx.fillStyle = g; ctx.beginPath(); ctx.arc(p.x, p.y, sz, 0, Math.PI*2); ctx.fill();
             ctx.restore();
         });
     }
@@ -812,6 +895,14 @@ document.addEventListener('keydown', function(e) {
             ctx.fill(); ctx.shadowBlur = 0;
             ctx.beginPath(); ctx.arc(p.x, p.y, r*0.4, 0, Math.PI*2);
             ctx.fillStyle = 'rgba(255,255,255,0.85)'; ctx.fill();
+            /* Radar ping: anillo que se expande y se desvanece, en bucle, por nodo */
+            const pingCycle = 2200;
+            const pingT = ((Date.now() + i * 700) % pingCycle) / pingCycle;
+            const pingR = r + 4 + pingT * (node.hub ? 30 : 20);
+            const pingA = (1 - pingT) * (node.hub ? 0.35 : 0.22);
+            ctx.beginPath(); ctx.arc(p.x, p.y, pingR, 0, Math.PI*2);
+            ctx.strokeStyle = node.hub ? `rgba(240,160,48,${pingA})` : `rgba(0,220,255,${pingA})`;
+            ctx.lineWidth = 1.3; ctx.stroke();
             if (node.hub) {
                 const rp = Math.sin(Date.now()*0.002)*0.3+0.7;
                 ctx.beginPath(); ctx.arc(p.x, p.y, r+8+pulse*4, 0, Math.PI*2);
@@ -891,7 +982,21 @@ document.addEventListener('keydown', function(e) {
         document.getElementById('globeInfoTitle').textContent = n.label.replace(' (HUB)', '');
         document.getElementById('globeInfoDesc').textContent = n.desc;
         const imgEl = document.getElementById('globeInfoImg');
-        if (imgEl) { imgEl.src = n.image; imgEl.style.display = 'block'; }
+        if (imgEl) {
+            imgEl.alt = '';
+            imgEl.style.transition = 'opacity .18s ease';
+            imgEl.style.opacity = '0';
+            const preloader = new Image();
+            preloader.onload = function() {
+                imgEl.src = n.image;
+                imgEl.style.display = 'block';
+                requestAnimationFrame(function() { imgEl.style.opacity = '1'; });
+            };
+            preloader.onerror = function() {
+                imgEl.style.display = 'none';
+            };
+            preloader.src = n.image;
+        }
         const cardW = 210, cardH = 170;
         let left = projPos.x + 16, top = projPos.y - 55;
         if (left + cardW > canvas.width - 6) left = projPos.x - cardW - 16;
