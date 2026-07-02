@@ -1,0 +1,37 @@
+FECHA	PROYECTO	TIPO DE ACTIVIDAD	DESCRIPCION / DETALLE	DURACION (horas)	AVANCE	% ACUMULADO	TECNICO	ESTADO	OBSERVACIONES
+30/05/2026	MardiqueWeb	Configuracion inicial	Creacion proyecto Spring Boot 3.5.14 con Maven, Java 21, dependencias (JPA, Security, Thymeleaf, Validation, PostgreSQL, Cloudinary, OpenPDF)	4	4%	4%	Desarrollador	Completado	
+31/05/2026	MardiqueWeb	Base de datos	Diseño de entidades JPA: User, Contact, Document, GalleryImage, PageContent, Payment, Solicitud, SupportTicket, SystemConfig	5	3%	7%	Desarrollador	Completado	9 entidades + 9 repositorios
+01/06/2026	MardiqueWeb	Config. BD	Conexion PostgreSQL en Railway, variables de entorno, Hibernate ddl-auto=update	2	3%	10%	Desarrollador	Completado	SSL requerido
+02/06/2026	MardiqueWeb	Seguridad	Spring Security: login personalizado, 3 roles (USER/EDITOR/ADMIN), BCrypt, rutas publicas/privadas, CustomUserDetailsService	6	4%	14%	Desarrollador	Completado	DataInitializer con 7 usuarios semilla
+03/06/2026	MardiqueWeb	Frontend Estilos	CSS principal (inicio.css): diseno responsivo, colores corporativos, variables CSS, animaciones, scroll progress bar	6	3%	17%	Desarrollador	Completado	Pendiente ajustes responsive
+04/06/2026	MardiqueWeb	Frontend JS	JavaScript (inicio.js): carrusel, menu movil, scroll effects, transiciones con Turbolinks, drawer navigation	5	2%	19%	Desarrollador	Completado	1059 lineas de JS
+05/06/2026	MardiqueWeb	Pagina Inicio	Template Inicio.html: hero, servicios, carrusel, video, estadisticas, CTA	5	2%	21%	Desarrollador	En revision	Contenido dinamico desde PageContent
+06/06/2026	MardiqueWeb	Pagina Empresa	Template Empresa.html: historia, mision, vision, valores de la empresa	3	2%	23%	Desarrollador	En revision	Requiere contenido CMS
+06/06/2026	MardiqueWeb	Pagina Servicios	Template Servicios.html: listado servicios portuarios	3	1%	24%	Desarrollador	En revision	Contenido desde PageContent
+07/06/2026	MardiqueWeb	Pagina Procedimientos	Template Procedimientos.html + documentos descargables	4	2%	26%	Desarrollador	En revision	Documentos tipo PROCEDIMIENTO
+07/06/2026	MardiqueWeb	Pagina Tarifas	Template Tarifas.html: iframe tarifas, contacto, enlace reglamento	4	2%	28%	Desarrollador	En revision	Config desde SystemConfig
+08/06/2026	MardiqueWeb	Pagina Tramites	Template Tramitesenlinea.html: 9 tarjetas descargables	5	2%	30%	Desarrollador	En revision	CardKey + Document mapping
+08/06/2026	MardiqueWeb	Pagina Galeria	Template Galeria.html: galeria imagenes, filtro active/inactive	3	1%	31%	Desarrollador	En revision	Imagenes desde GalleryImage
+09/06/2026	MardiqueWeb	Pagina Contacto	Template Contacto.html: directorio contactos, formulario PQRS y mensaje	5	2%	33%	Desarrollador	En revision	12 contactos semilla
+10/06/2026	MardiqueWeb	Login / Register	Templates Login.html + Register.html, registro con 3 tipos de usuario	4	2%	35%	Desarrollador	Completado	Validacion basica
+11/06/2026	MardiqueWeb	Panel Editor	EditorController + EditorDashboard.html: dashboard, contactos, documentos, galeria, CMS, config	5	2%	37%	Desarrollador	En desarrollo	EditorContent.html pendiente
+12/06/2026	MardiqueWeb	CMS Contenido	PageContent CRUD: editar HTML por seccion, restore a valores por defecto	4	2%	39%	Desarrollador	En desarrollo	8 paginas editables
+13/06/2026	MardiqueWeb	Documentos Editor	EditorDocuments.html: upload a Cloudinary, metadatos, organizacion por tipo y cardKey	4	2%	41%	Desarrollador	En revision	
+13/06/2026	MardiqueWeb	Galeria Editor	EditorGallery.html: upload imagenes, toggle active/inactive, delete	2	1%	42%	Desarrollador	En revision	Cloudinary upload
+14/06/2026	MardiqueWeb	Config Editor	EditorConfig.html: iframe tarifas, telefono, email	2	1%	43%	Desarrollador	Completado	SystemConfig CRUD
+15/06/2026	MardiqueWeb	Portal Usuario	UserController + UserInicio, UserServicios, UserTramites, UserTarifas	6	2%	45%	Desarrollador	En revision	Portal usuarios autenticados
+16/06/2026	MardiqueWeb	Pagos Usuario	UserPayments.html: registro pago con comprobante, listado pagos	4	2%	47%	Desarrollador	En desarrollo	Integracion Payment entity
+17/06/2026	MardiqueWeb	Solicitudes Usuario	UserSolicitudes.html: crear y listar solicitudes	3	1%	48%	Desarrollador	En revision	Estado PENDIENTE por defecto
+18/06/2026	MardiqueWeb	Panel Admin	AdminController + AdminDashboard.html: estadisticas	4	2%	50%	Desarrollador	En desarrollo	Dashboard con conteos
+19/06/2026	MardiqueWeb	Admin Usuarios	AdminUsers.html: listar, activar/desactivar, cambiar rol, editar perfil	3	1%	51%	Desarrollador	En revision	CRUD usuarios completo
+19/06/2026	MardiqueWeb	Admin Solicitudes	AdminSolicitudes.html: filtros, responder PQRS y solicitudes, cambiar estado	4	2%	53%	Desarrollador	En desarrollo	Admin departamental
+20/06/2026	MardiqueWeb	Admin Pagos	AdminPayments.html: confirmar pago, PDF, subir comprobante manual	4	2%	55%	Desarrollador	En desarrollo	PdfService OpenPDF
+21/06/2026	MardiqueWeb	Admin Mensajes	AdminMensajes.html: listar mensajes de contacto	2	1%	56%	Desarrollador	En revision	Origen CONTACTO
+21/06/2026	MardiqueWeb	Admin Config	AdminConfig.html: CRUD SystemConfig completo	2	1%	57%	Desarrollador	Completado	
+22/06/2026	MardiqueWeb	Cloudinary	CloudinaryService: upload files, upload bytes, delete file	3	2%	59%	Desarrollador	En revision	Delete no implementado en controladores
+23/06/2026	MardiqueWeb	PDF Receipts	PdfService con OpenPDF: comprobante de pago	2	1%	60%	Desarrollador	En desarrollo	Requiere mejoras formato
+23/06/2026	MardiqueWeb	PQRS Sistema	Formulario PQRS -> SupportTicket -> admin responde -> cierra	2	1%	61%	Desarrollador	En revision	Pendiente envio email
+24/06/2026	MardiqueWeb	Admin Departamental	Logica admins por departamento: solo ven tickets de su area	2	1%	62%	Desarrollador	Completado	Filtro por departamento
+24/06/2026	MardiqueWeb	Seed Data	DataInitializer: usuarios, page content, contactos, config	2	1%	63%	Desarrollador	Completado	Datos semilla completos
+25/06/2026	MardiqueWeb	Correccion Bugs	Bug imports Document: conflicto con org.w3c.dom.Document y javax.swing.text.Document	3	1%	64%	Desarrollador	Completado	Import explicito en repositorio y controladores
+26/06/2026	MardiqueWeb	Pruebas finales	Verificacion compilacion Maven, revision rutas, estado actual del proyecto	2	1%	65%	Desarrollador	En revision	Proyecto al 60% global estimado

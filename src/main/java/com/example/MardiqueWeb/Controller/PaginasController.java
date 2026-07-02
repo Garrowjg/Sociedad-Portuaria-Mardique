@@ -1,6 +1,12 @@
 package com.example.MardiqueWeb.Controller;
 
-import com.example.MardiqueWeb.Entity.*;
+import com.example.MardiqueWeb.Entity.Contact;
+import com.example.MardiqueWeb.Entity.Document;
+import com.example.MardiqueWeb.Entity.GalleryImage;
+import com.example.MardiqueWeb.Entity.PageContent;
+import com.example.MardiqueWeb.Entity.SupportTicket;
+import com.example.MardiqueWeb.Entity.SystemConfig;
+import com.example.MardiqueWeb.Entity.User;
 import com.example.MardiqueWeb.Repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;

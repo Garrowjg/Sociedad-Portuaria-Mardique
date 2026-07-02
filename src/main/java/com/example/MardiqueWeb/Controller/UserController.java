@@ -1,6 +1,10 @@
 package com.example.MardiqueWeb.Controller;
 
-import com.example.MardiqueWeb.Entity.*;
+import com.example.MardiqueWeb.Entity.Document;
+import com.example.MardiqueWeb.Entity.Payment;
+import com.example.MardiqueWeb.Entity.Solicitud;
+import com.example.MardiqueWeb.Entity.SystemConfig;
+import com.example.MardiqueWeb.Entity.User;
 import com.example.MardiqueWeb.Repository.DocumentRepository;
 import com.example.MardiqueWeb.Repository.PaymentRepository;
 import com.example.MardiqueWeb.Repository.SystemConfigRepository;

@@ -1,6 +1,10 @@
 package com.example.MardiqueWeb.Controller;
 
-import com.example.MardiqueWeb.Entity.*;
+import com.example.MardiqueWeb.Entity.Contact;
+import com.example.MardiqueWeb.Entity.Document;
+import com.example.MardiqueWeb.Entity.GalleryImage;
+import com.example.MardiqueWeb.Entity.PageContent;
+import com.example.MardiqueWeb.Entity.SystemConfig;
 import com.example.MardiqueWeb.Repository.*;
 import com.example.MardiqueWeb.Service.CloudinaryService;
 import org.springframework.beans.factory.annotation.Autowired;
