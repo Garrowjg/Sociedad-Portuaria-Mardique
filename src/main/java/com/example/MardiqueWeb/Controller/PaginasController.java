@@ -55,6 +55,11 @@ public class PaginasController {
     private static final Set<String> VALID_DOC_TYPES = Set.of("CC", "CE", "NIT", "PA", "DE");
     private static final Set<String> VALID_PETITION_TYPES = Set.of("Petici\u00f3n", "Queja", "Reclamo", "Solicitud");
     private static final Set<String> VALID_CATEGORIES = Set.of("CLIENTE", "PROVEEDOR", "AMBOS");
+    private static final Set<String> COMMON_PASSWORDS = Set.of(
+        "password", "123456", "password123", "admin123", "qwerty", "abc123",
+        "letmein", "welcome", "monkey", "dragon", "master", "sunshine",
+        "contrase\u00f1a", "123456789", "12345678", "111111", "000000"
+    );
 
     private String sanitize(String input) {
         return input != null ? HtmlUtils.htmlEscape(input.trim()) : "";
@@ -252,6 +257,10 @@ public class PaginasController {
         }
         if (!password.matches(".*[!@#$%^&*()_+\\-=\\[\\]{};':\"\\\\|,.<>\\/?].*")) {
             model.addAttribute("error", "La contrase\u00f1a debe contener al menos un car\u00e1cter especial");
+            return "Register";
+        }
+        if (COMMON_PASSWORDS.contains(password.toLowerCase())) {
+            model.addAttribute("error", "Contrase\u00f1a muy com\u00fan, elige otra");
             return "Register";
         }
         if (telefono != null && !telefono.isEmpty() && !telefono.matches("^[0-9+\\-\\s()]{7,20}$")) {

@@ -1,5 +1,6 @@
 package com.example.MardiqueWeb.Config;
 
+import com.example.MardiqueWeb.Service.AuditService;
 import com.example.MardiqueWeb.Service.CustomUserDetailsService;
 import com.example.MardiqueWeb.Config.CustomAuthenticationFailureHandler;
 import org.springframework.context.annotation.Bean;
@@ -21,10 +22,14 @@ public class SecurityConfig {
 
     private final CustomUserDetailsService userDetailsService;
     private final CustomAuthenticationFailureHandler failureHandler;
+    private final AuditService auditService;
 
-    public SecurityConfig(CustomUserDetailsService userDetailsService, CustomAuthenticationFailureHandler failureHandler) {
+    public SecurityConfig(CustomUserDetailsService userDetailsService,
+                          CustomAuthenticationFailureHandler failureHandler,
+                          AuditService auditService) {
         this.userDetailsService = userDetailsService;
         this.failureHandler = failureHandler;
+        this.auditService = auditService;
     }
 
     @Bean
@@ -44,6 +49,11 @@ public class SecurityConfig {
             .formLogin(form -> form
                 .loginPage("/login")
                 .defaultSuccessUrl("/dashboard")
+                .successHandler((request, response, authentication) -> {
+                    auditService.log(authentication.getName(), "LOGIN_SUCCESS",
+                        "Successful login from IP: " + request.getRemoteAddr(), request);
+                    response.sendRedirect("/dashboard");
+                })
                 .failureHandler(failureHandler)
                 .permitAll()
             )
@@ -56,6 +66,14 @@ public class SecurityConfig {
             )
             .headers(headers -> headers
                 .xssProtection(xss -> xss.headerValue(XXssProtectionHeaderWriter.HeaderValue.ENABLED_MODE_BLOCK))
+                .contentSecurityPolicy(csp -> csp.policyDirectives(
+                    "default-src 'self'; " +
+                    "script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com; " +
+                    "style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://fonts.googleapis.com; " +
+                    "img-src 'self' data: https:; " +
+                    "font-src 'self' https://cdnjs.cloudflare.com https://fonts.gstatic.com; " +
+                    "connect-src 'self'"
+                ))
                 .frameOptions(frame -> frame.sameOrigin())
             );
         return http.build();

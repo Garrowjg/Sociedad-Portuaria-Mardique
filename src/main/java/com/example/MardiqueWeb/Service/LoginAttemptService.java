@@ -1,46 +1,49 @@
 package com.example.MardiqueWeb.Service;
 
+import com.example.MardiqueWeb.Entity.LoginAttempt;
+import com.example.MardiqueWeb.Repository.LoginAttemptRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
+
+import java.time.LocalDateTime;
 
 @Service
 public class LoginAttemptService {
 
-    private final Map<String, Integer> attempts = new ConcurrentHashMap<>();
-    private final Map<String, Long> blockedUntil = new ConcurrentHashMap<>();
+    @Autowired
+    private LoginAttemptRepository loginAttemptRepository;
+
     private static final int MAX_ATTEMPTS = 5;
-    private static final long BLOCK_DURATION = 15 * 60 * 1000;
+    private static final long BLOCK_MINUTES = 15;
 
     public void loginFailed(String username, String ip) {
-        String key = username + "|" + ip;
-        attempts.put(key, attempts.getOrDefault(key, 0) + 1);
+        LoginAttempt attempt = new LoginAttempt();
+        attempt.setUsername(username);
+        attempt.setIpAddress(ip);
+        attempt.setAttemptTime(LocalDateTime.now());
+        attempt.setSuccessful(false);
+        loginAttemptRepository.save(attempt);
     }
 
     public boolean isBlocked(String username, String ip) {
-        String key = username + "|" + ip;
-        if (blockedUntil.containsKey(key)) {
-            if (System.currentTimeMillis() < blockedUntil.get(key)) {
-                return true;
-            }
-            blockedUntil.remove(key);
-            attempts.remove(key);
-        }
-        if (attempts.getOrDefault(key, 0) >= MAX_ATTEMPTS) {
-            blockedUntil.put(key, System.currentTimeMillis() + BLOCK_DURATION);
-            return true;
-        }
-        return false;
+        LocalDateTime blockTime = LocalDateTime.now().minusMinutes(BLOCK_MINUTES);
+        long failedAttempts = loginAttemptRepository
+            .countByUsernameAndIpAddressAndSuccessfulFalseAndAttemptTimeAfter(username, ip, blockTime);
+        return failedAttempts >= MAX_ATTEMPTS;
     }
 
     public int getAttempts(String username, String ip) {
-        String key = username + "|" + ip;
-        return attempts.getOrDefault(key, 0);
+        LocalDateTime blockTime = LocalDateTime.now().minusMinutes(BLOCK_MINUTES);
+        return (int) loginAttemptRepository
+            .countByUsernameAndIpAddressAndSuccessfulFalseAndAttemptTimeAfter(username, ip, blockTime);
     }
 
     public void loginSucceeded(String username, String ip) {
-        String key = username + "|" + ip;
-        attempts.remove(key);
-        blockedUntil.remove(key);
+        LoginAttempt attempt = new LoginAttempt();
+        attempt.setUsername(username);
+        attempt.setIpAddress(ip);
+        attempt.setAttemptTime(LocalDateTime.now());
+        attempt.setSuccessful(true);
+        loginAttemptRepository.save(attempt);
     }
 }

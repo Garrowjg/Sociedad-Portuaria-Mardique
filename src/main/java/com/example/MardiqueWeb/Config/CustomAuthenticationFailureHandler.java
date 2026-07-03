@@ -1,11 +1,11 @@
 package com.example.MardiqueWeb.Config;
 
+import com.example.MardiqueWeb.Service.AuditService;
 import com.example.MardiqueWeb.Service.LoginAttemptService;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationFailureHandler;
 import org.springframework.stereotype.Component;
@@ -18,12 +18,16 @@ public class CustomAuthenticationFailureHandler extends SimpleUrlAuthenticationF
     @Autowired
     private LoginAttemptService loginAttemptService;
 
+    @Autowired
+    private AuditService auditService;
+
     @Override
     public void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response,
                                         AuthenticationException exception) throws IOException, ServletException {
         String username = request.getParameter("username");
         String ip = request.getRemoteAddr();
 
+        auditService.log(username, "LOGIN_FAILED", "Failed login attempt from IP: " + ip, request);
         loginAttemptService.loginFailed(username, ip);
 
         if (loginAttemptService.isBlocked(username, ip)) {

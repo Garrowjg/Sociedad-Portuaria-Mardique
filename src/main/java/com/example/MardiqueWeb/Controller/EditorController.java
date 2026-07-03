@@ -15,6 +15,8 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import org.jsoup.Jsoup;
+import org.jsoup.safety.Safelist;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.util.List;
@@ -248,7 +250,11 @@ public class EditorController {
                                    @RequestParam String page) {
         PageContent pc = pageContentRepository.findByPageAndSectionKey(page, sectionKey).orElse(null);
         if (pc != null) {
-            pc.setContent(content);
+            String sanitized = Jsoup.clean(content, Safelist.basic()
+                .addTags("strong", "em", "u", "br", "p", "h1", "h2", "h3", "h4", "h5", "h6", "ul", "ol", "li")
+                .addAttributes("a", "href", "title")
+            );
+            pc.setContent(sanitized);
             pageContentRepository.save(pc);
             return "OK";
         }
