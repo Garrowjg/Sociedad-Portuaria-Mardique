@@ -58,30 +58,26 @@ public class DataInitializer implements CommandLineRunner {
     }
 
     private void seedPageContent() {
-        // Contacto page
+
         pageContentRepository.save(new PageContent("contacto", "hero-title", "Canales de <strong>Comunicaci&oacute;n</strong>", "T&iacute;tulo del hero"));
         pageContentRepository.save(new PageContent("contacto", "hero-sub", "Estamos listos para atenderle. Cont&aacute;ctenos a trav&eacute;s de cualquiera de nuestros canales.", "Subt&iacute;tulo del hero"));
         pageContentRepository.save(new PageContent("contacto", "section-title", "Estamos aqu&iacute; para <strong style=\"color:var(--accent-gold)\">ayudarle</strong>", "T&iacute;tulo secci&oacute;n contacto"));
         pageContentRepository.save(new PageContent("contacto", "section-text", "En Sociedad Portuaria Mardique nos comprometemos a dar respuesta oportuna a todas sus solicitudes. Nuestro equipo se encuentra disponible para orientarle en sus operaciones portuarias, comerciales y log&iacute;sticas.", "Texto secci&oacute;n contacto"));
 
-        // Tramites page
         pageContentRepository.save(new PageContent("tramites", "hero-title", "Tr&aacute;mites <strong>en L&iacute;nea</strong>", "T&iacute;tulo del hero"));
         pageContentRepository.save(new PageContent("tramites", "hero-sub", "Descargue y diligencie los formatos requeridos para iniciar sus operaciones con nosotros de manera &aacute;gil y segura.", "Subt&iacute;tulo del hero"));
         pageContentRepository.save(new PageContent("tramites", "intro-title", "Formatos digitales para su gesti&oacute;n portuaria", "T&iacute;tulo introductorio"));
         pageContentRepository.save(new PageContent("tramites", "intro-text", "Con los tr&aacute;mites en l&iacute;nea, facilitamos la manera de realizar solicitudes de servicio, brindando respuesta oportuna y realizando la programaci&oacute;n de los mismos. Descargue los formatos seg&uacute;n su perfil.", "Texto introductorio"));
 
-        // Procedimientos page
         pageContentRepository.save(new PageContent("procedimientos", "hero-title", "Servicio al <strong>Cliente</strong>", "T&iacute;tulo del hero"));
         pageContentRepository.save(new PageContent("procedimientos", "hero-sub", "Conozca los tr&aacute;mites, procedimientos e inscripciones disponibles para clientes y proveedores de Mardique.", "Subt&iacute;tulo del hero"));
         pageContentRepository.save(new PageContent("procedimientos", "section-title", "&iquest;C&oacute;mo podemos <strong>ayudarle</strong>?", "T&iacute;tulo secci&oacute;n"));
 
-        // Tarifas page
         pageContentRepository.save(new PageContent("tarifas", "hero-title", "Nuestras <strong>Tarifas</strong>", "T&iacute;tulo del hero"));
         pageContentRepository.save(new PageContent("tarifas", "hero-sub", "Consulte las tarifas de nuestros servicios portuarios, mar&iacute;timos y log&iacute;sticos. Para informaci&oacute;n detallada, nuestro equipo comercial est&aacute; disponible para atenderle.", "Subt&iacute;tulo del hero"));
         pageContentRepository.save(new PageContent("tarifas", "main-title", "Informaci&oacute;n de <span>Tarifas</span>", "T&iacute;tulo principal"));
         pageContentRepository.save(new PageContent("tarifas", "main-text", "Para conocer las tarifas actualizadas de nuestros servicios, por favor comun&iacute;quese directamente con nuestro equipo comercial.", "Texto principal"));
 
-        // Galeria page
         pageContentRepository.save(new PageContent("galeria", "hero-title", "<strong>Galer&iacute;a</strong> de Im&aacute;genes", "T&iacute;tulo del hero"));
         pageContentRepository.save(new PageContent("galeria", "hero-sub", "Conozca nuestras instalaciones a trav&eacute;s de im&aacute;genes.", "Subt&iacute;tulo del hero"));
     }

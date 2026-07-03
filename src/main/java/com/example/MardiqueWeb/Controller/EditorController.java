@@ -173,7 +173,6 @@ public class EditorController {
         return "redirect:/editor/documents";
     }
 
-    // ============== GALERIA ==============
 
     @GetMapping("/gallery")
     public String listGallery(Model model) {
@@ -224,7 +223,6 @@ public class EditorController {
         return "redirect:/editor/gallery";
     }
 
-    // ============== CONTENIDO DE PAGINAS ==============
 
     @GetMapping("/content")
     public String listContentPages(Model model) {
@@ -290,7 +288,6 @@ public class EditorController {
         return Map.of("content", defaultContent);
     }
 
-    // ============== CONFIG DE TARIFAS (EDITOR) ==============
 
     @GetMapping("/config")
     public String listConfig(Model model) {

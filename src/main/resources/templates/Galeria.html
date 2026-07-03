@@ -394,7 +394,7 @@
 
 <div id="scroll-progress"></div>
 
-<!-- ─── HEADER ─── -->
+
 <header id="main-header">
     <div class="container">
         <div class="header-content">
@@ -438,7 +438,7 @@
 </header>
 
 <div class="page-wrapper">
-<!-- ─── HERO ─── -->
+
 <section class="page-hero">
     <div class="page-hero-bg" id="heroBg"></div>
     <div class="hero-particles" id="heroParticles"></div>
@@ -455,7 +455,7 @@
     <div class="scroll-hint"><i class="fa-solid fa-chevron-down"></i><span>Scroll</span></div>
 </section>
 
-<!-- ─── STATS ─── -->
+
 <div class="stats-strip">
     <div class="container">
         <div class="stats-inner">
@@ -479,7 +479,7 @@
     </div>
 </div>
 
-<!-- ─── FILTROS ─── -->
+
 <div class="filter-section">
     <div class="container">
         <div class="filter-inner">
@@ -496,10 +496,10 @@
     </div>
 </div>
 
-<!-- ─── GALERÍA ─── -->
+
 <section class="gallery-section">
     <div class="container">
-        <!-- ─── GALERÍA DINÁMICA ─── -->
+        
         <div class="gallery-grid" th:if="${not #lists.isEmpty(images)}">
             <div class="gallery-item" th:each="img : ${images}">
                 <img th:src="@{${img.filePath}}" th:alt="${img.titulo}" loading="lazy">
@@ -508,10 +508,10 @@
             </div>
         </div>
 
-        <!-- ─── GALERÍA ESTÁTICA (FALLBACK) ─── -->
+        
         <div class="gallery-grid" id="galleryGrid" th:if="${#lists.isEmpty(images)}">
 
-            <!-- AÉREAS DJI -->
+            
             <div class="gallery-item reveal" data-category="aerea" data-src="https://spmardique.com/wp-content/uploads/2021/12/Editadas_0000_DJI_0108.jpg">
                 <img src="https://spmardique.com/wp-content/uploads/2021/12/Editadas_0000_DJI_0108.jpg" alt="Vista aérea Mardique" loading="lazy">
                 <div class="gallery-item-overlay"><span class="gallery-item-tag">Vista Aérea</span></div>
@@ -608,7 +608,7 @@
                 <div class="gallery-item-zoom"><i class="fa-solid fa-magnifying-glass-plus"></i></div>
             </div>
 
-            <!-- OPERACIONES / INSTALACIONES -->
+            
             <div class="gallery-item reveal" data-category="instalaciones" data-src="https://spmardique.com/wp-content/uploads/2021/12/editadas_0032_Capa-0.jpg">
                 <img src="https://spmardique.com/wp-content/uploads/2021/12/editadas_0032_Capa-0.jpg" alt="Instalaciones Mardique" loading="lazy">
                 <div class="gallery-item-overlay"><span class="gallery-item-tag">Instalaciones</span></div>
@@ -753,7 +753,7 @@
                 <div class="gallery-item-zoom"><i class="fa-solid fa-magnifying-glass-plus"></i></div>
             </div>
 
-            <!-- OPERACIONES 2022 -->
+            
             <div class="gallery-item reveal" data-category="operaciones" data-src="https://spmardique.com/wp-content/uploads/2022/06/12.jpg">
                 <img src="https://spmardique.com/wp-content/uploads/2022/06/12.jpg" alt="Operaciones 2022" loading="lazy">
                 <div class="gallery-item-overlay"><span class="gallery-item-tag">Operaciones</span></div>
@@ -820,7 +820,7 @@
                 <div class="gallery-item-zoom"><i class="fa-solid fa-magnifying-glass-plus"></i></div>
             </div>
 
-            <!-- EQUIPOS -->
+            
             <div class="gallery-item reveal delay-5" data-category="equipos" data-src="https://spmardique.com/wp-content/uploads/2021/04/DJI_0288-scaled.jpg">
                 <img src="https://spmardique.com/wp-content/uploads/2021/04/DJI_0288-scaled.jpg" alt="Equipos portuarios" loading="lazy">
                 <div class="gallery-item-overlay"><span class="gallery-item-tag">Equipos</span></div>
@@ -845,7 +845,7 @@
                 <div class="gallery-item-zoom"><i class="fa-solid fa-magnifying-glass-plus"></i></div>
             </div>
 
-            <!-- OPERACIONES MAYO 2022 -->
+            
             <div class="gallery-item reveal delay-3" data-category="operaciones" data-src="https://spmardique.com/wp-content/uploads/2022/05/IMG_20220418_152305.jpg">
                 <img src="https://spmardique.com/wp-content/uploads/2022/05/IMG_20220418_152305.jpg" alt="Operaciones" loading="lazy">
                 <div class="gallery-item-overlay"><span class="gallery-item-tag">Operaciones</span></div>
@@ -946,7 +946,7 @@
     </div>
 </section>
 
-<!-- ─── LIGHTBOX ─── -->
+
 <div class="lightbox" id="lightbox">
     <button class="lightbox-close" id="lbClose"><i class="fa-solid fa-xmark"></i></button>
     <button class="lightbox-nav lightbox-prev" id="lbPrev"><i class="fa-solid fa-chevron-left"></i></button>
@@ -957,7 +957,7 @@
     </div>
 </div>
 
-<!-- ─── CTA ─── -->
+
 <section class="cta-band">
     <div class="container">
         <h2 class="reveal">¿Le interesa operar con nosotros?</h2>
@@ -969,7 +969,7 @@
     </div>
 </section>
 
-<!-- ─── FOOTER ─── -->
+
 <footer>
     <div class="container">
         <div class="footer-grid">
