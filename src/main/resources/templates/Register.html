@@ -45,6 +45,14 @@
         .auth-card .msg-success { background: #f0fdf4; border: 1px solid #bbf7d0; color: #16a34a; }
         .auth-card .terms { font-size: 12px; color: var(--text-muted); text-align: center; margin-top: 16px; line-height: 1.5; }
         .auth-card .terms a { color: var(--accent-cyan); }
+        .pw-checklist { list-style: none; padding: 6px 0 0; margin: 0; font-size: 11px; color: var(--text-muted); }
+        .pw-checklist li { padding: 2px 0; display: flex; align-items: center; gap: 6px; }
+        .pw-checklist li::before { content: '○'; font-size: 10px; color: var(--text-muted); }
+        .pw-checklist li.valid::before { content: '✓'; color: #16a34a; }
+        .pw-checklist li.valid { color: #16a34a; }
+        .terms-wrap { text-align: center; margin-bottom: 14px; }
+        .terms-wrap label { display: inline-flex; align-items: center; gap: 8px; font-size: 12px; color: var(--text-muted); cursor: pointer; }
+        .terms-wrap input { width: auto; accent-color: var(--accent-gold); }
         @media (max-width:500px) { .auth-card .row { grid-template-columns: 1fr; } .auth-card { padding: 32px 24px; } }
     </style>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/turbolinks/5.2.0/turbolinks.min.js" integrity="sha512-9yZbQkMzUSvC3A6GH3kVs3qDCGMGZHrC4U4HUQR43ZB3i/SHSEbrnCgQ3hwXW8NqBntvSfGLA4N5wSQmFmdvXQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
@@ -66,25 +74,31 @@
                 <div class="row">
                     <div class="field">
                         <label for="nombres"><i class="fas fa-user" style="margin-right:4px;color:var(--accent-cyan);"></i> Nombres</label>
-                        <input type="text" id="nombres" name="nombres" required placeholder="Sus nombres">
+                        <input type="text" id="nombres" name="nombres" required placeholder="Sus nombres" th:value="${nombres != null ? nombres : ''}">
                     </div>
                     <div class="field">
                         <label for="apellidos"><i class="fas fa-user" style="margin-right:4px;color:var(--accent-cyan);"></i> Apellidos</label>
-                        <input type="text" id="apellidos" name="apellidos" required placeholder="Sus apellidos">
+                        <input type="text" id="apellidos" name="apellidos" required placeholder="Sus apellidos" th:value="${apellidos != null ? apellidos : ''}">
                     </div>
                 </div>
                 <div class="field">
                     <label for="email"><i class="fas fa-envelope" style="margin-right:4px;color:var(--accent-cyan);"></i> Correo electrónico</label>
-                    <input type="email" id="email" name="email" required placeholder="correo@ejemplo.com">
+                    <input type="email" id="email" name="email" required placeholder="correo@ejemplo.com" th:value="${email != null ? email : ''}">
                 </div>
                 <div class="field">
                     <label for="username"><i class="fas fa-id-card" style="margin-right:4px;color:var(--accent-cyan);"></i> Nombre de usuario</label>
-                    <input type="text" id="username" name="username" required placeholder="Cree un nombre de usuario">
+                    <input type="text" id="username" name="username" required placeholder="Cree un nombre de usuario" th:value="${username != null ? username : ''}">
                 </div>
                 <div class="row">
                     <div class="field">
                         <label for="password"><i class="fas fa-lock" style="margin-right:4px;color:var(--accent-cyan);"></i> Contraseña</label>
                         <input type="password" id="password" name="password" required placeholder="Mínimo 6 caracteres">
+                        <ul class="pw-checklist" id="pwChecklist">
+                            <li data-req="length">8+ caracteres</li>
+                            <li data-req="upper">1 mayúscula</li>
+                            <li data-req="number">1 número</li>
+                            <li data-req="special">1 carácter especial</li>
+                        </ul>
                     </div>
                     <div class="field">
                         <label for="confirmPassword"><i class="fas fa-lock" style="margin-right:4px;color:var(--accent-cyan);"></i> Confirmar</label>
@@ -94,30 +108,50 @@
                 <div class="field">
                     <label for="tipo"><i class="fas fa-user-tag" style="margin-right:4px;color:var(--accent-cyan);"></i> Tipo de cuenta</label>
                     <select id="tipo" name="tipo" onchange="toggleTipoFields()">
-                        <option value="PERSONA">Persona Natural</option>
-                        <option value="CLIENTE">Cliente / Proveedor</option>
-                        <option value="EMPRESA">Empresa</option>
+                        <option value="PERSONA" th:selected="${tipo == 'PERSONA'}">Persona Natural</option>
+                        <option value="CLIENTE" th:selected="${tipo == 'CLIENTE'}">Cliente / Proveedor</option>
+                        <option value="EMPRESA" th:selected="${tipo == 'EMPRESA'}">Empresa</option>
                     </select>
                 </div>
                 <div class="field" id="docField">
                     <label for="nit" id="docLabel"><i class="fas fa-id-card" style="margin-right:4px;color:var(--accent-cyan);"></i> Cédula</label>
-                    <input type="text" id="nit" name="nit" required placeholder="V-12345678">
+                    <input type="text" id="nit" name="nit" required placeholder="CC-12345678" th:value="${nit != null ? nit : ''}">
                 </div>
                 <div class="field" id="categoriaField" style="display:none;">
                     <label for="categoria"><i class="fas fa-tag" style="margin-right:4px;color:var(--accent-cyan);"></i> Categoría <span style="color:var(--accent-gold)">*</span></label>
                     <select id="categoria" name="categoria">
-                        <option value="">Seleccione...</option>
-                        <option value="CLIENTE">Cliente</option>
-                        <option value="PROVEEDOR">Proveedor</option>
-                        <option value="AMBOS">Cliente y Proveedor</option>
+                        <option value="" th:selected="${categoria == null or categoria == ''}">Seleccione...</option>
+                        <option value="CLIENTE" th:selected="${categoria == 'CLIENTE'}">Cliente</option>
+                        <option value="PROVEEDOR" th:selected="${categoria == 'PROVEEDOR'}">Proveedor</option>
+                        <option value="AMBOS" th:selected="${categoria == 'AMBOS'}">Cliente y Proveedor</option>
                     </select>
                 </div>
                 <div class="field">
                     <label for="telefono"><i class="fas fa-phone" style="margin-right:4px;color:var(--accent-cyan);"></i> Teléfono (opcional)</label>
-                    <input type="tel" id="telefono" name="telefono" placeholder="+58 412 123 4567">
+                    <input type="tel" id="telefono" name="telefono" placeholder="+57 300 000 0000" th:value="${telefono != null ? telefono : ''}">
+                </div>
+                <div class="terms-wrap">
+                    <label>
+                        <input type="checkbox" name="aceptaTerminos" required>
+                        <span>Acepto los <a href="#" style="color:var(--accent-cyan);text-decoration:none;">Términos y Condiciones</a> y la <a href="#" style="color:var(--accent-cyan);text-decoration:none;">Política de Privacidad</a>.</span>
+                    </label>
                 </div>
                 <button type="submit" class="btn-submit"><i class="fas fa-user-plus"></i> CREAR CUENTA</button>
                 <script>
+                    document.addEventListener('DOMContentLoaded', function() {
+                        document.getElementById('password').addEventListener('input', function() {
+                            var v = this.value;
+                            document.querySelectorAll('#pwChecklist li').forEach(function(li) {
+                                var req = li.getAttribute('data-req');
+                                var valid = false;
+                                if (req === 'length') valid = v.length >= 8;
+                                else if (req === 'upper') valid = /[A-Z]/.test(v);
+                                else if (req === 'number') valid = /[0-9]/.test(v);
+                                else if (req === 'special') valid = /[^A-Za-z0-9]/.test(v);
+                                li.classList.toggle('valid', valid);
+                            });
+                        });
+                    });
                     function toggleTipoFields() {
                         var t = document.getElementById('tipo').value;
                         var docLabel = document.getElementById('docLabel');
@@ -125,25 +159,24 @@
                         var catField = document.getElementById('categoriaField');
                         var catSelect = document.getElementById('categoria');
                         if (t === 'EMPRESA') {
-                            docLabel.innerHTML = '<i class="fas fa-building" style="margin-right:4px;color:var(--accent-cyan);"></i> NIT / RIF <span style="color:var(--accent-gold)">*</span>';
-                            docInput.placeholder = 'J-12345678-9';
+                            docLabel.innerHTML = '<i class="fas fa-building" style="margin-right:4px;color:var(--accent-cyan);"></i> NIT <span style="color:var(--accent-gold)">*</span>';
+                            docInput.placeholder = 'NIT-123456789-1';
                             catField.style.display = 'none';
                             catSelect.required = false;
                         } else if (t === 'CLIENTE') {
                             docLabel.innerHTML = '<i class="fas fa-id-card" style="margin-right:4px;color:var(--accent-cyan);"></i> Documento del Representante Legal <span style="color:var(--accent-gold)">*</span>';
-                            docInput.placeholder = 'V-12345678';
+                            docInput.placeholder = 'CC-12345678';
                             catField.style.display = 'block';
                             catSelect.required = true;
                         } else {
                             docLabel.innerHTML = '<i class="fas fa-id-card" style="margin-right:4px;color:var(--accent-cyan);"></i> Cédula <span style="color:var(--accent-gold)">*</span>';
-                            docInput.placeholder = 'V-12345678';
+                            docInput.placeholder = 'CC-12345678';
                             catField.style.display = 'none';
                             catSelect.required = false;
                         }
                     }
                 </script>
             </form>
-            <div class="terms">Al registrarse acepta nuestros <a href="#">Términos y Condiciones</a> y la <a href="#">Política de Privacidad</a>.</div>
             <div class="auth-footer">¿Ya tiene cuenta? <a href="/login">Inicie sesión</a></div>
         </div>
     </div>

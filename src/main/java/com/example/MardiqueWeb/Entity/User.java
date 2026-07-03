@@ -1,5 +1,6 @@
 package com.example.MardiqueWeb.Entity;
 
+import com.example.MardiqueWeb.Config.CryptoConverter;
 import jakarta.persistence.*;
 
 @Entity
@@ -16,13 +17,18 @@ public class User {
     private String password;
 
     @Column(unique = true)
+    @Convert(converter = CryptoConverter.class)
     private String email;
 
     private String nombres;
     private String apellidos;
+
+    @Convert(converter = CryptoConverter.class)
     private String telefono;
 
     private String tipo = "PERSONA";
+
+    @Convert(converter = CryptoConverter.class)
     private String nit;
     private String categoria;
 

@@ -62,7 +62,8 @@
             </div>
             <h1>Iniciar Sesión</h1>
             <p class="sub">Acceda a su panel de control</p>
-            <div th:if="${param.error}" class="msg msg-error"><i class="fas fa-exclamation-circle"></i> Usuario o contraseña incorrectos</div>
+            <div th:if="${param.error}" class="msg msg-error"><i class="fas fa-exclamation-circle"></i> Usuario o contraseña incorrectos <span th:if="${param.attempts}" th:text="|(intento ${param.attempts[0]} de 5)|"></span></div>
+            <div th:if="${param.blocked}" class="msg msg-error"><i class="fas fa-lock"></i> Demasiados intentos. Espere 15 minutos.</div>
             <div th:if="${param.registered}" class="msg msg-success"><i class="fas fa-check-circle"></i> Registro exitoso. Inicie sesión.</div>
             <div th:if="${param.logout}" class="msg msg-success"><i class="fas fa-check-circle"></i> Sesión cerrada correctamente.</div>
             <form th:action="@{/login}" method="post">

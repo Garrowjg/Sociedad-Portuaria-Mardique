@@ -945,6 +945,7 @@
                         <p>Complete el formulario y nuestro equipo se pondrá en contacto con usted a la brevedad posible.</p>
                     </div>
                     <form action="/contacto/message" method="post">
+                        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
                         <div class="form-grid">
                             <div class="form-group full">
                                 <label>Nombre y Apellidos <span style="color:var(--accent-gold)">*</span></label>
@@ -1090,6 +1091,7 @@
                         <h3>Formulario PQRS</h3>
                     </div>
                     <form action="/contacto/pqrs" method="post">
+                        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
                         <div class="pqrs-form-grid">
                             <div class="pfield">
                                 <label>Tipo de Documento <span style="color:var(--accent-gold)">*</span></label>

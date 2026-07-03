@@ -1,6 +1,7 @@
 package com.example.MardiqueWeb.Config;
 
 import com.example.MardiqueWeb.Service.CustomUserDetailsService;
+import com.example.MardiqueWeb.Config.CustomAuthenticationFailureHandler;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -11,6 +12,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.header.writers.XXssProtectionHeaderWriter;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 @Configuration
@@ -18,9 +20,11 @@ import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 public class SecurityConfig {
 
     private final CustomUserDetailsService userDetailsService;
+    private final CustomAuthenticationFailureHandler failureHandler;
 
-    public SecurityConfig(CustomUserDetailsService userDetailsService) {
+    public SecurityConfig(CustomUserDetailsService userDetailsService, CustomAuthenticationFailureHandler failureHandler) {
         this.userDetailsService = userDetailsService;
+        this.failureHandler = failureHandler;
     }
 
     @Bean
@@ -40,6 +44,7 @@ public class SecurityConfig {
             .formLogin(form -> form
                 .loginPage("/login")
                 .defaultSuccessUrl("/dashboard")
+                .failureHandler(failureHandler)
                 .permitAll()
             )
             .logout(logout -> logout
@@ -49,7 +54,10 @@ public class SecurityConfig {
                 .deleteCookies("JSESSIONID")
                 .permitAll()
             )
-            .csrf(csrf -> csrf.ignoringRequestMatchers("/contacto/pqrs", "/contacto/message"));
+            .headers(headers -> headers
+                .xssProtection(xss -> xss.headerValue(XXssProtectionHeaderWriter.HeaderValue.ENABLED_MODE_BLOCK))
+                .frameOptions(frame -> frame.sameOrigin())
+            );
         return http.build();
     }
 

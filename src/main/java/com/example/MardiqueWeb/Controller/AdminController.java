@@ -2,8 +2,10 @@ package com.example.MardiqueWeb.Controller;
 
 import com.example.MardiqueWeb.Entity.*;
 import com.example.MardiqueWeb.Repository.*;
+import com.example.MardiqueWeb.Service.AuditService;
 import com.example.MardiqueWeb.Service.CloudinaryService;
 import com.example.MardiqueWeb.Service.PdfService;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
@@ -50,6 +52,9 @@ public class AdminController {
 
     @Autowired
     private CloudinaryService cloudinaryService;
+
+    @Autowired
+    private AuditService auditService;
 
     private static final Set<String> ALLOWED_EXTENSIONS = Set.of("pdf", "png", "jpg", "jpeg", "gif", "webp");
 
@@ -115,30 +120,35 @@ public class AdminController {
     }
 
     @PostMapping("/users/toggle/{id}")
-    public String toggleUser(@PathVariable Long id, RedirectAttributes ra) {
+    public String toggleUser(@PathVariable Long id, HttpServletRequest request, Authentication auth, RedirectAttributes ra) {
         User user = userRepository.findById(id).orElseThrow(() -> new RuntimeException("User not found: " + id));
         user.setEnabled(!user.isEnabled());
         userRepository.save(user);
+        String action = user.isEnabled() ? "USER_ENABLE" : "USER_DISABLE";
+        auditService.log(auth.getName(), action, "User " + user.getUsername() + " " + (user.isEnabled() ? "activated" : "deactivated"), request);
         ra.addFlashAttribute("success", "Usuario " + (user.isEnabled() ? "activado" : "desactivado"));
         return "redirect:/admin/users";
     }
 
     @PostMapping("/users/role/{id}")
-    public String changeRole(@PathVariable Long id, @RequestParam String role, RedirectAttributes ra) {
+    public String changeRole(@PathVariable Long id, @RequestParam String role, HttpServletRequest request, Authentication auth, RedirectAttributes ra) {
         User user = userRepository.findById(id).orElseThrow(() -> new RuntimeException("User not found: " + id));
+        String oldRole = user.getRole();
         user.setRole(role);
         userRepository.save(user);
+        auditService.log(auth.getName(), "ROLE_CHANGE", "User " + user.getUsername() + " role changed from " + oldRole + " to " + role, request);
         ra.addFlashAttribute("success", "Rol actualizado");
         return "redirect:/admin/users";
     }
 
     @PostMapping("/users/update/{id}")
     public String updateUser(@PathVariable Long id, @RequestParam String nombres,
-                             @RequestParam String apellidos, @RequestParam String email,
-                             @RequestParam String telefono, @RequestParam String tipo,
-                             @RequestParam(required = false) String nit,
-                             @RequestParam(required = false) String categoria,
-                             RedirectAttributes ra) {
+                              @RequestParam String apellidos, @RequestParam String email,
+                              @RequestParam String telefono, @RequestParam String tipo,
+                              @RequestParam(required = false) String nit,
+                              @RequestParam(required = false) String categoria,
+                              HttpServletRequest request, Authentication auth,
+                              RedirectAttributes ra) {
         User user = userRepository.findById(id).orElseThrow(() -> new RuntimeException("User not found: " + id));
         user.setNombres(nombres);
         user.setApellidos(apellidos);
@@ -148,6 +158,7 @@ public class AdminController {
         user.setNit(nit);
         user.setCategoria(categoria);
         userRepository.save(user);
+        auditService.log(auth.getName(), "USER_UPDATE", "Updated user " + user.getUsername(), request);
         ra.addFlashAttribute("success", "Usuario actualizado");
         return "redirect:/admin/users";
     }
@@ -260,9 +271,10 @@ public class AdminController {
     @PostMapping("/payments/confirm")
     @Transactional
     public String confirmPayment(@RequestParam Long paymentId,
-                                  @RequestParam(defaultValue = "false") boolean generarPdf,
-                                  @RequestParam(value = "comprobanteManual", required = false) MultipartFile comprobanteManual,
-                                  RedirectAttributes ra) {
+                                   @RequestParam(defaultValue = "false") boolean generarPdf,
+                                   @RequestParam(value = "comprobanteManual", required = false) MultipartFile comprobanteManual,
+                                   HttpServletRequest request, Authentication auth,
+                                   RedirectAttributes ra) {
         try {
             Payment p = paymentRepository.findById(paymentId).orElseThrow(() -> new RuntimeException("Payment not found: " + paymentId));
             p.setProcessed(true);
@@ -295,6 +307,7 @@ public class AdminController {
                 }
             }
 
+            auditService.log(auth.getName(), "PAYMENT_CONFIRM", "Payment #" + paymentId + " confirmed", request);
             ra.addFlashAttribute("success", "Pago #" + paymentId + " confirmado exitosamente.");
         } catch (Exception e) {
             ra.addFlashAttribute("error", "Error al confirmar pago: " + e.getMessage());
@@ -314,24 +327,31 @@ public class AdminController {
     }
 
     @PostMapping("/config/save")
-    public String saveConfig(@ModelAttribute("newConfig") SystemConfig config, RedirectAttributes ra) {
+    public String saveConfig(@ModelAttribute("newConfig") SystemConfig config, HttpServletRequest request, Authentication auth, RedirectAttributes ra) {
         systemConfigRepository.save(config);
+        auditService.log(auth.getName(), "CONFIG_CREATE", "Created config " + config.getConfigKey(), request);
         ra.addFlashAttribute("success", "Configuraci&oacute;n guardada");
         return "redirect:/admin/config";
     }
 
     @PostMapping("/config/update")
-    public String updateConfig(@RequestParam Long id, @RequestParam String configValue, RedirectAttributes ra) {
+    public String updateConfig(@RequestParam Long id, @RequestParam String configValue, HttpServletRequest request, Authentication auth, RedirectAttributes ra) {
         SystemConfig config = systemConfigRepository.findById(id).orElseThrow(() -> new RuntimeException("Config not found: " + id));
+        String oldVal = config.getConfigValue();
         config.setConfigValue(configValue);
         systemConfigRepository.save(config);
+        auditService.log(auth.getName(), "CONFIG_UPDATE", "Config " + config.getConfigKey() + " updated", request);
         ra.addFlashAttribute("success", "Configuraci&oacute;n actualizada");
         return "redirect:/admin/config";
     }
 
     @PostMapping("/config/delete/{id}")
-    public String deleteConfig(@PathVariable Long id, RedirectAttributes ra) {
+    public String deleteConfig(@PathVariable Long id, HttpServletRequest request, Authentication auth, RedirectAttributes ra) {
+        SystemConfig config = systemConfigRepository.findById(id).orElse(null);
         systemConfigRepository.deleteById(id);
+        if (config != null) {
+            auditService.log(auth.getName(), "CONFIG_DELETE", "Deleted config " + config.getConfigKey(), request);
+        }
         ra.addFlashAttribute("success", "Configuraci&oacute;n eliminada");
         return "redirect:/admin/config";
     }
