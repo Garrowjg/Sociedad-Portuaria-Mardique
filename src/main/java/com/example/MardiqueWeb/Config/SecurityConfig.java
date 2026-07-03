@@ -72,6 +72,7 @@ public class SecurityConfig {
                     "style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://fonts.googleapis.com; " +
                     "img-src 'self' data: https:; " +
                     "font-src 'self' https://cdnjs.cloudflare.com https://fonts.gstatic.com; " +
+                    "frame-src 'self' https://drive.google.com https://maps.google.com; " +
                     "connect-src 'self'"
                 ))
                 .frameOptions(frame -> frame.sameOrigin())
