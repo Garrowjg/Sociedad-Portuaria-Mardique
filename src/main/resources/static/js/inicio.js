@@ -274,7 +274,7 @@ document.addEventListener('keydown', function(e) {
         { lon: 55.3, lat: 25.1, hub: false, labelDir: 'above', label: 'Jebel Ali', desc: 'El mayor puerto del Medio Oriente. Uno de los 10 más activos del mundo.', image: '/images/globo/Jebel Ali.png' },
         { lon: 32.3, lat: 29.9, hub: false, labelDir: 'right', label: 'Port Said', desc: 'Entrada al Canal de Suez. Uno de los puntos de tránsito marítimo más importantes del mundo.', image: '/images/globo/Port Said.png' },
         { lon: 18.3, lat: -33.9, hub: false, labelDir: 'below', label: 'Ciudad del Cabo', desc: 'Punto estratégico entre América del Sur y el océano Índico.', image: '/images/globo/Ciudad del cabo.png' },
-        { lon: 121.5, lat: 31.2, hub: false, labelDir: 'above', label: 'Shanghái', desc: 'El puerto más grande del mundo por volumen de contenedores. 49M TEU / año.', image: '/images/globo/Shanghái.png' },
+        { lon: 121.5, lat: 31.2, hub: false, labelDir: 'above', label: 'Shanghái', desc: 'El puerto más grande del mundo por volumen de contenedores. 49M TEU / año.', image: '/images/globo/Shanghai.png' },
         { lon: 103.9, lat: 1.3,  hub: false, labelDir: 'below', label: 'Singapur', desc: 'Segundo puerto más grande del mundo. Mayor hub de transbordo de Asia.', image: '/images/globo/Singapur.png' },
         { lon: 129.1, lat: 35.1, hub: false, labelDir: 'above', label: 'Busan', desc: 'Quinto puerto más transitado del mundo. 21.7M TEU / año.', image: '/images/globo/Busan.png' },
         { lon: 151.2, lat: -33.9, hub: false, labelDir: 'right', label: 'Sídney', desc: 'Principal puerto de Australia para contenedores.', image: '/images/globo/Sidney.png' }
