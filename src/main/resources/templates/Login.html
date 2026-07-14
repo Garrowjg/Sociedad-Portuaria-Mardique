@@ -59,7 +59,6 @@
         .btn-m365 i { font-size: 16px; }
         .btn-mock { width: 100%; padding: 10px; border: 2px dashed var(--accent-gold); border-radius: var(--radius); background: rgba(240,154,54,0.06); color: var(--accent-gold); font-size: 12px; font-weight: 700; font-family: inherit; cursor: pointer; transition: var(--transition); display: flex; align-items: center; justify-content: center; gap: 8px; margin-top: 8px; }
         .btn-mock:hover { background: rgba(240,154,54,0.12); }
-        .mock-badge { display: inline-block; padding: 2px 10px; border-radius: 50px; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.3px; background: #fef3c7; color: #92400e; border: 1px solid #f59e0b; margin-bottom: 12px; }
         @media (max-width:768px) { .auth-card { padding: 32px 24px; } .auth-card .demo-row { flex-direction: column; gap: 2px; } }
         @media (max-width:480px) { .auth-card { padding: 24px 16px; } }
     </style>
@@ -75,9 +74,6 @@
             </div>
             <h1>Iniciar Sesión</h1>
             <p class="sub">Acceda a su panel de control</p>
-            <div id="mockIndicator" style="display:none;text-align:center;">
-                <span class="mock-badge"><i class="fas fa-flask"></i> Modo Prueba</span>
-            </div>
             <div th:if="${param.error}" class="msg msg-error"><i class="fas fa-exclamation-circle"></i> Usuario o contraseña incorrectos <span th:if="${param.attempts}" th:text="|(intento ${param.attempts[0]} de 5)|"></span></div>
             <div th:if="${param.blocked}" class="msg msg-error"><i class="fas fa-lock"></i> Demasiados intentos. Espere 15 minutos.</div>
             <div th:if="${param.registered}" class="msg msg-success"><i class="fas fa-check-circle"></i> Registro exitoso. Inicie sesión.</div>
@@ -162,9 +158,6 @@
             window.location.href = "/intranet/dashboard";
         }
         document.addEventListener('DOMContentLoaded', function() {
-            if (localStorage.getItem("intranet_modo_prueba") === "true") {
-                document.getElementById("mockIndicator").style.display = "block";
-            }
             const hash = window.location.hash;
             if (hash && (hash.includes("id_token") || hash.includes("access_token") || hash.includes("code"))) {
                 handleMsalRedirect().then(response => {
