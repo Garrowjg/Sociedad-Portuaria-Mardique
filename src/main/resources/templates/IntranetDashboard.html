@@ -98,7 +98,7 @@
                 <div><div class="stat-num" id="stat-docs" style="font-size:22px;font-weight:800;color:#f09a36;">0</div><div style="font-size:11px;color:rgba(255,255,255,.5);">Documentos</div></div>
                 <div><div class="stat-num" id="stat-news" style="font-size:22px;font-weight:800;color:#00a3e0;">0</div><div style="font-size:11px;color:rgba(255,255,255,.5);">Noticias</div></div>
                 <div><div class="stat-num" id="stat-leaves" style="font-size:22px;font-weight:800;color:#16a34a;">0</div><div style="font-size:11px;color:rgba(255,255,255,.5);">Solicitudes</div></div>
-                <div><div class="stat-num" id="stat-user" style="font-size:22px;font-weight:800;color:#6366f1;">-</div><div style="font-size:11px;color:rgba(255,255,255,.5);">Departamento</div></div>
+                <div style="grid-column:1/3;"><div id="stat-user" style="font-size:12px;font-weight:700;color:rgba(255,255,255,.75);line-height:1.3;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">-</div><div style="font-size:11px;color:rgba(255,255,255,.4);margin-top:2px;">Departamento</div></div>
             </div>
         </div>
     </div>
@@ -176,8 +176,13 @@ document.addEventListener("DOMContentLoaded", function() {
     }).catch(() => {});
 
     getDriveRoot().then(items => {
-        const docs = items.filter(i => !i.folder);
-        document.getElementById("stat-docs").textContent = docs.length || "0";
+        let total = 0;
+        items.forEach(item => {
+            if (item.folder && MOCK_FILES_BY_SECTOR && MOCK_FILES_BY_SECTOR[item.id]) {
+                total += MOCK_FILES_BY_SECTOR[item.id].length;
+            }
+        });
+        document.getElementById("stat-docs").textContent = total || "0";
     }).catch(() => document.getElementById("stat-docs").textContent = "0");
 
     getNewsPosts().then(posts => {

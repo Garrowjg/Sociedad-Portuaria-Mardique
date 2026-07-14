@@ -63,5 +63,5 @@ function isMsalAuthenticated() {
 }
 
 function isMockMode() {
-    return false;
+    return MODO_PRUEBA;
 }

@@ -43,11 +43,14 @@ const MOCK_FILES_BY_SECTOR = {
 };
 
 const MOCK_NEWS = [
-    { id: "n1", fields: { Title: "Nuevo sistema de Gestión Documental", Description: "Informamos a todos los colaboradores que hemos implementado un nuevo sistema de gestión documental integrado con SharePoint. Pronto recibirán capacitación sobre su uso.", Created: "2026-04-10T08:00:00Z" }, webUrl: "#" },
-    { id: "n2", fields: { Title: "Jornada de Vacunación Empresarial", Description: "La próxima semana se realizará la jornada de vacunación contra la influenza en las instalaciones de la bodega. Inscríbanse con RRHH.", Created: "2026-04-08T10:30:00Z" }, webUrl: "#" },
-    { id: "n3", fields: { Title: "Actualización de la Política de Teletrabajo", Description: "Se ha publicado la nueva versión de la política de teletrabajo. Todos los empleados deben leerla y firmar el acuse de recibo antes del 30 de abril.", Created: "2026-04-05T09:00:00Z" }, webUrl: "#" },
-    { id: "n4", fields: { Title: "Resultados Evaluación de Desempeño", Description: "Los resultados de la evaluación de desempeño del primer trimestre ya están disponibles. Consulte con su supervisor inmediato.", Created: "2026-04-01T14:00:00Z" }, webUrl: "#" },
-    { id: "n5", fields: { Title: "Cumpleaños Corporativos — Abril", Description: "Felicitamos a todos los colaboradores que cumplen años en abril. La empresa les invita a compartir una tarde de integración el viernes 18.", Created: "2026-03-30T11:00:00Z" }, webUrl: "#" }
+    { id: "n1", fields: { Title: "Arribo de buque con 35.000 toneladas de maíz", Description: "El M/V Grain Star atracó esta madrugada en el muelle 4 con 35.000 toneladas de maíz amarillo proveniente de Estados Unidos. La operación de descarga se estima en 48 horas continuas.", Created: "2026-07-12T06:00:00Z" }, coverUrl: "https://picsum.photos/seed/buque/800/450", webUrl: "#" },
+    { id: "n2", fields: { Title: "Semana Ambiental 2026 — Un éxito rotundo", Description: "Del 23 al 29 de junio celebramos la Semana Ambiental con jornadas de reforestación, limpieza de muelles y charlas sobre sostenibilidad. Participaron más de 120 colaboradores.", Created: "2026-06-30T10:00:00Z" }, coverUrl: "https://picsum.photos/seed/ambiente/800/450", webUrl: "#" },
+    { id: "n3", fields: { Title: "Nuevo sistema de Gestión Documental", Description: "Informamos a todos los colaboradores que hemos implementado un nuevo sistema de gestión documental integrado con SharePoint. Pronto recibirán capacitación sobre su uso.", Created: "2026-07-10T08:00:00Z" }, coverUrl: "https://picsum.photos/seed/documentos/800/450", webUrl: "#" },
+    { id: "n4", fields: { Title: "Llegada de grúa móvil Liebherr LHM 550", Description: "La nueva grúa móvil Liebherr LHM 550 llegó al puerto para reforzar la capacidad operativa de descarga de graneles. Tiene un alcance de 54 metros y capacidad de 124 toneladas.", Created: "2026-07-05T14:00:00Z" }, coverUrl: "https://picsum.photos/seed/grua/800/450", webUrl: "#" },
+    { id: "n5", fields: { Title: "Jornada de Vacunación Empresarial", Description: "La próxima semana se realizará la jornada de vacunación contra la influenza en las instalaciones de la bodega. Inscríbanse con RRHH.", Created: "2026-07-08T10:30:00Z" }, coverUrl: "https://picsum.photos/seed/vacuna/800/450", webUrl: "#" },
+    { id: "n6", fields: { Title: "Exportación de contenedores con productos petroquímicos", Description: "Zona Franca de Mardique despachó 120 contenedores con productos petroquímicos con destino a Brasil. La operación generó 80 empleos directos durante la carga.", Created: "2026-07-02T09:00:00Z" }, coverUrl: "https://picsum.photos/seed/contenedores/800/450", webUrl: "#" },
+    { id: "n7", fields: { Title: "Capacitación en primeros auxilios para brigadistas", Description: "15 colaboradores de las brigadas de emergencia recibieron certificación en primeros auxilios básicos y RCP, dictada por la Defensa Civil.", Created: "2026-06-25T15:00:00Z" }, coverUrl: "https://picsum.photos/seed/brigada/800/450", webUrl: "#" },
+    { id: "n8", fields: { Title: "Actualización de la Política de Teletrabajo", Description: "Se ha publicado la nueva versión de la política de teletrabajo. Todos los empleados deben leerla y firmar el acuse de recibo antes del 30 de julio.", Created: "2026-07-01T09:00:00Z" }, coverUrl: "https://picsum.photos/seed/teletrabajo/800/450", webUrl: "#" }
 ];
 
 let MOCK_LEAVE_REQUESTS = [
@@ -210,8 +213,14 @@ async function getNewsPosts() {
             const data = await graphFetch(GRAPH_BASE + "/sites/" + SHAREPOINT_SITE_ID + "/lists/Noticias/items?$expand=fields&$orderby=fields/Created desc&$top=20");
             return data.value || [];
         } catch (e2) {
-            const data = await graphFetch(GRAPH_BASE + "/sites/" + SHAREPOINT_SITE_ID + "/lists/Anuncios/items?$expand=fields&$orderby=fields/Created desc&$top=20");
-            return data.value || [];
+            try {
+                const data = await graphFetch(GRAPH_BASE + "/sites/" + SHAREPOINT_SITE_ID + "/lists/Anuncios/items?$expand=fields&$orderby=fields/Created desc&$top=20");
+                return data.value || [];
+            } catch (e3) {
+                console.warn("getNewsPosts: error Graph API, usando datos locales:", e3.message);
+                await mockDelay();
+                return MOCK_NEWS;
+            }
         }
     }
 }
@@ -315,7 +324,7 @@ const MOCK_AREAS_REAL_LIST = {
             "fields": {
                 "Title": "Sistemas",
                 "Sitio": "",
-                "Contactos": "Johnnier Gomez\nRamiro Rodelo del Valle - Coordinador de Tecnologia de Informacion\nAdelino Aragon - Tecnico de Sistemas\nOmar Caicedo Martinez - Analista TI",
+                "Contactos": "Ramiro Rodelo del Valle - Coordinador de Tecnologia de Informacion\nJohnnier Gomez - Aprendiz TI\nAdelino Aragon - Tecnico de Sistemas\nOmar Caicedo Martinez - Analista TI",
                 "Informe": `<iframe title="Dashboard" width="600" height="373.5" src="https://app.powerbi.com/view?r=eyJrIjoiNjBjMDRkMTAtZWMzNC00NGVlLWIwODEtNzE1ZWQ5M2MyNmQwIiwidCI6ImYzM2JlZDlmLTIyYmQtNDM1MC1iN2RhLTY2YmQ4OGZjNjQ1OCIsImMiOjR9" frameborder="0" allowFullScreen="true"></iframe>`,
                 "cover": "https://img.freepik.com/free-photo/server-room_53876-97067.jpg",
                 "descripcion_larga": "Encargada de la infraestructura tecnológica, soporte a usuarios, administración de sistemas ERP y seguridad informática."
@@ -326,7 +335,7 @@ const MOCK_AREAS_REAL_LIST = {
             "fields": {
                 "Title": "Contabilidad",
                 "Sitio": "",
-                "Contactos": "Carlos Molina Lozano - Coordinador Contable\nYordanis Chavez - Analista Contable\nSebastián Vasquez - Analista Contable",
+                "Contactos": "Carlos Molina Lozano - Coordinador Contable\nYordanis Chavez - Analista Contable\nSebastián Vasquez - Analista Contable\nYuliana Ramirez - Aprendiz Contable",
                 "Informe": "",
                 "cover": "https://img.freepik.com/free-photo/accountants-working-late-office_1098-18496.jpg",
                 "descripcion_larga": "Gestión de cuentas por pagar y cobrar, conciliaciones bancarias, elaboración de estados financieros y reportes fiscales."
@@ -337,7 +346,7 @@ const MOCK_AREAS_REAL_LIST = {
             "fields": {
                 "Title": "Talento Humano",
                 "Sitio": "",
-                "Contactos": "Adriana Meola - Coordinadora\nDuván Simancas - Asistente SST\nValentina Ospino - Practicante",
+                "Contactos": "Adriana Meola - Coordinadora Talento Humano\nDuván Simancas - Analista Talento Humano\nValentina Ospino - Aprendiz Talento Humano",
                 "Informe": "",
                 "cover": "https://img.freepik.com/free-photo/group-people-working-out-business-meeting_1303-15780.jpg",
                 "descripcion_larga": "Administración del personal, nómina, bienestar laboral, seguridad y salud en el trabajo, y desarrollo organizacional."
@@ -375,7 +384,11 @@ async function getAreas() {
 }
 
 let MOCK_CONVERSATIONS = [
-    { author: "Johnier Gómez", time: "hace 24 m", text: "probando", likes: 0, comments: 0, type: "Discusión" }
+    { author: "Johnier Gómez", time: "hace 24 m", text: "Probando el nuevo foro colaborativo de la intranet. ¡Compartan sus ideas!", likes: 3, comments: 2, type: "Discusión" },
+    { author: "Carlos Martínez", time: "hace 2 h", text: "Recordatorio: la capacitación de SAP será este viernes a las 10am en la sala de juntas.", likes: 8, comments: 1, type: "Anuncio" },
+    { author: "Ana Gómez", time: "hace 3 h", text: "¿Alguien sabe cómo solicitar los formatos de evaluación de desempeño? Necesito para mi equipo.", likes: 5, comments: 4, type: "Pregunta" },
+    { author: "Laura Jiménez", time: "hace 5 h", text: "¡Excelente trabajo del equipo de operaciones! La productividad del mes subió un 15%.", likes: 12, comments: 3, type: "Elogio" },
+    { author: "Pedro Ruiz", time: "ayer", text: "¿Qué opinan de implementar un día de teletrabajo a la semana? Me gustaría conocer sus experiencias.", likes: 7, comments: 6, type: "Sondeo" }
 ];
 
 async function getConversations() {
@@ -383,8 +396,14 @@ async function getConversations() {
         await mockDelay();
         return MOCK_CONVERSATIONS;
     }
-    const data = await graphFetch(GRAPH_BASE + "/sites/" + SHAREPOINT_SITE_ID + "/lists/Conversaciones/items?$expand=fields&$orderby=fields/Created desc&$top=50");
-    return data.value || [];
+    try {
+        const data = await graphFetch(GRAPH_BASE + "/sites/" + SHAREPOINT_SITE_ID + "/lists/Conversaciones/items?$expand=fields&$orderby=fields/Created desc&$top=50");
+        return data.value || [];
+    } catch (e) {
+        console.warn("getConversations: error Graph API, usando datos locales:", e.message);
+        await mockDelay();
+        return MOCK_CONVERSATIONS;
+    }
 }
 
 async function submitConversation(formData) {
@@ -423,8 +442,14 @@ async function getGalleryAlbums() {
         await mockDelay();
         return MOCK_GALLERY_ALBUMS;
     }
-    const data = await graphFetch(GRAPH_BASE + "/sites/" + SHAREPOINT_SITE_ID + "/drive/root/children?$select=id,name,size,folder,lastModifiedDateTime,webUrl,createdBy&$filter=folder/childCount gt 0&$top=20");
-    return data.value || [];
+    try {
+        const data = await graphFetch(GRAPH_BASE + "/sites/" + SHAREPOINT_SITE_ID + "/drive/root/children?$select=id,name,size,folder,lastModifiedDateTime,webUrl,createdBy&$filter=folder/childCount gt 0&$top=20");
+        return data.value || [];
+    } catch (e) {
+        console.warn("getGalleryAlbums: error Graph API, usando datos locales:", e.message);
+        await mockDelay();
+        return MOCK_GALLERY_ALBUMS;
+    }
 }
 
 async function getGalleryAlbumItems(albumId) {

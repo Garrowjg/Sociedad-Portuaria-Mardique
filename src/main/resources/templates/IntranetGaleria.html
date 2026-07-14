@@ -25,59 +25,101 @@
         .phero-floaters i:nth-child(3){font-size:48px;top:20%;right:8%;animation-delay:.7s}
         .phero-floaters i:nth-child(4){font-size:36px;bottom:12%;right:16%;animation-delay:2.1s}
         body{background:#f3f4f6!important;}
-        .intranet-shell{max-width:1320px;margin:0 auto;padding:0 24px 90px;display:flex;flex-direction:column;gap:22px;}
+        .intranet-shell{max-width:780px;margin:0 auto;padding:0 24px 90px;display:flex;flex-direction:column;gap:22px;}
         .intranet-main{flex:1;min-width:0;}
-        body .section-header{margin-bottom:24px;padding-bottom:16px;border-bottom:2px solid #eef1f4;}
+        body .section-header{margin-bottom:24px;padding-bottom:16px;border-bottom:2px solid #eef1f4;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;}
         body .section-header h2{display:flex;align-items:center;gap:10px;font-size:19px;font-weight:800;color:var(--pd);margin:0;letter-spacing:-.2px;}
         body .section-header h2 i{color:var(--ag);font-size:17px;width:34px;height:34px;flex-shrink:0;display:inline-flex;align-items:center;justify-content:center;background:rgba(240,154,54,.12);border-radius:9px;}
         body .section-header p{margin-top:6px!important;}
         body .tab-content{background:#fff;border:1px solid var(--bdr);border-radius:16px;padding:34px 36px;box-shadow:0 4px 22px rgba(15,42,58,.06);}
         @media(max-width:700px){ body .tab-content{padding:22px 18px;} }
-        .gallery-views { position: relative; }
-        .gallery-view { display: none; }
-        .gallery-view.active { display: block; }
-        .gallery-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; }
-        .gallery-album { background: #fff; border-radius: var(--r); overflow: hidden; box-shadow: 0 2px 12px rgba(0,0,0,.06); cursor: pointer; transition: transform .25s ease, box-shadow .25s ease; border: 1px solid var(--bdr); }
-        .gallery-album:hover { transform: translateY(-4px); box-shadow: 0 8px 30px rgba(0,0,0,.1); }
-        .gallery-album-cover { aspect-ratio: 3/2; overflow: hidden; background: var(--bg); }
-        .gallery-album-cover img { width: 100%; height: 100%; object-fit: cover; transition: transform .4s ease; }
-        .gallery-album:hover .gallery-album-cover img { transform: scale(1.05); }
-        .gallery-album-body { padding: 16px; }
-        .gallery-album-count { font-size: 11px; font-weight: 600; color: var(--ag); text-transform: uppercase; letter-spacing: .3px; margin-bottom: 4px; }
-        .gallery-album-title { font-size: 15px; font-weight: 700; color: var(--pd); margin: 0 0 4px; line-height: 1.3; }
-        .gallery-album-date { font-size: 12px; color: var(--mx); margin-bottom: 6px; }
-        .gallery-album-desc { font-size: 13px; color: var(--tx); line-height: 1.5; margin: 0 0 12px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
-        .gallery-album-btn { display: inline-flex; align-items: center; gap: 6px; padding: 8px 18px; border: none; border-radius: 50px; font-size: 12px; font-weight: 700; font-family: inherit; background: linear-gradient(135deg, var(--ag), #d67e1a); color: #fff; cursor: pointer; transition: all .3s ease; }
-        .gallery-album-btn:hover { transform: translateY(-1px); box-shadow: 0 4px 14px rgba(240,154,54,.3); }
-        .gallery-detail-header { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; flex-wrap: wrap; }
-        .gallery-detail-header h2 { flex: 1; font-size: 18px; font-weight: 700; color: var(--pd); margin: 0; min-width: 200px; }
-        .gallery-detail-header .btn-back { display: inline-flex; align-items: center; gap: 6px; padding: 8px 18px; border: 2px solid var(--bdr); border-radius: var(--r); font-size: 12px; font-weight: 700; font-family: inherit; background: #fff; color: var(--tx); cursor: pointer; transition: all .25s ease; }
-        .gallery-detail-header .btn-back:hover { border-color: var(--ag); color: var(--ag); }
-        .gallery-detail-desc { font-size: 13px; color: var(--mx); margin-bottom: 20px; line-height: 1.6; }
-        .gallery-detail-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 12px; }
-        .gallery-detail-item { position: relative; aspect-ratio: 4/3; border-radius: calc(var(--r) - 2px); overflow: hidden; cursor: pointer; background: var(--bg); }
-        .gallery-detail-item img { width: 100%; height: 100%; object-fit: cover; transition: transform .3s ease; }
-        .gallery-detail-item:hover img { transform: scale(1.08); }
-        .gallery-detail-overlay { position: absolute; inset: 0; background: rgba(0,0,0,.3); display: flex; align-items: center; justify-content: center; opacity: 0; transition: opacity .25s ease; color: #fff; font-size: 22px; }
-        .gallery-detail-item:hover .gallery-detail-overlay { opacity: 1; }
-        .gallery-preview-modal { display: none; position: fixed; inset: 0; z-index: 10000; background: rgba(0,0,0,.92); align-items: center; justify-content: center; padding: 40px; }
-        .gallery-preview-modal.active { display: flex; }
-        .gallery-preview-modal img { max-width: 95%; max-height: 85vh; object-fit: contain; border-radius: 6px; box-shadow: 0 8px 40px rgba(0,0,0,.4); }
-        .gallery-preview-close { position: absolute; top: 20px; right: 24px; background: none; border: none; color: #fff; font-size: 32px; cursor: pointer; opacity: .7; transition: opacity .2s; z-index: 1; }
-        .gallery-preview-close:hover { opacity: 1; }
-        .gallery-preview-caption { position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); color: rgba(255,255,255,.7); font-size: 13px; text-align: center; background: rgba(0,0,0,.5); padding: 6px 18px; border-radius: 50px; max-width: 80%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .mock-mode-badge { display: inline-flex; align-items: center; gap: 5px; padding: 4px 14px; border-radius: 50px; font-size: 11px; font-weight: 700; background: #fef3c7; color: #92400e; border: 1px solid #f59e0b; margin-left: 10px; }
+        .btn-add-post{display:inline-flex;align-items:center;gap:8px;padding:10px 22px;border:none;border-radius:50px;font-size:13px;font-weight:700;font-family:inherit;background:linear-gradient(135deg,var(--ag),#d67e1a);color:#fff;cursor:pointer;transition:all .25s ease;box-shadow:0 4px 14px rgba(240,154,54,.25);}
+        .btn-add-post:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(240,154,54,.35);}
+        .gal-post{background:#fff;border:1px solid var(--bdr);border-radius:14px;overflow:hidden;margin-bottom:20px;box-shadow:0 2px 10px rgba(0,0,0,.04);}
+        .gal-post-head{display:flex;align-items:center;gap:10px;padding:14px 16px;}
+        .gal-post-avatar{width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,var(--pd),var(--pb));color:#fff;font-size:14px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+        .gal-post-head-info strong{display:block;font-size:13px;color:var(--tx);}
+        .gal-post-head-info span{font-size:11px;color:var(--mx);}
+        .gal-post-title{font-size:15px;font-weight:700;color:var(--pd);padding:0 16px 8px;}
+        .gal-post-desc{font-size:13px;color:var(--tx);padding:0 16px 12px;line-height:1.55;}
+        .gal-carousel{position:relative;width:100%;overflow:hidden;background:#f1f3f5;}
+        .gal-carousel-inner{display:flex;transition:transform .4s ease;will-change:transform;}
+        .gal-carousel-inner img{width:100%;flex-shrink:0;object-fit:contain;max-height:500px;background:#eef1f4;cursor:pointer;}
+        .gal-carousel-btn{position:absolute;top:50%;transform:translateY(-50%);width:40px;height:40px;border:none;border-radius:50%;background:rgba(255,255,255,.85);box-shadow:0 2px 10px rgba(0,0,0,.15);color:#1e293b;font-size:18px;cursor:pointer;z-index:2;display:flex;align-items:center;justify-content:center;transition:all .2s;backdrop-filter:blur(4px);}
+        .gal-carousel-btn:hover{background:#fff;transform:translateY(-50%) scale(1.08);}
+        .gal-carousel-prev{left:12px;}
+        .gal-carousel-next{right:12px;}
+        .gal-carousel-dots{display:flex;align-items:center;justify-content:center;gap:6px;padding:10px 16px;background:#fff;border-top:1px solid #eef1f4;}
+        .gal-carousel-dot{width:8px;height:8px;border-radius:50%;background:#d0d5dd;border:none;cursor:pointer;transition:all .2s;padding:0;}
+        .gal-carousel-dot.active{background:var(--ag);width:22px;border-radius:4px;}
+        .gal-post-actions{display:flex;gap:16px;padding:10px 16px;border-top:1px solid #eef1f4;}
+        .gal-post-actions button{background:none;border:none;font-family:inherit;font-size:12px;font-weight:600;color:var(--mx);cursor:pointer;display:inline-flex;align-items:center;gap:6px;padding:6px 12px;border-radius:8px;transition:all .2s;}
+        .gal-post-actions button:hover{background:#f1f5f9;color:var(--ag);}
+        .gal-post-actions button.liked{color:#2563eb;}
+        .gal-modal-overlay{display:none;position:fixed;inset:0;z-index:10000;background:rgba(0,0,0,.55);align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(4px);}
+        .gal-modal-overlay.active{display:flex;}
+        .gal-modal{background:#fff;border-radius:16px;width:100%;max-width:520px;max-height:85vh;overflow-y:auto;padding:28px;box-shadow:0 20px 60px rgba(0,0,0,.25);}
+        .gal-modal h2{font-size:18px;font-weight:700;color:var(--pd);margin:0 0 20px;display:flex;align-items:center;gap:8px;}
+        .gal-modal h2 i{color:var(--ag);}
+        .gal-modal .field{margin-bottom:16px;}
+        .gal-modal .field label{display:block;font-size:12px;font-weight:600;color:var(--tx);margin-bottom:4px;}
+        .gal-modal .field input,.gal-modal .field textarea{width:100%;padding:10px 14px;border:1px solid #d0d5dd;border-radius:8px;font-size:13px;font-family:inherit;outline:none;transition:border-color .2s;}
+        .gal-modal .field input:focus,.gal-modal .field textarea:focus{border-color:var(--ag);box-shadow:0 0 0 3px rgba(240,154,54,.1);}
+        .gal-modal .field textarea{min-height:80px;resize:vertical;}
+        .gal-modal .photo-preview-area{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px;}
+        .gal-modal .photo-preview-item{position:relative;width:80px;height:80px;border-radius:8px;overflow:hidden;border:1px solid #eef1f4;}
+        .gal-modal .photo-preview-item img{width:100%;height:100%;object-fit:cover;}
+        .gal-modal .photo-preview-item .remove-photo{position:absolute;top:-4px;right:-4px;width:22px;height:22px;border-radius:50%;border:none;background:#dc2626;color:#fff;font-size:12px;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 6px rgba(0,0,0,.2);}
+        .gal-modal .photo-upload-btn{display:inline-flex;align-items:center;gap:6px;padding:10px 18px;border:2px dashed var(--bdr);border-radius:8px;background:#f9fafb;color:var(--mx);font-size:12px;font-weight:600;cursor:pointer;transition:all .2s;font-family:inherit;}
+        .gal-modal .photo-upload-btn:hover{border-color:var(--ag);color:var(--ag);background:rgba(240,154,54,.04);}
+        .gal-modal-btns{display:flex;gap:10px;margin-top:20px;justify-content:flex-end;}
+        .gal-modal-btns button{padding:10px 24px;border-radius:8px;font-size:13px;font-weight:700;font-family:inherit;cursor:pointer;transition:all .2s;}
+        .gal-modal-btns .btn-cancel{border:2px solid var(--bdr);background:#fff;color:var(--tx);}
+        .gal-modal-btns .btn-cancel:hover{border-color:#d0d5dd;background:#f9fafb;}
+        .gal-modal-btns .btn-save{border:none;background:linear-gradient(135deg,var(--ag),#d67e1a);color:#fff;box-shadow:0 4px 14px rgba(240,154,54,.25);}
+        .gal-modal-btns .btn-save:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(240,154,54,.35);}
+        .gal-modal-btns .btn-save:disabled{opacity:.5;cursor:not-allowed;transform:none;}
+        .empty-state{display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:60px 20px;color:var(--mx);}
+        .empty-state i{font-size:40px;margin-bottom:12px;opacity:.3;color:var(--pd);}
+        .empty-state h3{font-size:16px;font-weight:700;color:var(--pd);margin:0 0 6px;}
+        .empty-state p{font-size:13px;max-width:300px;margin:0;}
+        .mock-mode-badge{display:inline-flex;align-items:center;gap:5px;padding:4px 14px;border-radius:50px;font-size:11px;font-weight:700;background:#fef3c7;color:#92400e;border:1px solid #f59e0b;margin-left:10px;}
         .user-greeting{font-size:15px;color:rgba(255,255,255,.75);margin-top:4px;}
         .user-badge{display:inline-block;padding:3px 12px;border-radius:50px;font-size:11px;font-weight:700;background:rgba(240,154,54,.14);color:var(--ag);border:1px solid rgba(240,154,54,.3);margin-top:8px;}
-        @media(max-width:768px){ .header-user-name{display:none;} }
+        @media(max-width:768px){.header-user-name{display:none;}}
+        .gal-preview-modal{display:none;position:fixed;inset:0;z-index:11000;background:rgba(0,0,0,.92);align-items:center;justify-content:center;padding:20px;cursor:pointer;}
+        .gal-preview-modal.active{display:flex;}
+        .gal-preview-modal img{max-width:95%;max-height:90vh;object-fit:contain;border-radius:6px;box-shadow:0 8px 40px rgba(0,0,0,.4);cursor:default;}
     </style>
 </head>
 <body>
 
-<div id="gallery-preview-modal" class="gallery-preview-modal" onclick="closeGalleryPreview()">
-    <button class="gallery-preview-close" onclick="event.stopPropagation();closeGalleryPreview()">&times;</button>
-    <img class="gallery-preview-img" src="" alt="Vista previa" onclick="event.stopPropagation()">
-    <div class="gallery-preview-caption"></div>
+<div class="gal-preview-modal" id="galPreviewModal" onclick="closeGalPreview()">
+    <img class="gal-preview-img" src="" alt="" onclick="event.stopPropagation()">
+</div>
+
+<div class="gal-modal-overlay" id="galPostModal">
+    <div class="gal-modal">
+        <h2><i class="fas fa-image"></i> Nueva Publicación</h2>
+        <div class="field">
+            <label>Título</label>
+            <input type="text" id="gal-form-title" placeholder="Título de la publicación" maxlength="200">
+        </div>
+        <div class="field">
+            <label>Descripción</label>
+            <textarea id="gal-form-desc" placeholder="Describe esta publicación..."></textarea>
+        </div>
+        <div class="field">
+            <label>Fotos</label>
+            <input type="file" id="gal-form-files" accept="image/*" multiple style="display:none">
+            <button class="photo-upload-btn" onclick="document.getElementById('gal-form-files').click()"><i class="fas fa-camera"></i> Agregar fotos</button>
+            <div class="photo-preview-area" id="gal-form-previews"></div>
+        </div>
+        <div class="gal-modal-btns">
+            <button class="btn-cancel" onclick="closeGalModal()">Cancelar</button>
+            <button class="btn-save" id="gal-form-submit" onclick="submitGalPost()"><i class="fas fa-paper-plane"></i> Publicar</button>
+        </div>
+    </div>
 </div>
 
 <div th:replace="IntranetNav :: nav(current='galeria')"></div>
@@ -85,17 +127,17 @@
 <div class="phero">
     <div class="phw-glow"></div>
     <div class="phero-floaters">
-        <i class="fas fa-anchor"></i>
-        <i class="fas fa-ship"></i>
-        <i class="fas fa-water"></i>
-        <i class="fas fa-crane"></i>
+        <i class="fas fa-camera"></i>
+        <i class="fas fa-image"></i>
+        <i class="fas fa-photo-film"></i>
+        <i class="fas fa-panorama"></i>
     </div>
     <div class="phw-container">
         <div class="phero-grid">
             <div class="phero-main">
                 <div class="phero-badge"><i class="fas fa-images"></i> Galería Corporativa</div>
                 <h1>Galería de Fotos</h1>
-                <p>Memorias visuales de eventos institucionales y jornadas socioculturales</p>
+                <p>Comparte y descubre momentos de la vida institucional</p>
             </div>
         </div>
     </div>
@@ -107,19 +149,11 @@
 <div class="intranet-shell">
     <div class="intranet-main">
         <div class="tab-content reveal">
-            <div class="gallery-views">
-                <div class="gallery-view active" id="gallery-albums-view">
-                    <div id="gallery-container"></div>
-                </div>
-                <div class="gallery-view" id="gallery-detail-view">
-                    <div class="gallery-detail-header">
-                        <button class="btn-back" onclick="closeGalleryDetail()"><i class="fas fa-arrow-left"></i> Volver a álbumes</button>
-                        <h2 id="gallery-detail-title"></h2>
-                    </div>
-                    <div class="gallery-detail-desc" id="gallery-detail-desc"></div>
-                    <div class="gallery-detail-grid" id="gallery-detail-grid"></div>
-                </div>
+            <div class="section-header">
+                <h2><i class="fas fa-images"></i> Publicaciones recientes</h2>
+                <button class="btn-add-post" onclick="openGalModal()"><i class="fas fa-plus"></i> Nueva publicación</button>
             </div>
+            <div id="gal-feed"></div>
         </div>
     </div>
 </div>
@@ -131,6 +165,189 @@
 <script src="/js/msal-config.js"></script>
 <script src="/js/intranet.js"></script>
 <script>
+let galPendingFiles = [];
+
+function openGalModal(){
+    document.getElementById("galPostModal").classList.add("active");
+    document.body.style.overflow = "hidden";
+}
+
+function closeGalModal(){
+    document.getElementById("galPostModal").classList.remove("active");
+    document.body.style.overflow = "";
+    document.getElementById("gal-form-title").value = "";
+    document.getElementById("gal-form-desc").value = "";
+    document.getElementById("gal-form-previews").innerHTML = "";
+    document.getElementById("gal-form-files").value = "";
+    galPendingFiles = [];
+}
+
+document.getElementById("gal-form-files")?.addEventListener("change", function(){
+    const area = document.getElementById("gal-form-previews");
+    area.innerHTML = "";
+    galPendingFiles = Array.from(this.files);
+    galPendingFiles.forEach((file, idx) => {
+        const reader = new FileReader();
+        reader.onload = function(e){
+            const div = document.createElement("div");
+            div.className = "photo-preview-item";
+            div.innerHTML = '<img src="' + e.target.result + '" alt=""><button class="remove-photo" data-idx="' + idx + '">&times;</button>';
+            div.querySelector(".remove-photo").addEventListener("click", function(){
+                galPendingFiles.splice(parseInt(this.dataset.idx), 1);
+                this.parentElement.remove();
+            });
+            area.appendChild(div);
+        };
+        reader.readAsDataURL(file);
+    });
+});
+
+function submitGalPost(){
+    const title = document.getElementById("gal-form-title").value.trim();
+    const desc = document.getElementById("gal-form-desc").value.trim();
+    if (!title) { showIntranetToast("Escribe un título para la publicación", "error"); return; }
+    if (galPendingFiles.length === 0) { showIntranetToast("Agrega al menos una foto", "error"); return; }
+    const btn = document.getElementById("gal-form-submit");
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Publicando...';
+    Promise.all(galPendingFiles.map(f => new Promise(resolve => {
+        const r = new FileReader();
+        r.onload = e => resolve({ name: f.name, data: e.target.result });
+        r.readAsDataURL(f);
+    }))).then(photos => {
+        const name = document.getElementById("userName")?.textContent || "Empleado";
+        const post = {
+            id: "gal-" + Date.now(),
+            author: name,
+            time: new Date().toISOString(),
+            title: title,
+            desc: desc,
+            photos: photos.map(p => p.data),
+            likes: 0,
+            liked: false
+        };
+        const posts = JSON.parse(localStorage.getItem("mardique_galeria") || "[]");
+        posts.unshift(post);
+        localStorage.setItem("mardique_galeria", JSON.stringify(posts));
+        closeGalModal();
+        renderGalFeed();
+        showIntranetToast("Publicación creada correctamente", "success");
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fas fa-paper-plane"></i> Publicar';
+    });
+}
+
+function renderGalFeed(){
+    const feed = document.getElementById("gal-feed");
+    if (!feed) return;
+    const posts = JSON.parse(localStorage.getItem("mardique_galeria") || "[]");
+    if (!posts.length) {
+        feed.innerHTML = '<div class="empty-state"><i class="fas fa-images"></i><h3>No hay publicaciones aún</h3><p>Sé el primero en compartir una foto con el equipo</p></div>';
+        return;
+    }
+    feed.innerHTML = posts.map((post, pidx) => {
+        const initials = (post.author || "E").split(" ").filter(Boolean).slice(0,2).map(w=>w[0]).join("").toUpperCase();
+        const timeStr = formatTimeAgo(post.time);
+        const hasMultiple = post.photos.length > 1;
+        return '<div class="gal-post">' +
+            '<div class="gal-post-head">' +
+                '<div class="gal-post-avatar">' + initials + '</div>' +
+                '<div class="gal-post-head-info"><strong>' + escapeHtml(post.author) + '</strong><span>' + timeStr + '</span></div>' +
+            '</div>' +
+            (post.title ? '<div class="gal-post-title">' + escapeHtml(post.title) + '</div>' : '') +
+            (post.desc ? '<div class="gal-post-desc">' + escapeHtml(post.desc) + '</div>' : '') +
+            '<div class="gal-carousel">' +
+                '<div class="gal-carousel-inner" id="c-inner-' + pidx + '">' +
+                    post.photos.map(p => '<img src="' + p + '" alt="" onclick="openGalPreview(\'' + p + '\')">').join("") +
+                '</div>' +
+                (hasMultiple ? '<button class="gal-carousel-btn gal-carousel-prev" onclick="galMove(' + pidx + ',-1)"><i class="fas fa-chevron-left"></i></button><button class="gal-carousel-btn gal-carousel-next" onclick="galMove(' + pidx + ',1)"><i class="fas fa-chevron-right"></i></button>' : '') +
+            '</div>' +
+            (hasMultiple ? '<div class="gal-carousel-dots" id="c-dots-' + pidx + '">' + post.photos.map((_, di) => '<button class="gal-carousel-dot' + (di === 0 ? ' active' : '') + '" onclick="galGoTo(' + pidx + ',' + di + ')"></button>').join("") + '</div>' : '') +
+            '<div class="gal-post-actions">' +
+                '<button class="' + (post.liked ? 'liked' : '') + '" onclick="galToggleLike(' + pidx + ')"><i class="' + (post.liked ? 'fas' : 'far') + ' fa-thumbs-up"></i> ' + (post.likes || 0) + ' Me gusta</button>' +
+                '<button onclick="galDeletePost(' + pidx + ')"><i class="fas fa-trash-can"></i> Eliminar</button>' +
+            '</div>' +
+        '</div>';
+    }).join("");
+    document.querySelectorAll(".gal-carousel").forEach(c => {
+        c.querySelectorAll("img").forEach(img => {
+            img.addEventListener("load", function(){ this.style.background = "none"; });
+        });
+    });
+}
+
+function galMove(pidx, dir){
+    const inner = document.getElementById("c-inner-" + pidx);
+    if (!inner) return;
+    const posts = JSON.parse(localStorage.getItem("mardique_galeria") || "[]");
+    const post = posts[pidx];
+    if (!post) return;
+    const total = post.photos.length;
+    let current = parseInt(inner.dataset.current || "0");
+    current = (current + dir + total) % total;
+    inner.dataset.current = current;
+    inner.style.transform = "translateX(-" + (current * 100) + "%)";
+    const dots = document.getElementById("c-dots-" + pidx);
+    if (dots) {
+        dots.querySelectorAll(".gal-carousel-dot").forEach((d, i) => d.classList.toggle("active", i === current));
+    }
+}
+
+function galGoTo(pidx, idx){
+    const inner = document.getElementById("c-inner-" + pidx);
+    if (!inner) return;
+    inner.dataset.current = idx;
+    inner.style.transform = "translateX(-" + (idx * 100) + "%)";
+    const dots = document.getElementById("c-dots-" + pidx);
+    if (dots) {
+        dots.querySelectorAll(".gal-carousel-dot").forEach((d, i) => d.classList.toggle("active", i === idx));
+    }
+}
+
+function galToggleLike(pidx){
+    const posts = JSON.parse(localStorage.getItem("mardique_galeria") || "[]");
+    const post = posts[pidx];
+    if (!post) return;
+    post.liked = !post.liked;
+    post.likes = post.liked ? (post.likes || 0) + 1 : Math.max(0, (post.likes || 0) - 1);
+    localStorage.setItem("mardique_galeria", JSON.stringify(posts));
+    renderGalFeed();
+}
+
+function galDeletePost(pidx){
+    if (!confirm("¿Eliminar esta publicación?")) return;
+    const posts = JSON.parse(localStorage.getItem("mardique_galeria") || "[]");
+    posts.splice(pidx, 1);
+    localStorage.setItem("mardique_galeria", JSON.stringify(posts));
+    renderGalFeed();
+    showIntranetToast("Publicación eliminada", "success");
+}
+
+function openGalPreview(src){
+    const modal = document.getElementById("galPreviewModal");
+    modal.querySelector("img").src = src;
+    modal.classList.add("active");
+    document.body.style.overflow = "hidden";
+}
+
+function closeGalPreview(){
+    document.getElementById("galPreviewModal").classList.remove("active");
+    document.body.style.overflow = "";
+}
+
+function formatTimeAgo(dateStr){
+    if (!dateStr) return "";
+    const diff = Date.now() - new Date(dateStr).getTime();
+    const mins = Math.floor(diff / 60000);
+    if (mins < 1) return "justo ahora";
+    if (mins < 60) return "hace " + mins + " min";
+    const hrs = Math.floor(mins / 60);
+    if (hrs < 24) return "hace " + hrs + " h";
+    const days = Math.floor(hrs / 24);
+    if (days < 7) return "hace " + days + " d";
+    return new Date(dateStr).toLocaleDateString("es-CO", { year:"numeric", month:"short", day:"numeric" });
+}
+
 document.addEventListener("DOMContentLoaded", function() {
     if (!isMsalAuthenticated()) { window.location.href = "/login"; return; }
     if (isMockMode()) { const mb = document.getElementById("mockBadge"); if (mb) mb.style.display = "inline-flex"; }
@@ -142,7 +359,7 @@ document.addEventListener("DOMContentLoaded", function() {
         if (user.jobTitle) document.getElementById("userBadge").textContent = user.jobTitle;
     }).catch(() => {});
 
-    loadGallery();
+    renderGalFeed();
 
     const hdr = document.getElementById('intranet-header');
     window.addEventListener('scroll', () => hdr?.classList.toggle('scrolled', window.scrollY > 60), { passive: true });

@@ -25,32 +25,26 @@
         .phero-floaters i:nth-child(3){font-size:48px;top:20%;right:8%;animation-delay:.7s}
         .phero-floaters i:nth-child(4){font-size:36px;bottom:12%;right:16%;animation-delay:2.1s}
         body{background:#f3f4f6!important;}
-        .intranet-shell{max-width:1320px;margin:0 auto;padding:0 24px 90px;display:flex;flex-direction:column;gap:22px;}
-        .intranet-main{flex:1;min-width:0;}
-        body .section-header{margin-bottom:24px;padding-bottom:16px;border-bottom:2px solid #eef1f4;}
-        body .section-header h2{display:flex;align-items:center;gap:10px;font-size:19px;font-weight:800;color:var(--pd);margin:0;letter-spacing:-.2px;}
-        body .section-header h2 i{color:var(--ag);font-size:17px;width:34px;height:34px;flex-shrink:0;display:inline-flex;align-items:center;justify-content:center;background:rgba(240,154,54,.12);border-radius:9px;}
+        .intranet-shell{max-width:980px;margin:0 auto;padding:0 24px 90px;}
+        .intranet-main{min-width:0;}
         body .tab-content{background:#fff;border:1px solid var(--bdr);border-radius:16px;padding:34px 36px;box-shadow:0 4px 22px rgba(15,42,58,.06);}
-        @media(max-width:700px){ body .tab-content{padding:22px 18px;} }
-        .news-corporate-grid { display: grid; grid-template-columns: 1fr 1.2fr; gap: 20px; align-items: stretch; }
-        .news-empty-panel { background: #f3f4f6; border-radius: var(--r); display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 40px 24px; min-height: 220px; }
-        .news-empty-panel i { font-size: 30px; color: var(--mx); margin-bottom: 12px; }
-        .news-empty-panel h4 { font-size: 15px; font-weight: 700; color: var(--tx); margin: 0 0 6px; }
-        .news-empty-panel p { font-size: 12.5px; color: var(--mx); max-width: 260px; margin: 0 0 16px; }
-        .news-list { display: flex; flex-direction: column; }
-        .news-list-item { display: flex; gap: 14px; padding: 16px 6px; border-bottom: 1px solid #f1f3f5; border-radius: 10px; transition: background .2s ease; }
-        .news-list-item:hover { background: #fafbfc; }
-        .news-list-item:last-child { border-bottom: none; }
-        .news-thumb { width: 68px; height: 68px; border-radius: 10px; overflow: hidden; flex-shrink: 0; background: linear-gradient(135deg,#e9edf1,#f5f7fa); display: flex; align-items: center; justify-content: center; color: var(--ac); font-size: 22px; }
-        .news-body h5 { font-size: 13.5px; font-weight: 700; color: var(--pd); margin: 0 0 4px; line-height: 1.3; }
-        .news-body p { font-size: 12px; color: var(--mx); line-height: 1.5; margin: 0 0 4px; }
-        .news-meta { font-size: 11px; color: var(--mx); }
-        .news-meta strong { color: var(--tx); }
-        @media(max-width: 800px){ .news-corporate-grid{ grid-template-columns: 1fr; } }
-        .mock-mode-badge { display: inline-flex; align-items: center; gap: 5px; padding: 4px 14px; border-radius: 50px; font-size: 11px; font-weight: 700; background: #fef3c7; color: #92400e; border: 1px solid #f59e0b; margin-left: 10px; }
+        @media(max-width:700px){body .tab-content{padding:22px 18px;}}
+        .news-feed{display:flex;flex-direction:column;gap:20px;}
+        .news-card{display:flex;background:#fff;border:1px solid var(--bdr);border-radius:14px;overflow:hidden;transition:box-shadow .25s ease;cursor:pointer;}
+        .news-card:hover{box-shadow:0 6px 24px rgba(15,42,58,.1);}
+        .news-card-img{width:240px;min-height:160px;flex-shrink:0;overflow:hidden;background:linear-gradient(135deg,#e9edf1,#f5f7fa);}
+        .news-card-img img{width:100%;height:100%;object-fit:cover;transition:transform .4s ease;}
+        .news-card:hover .news-card-img img{transform:scale(1.06);}
+        .news-card-body{padding:18px 22px;display:flex;flex-direction:column;justify-content:center;flex:1;}
+        .news-card-date{font-size:11px;font-weight:600;color:var(--ag);text-transform:uppercase;letter-spacing:.4px;margin-bottom:6px;}
+        .news-card-body h3{font-size:15px;font-weight:800;color:var(--pd);margin:0 0 6px;line-height:1.35;}
+        .news-card-body p{font-size:12.5px;color:var(--mx);line-height:1.55;margin:0 0 10px;}
+        .news-card-tag{display:inline-flex;align-items:center;gap:4px;font-size:10.5px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:.3px;}
+        @media(max-width:680px){.news-card{flex-direction:column;}.news-card-img{width:100%;height:180px;}}
+        .mock-mode-badge{display:inline-flex;align-items:center;gap:5px;padding:4px 14px;border-radius:50px;font-size:11px;font-weight:700;background:#fef3c7;color:#92400e;border:1px solid #f59e0b;margin-left:10px;}
         .user-greeting{font-size:15px;color:rgba(255,255,255,.75);margin-top:4px;}
         .user-badge{display:inline-block;padding:3px 12px;border-radius:50px;font-size:11px;font-weight:700;background:rgba(240,154,54,.14);color:var(--ag);border:1px solid rgba(240,154,54,.3);margin-top:8px;}
-        @media(max-width:768px){ .header-user-name{display:none;} }
+        @media(max-width:768px){.header-user-name{display:none;}}
     </style>
 </head>
 <body>
@@ -82,7 +76,7 @@
 <div class="intranet-shell">
     <div class="intranet-main">
         <div class="tab-content reveal">
-            <div class="news-corporate-grid" id="news-container"></div>
+            <div class="news-feed" id="news-container"></div>
         </div>
     </div>
 </div>
@@ -94,49 +88,40 @@
 <script src="/js/msal-config.js"></script>
 <script src="/js/intranet.js"></script>
 <script>
-const MOCK_NEWS_CORPORATE = [
-    { title: "Mantenga a su equipo actualizado con las noticias del sitio", desc: "Desde la página principal del sitio podrá crear rápidamente publicaciones para mantener informado a todo el personal.", source: "SharePoint", time: "hace 20 minutos", icon: "fa-tablet-screen-button" },
-    { title: "¿Qué es un sitio de grupo?", desc: "Un sitio de grupo de SharePoint le conecta a los miembros de su equipo con la información y recursos que necesitan.", source: "SharePoint", time: "hace 20 minutos", icon: "fa-users-rectangle" },
-    { title: "Agregar una página a un sitio", desc: "El uso de páginas es un buen sistema para compartir ideas, novedades y avances de proyectos con toda la organización.", source: "SharePoint", time: "hace 20 minutos", icon: "fa-chart-simple" }
-];
-
-function renderNewsCorporate(posts){
+function renderNewsFeed(posts){
     const cont = document.getElementById("news-container");
     if (!cont) return;
-    const hasPosts = posts && posts.length > 0;
-    const list = hasPosts ? posts.map(p => ({
-        title: p.title || p.name || "Sin título",
-        desc: p.description || p.summary || "",
-        source: "Mardique",
-        time: p.createdDateTime ? new Date(p.createdDateTime).toLocaleDateString('es-CO') : "",
-        icon: "fa-newspaper"
-    })) : MOCK_NEWS_CORPORATE;
-    cont.innerHTML = `
-    <div class="news-empty-panel">
-        <i class="fas fa-table-columns"></i>
-        <h4>Novedades</h4>
-        <p>Mantenga la atención de su grupo compartiendo contenido y actualizaciones institucionales.</p>
-        <button class="btn btn-outline-d" style="font-size:12px;padding:8px 16px;"><i class="fas fa-plus"></i> Agregar noticias</button>
-    </div>
-    <div class="news-list">
-        ${list.map(n => `
-            <div class="news-list-item">
-                <div class="news-thumb"><i class="fas ${n.icon}"></i></div>
-                <div class="news-body">
-                    <h5>${n.title}</h5>
-                    <p>${n.desc}</p>
-                    <div class="news-meta"><strong>${n.source}</strong> · ${n.time}</div>
-                </div>
-            </div>
-        `).join("")}
-    </div>`;
+    const list = (posts || []).map(p => {
+        const f = p.fields || p;
+        return {
+            title: f.Title || f.title || "Sin título",
+            desc: f.Description || f.description || "",
+            date: f.Created || f.createdDateTime || p.createdDateTime || "",
+            img: p.coverUrl || "https://picsum.photos/seed/default/800/450"
+        };
+    });
+    if (!list.length) {
+        cont.innerHTML = '<div style="text-align:center;padding:40px;color:var(--mx);font-size:13px;"><i class="fas fa-newspaper" style="font-size:30px;display:block;margin-bottom:12px;opacity:.3;"></i>No hay noticias disponibles</div>';
+        return;
+    }
+    cont.innerHTML = list.map(n => {
+        const dateStr = n.date ? new Date(n.date).toLocaleDateString("es-CO", { year:"numeric", month:"long", day:"numeric" }) : "";
+        return '<div class="news-card" onclick="window.open(\'#\',\'_blank\')">' +
+            '<div class="news-card-img"><img src="' + n.img.replace(/&/g,"&amp;") + '" alt="" loading="lazy"></div>' +
+            '<div class="news-card-body">' +
+            (dateStr ? '<div class="news-card-date"><i class="far fa-calendar-alt"></i> ' + dateStr + '</div>' : '') +
+            '<h3>' + escapeHtml(n.title) + '</h3>' +
+            '<p>' + escapeHtml(n.desc) + '</p>' +
+            '<span class="news-card-tag"><i class="fas fa-tag"></i> Noticia corporativa</span>' +
+            '</div></div>';
+    }).join("");
 }
 
 function loadNews(){
     if (typeof getNewsPosts === "function") {
-        getNewsPosts().then(posts => renderNewsCorporate(posts)).catch(() => renderNewsCorporate([]));
+        getNewsPosts().then(posts => renderNewsFeed(posts)).catch(() => renderNewsFeed([]));
     } else {
-        renderNewsCorporate([]);
+        renderNewsFeed([]);
     }
 }
 

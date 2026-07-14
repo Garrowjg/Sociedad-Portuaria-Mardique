@@ -76,7 +76,7 @@ public class SecurityConfig {
                                         "style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://fonts.googleapis.com; " +
                                         "img-src 'self' data: https:; " +
                                         "font-src 'self' https://cdnjs.cloudflare.com https://fonts.gstatic.com; " +
-                                        "frame-src 'self' https://drive.google.com https://maps.google.com https://www.google.com https://login.microsoftonline.com https://helpdesk.agmdesarrollos.com; " +
+                                        "frame-src 'self' https://drive.google.com https://maps.google.com https://www.google.com https://login.microsoftonline.com https://helpdesk.agmdesarrollos.com https://app.powerbi.com; " +
                                         "connect-src 'self' https://login.microsoftonline.com https://graph.microsoft.com;"
                         ))
                         .frameOptions(frame -> frame.sameOrigin())

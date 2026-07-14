@@ -171,7 +171,7 @@ function loadConversations(){
             const f = item.fields || item;
             return {
                 author: f.AuthorName || f.author || "Empleado",
-                time: f.time || f.Created ? formatDate(f.Created) : "recientemente",
+                time: f.time || (f.Created ? formatDate(f.Created) : "recientemente"),
                 text: f.Message || f.text || f.Title || "",
                 likes: f.likes || 0,
                 comments: f.comments || 0,

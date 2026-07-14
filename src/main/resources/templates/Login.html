@@ -165,13 +165,20 @@
             if (localStorage.getItem("intranet_modo_prueba") === "true") {
                 document.getElementById("mockIndicator").style.display = "block";
             }
-            handleMsalRedirect().then(response => {
-                if (response) {
-                    window.location.href = '/intranet/dashboard';
-                }
-            }).catch(err => {
-                console.error('MSAL init error:', err);
-            });
+            const hash = window.location.hash;
+            if (hash && (hash.includes("id_token") || hash.includes("access_token") || hash.includes("code"))) {
+                handleMsalRedirect().then(response => {
+                    if (response) {
+                        window.location.href = '/intranet/dashboard';
+                    }
+                }).catch(err => {
+                    console.error('MSAL init error:', err);
+                });
+            } else {
+                sessionStorage.removeItem("msalAccount");
+                sessionStorage.removeItem("msalToken");
+                sessionStorage.removeItem("msalTokenExpires");
+            }
         });
     </script>
     <script>window.addEventListener('scroll',()=>{document.getElementById('main-header')?.classList.toggle('scrolled',window.scrollY>60);});</script>
