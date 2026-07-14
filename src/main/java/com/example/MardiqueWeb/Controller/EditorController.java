@@ -107,16 +107,17 @@ public class EditorController {
         model.addAttribute("tarifas", documentRepository.findByTipo("TARIFA"));
         model.addAttribute("document", new Document());
         model.addAttribute("tramiteCards", List.of(
-            Map.of("key", "INSCRIPCION_CLIENTES", "label", "Inscripci\u00f3n de Clientes"),
-            Map.of("key", "DECLARACION_LAFT", "label", "Declaraci\u00f3n Prevenci\u00f3n LAFT"),
-            Map.of("key", "CERTIFICACION_LAFT", "label", "Certificaci\u00f3n Prevenci\u00f3n LAFT"),
-            Map.of("key", "ACUERDO_SEGURIDAD", "label", "Acuerdo de Seguridad"),
-            Map.of("key", "SOLICITUDES_PROGRAMABLES", "label", "Solicitudes Programables"),
-            Map.of("key", "SOLICITUD_EMBARQUE", "label", "Solicitud de Embarque"),
-            Map.of("key", "BOOKING", "label", "Formato Booking"),
-            Map.of("key", "AUTORIZACION_INGRESO", "label", "Autorizaci\u00f3n Ingreso/Salida"),
-            Map.of("key", "REGLAMENTO", "label", "Reglamento Operativo")
+            Map.of("key", "INSCRIPCION_CLIENTES", "label", "Inscripci\u00f3n de Clientes", "roles", "CLIENTE,PROVEEDOR"),
+            Map.of("key", "DECLARACION_LAFT", "label", "Declaraci\u00f3n Prevenci\u00f3n LAFT", "roles", "CLIENTE,PROVEEDOR,EMPRESA"),
+            Map.of("key", "CERTIFICACION_LAFT", "label", "Certificaci\u00f3n Prevenci\u00f3n LAFT", "roles", "CLIENTE,PROVEEDOR,EMPRESA"),
+            Map.of("key", "ACUERDO_SEGURIDAD", "label", "Acuerdo de Seguridad", "roles", "CLIENTE,PROVEEDOR,EMPRESA"),
+            Map.of("key", "SOLICITUDES_PROGRAMABLES", "label", "Solicitudes Programables", "roles", "CLIENTE,PROVEEDOR"),
+            Map.of("key", "SOLICITUD_EMBARQUE", "label", "Solicitud de Embarque", "roles", "CLIENTE,PROVEEDOR"),
+            Map.of("key", "BOOKING", "label", "Formato Booking", "roles", "CLIENTE,PROVEEDOR"),
+            Map.of("key", "AUTORIZACION_INGRESO", "label", "Autorizaci\u00f3n Ingreso/Salida", "roles", "CLIENTE,PROVEEDOR,EMPRESA"),
+            Map.of("key", "REGLAMENTO", "label", "Reglamento Operativo", "roles", "")
         ));
+        model.addAttribute("allRoles", List.of("CLIENTE", "PROVEEDOR", "EMPRESA", "PERSONA"));
         return "EditorDocuments";
     }
 
@@ -126,6 +127,7 @@ public class EditorController {
                                  @RequestParam(required = false) String email,
                                  @RequestParam(required = false) String emailCc,
                                  @RequestParam(required = false) String descripcion,
+                                 @RequestParam(required = false) String destinatarios,
                                  RedirectAttributes ra) {
         if (file.isEmpty()) {
             ra.addFlashAttribute("error", "Debe seleccionar un archivo");
@@ -143,6 +145,7 @@ public class EditorController {
             document.setEmail(email);
             document.setEmailCc(emailCc);
             document.setDescripcion(descripcion);
+            document.setDestinatarios(destinatarios);
             documentRepository.save(document);
             ra.addFlashAttribute("success", "Documento subido correctamente");
         } catch (IOException e) {
@@ -155,11 +158,15 @@ public class EditorController {
     public String updateDocumentMeta(@RequestParam Long id, @RequestParam(required = false) String email,
                                       @RequestParam(required = false) String emailCc,
                                       @RequestParam(required = false) String descripcion,
+                                      @RequestParam(required = false) String nombre,
+                                      @RequestParam(required = false) String destinatarios,
                                       RedirectAttributes ra) {
         Document doc = documentRepository.findById(id).orElseThrow(() -> new RuntimeException("Document not found: " + id));
         if (email != null) doc.setEmail(email);
         if (emailCc != null) doc.setEmailCc(emailCc);
         if (descripcion != null) doc.setDescripcion(descripcion);
+        if (nombre != null) doc.setNombre(nombre);
+        if (destinatarios != null) doc.setDestinatarios(destinatarios);
         documentRepository.save(doc);
         ra.addFlashAttribute("success", "Metadatos actualizados correctamente");
         return "redirect:/editor/documents";

@@ -9,6 +9,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="/css/inicio.css">
+    <link rel="stylesheet" href="/css/panel-nav.css">
     <style>
         .header-auth { display:flex;align-items:center;gap:8px;margin-left:12px; }
         .header-auth-btn { display:flex;align-items:center;gap:6px;padding:6px 12px;border-radius:6px;font-size:11px;font-weight:700;color:#8899b4;text-decoration:none;transition:0.2s;letter-spacing:0.3px; }
@@ -23,15 +24,15 @@
 
 <div class="carousel-overlay" id="carouselOverlay" onclick="handleCarouselOverlayClick(event)">
     <div class="carousel-modal" id="carouselModal">
-        
+
         <button class="carousel-close" onclick="closeCarousel()" aria-label="Cerrar">
             <i class="fas fa-times"></i>
         </button>
 
-        
+
         <div class="carousel-img-wrap">
             <img class="carousel-img" id="carouselImg" src="" alt="">
-            
+
             <button class="carousel-arrow carousel-arrow-left" onclick="carouselNav(-1)" aria-label="Anterior">
                 <i class="fas fa-chevron-left"></i>
             </button>
@@ -40,17 +41,17 @@
             </button>
         </div>
 
-        
+
         <div class="carousel-info">
             <div class="carousel-label" id="carouselLabel">MARDIQUE</div>
             <h4 class="carousel-title" id="carouselTitle">Puerto Mardique</h4>
             <p class="carousel-desc" id="carouselDesc">Descripción de la imagen</p>
         </div>
 
-        
+
         <div class="carousel-thumbs" id="carouselThumbs"></div>
 
-        
+
         <div class="carousel-dots" id="carouselDots"></div>
     </div>
 </div>
@@ -330,7 +331,7 @@
 
 
 <div class="page-wrapper">
-    
+
     <section class="hero">
         <div class="hero-yt-bg">
             <video autoplay muted loop playsinline>

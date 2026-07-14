@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Noticias — Intranet Mardique</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/css/panel-nav.css">
+    <link rel="stylesheet" href="/css/inicio.css">
+    <link rel="stylesheet" href="/css/portal.css">
+    <script src="https://alcdn.msauth.net/browser/2.38.0/js/msal-browser.min.js"></script>
+    <style>
+        @keyframes fadeInDown{from{opacity:0;transform:translateY(-24px)}to{opacity:1;transform:translateY(0)}}
+        @keyframes fadeInUp{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:translateY(0)}}
+        @keyframes floatIcon{0%,100%{transform:translateY(0)}25%{transform:translateY(-12px)}75%{transform:translateY(-8px)}}
+        .phero-badge{animation:fadeInDown .6s ease both}
+        .phero-main h1{animation:fadeInUp .7s ease .1s both}
+        .phero-main p{animation:fadeInUp .7s ease .25s both}
+        .phero-floaters{position:absolute;inset:0;overflow:hidden;pointer-events:none;z-index:0}
+        .phero-floaters i{position:absolute;color:rgba(255,255,255,.08);animation:floatIcon 9s ease-in-out infinite}
+        .phero-floaters i:nth-child(1){font-size:60px;top:14%;left:6%;animation-delay:0s}
+        .phero-floaters i:nth-child(2){font-size:40px;top:62%;left:14%;animation-delay:1.4s}
+        .phero-floaters i:nth-child(3){font-size:48px;top:20%;right:8%;animation-delay:.7s}
+        .phero-floaters i:nth-child(4){font-size:36px;bottom:12%;right:16%;animation-delay:2.1s}
+        body{background:#f3f4f6!important;}
+        .intranet-shell{max-width:1320px;margin:0 auto;padding:0 24px 90px;display:flex;flex-direction:column;gap:22px;}
+        .intranet-main{flex:1;min-width:0;}
+        body .section-header{margin-bottom:24px;padding-bottom:16px;border-bottom:2px solid #eef1f4;}
+        body .section-header h2{display:flex;align-items:center;gap:10px;font-size:19px;font-weight:800;color:var(--pd);margin:0;letter-spacing:-.2px;}
+        body .section-header h2 i{color:var(--ag);font-size:17px;width:34px;height:34px;flex-shrink:0;display:inline-flex;align-items:center;justify-content:center;background:rgba(240,154,54,.12);border-radius:9px;}
+        body .tab-content{background:#fff;border:1px solid var(--bdr);border-radius:16px;padding:34px 36px;box-shadow:0 4px 22px rgba(15,42,58,.06);}
+        @media(max-width:700px){ body .tab-content{padding:22px 18px;} }
+        .news-corporate-grid { display: grid; grid-template-columns: 1fr 1.2fr; gap: 20px; align-items: stretch; }
+        .news-empty-panel { background: #f3f4f6; border-radius: var(--r); display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 40px 24px; min-height: 220px; }
+        .news-empty-panel i { font-size: 30px; color: var(--mx); margin-bottom: 12px; }
+        .news-empty-panel h4 { font-size: 15px; font-weight: 700; color: var(--tx); margin: 0 0 6px; }
+        .news-empty-panel p { font-size: 12.5px; color: var(--mx); max-width: 260px; margin: 0 0 16px; }
+        .news-list { display: flex; flex-direction: column; }
+        .news-list-item { display: flex; gap: 14px; padding: 16px 6px; border-bottom: 1px solid #f1f3f5; border-radius: 10px; transition: background .2s ease; }
+        .news-list-item:hover { background: #fafbfc; }
+        .news-list-item:last-child { border-bottom: none; }
+        .news-thumb { width: 68px; height: 68px; border-radius: 10px; overflow: hidden; flex-shrink: 0; background: linear-gradient(135deg,#e9edf1,#f5f7fa); display: flex; align-items: center; justify-content: center; color: var(--ac); font-size: 22px; }
+        .news-body h5 { font-size: 13.5px; font-weight: 700; color: var(--pd); margin: 0 0 4px; line-height: 1.3; }
+        .news-body p { font-size: 12px; color: var(--mx); line-height: 1.5; margin: 0 0 4px; }
+        .news-meta { font-size: 11px; color: var(--mx); }
+        .news-meta strong { color: var(--tx); }
+        @media(max-width: 800px){ .news-corporate-grid{ grid-template-columns: 1fr; } }
+        .mock-mode-badge { display: inline-flex; align-items: center; gap: 5px; padding: 4px 14px; border-radius: 50px; font-size: 11px; font-weight: 700; background: #fef3c7; color: #92400e; border: 1px solid #f59e0b; margin-left: 10px; }
+        .user-greeting{font-size:15px;color:rgba(255,255,255,.75);margin-top:4px;}
+        .user-badge{display:inline-block;padding:3px 12px;border-radius:50px;font-size:11px;font-weight:700;background:rgba(240,154,54,.14);color:var(--ag);border:1px solid rgba(240,154,54,.3);margin-top:8px;}
+        @media(max-width:768px){ .header-user-name{display:none;} }
+    </style>
+</head>
+<body>
+
+<div th:replace="IntranetNav :: nav(current='noticias')"></div>
+
+<div class="phero">
+    <div class="phw-glow"></div>
+    <div class="phero-floaters">
+        <i class="fas fa-anchor"></i>
+        <i class="fas fa-ship"></i>
+        <i class="fas fa-water"></i>
+        <i class="fas fa-crane"></i>
+    </div>
+    <div class="phw-container">
+        <div class="phero-grid">
+            <div class="phero-main">
+                <div class="phero-badge"><i class="fas fa-newspaper"></i> Noticias Corporativas</div>
+                <h1>Noticias y Anuncios</h1>
+                <p>Mantente informado con las últimas novedades corporativas</p>
+            </div>
+        </div>
+    </div>
+    <div class="phw-wave">
+        <svg viewBox="0 0 1440 60" preserveAspectRatio="none"><path d="M0,32 C240,60 480,4 720,20 C960,36 1200,58 1440,28 L1440,60 L0,60 Z" fill="#f0f4f8"/></svg>
+    </div>
+</div>
+
+<div class="intranet-shell">
+    <div class="intranet-main">
+        <div class="tab-content reveal">
+            <div class="news-corporate-grid" id="news-container"></div>
+        </div>
+    </div>
+</div>
+
+<div class="pfooter">
+    &copy; 2026 Sociedad Portuaria Mardique S.A. Intranet Corporativa &mdash; Todos los derechos reservados.
+</div>
+
+<script src="/js/msal-config.js"></script>
+<script src="/js/intranet.js"></script>
+<script>
+const MOCK_NEWS_CORPORATE = [
+    { title: "Mantenga a su equipo actualizado con las noticias del sitio", desc: "Desde la página principal del sitio podrá crear rápidamente publicaciones para mantener informado a todo el personal.", source: "SharePoint", time: "hace 20 minutos", icon: "fa-tablet-screen-button" },
+    { title: "¿Qué es un sitio de grupo?", desc: "Un sitio de grupo de SharePoint le conecta a los miembros de su equipo con la información y recursos que necesitan.", source: "SharePoint", time: "hace 20 minutos", icon: "fa-users-rectangle" },
+    { title: "Agregar una página a un sitio", desc: "El uso de páginas es un buen sistema para compartir ideas, novedades y avances de proyectos con toda la organización.", source: "SharePoint", time: "hace 20 minutos", icon: "fa-chart-simple" }
+];
+
+function renderNewsCorporate(posts){
+    const cont = document.getElementById("news-container");
+    if (!cont) return;
+    const hasPosts = posts && posts.length > 0;
+    const list = hasPosts ? posts.map(p => ({
+        title: p.title || p.name || "Sin título",
+        desc: p.description || p.summary || "",
+        source: "Mardique",
+        time: p.createdDateTime ? new Date(p.createdDateTime).toLocaleDateString('es-CO') : "",
+        icon: "fa-newspaper"
+    })) : MOCK_NEWS_CORPORATE;
+    cont.innerHTML = `
+    <div class="news-empty-panel">
+        <i class="fas fa-table-columns"></i>
+        <h4>Novedades</h4>
+        <p>Mantenga la atención de su grupo compartiendo contenido y actualizaciones institucionales.</p>
+        <button class="btn btn-outline-d" style="font-size:12px;padding:8px 16px;"><i class="fas fa-plus"></i> Agregar noticias</button>
+    </div>
+    <div class="news-list">
+        ${list.map(n => `
+            <div class="news-list-item">
+                <div class="news-thumb"><i class="fas ${n.icon}"></i></div>
+                <div class="news-body">
+                    <h5>${n.title}</h5>
+                    <p>${n.desc}</p>
+                    <div class="news-meta"><strong>${n.source}</strong> · ${n.time}</div>
+                </div>
+            </div>
+        `).join("")}
+    </div>`;
+}
+
+function loadNews(){
+    if (typeof getNewsPosts === "function") {
+        getNewsPosts().then(posts => renderNewsCorporate(posts)).catch(() => renderNewsCorporate([]));
+    } else {
+        renderNewsCorporate([]);
+    }
+}
+
+document.addEventListener("DOMContentLoaded", function() {
+    if (!isMsalAuthenticated()) { window.location.href = "/login"; return; }
+    if (isMockMode()) { const mb = document.getElementById("mockBadge"); if (mb) mb.style.display = "inline-flex"; }
+
+    getCurrentUser().then(user => {
+        const name = user.displayName || user.userPrincipalName || "Empleado";
+        document.getElementById("userDisplay").textContent = name;
+        document.getElementById("userName").textContent = name;
+        if (user.jobTitle) document.getElementById("userBadge").textContent = user.jobTitle;
+    }).catch(() => {});
+
+    loadNews();
+
+    const hdr = document.getElementById('intranet-header');
+    window.addEventListener('scroll', () => hdr?.classList.toggle('scrolled', window.scrollY > 60), { passive: true });
+
+    const revealObs = new IntersectionObserver(entries => {
+        entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+    }, { threshold: 0.1 });
+    document.querySelectorAll('.reveal').forEach(el => revealObs.observe(el));
+});
+</script>
+</body>
+</html>

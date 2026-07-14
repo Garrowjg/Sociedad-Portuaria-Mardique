@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard — Intranet Mardique</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/css/panel-nav.css">
+    <link rel="stylesheet" href="/css/inicio.css">
+    <link rel="stylesheet" href="/css/portal.css">
+    <script src="https://alcdn.msauth.net/browser/2.38.0/js/msal-browser.min.js"></script>
+    <style>
+        .intranet-loading { text-align: center; padding: 48px; color: var(--mx); }
+        .intranet-loading i { font-size: 28px; margin-bottom: 10px; display: block; }
+        .intranet-loading span { font-size: 14px; }
+        .intranet-toast { display: none; position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); padding: 12px 24px; border-radius: var(--r); font-size: 13px; font-weight: 600; z-index: 9999; box-shadow: 0 8px 32px rgba(0,0,0,.15); max-width: 90%; text-align: center; }
+        .intranet-toast.success { background: #16a34a; color: #fff; }
+        .intranet-toast.error { background: #dc2626; color: #fff; }
+        .mock-mode-badge { display: inline-flex; align-items: center; gap: 5px; padding: 4px 14px; border-radius: 50px; font-size: 11px; font-weight: 700; background: #fef3c7; color: #92400e; border: 1px solid #f59e0b; margin-left: 10px; }
+        .user-greeting{font-size:15px;color:rgba(255,255,255,.75);margin-top:4px;}
+        .user-badge{display:inline-block;padding:3px 12px;border-radius:50px;font-size:11px;font-weight:700;background:rgba(240,154,54,.14);color:var(--ag);border:1px solid rgba(240,154,54,.3);margin-top:8px;}
+        @keyframes fadeInDown{from{opacity:0;transform:translateY(-24px)}to{opacity:1;transform:translateY(0)}}
+        @keyframes fadeInUp{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:translateY(0)}}
+        @keyframes floatIcon{0%,100%{transform:translateY(0)}25%{transform:translateY(-12px)}75%{transform:translateY(-8px)}}
+        .phero-badge{animation:fadeInDown .6s ease both}
+        .phero-main h1{animation:fadeInUp .7s ease .1s both}
+        .phero-main p{animation:fadeInUp .7s ease .25s both}
+        .phero-floaters{position:absolute;inset:0;overflow:hidden;pointer-events:none;z-index:0}
+        .phero-floaters i{position:absolute;font-size:24px;color:rgba(240,154,54,.08)}
+        .phw-glow{position:absolute;top:-30%;left:50%;transform:translateX(-50%);width:600px;height:600px;background:radial-gradient(circle,rgba(240,154,54,.12) 0%,transparent 70%);pointer-events:none;z-index:0}
+        .phw-wave{position:absolute;bottom:0;left:0;width:100%;overflow:hidden;line-height:0;z-index:0}
+        .phw-wave svg{display:block;width:100%;height:auto}
+        body{background:#f3f4f6!important;}
+        .intranet-shell{max-width:1320px;margin:0 auto;padding:0 24px 90px;display:flex;flex-direction:column;gap:22px;}
+        .intranet-main{flex:1;min-width:0;}
+        body .section-header{margin-bottom:24px;padding-bottom:16px;border-bottom:2px solid #eef1f4;}
+        body .section-header h2{display:flex;align-items:center;gap:10px;font-size:19px;font-weight:800;color:var(--pd);margin:0;letter-spacing:-.2px;}
+        body .section-header h2 i{color:var(--ag);font-size:17px;width:34px;height:34px;flex-shrink:0;display:inline-flex;align-items:center;justify-content:center;background:rgba(240,154,54,.12);border-radius:9px;}
+        body .section-header p{margin-top:6px!important;}
+        body .tab-content{background:#fff;border:1px solid var(--bdr);border-radius:16px;padding:34px 36px;box-shadow:0 4px 22px rgba(15,42,58,.06);}
+        @media(max-width:700px){ body .tab-content{padding:22px 18px;} }
+        body .empty-state{display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:48px 20px;color:var(--mx);background:#f9fafb;border:1px dashed var(--bdr);border-radius:12px;}
+        body .empty-state i{font-size:30px;margin-bottom:12px;opacity:.5;color:var(--pd);}
+        body .empty-state span{font-size:12.5px;font-weight:600;}
+        body .doc-grid,#dashboard-docs,#documents-container{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:14px;}
+        body .doc-item,body .doc-card{display:flex;align-items:center;gap:12px;background:#fff;border:1px solid var(--bdr);border-radius:12px;padding:14px;transition:all .2s ease;cursor:pointer;}
+        body .doc-item:hover,body .doc-card:hover{border-color:var(--ag);box-shadow:0 6px 20px rgba(0,0,0,.07);transform:translateY(-2px);}
+        @media(max-width:768px){ .header-user-name{display:none;} }
+    </style>
+</head>
+<body>
+
+<div id="intranet-toast" class="intranet-toast"></div>
+
+<div th:replace="IntranetNav :: nav(current='dashboard')"></div>
+
+<div class="phero" style="position:relative;overflow:hidden;background:linear-gradient(135deg,#1b4562,#0f2a3a);padding:56px 20px 70px;">
+    <div class="phw-glow"></div>
+    <div class="phero-floaters">
+        <i class="fas fa-building"></i>
+        <i class="fas fa-file-lines"></i>
+        <i class="fas fa-users"></i>
+        <i class="fas fa-calendar-check"></i>
+    </div>
+    <div class="phw-container" style="position:relative;z-index:1;display:flex;flex-wrap:wrap;gap:40px;align-items:center;justify-content:space-between;">
+        <div class="phero-main" style="flex:1;min-width:280px;">
+            <div class="phero-badge" style="display:inline-flex;align-items:center;gap:6px;padding:6px 16px;border-radius:50px;font-size:12px;font-weight:700;background:rgba(240,154,54,.14);color:#f09a36;border:1px solid rgba(240,154,54,.3);margin-bottom:16px;animation:fadeInDown .6s ease;">
+                <i class="fas fa-globe"></i> Portal del Empleado
+            </div>
+            <h1 style="font-size:32px;font-weight:800;color:#fff;margin:0 0 8px;line-height:1.15;animation:fadeInDown .6s ease .1s both;">
+                Intranet Corporativa
+            </h1>
+            <div class="user-greeting" id="userGreeting" style="animation:fadeInDown .6s ease .2s both;">
+                Bienvenido, <strong id="userName">Empleado</strong>
+                <span id="mockBadge" class="mock-mode-badge" style="display:none;"><i class="fas fa-flask"></i> Modo Prueba</span>
+            </div>
+            <div class="user-badge" id="userBadge" style="animation:fadeInDown .6s ease .3s both;">Empleado</div>
+            <div class="phero-actions" style="display:flex;flex-wrap:wrap;gap:10px;margin-top:20px;animation:fadeInDown .6s ease .4s both;">
+                <a href="/intranet/documentos" style="display:inline-flex;align-items:center;gap:6px;padding:10px 22px;border-radius:50px;font-size:13px;font-weight:700;background:linear-gradient(135deg,#f09a36,#d67e1a);color:#fff;text-decoration:none;transition:all .3s ease;">
+                    <i class="fas fa-folder-open"></i> Documentos
+                </a>
+                <a href="/intranet/noticias" style="display:inline-flex;align-items:center;gap:6px;padding:10px 22px;border-radius:50px;font-size:13px;font-weight:700;border:2px solid rgba(255,255,255,.2);color:#fff;text-decoration:none;transition:all .3s ease;">
+                    <i class="fas fa-newspaper"></i> Noticias
+                </a>
+                <a href="/intranet/galeria" style="display:inline-flex;align-items:center;gap:6px;padding:10px 22px;border-radius:50px;font-size:13px;font-weight:700;border:2px solid rgba(255,255,255,.2);color:#fff;text-decoration:none;transition:all .3s ease;">
+                    <i class="fas fa-images"></i> Galería
+                </a>
+                <a href="/intranet/informes" style="display:inline-flex;align-items:center;gap:6px;padding:10px 22px;border-radius:50px;font-size:13px;font-weight:700;border:2px solid rgba(255,255,255,.2);color:#fff;text-decoration:none;transition:all .3s ease;">
+                    <i class="fas fa-chart-simple"></i> Informes
+                </a>
+            </div>
+        </div>
+        <div class="phero-card" style="flex:0 0 280px;background:rgba(255,255,255,.06);backdrop-filter:blur(12px);border-radius:16px;padding:24px;border:1px solid rgba(255,255,255,.08);animation:fadeInUp .6s ease .3s both;">
+            <div style="font-size:12px;font-weight:700;color:rgba(255,255,255,.5);text-transform:uppercase;letter-spacing:.4px;margin-bottom:14px;">Resumen</div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+                <div><div class="stat-num" id="stat-docs" style="font-size:22px;font-weight:800;color:#f09a36;">0</div><div style="font-size:11px;color:rgba(255,255,255,.5);">Documentos</div></div>
+                <div><div class="stat-num" id="stat-news" style="font-size:22px;font-weight:800;color:#00a3e0;">0</div><div style="font-size:11px;color:rgba(255,255,255,.5);">Noticias</div></div>
+                <div><div class="stat-num" id="stat-leaves" style="font-size:22px;font-weight:800;color:#16a34a;">0</div><div style="font-size:11px;color:rgba(255,255,255,.5);">Solicitudes</div></div>
+                <div><div class="stat-num" id="stat-user" style="font-size:22px;font-weight:800;color:#6366f1;">-</div><div style="font-size:11px;color:rgba(255,255,255,.5);">Departamento</div></div>
+            </div>
+        </div>
+    </div>
+    <div class="phw-wave">
+        <svg viewBox="0 0 1440 60" preserveAspectRatio="none" style="display:block;width:100%;height:60px;">
+            <path d="M0,30 C360,60 1080,0 1440,30 L1440,60 L0,60 Z" fill="#f5f7fa" opacity="0.95"/>
+        </svg>
+    </div>
+</div>
+
+<div class="intranet-shell">
+    <div class="intranet-main">
+        <div class="tab-content reveal">
+            <div class="section-header">
+                <h2><i class="fas fa-th-large"></i> Accesos directos</h2>
+                <p style="color:var(--mx);font-size:13px;margin-top:4px;">Navega rápidamente a las secciones de la intranet</p>
+            </div>
+            <div class="quick-grid">
+                <a href="/intranet/documentos" class="quick-card">
+                    <div class="qico g"><i class="fas fa-folder-open"></i></div>
+                    <div><h3>Documentos</h3><p>Repositorio documental por sector</p></div>
+                </a>
+                <a href="/intranet/noticias" class="quick-card">
+                    <div class="qico c"><i class="fas fa-newspaper"></i></div>
+                    <div><h3>Noticias</h3><p>Novedades y anuncios corporativos</p></div>
+                </a>
+                <a href="/intranet/areas" class="quick-card">
+                    <div class="qico p"><i class="fas fa-layer-group"></i></div>
+                    <div><h3>Áreas</h3><p>Directorio de áreas y contactos</p></div>
+                </a>
+                <a href="/intranet/galeria" class="quick-card">
+                    <div class="qico c"><i class="fas fa-images"></i></div>
+                    <div><h3>Galería</h3><p>Fotos de eventos institucionales</p></div>
+                </a>
+                <a href="/intranet/informes" class="quick-card">
+                    <div class="qico p"><i class="fas fa-chart-simple"></i></div>
+                    <div><h3>Informes</h3><p>Reportes Power BI por área</p></div>
+                </a>
+                <a href="/intranet/conversaciones" class="quick-card">
+                    <div class="qico g"><i class="fas fa-comments"></i></div>
+                    <div><h3>Foro</h3><p>Conversaciones y colaboración</p></div>
+                </a>
+                <a href="/intranet/soporte" class="quick-card">
+                    <div class="qico c"><i class="fas fa-headset"></i></div>
+                    <div><h3>Soporte</h3><p>Tickets de soporte técnico</p></div>
+                </a>
+                <a href="/intranet/calendario" class="quick-card">
+                    <div class="qico g"><i class="fas fa-calendar"></i></div>
+                    <div><h3>Calendario</h3><p>Eventos y fechas importantes</p></div>
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="pfooter">
+    &copy; 2026 Sociedad Portuaria Mardique S.A. Intranet Corporativa &mdash; Todos los derechos reservados.
+</div>
+
+<script src="/js/msal-config.js"></script>
+<script src="/js/intranet.js"></script>
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    if (!isMsalAuthenticated()) { window.location.href = "/login"; return; }
+    if (isMockMode()) document.getElementById("mockBadge").style.display = "inline-flex";
+
+    getCurrentUser().then(user => {
+        const name = user.displayName || user.userPrincipalName || "Empleado";
+        document.getElementById("userDisplay").textContent = name;
+        document.getElementById("userName").textContent = name;
+        const dept = user.department || user.officeLocation || "-";
+        document.getElementById("stat-user").textContent = dept;
+        document.getElementById("userGreeting").innerHTML = 'Bienvenido, <strong>' + name + '</strong>';
+        if (user.jobTitle) document.getElementById("userBadge").textContent = user.jobTitle;
+    }).catch(() => {});
+
+    getDriveRoot().then(items => {
+        const docs = items.filter(i => !i.folder);
+        document.getElementById("stat-docs").textContent = docs.length || "0";
+    }).catch(() => document.getElementById("stat-docs").textContent = "0");
+
+    getNewsPosts().then(posts => {
+        document.getElementById("stat-news").textContent = (posts && posts.length) || "0";
+    }).catch(() => {});
+
+    getLeaveRequests().then(items => {
+        document.getElementById("stat-leaves").textContent = (items && items.length) || "0";
+    }).catch(() => {});
+
+    const hdr = document.getElementById('intranet-header');
+    window.addEventListener('scroll', () => hdr?.classList.toggle('scrolled', window.scrollY > 60), { passive: true });
+
+    const revealObs = new IntersectionObserver(entries => {
+        entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+    }, { threshold: 0.1 });
+    document.querySelectorAll('.reveal').forEach(el => revealObs.observe(el));
+});
+</script>
+</body>
+</html>

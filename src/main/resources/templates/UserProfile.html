@@ -8,188 +8,107 @@
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="/css/panel-nav.css">
+    <link rel="stylesheet" href="/css/inicio.css">
+    <link rel="stylesheet" href="/css/portal.css">
     <style>
-        @keyframes pageBlurIn{from{filter:blur(6px);opacity:.85;}to{filter:blur(0);opacity:1;}}
-
-        /* ── TOKENS ── */
-        :root{
-            --pd:#1b4562; --pb:#28648c; --ag:#f09a36; --ac:#00a3e0;
-            --bg:#f0f4f8; --sur:#ffffff; --bdr:#e2e8f2;
-            --tx:#1e293b; --mx:#64748b;
-            --r:8px; --rl:14px;
-            --tr:all 0.3s cubic-bezier(0.4,0,0.2,1);
-            --sh:0 1px 4px rgba(27,69,98,.06);
-            --shm:0 6px 24px rgba(27,69,98,.10);
-        }
-        *{margin:0;padding:0;box-sizing:border-box;}
+        body{opacity:0;animation:pageFadeIn .4s ease forwards!important}
+        @keyframes pageFadeIn{from{opacity:0}to{opacity:1}}
+        .phero-badge{animation:fadeInDown .6s ease both}
+        @keyframes fadeInDown{from{opacity:0;transform:translateY(-14px)}to{opacity:1;transform:none}}
+        .phero-main h1{animation:fadeInUp .7s ease .1s both}
+        .phero-main p{animation:fadeInUp .7s ease .25s both}
+        .phero-actions{animation:fadeInUp .7s ease .4s both}
+        @keyframes fadeInUp{from{opacity:0;transform:translateY(22px)}to{opacity:1;transform:none}}
+        .phero-floaters{position:absolute;inset:0;overflow:hidden;pointer-events:none;z-index:0}
+        .phero-floaters i{position:absolute;color:rgba(255,255,255,.08);animation:floatIcon 9s ease-in-out infinite}
+        .phero-floaters i:nth-child(1){font-size:60px;top:14%;left:6%;animation-delay:0s}
+        .phero-floaters i:nth-child(2){font-size:40px;top:62%;left:14%;animation-delay:1.4s}
+        .phero-floaters i:nth-child(3){font-size:48px;top:20%;right:8%;animation-delay:.7s}
+        .phero-floaters i:nth-child(4){font-size:36px;bottom:12%;right:16%;animation-delay:2.1s}
+        @keyframes floatIcon{0%,100%{transform:translateY(0) rotate(0deg)}50%{transform:translateY(-18px) rotate(6deg)}}
+        header{transition:background-color .6s cubic-bezier(.4,0,.2,1),backdrop-filter .6s cubic-bezier(.4,0,.2,1),box-shadow .6s ease,padding .3s ease}
+        header.scrolled{background-color:rgba(27,69,98,.93)!important;backdrop-filter:blur(3px) saturate(115%);-webkit-backdrop-filter:blur(3px) saturate(115%);border-bottom:1px solid rgba(255,255,255,.05)}
+        .delay-1{transition-delay:.1s}.delay-2{transition-delay:.2s}.delay-3{transition-delay:.3s}.delay-4{transition-delay:.4s}.delay-5{transition-delay:.5s}
         html{overflow-x:hidden;}
-        body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(--tx);overflow-x:hidden;animation:pageBlurIn 0.35s ease-out;}
+        body{overflow-x:hidden;}
 
-        /* ── HEADER ── */
-        header{background:var(--pd);padding:0;position:sticky;top:0;z-index:500;box-shadow:0 2px 20px rgba(0,0,0,.18);transition:padding .3s ease,box-shadow .3s ease;}
-        header.scrolled{padding:6px 0!important;box-shadow:0 4px 24px rgba(0,0,0,.25);}
-        header.scrolled .logo-box img{height:30px!important;width:auto;}
-        .hdr{display:flex;justify-content:space-between;align-items:center;padding:13px 28px;gap:16px;}
-        .logo-box img{height:36px;width:auto;object-fit:contain;display:block;transition:height .3s ease;}
-        nav{flex:1;display:flex;justify-content:center;}
-        .nav-menu{display:flex;gap:20px;align-items:center;list-style:none;flex-wrap:wrap;justify-content:center;}
-        .nav-menu li a{color:rgba(255,255,255,.72);font-size:11px;font-weight:700;text-transform:uppercase;position:relative;padding:6px 0;letter-spacing:.4px;transition:color .25s;text-decoration:none;display:flex;align-items:center;gap:5px;white-space:nowrap;}
-        .nav-menu li a::after{content:'';position:absolute;bottom:0;left:0;width:0;height:2px;background:var(--ag);transition:width .3s;}
-        .nav-menu li.active a,.nav-menu li a:hover{color:#fff;}
-        .nav-menu li.active a::after,.nav-menu li a:hover::after{width:100%;}
-        .hdr-right{display:flex;align-items:center;gap:10px;flex-shrink:0;}
-        .hdr-user{color:rgba(255,255,255,.65);font-size:12px;font-weight:500;white-space:nowrap;}
-        .btn-logout{display:inline-flex;align-items:center;gap:5px;padding:7px 14px;border:none;border-radius:6px;background:#dc2626;color:#fff;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.3px;cursor:pointer;font-family:inherit;text-decoration:none;transition:var(--tr);white-space:nowrap;}
-        .btn-logout:hover{background:#b91c1c;}
-        .mobile-menu-toggle{
-            display:none;flex-direction:column;justify-content:center;align-items:center;gap:5px;
-            width:40px;height:40px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);
-            border-radius:8px;cursor:pointer;transition:background .2s;flex-shrink:0;padding:0;
+        /* ── Two-column profile layout ── */
+        .profile-grid{
+            display:grid;
+            grid-template-columns:300px 1fr;
+            gap:24px;
+            align-items:start;
         }
-        .mobile-menu-toggle:hover{background:rgba(255,255,255,.1);}
-        .mobile-menu-toggle span{
-            display:block;width:20px;height:2px;background:rgba(255,255,255,.85);border-radius:2px;
-            transition:transform .3s ease,opacity .2s;pointer-events:none;
+
+        /* ── Account summary card (mirrors phero-card language) ── */
+        .acc-card{
+            background:var(--sur);
+            border-radius:var(--rl);
+            border:1.5px solid var(--bdr);
+            box-shadow:var(--sh);
+            padding:28px 24px;
+            text-align:center;
+            position:sticky;
+            top:96px;
         }
-        .mobile-menu-toggle.open span:nth-child(1){transform:translateY(7px) rotate(45deg);}
-        .mobile-menu-toggle.open span:nth-child(2){opacity:0;}
-        .mobile-menu-toggle.open span:nth-child(3){transform:translateY(-7px) rotate(-45deg);}
+        .acc-avatar{
+            width:84px;height:84px;border-radius:50%;
+            background:linear-gradient(135deg,var(--pd),var(--pb));
+            color:#fff;font-size:28px;font-weight:800;
+            display:flex;align-items:center;justify-content:center;
+            margin:0 auto 16px;
+            letter-spacing:1px;
+            box-shadow:0 8px 20px rgba(27,69,98,.25);
+        }
+        .acc-name{font-size:16px;font-weight:800;color:var(--pd);margin-bottom:2px;}
+        .acc-role{font-size:11.5px;color:var(--mx);text-transform:uppercase;letter-spacing:.5px;font-weight:600;margin-bottom:18px;}
+        .acc-divider{height:1px;background:var(--bdr);margin:0 0 18px;}
+        .acc-meta{display:flex;flex-direction:column;gap:12px;text-align:left;}
+        .acc-meta-item{display:flex;align-items:center;gap:10px;font-size:12.5px;color:var(--mx);}
+        .acc-meta-item i{width:20px;color:var(--ac);font-size:13px;flex-shrink:0;}
+        .acc-meta-item strong{color:var(--tx);font-weight:600;}
+        .acc-badge{
+            display:inline-flex;align-items:center;gap:6px;
+            margin-top:18px;padding:6px 14px;border-radius:50px;
+            background:#d1fae5;color:#16a34a;font-size:11px;font-weight:700;
+        }
+        .acc-badge i{font-size:7px;animation:pulseDot 2s ease-in-out infinite;}
 
-        /* ── HERO ── */
-        .hero{background:linear-gradient(135deg,var(--pd) 0%,#0d2438 100%);padding:36px 32px 44px;position:relative;overflow:hidden;}
-        .hero::before{content:'';position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,.025) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.025) 1px,transparent 1px);background-size:32px 32px;pointer-events:none;}
-        .hero::after{content:'';position:absolute;bottom:-1px;left:0;right:0;height:40px;background:var(--bg);clip-path:ellipse(55% 100% at 50% 100%);}
-        .hero-inner{position:relative;z-index:1;max-width:800px;margin:0 auto;text-align:center;}
-        .hero h1{font-size:26px;font-weight:800;color:#fff;margin-bottom:6px;}
-        .hero h1 i{color:var(--ag);margin-right:8px;}
-        .hero p{font-size:13.5px;color:rgba(255,255,255,.65);}
-
-        /* ── MAIN ── */
-        .main-content{padding:36px 28px 48px;max-width:1000px;margin:0 auto;width:100%;flex:1;}
-        .card{background:var(--sur);border-radius:var(--rl);padding:28px;margin-bottom:24px;border:1.5px solid var(--bdr);box-shadow:var(--sh);transition:var(--tr);}
-        .card h2{font-size:16px;font-weight:800;color:var(--pd);margin-bottom:20px;display:flex;align-items:center;gap:8px;}
+        /* ── Form section headers ── */
+        .form-card h2{
+            font-size:16px;font-weight:800;color:var(--pd);
+            margin-bottom:20px;display:flex;align-items:center;gap:8px;
+        }
+        .form-card h2 i{color:var(--ag);}
+        .form-card{max-width:none;margin-bottom:24px;}
         .form-row{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
-        .field{margin-bottom:16px;}
-        .field label{display:block;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.3px;margin-bottom:5px;color:var(--mx);}
-        .field input{width:100%;padding:11px 14px;border-radius:var(--r);border:1.5px solid var(--bdr);font-size:14px;font-family:inherit;outline:none;transition:var(--tr);background:#fff;}
-        .field input:focus{border-color:var(--ag);box-shadow:0 0 0 3px rgba(240,154,54,.1);}
-        .field input[readonly]{background:#f8fafc;cursor:default;}
+        .form-group input[readonly]{background:#f8fafc;cursor:default;color:var(--mx);}
 
-        /* ── BTNS ── */
-        .btn{padding:10px 24px;border:none;border-radius:var(--r);font-size:13px;font-weight:700;font-family:inherit;cursor:pointer;transition:var(--tr);display:inline-flex;align-items:center;gap:7px;text-decoration:none;}
-        .btn-gold{background:var(--ag);color:#fff;}
-        .btn-gold:hover{background:#d67e1a;transform:translateY(-1px);}
-        .btn-cancel{background:transparent;border:1.5px solid var(--bdr);color:var(--mx);padding:10px 20px;border-radius:var(--r);font-size:13px;font-weight:600;font-family:inherit;cursor:pointer;transition:var(--tr);}
-        .btn-cancel:hover{border-color:var(--ag);color:var(--ag);}
-        .btn-red{background:#dc2626;color:#fff;padding:10px 22px;border:none;border-radius:var(--r);font-size:13px;font-weight:700;font-family:inherit;cursor:pointer;transition:var(--tr);display:inline-flex;align-items:center;gap:6px;text-decoration:none;}
-        .btn-red:hover{background:#b91c1c;}
-
-        /* ── MSG ── */
-        .msg{padding:12px 16px;border-radius:var(--r);font-size:13px;margin-bottom:20px;display:flex;align-items:center;gap:8px;}
+        /* ── Messages ── */
+        .msg{
+            padding:12px 16px;border-radius:var(--r);font-size:13px;
+            margin-bottom:20px;display:flex;align-items:center;gap:8px;
+        }
         .msg-success{background:#f0fdf4;border:1px solid #bbf7d0;color:#16a34a;}
+        .msg-error{background:#fef2f2;border:1px solid #fecaca;color:#dc2626;}
 
-        /* ── FOOTER ── */
-        .pfooter {
-            text-align: center;
-            padding: 22px 28px;
-            border-top: 1px solid var(--bdr);
-            color: var(--mx);
-            font-size: 12px;
-            margin-top: auto;
-            background: var(--bg);
-            position: relative;
+        /* ── Security section ── */
+        .sec-hint{font-size:12px;color:var(--mx);margin-bottom:18px;line-height:1.6;}
+
+        @media(max-width:900px){
+            .profile-grid{grid-template-columns:1fr;}
+            .acc-card{position:static;}
         }
-        .pfooter::before {
-            content: '';
-            position: absolute;
-            top: 0; left: 15%;
-            width: 70%;
-            height: 2px;
-            background: linear-gradient(90deg, transparent, var(--ag), transparent);
-            opacity: .35;
-        }
-        .pfooter-links {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            flex-wrap: wrap;
-            gap: 4px 18px;
-            margin-bottom: 4px;
-        }
-        .pfooter-links a {
-            color: var(--mx);
-            text-decoration: none;
-            transition: color .2s;
-            display: inline-flex;
-            align-items: center;
-            gap: 5px;
-            font-size: 12px;
-        }
-        .pfooter-links a:hover { color: var(--ag); }
-        .pfooter-sep { color: var(--bdr); font-size: 9px; }
-        .pfooter-copy { color: var(--mx); font-size: 11px; }
-
-        /* ── REVEAL ── */
-        .reveal{opacity:0;transform:translateY(20px);transition:all .55s cubic-bezier(.22,1,.36,1);}
-        .reveal.visible{opacity:1;transform:translateY(0);}
-
-        /* ── MODAL ── */
-        .modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:1000;align-items:center;justify-content:center;backdrop-filter:blur(3px);}
-        .modal-overlay.show{display:flex;animation:fadeUp .2s ease;}
-        .modal-box{background:#fff;border-radius:16px;padding:36px;width:100%;max-width:400px;box-shadow:0 24px 64px rgba(0,0,0,.3);text-align:center;}
-        .modal-box h2{font-size:18px;color:var(--pd);margin-bottom:8px;}
-        .modal-box p{font-size:13px;color:var(--mx);margin-bottom:24px;}
-        .modal-actions{display:flex;gap:10px;justify-content:center;}
-
-        .modal-actions .btn-red{padding:10px 22px;font-size:13px;}
-
-        @keyframes fadeUp{from{opacity:0;transform:translateY(12px);}to{opacity:1;transform:translateY(0);}}
-
-        /* ── DRAWER ── */
-        .drawer-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.52);z-index:9998;backdrop-filter:blur(2px);}
-        .drawer-overlay.open{display:block;}
-
-        .mobile-nav-drawer{
-            position:fixed;top:0;right:0;
-            width:280px;height:100vh;
-            background:var(--pd);
-            box-shadow:-6px 0 28px rgba(0,0,0,.55);
-            z-index:9999;display:flex;flex-direction:column;
-            transform:translateX(100%);
-            transition:transform .32s cubic-bezier(.4,0,.2,1),visibility .32s cubic-bezier(.4,0,.2,1);
-            overflow-y:auto;overflow-x:hidden;visibility:hidden;
-        }
-        .mobile-nav-drawer.open{transform:translateX(0);visibility:visible;}
-        .drawer-header{display:flex;align-items:center;justify-content:space-between;padding:14px 18px;border-bottom:1px solid rgba(255,255,255,.07);background:rgba(0,0,0,.18);flex-shrink:0;}
-        .drawer-header img{height:34px;width:auto;object-fit:contain;}
-        .drawer-close{width:32px;height:32px;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.10);border-radius:6px;color:rgba(255,255,255,.6);font-size:18px;line-height:1;cursor:pointer;transition:background .2s,color .2s;flex-shrink:0;padding:0;}
-        .drawer-close:hover{background:rgba(240,154,54,.15);color:var(--ag);border-color:rgba(240,154,54,.3);}
-        .drawer-nav{display:flex;flex-direction:column;padding:8px 0 24px;flex:1;}
-        .drawer-nav > a{display:block;padding:13px 20px;color:rgba(255,255,255,.78);font-size:12.5px;font-weight:600;text-transform:uppercase;letter-spacing:.6px;text-decoration:none;border-left:3px solid transparent;background:none;transition:background .18s,color .18s,border-color .18s;white-space:nowrap;line-height:1.2;}
-        .drawer-nav > a:hover,.drawer-nav > a:active{background:rgba(255,255,255,.04);color:#fff;border-left-color:var(--ag);}
-        .drawer-nav > a.active{color:var(--ag);border-left-color:var(--ag);}
-        .drawer-divider{height:1px;background:rgba(255,255,255,.06);margin:6px 18px;}
-        .drawer-logout-btn{display:flex;align-items:center;justify-content:center;gap:8px;margin:14px 18px 0;padding:13px 16px;background:#dc2626;color:#fff;border-radius:6px;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;text-decoration:none;transition:background .2s;border-left:none!important;cursor:pointer;border:none;font-family:inherit;width:calc(100% - 36px);}
-        .drawer-logout-btn:hover{background:#b91c1c!important;color:#fff!important;}
-
-        /* ── RESPONSIVE ── */
         @media(max-width:768px){
-            header nav{display:none;}
-            .mobile-menu-toggle{display:flex;}
-            .hdr-user{display:none;}
-            .hero{padding:28px 16px 36px;}
-            .hero h1{font-size:20px;}
-            .main-content{padding:24px 16px 32px;}
-            .card{padding:20px;}
             .form-row{grid-template-columns:1fr;gap:0;}
-            .btn-gold{width:100%;justify-content:center;}
         }
     </style>
 </head>
 <body>
+<div id="scroll-progress"></div>
 
 <header id="main-header">
-    <div class="hdr">
+    <div class="hdr header-content">
         <a href="/user/inicio" class="logo-box">
             <img src="/images/Logo.png" alt="Mardique">
         </a>
@@ -216,44 +135,132 @@
     </div>
 </header>
 
-<div class="hero">
-    <div class="hero-inner">
-        <h1><i class="fas fa-user-circle"></i> Mi Perfil</h1>
-        <p>Administra tus datos personales</p>
+<div class="phero">
+    <div class="phw-glow"></div>
+    <div class="phero-floaters">
+        <i class="fas fa-user-circle"></i>
+        <i class="fas fa-user-gear"></i>
+        <i class="fas fa-lock"></i>
+        <i class="fas fa-bell"></i>
     </div>
-</div>
-
-<div class="main-content">
-    <div th:if="${success}" class="msg msg-success"><i class="fas fa-check-circle"></i> <span th:text="${success}">Perfil actualizado</span></div>
-
-    <div class="card reveal">
-        <h2><i class="fas fa-edit" style="color:var(--ag);"></i> Editar información personal</h2>
-        <form th:action="@{/user/profile/update}" method="post">
-            <div class="field"><label>Nombre de usuario</label><input type="text" th:value="${profileUser.username}" readonly></div>
-            <div class="form-row">
-                <div class="field"><label>Nombres</label><input type="text" name="nombres" th:value="${profileUser.nombres}" required></div>
-                <div class="field"><label>Apellidos</label><input type="text" name="apellidos" th:value="${profileUser.apellidos}" required></div>
+    <div class="phw-container">
+        <div class="phero-grid">
+            <div class="phero-main">
+                <div class="phero-badge"><i class="fas fa-user-circle"></i> Tu Cuenta</div>
+                <h1>Mi <strong>Perfil</strong></h1>
+                <p>Administra tus datos personales, actualiza tu información y mantén segura tu cuenta.</p>
+                <div class="phero-actions">
+                    <a href="#perfil-contenido" class="btn btn-gold"><i class="fas fa-arrow-down"></i> Ver perfil</a>
+                    <a href="/user/payments" class="btn btn-outline-w"><i class="fas fa-credit-card"></i> Mis pagos</a>
+                </div>
             </div>
-            <div class="field"><label>Correo electrónico</label><input type="email" name="email" th:value="${profileUser.email}" required></div>
-            <div class="field"><label>Teléfono</label><input type="text" name="telefono" th:value="${profileUser.telefono}" placeholder="+57 312 345 6789"></div>
-            <button type="submit" class="btn btn-gold"><i class="fas fa-save"></i> Guardar cambios</button>
-        </form>
+            <div class="phero-card">
+                <div class="phero-card-head">
+                    <span class="phero-card-name">Estado de cuenta</span>
+                    <span class="phw-status"><i class="fas fa-circle"></i> Verificado</span>
+                </div>
+                <div class="phw-stats">
+                    <div class="phw-stat">
+                        <div class="phw-stat-ico"><i class="fas fa-user"></i></div>
+                        <div><div class="phw-stat-num" th:text="${#strings.length(profileUser.nombres) > 0 ? #strings.substring(profileUser.nombres,0,1) : '—'}">—</div><div class="phw-stat-lbl">Usuario</div></div>
+                    </div>
+                    <div class="phw-stat">
+                        <div class="phw-stat-ico"><i class="fas fa-envelope"></i></div>
+                        <div><div class="phw-stat-num" th:text="${#authentication.name}">—</div><div class="phw-stat-lbl">Email</div></div>
+                    </div>
+                    <div class="phw-stat">
+                        <div class="phw-stat-ico"><i class="fas fa-shield-halved"></i></div>
+                        <div><div class="phw-stat-num">Alta</div><div class="phw-stat-lbl">Seguridad</div></div>
+                    </div>
+                    <div class="phw-stat">
+                        <div class="phw-stat-ico"><i class="fas fa-clock"></i></div>
+                        <div><div class="phw-stat-num">Activo</div><div class="phw-stat-lbl">Estado</div></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="phw-wave">
+        <svg viewBox="0 0 1440 60" preserveAspectRatio="none"><path d="M0,32 C240,60 480,4 720,20 C960,36 1200,58 1440,28 L1440,60 L0,60 Z" fill="#f0f4f8"/></svg>
     </div>
 </div>
 
-    <div class="pfooter">
-        <div class="pfooter-links">
-            <a href="/inicio"><i class="fas fa-globe"></i> Sitio público</a>
-            <span class="pfooter-sep">|</span>
-            <a href="https://spmardique.com/wp-content/uploads/2024/01/REGLAMENTO_DE_CONDICIONES_TECNICO_DE_OPERACION.pdf" target="_blank"><i class="fas fa-file-pdf"></i> Reglamento Operativo</a>
-            <span class="pfooter-sep">|</span>
-            <a href="#"><i class="fas fa-shield-alt"></i> Políticas de Privacidad</a>
-            <span class="pfooter-sep">|</span>
-            <a href="#"><i class="fas fa-shield-halved"></i> Políticas de Seguridad</a>
-        </div>
-        <div class="pfooter-copy">&copy; 2026 Sociedad Portuaria Mardique S.A. Todos los derechos reservados.</div>
-    </div>
+<div class="body" id="perfil-contenido">
+    <div th:if="${success}" class="msg msg-success reveal delay-1"><i class="fas fa-check-circle"></i> <span th:text="${success}">Perfil actualizado</span></div>
+    <div th:if="${error}" class="msg msg-error reveal delay-1"><i class="fas fa-exclamation-circle"></i> <span th:text="${error}">Error al actualizar el perfil</span></div>
 
+    <div class="profile-grid">
+        <!-- ── Account summary card ── -->
+        <div class="acc-card reveal delay-2">
+            <div class="acc-avatar"
+                 th:text="${#strings.substring(profileUser.nombres,0,1)} + ${#strings.substring(profileUser.apellidos,0,1)}">JG</div>
+            <div class="acc-name" th:text="${profileUser.nombres} + ' ' + ${profileUser.apellidos}">Nombre Apellido</div>
+            <div class="acc-role" th:text="${#authentication.name}">usuario</div>
+
+            <div class="acc-divider"></div>
+
+            <div class="acc-meta">
+                <div class="acc-meta-item">
+                    <i class="fas fa-envelope"></i>
+                    <span><strong th:text="${profileUser.email}">correo@mardique.com</strong></span>
+                </div>
+                <div class="acc-meta-item">
+                    <i class="fas fa-phone"></i>
+                    <span><strong th:text="${profileUser.telefono != null ? profileUser.telefono : 'No registrado'}">+57 300 000 0000</strong></span>
+                </div>
+                <div class="acc-meta-item">
+                    <i class="fas fa-id-badge"></i>
+                    <span>Usuario: <strong th:text="${profileUser.username}">usuario</strong></span>
+                </div>
+            </div>
+
+            <div class="acc-badge"><i class="fas fa-circle"></i> Cuenta activa</div>
+        </div>
+
+        <!-- ── Right column: forms ── -->
+        <div>
+            <div class="form-card reveal delay-3">
+                <h2><i class="fas fa-edit"></i> Editar información personal</h2>
+                <form th:action="@{/user/profile/update}" method="post">
+                    <div class="form-group"><label>Nombre de usuario</label><input type="text" th:value="${profileUser.username}" readonly></div>
+                    <div class="form-row">
+                        <div class="form-group"><label>Nombres</label><input type="text" name="nombres" th:value="${profileUser.nombres}" required></div>
+                        <div class="form-group"><label>Apellidos</label><input type="text" name="apellidos" th:value="${profileUser.apellidos}" required></div>
+                    </div>
+                    <div class="form-group"><label>Correo electrónico</label><input type="email" name="email" th:value="${profileUser.email}" required></div>
+                    <div class="form-group"><label>Teléfono</label><input type="text" name="telefono" th:value="${profileUser.telefono}" placeholder="+57 312 345 6789"></div>
+                    <button type="submit" class="btn btn-gold"><i class="fas fa-save"></i> Guardar cambios</button>
+                </form>
+            </div>
+
+            <div class="form-card reveal">
+                <h2><i class="fas fa-lock"></i> Seguridad</h2>
+                <p class="sec-hint">Actualiza tu contraseña periódicamente para mantener tu cuenta protegida. Usa al menos 8 caracteres, combinando letras y números.</p>
+                <form th:action="@{/user/profile/password}" method="post">
+                    <div class="form-group"><label>Contraseña actual</label><input type="password" name="currentPassword" required></div>
+                    <div class="form-row">
+                        <div class="form-group"><label>Nueva contraseña</label><input type="password" name="newPassword" required></div>
+                        <div class="form-group"><label>Confirmar contraseña</label><input type="password" name="confirmPassword" required></div>
+                    </div>
+                    <button type="submit" class="btn btn-outline-d"><i class="fas fa-key"></i> Actualizar contraseña</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="pfooter">
+    <div class="pfooter-links">
+        <a href="/inicio"><i class="fas fa-globe"></i> Sitio público</a>
+        <span class="pfooter-sep">|</span>
+        <a href="https://spmardique.com/wp-content/uploads/2024/01/REGLAMENTO_DE_CONDICIONES_TECNICO_DE_OPERACION.pdf" target="_blank"><i class="fas fa-file-pdf"></i> Reglamento Operativo</a>
+        <span class="pfooter-sep">|</span>
+        <a href="#"><i class="fas fa-shield-alt"></i> Políticas de Privacidad</a>
+        <span class="pfooter-sep">|</span>
+        <a href="#"><i class="fas fa-shield-halved"></i> Políticas de Seguridad</a>
+    </div>
+    <div class="pfooter-copy">&copy; 2026 Sociedad Portuaria Mardique S.A. Todos los derechos reservados.</div>
+</div>
 
 <div class="modal-overlay" id="logoutModal">
     <div class="modal-box">
@@ -267,10 +274,7 @@
     </div>
 </div>
 
-
-
 <div class="drawer-overlay" id="drawerOverlay"></div>
-
 
 <nav class="mobile-nav-drawer" id="mobileDrawer" aria-label="Menú móvil">
     <div class="drawer-header">
@@ -294,17 +298,24 @@
 </nav>
 
 <script>
+    // ── Scroll progress bar ──
+    const progressBar = document.getElementById('scroll-progress');
+    window.addEventListener('scroll', () => {
+        if (progressBar) progressBar.style.width = (window.scrollY / (document.documentElement.scrollHeight - window.innerHeight) * 100) + '%';
+    }, { passive: true });
+
     // ── Scroll shrink header ──
     const mainHdr = document.getElementById('main-header');
     window.addEventListener('scroll', () => {
-        mainHdr.classList.toggle('scrolled', window.scrollY > 40);
+        mainHdr.classList.toggle('scrolled', window.scrollY > 60);
     }, { passive: true });
 
     // ── Reveal on scroll ──
     const obs = new IntersectionObserver(entries => {
         entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
-    }, { threshold: 0.1 });
+    }, { threshold: 0.1, rootMargin: '0px 0px -36px 0px' });
     document.querySelectorAll('.reveal').forEach(el => obs.observe(el));
+    document.querySelectorAll('.reveal-left, .reveal-right').forEach(el => obs.observe(el));
 
     // ── Logout modal: cerrar al click fuera ──
     document.getElementById('logoutModal').addEventListener('click', function(e) {
@@ -335,5 +346,6 @@
     ov  && ov.addEventListener('click', closeDrw);
 </script>
 <script src="/js/panel-nav.js"></script>
+<a href="/user/inicio" class="float-home" aria-label="Ir a inicio"><i class="fas fa-home"></i></a>
 </body>
 </html>

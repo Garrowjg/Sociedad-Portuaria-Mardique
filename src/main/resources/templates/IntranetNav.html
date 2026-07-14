@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<th:block th:fragment="nav(current)">
+<style>
+/* ═══════════ INTRANET HEADER — estilo propio (no hereda de panel-nav.css) ═══════════ */
+#intranet-header {
+    position: sticky; top: 0; z-index: 500;
+    background: #1b4562;
+    padding: 10px 0;
+    box-shadow: 0 2px 20px rgba(0,0,0,.15);
+    transition: background .4s ease, backdrop-filter .4s ease, padding .3s ease, box-shadow .3s ease;
+    font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+}
+#intranet-header.scrolled {
+    background: rgba(27,69,98,.92);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    padding: 6px 0;
+    box-shadow: 0 4px 30px rgba(0,0,0,.25);
+}
+.intranet-hdr-inner {
+    max-width: 1400px; margin: 0 auto; padding: 0 20px;
+    display: flex; align-items: center; gap: 12px;
+}
+.intranet-hdr-logo {
+    display: flex; align-items: center; flex-shrink: 0;
+    background: linear-gradient(160deg,#fff,#f2f4f7);
+    padding: 6px 14px 6px 10px; border-radius: 10px;
+    text-decoration: none;
+    position: relative; overflow: hidden;
+    box-shadow: 0 3px 10px rgba(0,0,0,.16);
+    transition: padding .3s ease;
+}
+.intranet-hdr-logo::before {
+    content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 3px;
+    background: linear-gradient(90deg,#f09a36,#00a3e0);
+}
+.intranet-hdr-logo img { height: 34px; width: auto; object-fit: contain; transition: height .3s ease; position: relative; z-index: 1; }
+#intranet-header.scrolled .intranet-hdr-logo { padding: 4px 12px 4px 8px; }
+#intranet-header.scrolled .intranet-hdr-logo img { height: 28px; }
+
+.intranet-hdr-nav {
+    flex: 1; display: flex; justify-content: center;
+    overflow-x: auto; overflow-y: hidden;
+    -ms-overflow-style: none; scrollbar-width: none;
+}
+.intranet-hdr-nav::-webkit-scrollbar { display: none; }
+.intranet-hdr-nav-list {
+    display: flex; align-items: center; gap: 6px;
+    list-style: none; margin: 0; padding: 0;
+}
+.intranet-hdr-nav-list li a {
+    display: flex; align-items: center; gap: 5px;
+    padding: 8px 14px; border-radius: 8px;
+    color: rgba(255,255,255,.65); font-size: 11px; font-weight: 600;
+    text-decoration: none; text-transform: uppercase;
+    letter-spacing: .3px; white-space: nowrap;
+    transition: all .2s ease;
+}
+.intranet-hdr-nav-list li a i { font-size: 11px; color: rgba(255,255,255,.35); transition: color .2s ease; }
+.intranet-hdr-nav-list li a:hover { color: #fff; background: rgba(255,255,255,.08); }
+.intranet-hdr-nav-list li a:hover i { color: #f09a36; }
+.intranet-hdr-nav-list li.active a {
+    color: #fff; font-weight: 700;
+    background: linear-gradient(135deg,#f09a36,#d67e1a); box-shadow: 0 2px 8px rgba(240,154,54,.25);
+}
+.intranet-hdr-nav-list li.active a i { color: #fff; }
+
+.intranet-hdr-right {
+    display: flex; align-items: center; gap: 8px; flex-shrink: 0;
+}
+.intranet-hdr-user {
+    font-size: 11px; font-weight: 700; color: rgba(255,255,255,.55);
+    white-space: nowrap;
+}
+.intranet-hdr-logout {
+    display: flex; align-items: center; gap: 4px;
+    padding: 6px 12px; border-radius: 6px; border: 1px solid rgba(240,154,54,.25);
+    background: rgba(240,154,54,.08); color: #f09a36;
+    font-size: 10.5px; font-weight: 800; text-transform: uppercase;
+    cursor: pointer; font-family: inherit; letter-spacing: .4px;
+    transition: all .2s ease; white-space: nowrap;
+}
+.intranet-hdr-logout:hover {
+    background: #f09a36; color: #0e1a2b;
+    box-shadow: 0 4px 20px rgba(240,154,54,.35);
+}
+
+.intranet-hdr-toggle {
+    display: none; flex-direction: column; justify-content: center; gap: 4px;
+    width: 30px; height: 30px; background: none; border: none; cursor: pointer; padding: 0; flex-shrink: 0;
+}
+.intranet-hdr-toggle span {
+    display: block; width: 100%; height: 2px; background: #fff; border-radius: 2px;
+    transition: transform .3s ease, opacity .2s;
+}
+.intranet-hdr-toggle.open span:nth-child(1) { transform: translateY(6px) rotate(45deg); }
+.intranet-hdr-toggle.open span:nth-child(2) { opacity: 0; }
+.intranet-hdr-toggle.open span:nth-child(3) { transform: translateY(-6px) rotate(-45deg); }
+
+/* ─── DRAWER MÓVIL ─── */
+.intranet-drawer-overlay {
+    display: none; position: fixed; inset: 0;
+    background: rgba(15,26,38,.6); backdrop-filter: blur(2px); z-index: 1998;
+    opacity: 0; transition: opacity .3s ease;
+}
+.intranet-drawer-overlay.open { display: block; opacity: 1; }
+
+.intranet-drawer {
+    position: fixed; top: 0; right: 0; height: 100vh; width: 78%; max-width: 300px;
+    background: #fff; z-index: 1999;
+    transform: translateX(100%); transition: transform .35s cubic-bezier(.4,0,.2,1);
+    display: flex; flex-direction: column;
+    box-shadow: -8px 0 30px rgba(0,0,0,.18);
+}
+.intranet-drawer.open { transform: translateX(0); }
+.intranet-drawer-hdr {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 16px 18px; border-bottom: 1px solid #eef1f4;
+}
+.intranet-drawer-hdr img { height: 28px; width: auto; }
+.intranet-drawer-close {
+    background: none; border: none; font-size: 26px; color: #64748b; cursor: pointer; line-height: 1;
+}
+.intranet-drawer-nav {
+    flex: 1; overflow-y: auto; padding: 12px 12px 20px;
+}
+.intranet-drawer-nav a {
+    display: flex; align-items: center; gap: 10px;
+    padding: 12px 14px; border-radius: 8px;
+    color: #1e293b; font-size: 13px; font-weight: 700;
+    text-decoration: none; transition: all .2s ease;
+}
+.intranet-drawer-nav a i { width: 18px; text-align: center; color: #64748b; font-size: 14px; }
+.intranet-drawer-nav a:hover { background: #f5f7fa; color: #1b4562; }
+.intranet-drawer-nav a:hover i { color: #f09a36; }
+.intranet-drawer-nav a.active { background: linear-gradient(135deg,#1b4562,#26597e); color: #fff; }
+.intranet-drawer-nav a.active i { color: #fff; }
+
+/* ─── RESPONSIVE ─── */
+@media(max-width:1100px){
+    .intranet-hdr-nav-list li a { font-size: 10px; padding: 5px 7px; gap: 3px; }
+    .intranet-hdr-nav-list li a i { font-size: 10px; }
+    .intranet-hdr-user { font-size: 10px; }
+    .intranet-hdr-logout { font-size: 9px; padding: 5px 10px; }
+}
+@media(max-width:860px){
+    .intranet-hdr-nav { display: none; }
+    .intranet-hdr-toggle { display: flex; }
+    .intranet-hdr-user { display: none; }
+}
+@media(max-width:480px){
+    .intranet-hdr-inner { padding: 0 12px; gap: 8px; }
+    .intranet-hdr-logo { padding: 4px 10px 4px 8px; }
+    .intranet-hdr-logo img { height: 26px; }
+}
+</style>
+
+<div class="intranet-drawer-overlay" id="intranetDrawerOverlay"></div>
+
+<header id="intranet-header">
+    <div class="intranet-hdr-inner">
+        <a href="/intranet/dashboard" class="intranet-hdr-logo">
+            <img src="/images/Logo.png" alt="Mardique">
+        </a>
+
+        <nav class="intranet-hdr-nav">
+            <ul class="intranet-hdr-nav-list">
+                <li th:classappend="${current == 'dashboard' ? 'active' : ''}"><a href="/intranet/dashboard"><i class="fas fa-chart-simple"></i> Inicio</a></li>
+                <li th:classappend="${current == 'areas' ? 'active' : ''}"><a href="/intranet/areas"><i class="fas fa-layer-group"></i> Áreas</a></li>
+                <li th:classappend="${current == 'documentos' ? 'active' : ''}"><a href="/intranet/documentos"><i class="fas fa-folder-open"></i> Docs</a></li>
+                <li th:classappend="${current == 'informes' ? 'active' : ''}"><a href="/intranet/informes"><i class="fas fa-chart-simple"></i> Informes</a></li>
+                <li th:classappend="${current == 'noticias' ? 'active' : ''}"><a href="/intranet/noticias"><i class="fas fa-newspaper"></i> Noticias</a></li>
+                <li th:classappend="${current == 'galeria' ? 'active' : ''}"><a href="/intranet/galeria"><i class="fas fa-images"></i> Galería</a></li>
+                <li th:classappend="${current == 'calendario' ? 'active' : ''}"><a href="/intranet/calendario"><i class="fas fa-calendar"></i> Calendario</a></li>
+                <li th:classappend="${current == 'conversaciones' ? 'active' : ''}"><a href="/intranet/conversaciones"><i class="fas fa-comments"></i> Foro</a></li>
+                <li th:classappend="${current == 'soporte' ? 'active' : ''}"><a href="/intranet/soporte"><i class="fas fa-headset"></i> Soporte</a></li>
+            </ul>
+        </nav>
+
+        <div class="intranet-hdr-right">
+            <span class="intranet-hdr-user" id="userDisplay">Cargando...</span>
+            <button onclick="logoutMsal()" class="intranet-hdr-logout"><i class="fas fa-sign-out-alt"></i> Salir</button>
+        </div>
+
+        <button class="intranet-hdr-toggle" id="intranetHdrToggle" aria-label="Menú">
+            <span></span><span></span><span></span>
+        </button>
+    </div>
+</header>
+
+<nav class="intranet-drawer" id="intranetDrawer">
+    <div class="intranet-drawer-hdr">
+        <img src="/images/Logo.png" alt="Mardique">
+        <button class="intranet-drawer-close" id="intranetDrawerClose">&times;</button>
+    </div>
+    <div class="intranet-drawer-nav">
+        <a href="/intranet/dashboard" th:classappend="${current == 'dashboard' ? 'active' : ''}"><i class="fas fa-chart-simple"></i> Inicio</a>
+        <a href="/intranet/areas" th:classappend="${current == 'areas' ? 'active' : ''}"><i class="fas fa-layer-group"></i> Áreas</a>
+        <a href="/intranet/documentos" th:classappend="${current == 'documentos' ? 'active' : ''}"><i class="fas fa-folder-open"></i> Documentos</a>
+        <a href="/intranet/informes" th:classappend="${current == 'informes' ? 'active' : ''}"><i class="fas fa-chart-simple"></i> Informes</a>
+        <a href="/intranet/noticias" th:classappend="${current == 'noticias' ? 'active' : ''}"><i class="fas fa-newspaper"></i> Noticias</a>
+        <a href="/intranet/galeria" th:classappend="${current == 'galeria' ? 'active' : ''}"><i class="fas fa-images"></i> Galería</a>
+        <a href="/intranet/calendario" th:classappend="${current == 'calendario' ? 'active' : ''}"><i class="fas fa-calendar"></i> Calendario</a>
+        <a href="/intranet/conversaciones" th:classappend="${current == 'conversaciones' ? 'active' : ''}"><i class="fas fa-comments"></i> Foro</a>
+        <a href="/intranet/soporte" th:classappend="${current == 'soporte' ? 'active' : ''}"><i class="fas fa-headset"></i> Soporte</a>
+    </div>
+</nav>
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    const toggle = document.getElementById("intranetHdrToggle");
+    const drawer = document.getElementById("intranetDrawer");
+    const overlay = document.getElementById("intranetDrawerOverlay");
+    const closeBtn = document.getElementById("intranetDrawerClose");
+    function openDrawer() {
+        toggle?.classList.add("open");
+        drawer?.classList.add("open");
+        overlay?.classList.add("open");
+    }
+    function closeDrawer() {
+        toggle?.classList.remove("open");
+        drawer?.classList.remove("open");
+        overlay?.classList.remove("open");
+    }
+    toggle?.addEventListener("click", function(e) {
+        e.stopPropagation();
+        if (drawer?.classList.contains("open")) closeDrawer();
+        else openDrawer();
+    });
+    overlay?.addEventListener("click", closeDrawer);
+    closeBtn?.addEventListener("click", closeDrawer);
+    drawer?.querySelectorAll("a").forEach(a => a.addEventListener("click", closeDrawer));
+});
+</script>
+</th:block>
+</html>

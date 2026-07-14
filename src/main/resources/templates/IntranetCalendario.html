@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calendario — Intranet Mardique</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/css/panel-nav.css">
+    <link rel="stylesheet" href="/css/inicio.css">
+    <link rel="stylesheet" href="/css/portal.css">
+    <script src="https://alcdn.msauth.net/browser/2.38.0/js/msal-browser.min.js"></script>
+    <style>
+        @keyframes fadeInDown{from{opacity:0;transform:translateY(-24px)}to{opacity:1;transform:translateY(0)}}
+        @keyframes fadeInUp{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:translateY(0)}}
+        @keyframes floatIcon{0%,100%{transform:translateY(0)}25%{transform:translateY(-12px)}75%{transform:translateY(-8px)}}
+        .phero-badge{animation:fadeInDown .6s ease both}
+        .phero-main h1{animation:fadeInUp .7s ease .1s both}
+        .phero-main p{animation:fadeInUp .7s ease .25s both}
+        .phero-floaters{position:absolute;inset:0;overflow:hidden;pointer-events:none;z-index:0}
+        .phero-floaters i{position:absolute;color:rgba(255,255,255,.08);animation:floatIcon 9s ease-in-out infinite}
+        .phero-floaters i:nth-child(1){font-size:60px;top:14%;left:6%;animation-delay:0s}
+        .phero-floaters i:nth-child(2){font-size:40px;top:62%;left:14%;animation-delay:1.4s}
+        .phero-floaters i:nth-child(3){font-size:48px;top:20%;right:8%;animation-delay:.7s}
+        .phero-floaters i:nth-child(4){font-size:36px;bottom:12%;right:16%;animation-delay:2.1s}
+        body{background:#f3f4f6!important;}
+        .intranet-shell{max-width:1200px;margin:0 auto;padding:0 24px 90px;display:flex;flex-direction:column;gap:22px;}
+        .intranet-main{flex:1;min-width:0;}
+        body .tab-content{background:#fff;border:1px solid var(--bdr);border-radius:16px;padding:34px 36px;box-shadow:0 4px 22px rgba(15,42,58,.06);}
+        .mock-mode-badge{display:inline-flex;align-items:center;gap:5px;padding:4px 14px;border-radius:50px;font-size:11px;font-weight:700;background:#fef3c7;color:#92400e;border:1px solid #f59e0b;margin-left:10px;}
+        @media(max-width:700px){body .tab-content{padding:18px 14px;}}
+        .cal-layout{display:grid;grid-template-columns:1fr 280px;gap:28px;}
+        @media(max-width:860px){.cal-layout{grid-template-columns:1fr;}}
+        .cal-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;}
+        .cal-header h2{font-size:20px;font-weight:800;color:var(--pd);margin:0;}
+        .cal-nav{display:flex;align-items:center;gap:6px;}
+        .cal-nav button{width:36px;height:36px;border-radius:50%;border:1.5px solid var(--bdr);background:#fff;color:var(--tx);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s;font-size:14px;}
+        .cal-nav button:hover{border-color:var(--ag);color:var(--ag);}
+        .cal-nav .cal-today-btn{padding:6px 16px;border-radius:8px;border:1.5px solid var(--bdr);background:#fff;color:var(--pd);font-size:12px;font-weight:700;cursor:pointer;transition:all .2s;font-family:inherit;}
+        .cal-nav .cal-today-btn:hover{border-color:var(--ag);color:var(--ag);}
+        .cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:2px;background:var(--bdr);border-radius:12px;overflow:hidden;}
+        .cal-weekday{padding:10px 4px;text-align:center;font-size:11px;font-weight:800;color:var(--mx);text-transform:uppercase;letter-spacing:.4px;background:var(--bg);}
+        .cal-day{min-height:80px;padding:6px;background:#fff;cursor:pointer;transition:background .2s;display:flex;flex-direction:column;align-items:stretch;}
+        .cal-day:hover{background:#f8fafc;}
+        .cal-day.other{opacity:.35;}
+        .cal-day.today{background:#fefce8;}
+        .cal-day.today .cal-day-num{background:var(--ag);color:#fff;border-radius:50%;width:26px;height:26px;display:flex;align-items:center;justify-content:center;}
+        .cal-day-num{font-size:13px;font-weight:700;color:var(--pd);margin-bottom:4px;width:26px;height:26px;}
+        .cal-event{font-size:10px;padding:2px 5px;border-radius:4px;margin-bottom:2px;font-weight:600;line-height:1.3;cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;transition:opacity .2s;}
+        .cal-event:hover{opacity:.8;}
+        .cal-event.event-cumple{background:#fef3c7;color:#92400e;}
+        .cal-event.event-capacitacion{background:#dbeafe;color:#1e40af;}
+        .cal-event.event-feriado{background:#fce7f3;color:#9d174d;}
+        .cal-event.event-reunion{background:#d1fae5;color:#065f46;}
+        .cal-event.event-general{background:#f3e8ff;color:#6b21a8;}
+        .cal-sidebar h3{font-size:13px;font-weight:800;color:var(--mx);text-transform:uppercase;letter-spacing:.4px;margin:0 0 14px;padding-bottom:10px;border-bottom:2px solid rgba(240,154,54,.2);}
+        .cal-events-list{display:flex;flex-direction:column;gap:8px;}
+        .cal-side-event{display:flex;gap:10px;padding:10px 12px;border-radius:10px;border:1px solid var(--bdr);background:#fafbfc;transition:all .2s;}
+        .cal-side-event:hover{border-color:var(--ag);background:#fff;}
+        .cal-side-event .se-date{font-size:11px;font-weight:800;color:var(--ag);flex-shrink:0;width:36px;text-align:center;}
+        .cal-side-event .se-body{flex:1;min-width:0;}
+        .cal-side-event .se-body strong{display:block;font-size:12.5px;color:var(--pd);}
+        .cal-side-event .se-body span{font-size:11px;color:var(--mx);}
+        .cal-side-event .se-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;margin-top:5px;}
+    </style>
+</head>
+<body>
+
+<div th:replace="IntranetNav :: nav(current='calendario')"></div>
+
+<div class="phero">
+    <div class="phw-glow"></div>
+    <div class="phero-floaters">
+        <i class="fas fa-anchor"></i>
+        <i class="fas fa-ship"></i>
+        <i class="fas fa-water"></i>
+        <i class="fas fa-crane"></i>
+    </div>
+    <div class="phw-container">
+        <div class="phero-grid">
+            <div class="phero-main">
+                <div class="phero-badge"><i class="fas fa-calendar"></i> Calendario</div>
+                <h1>Calendario Corporativo</h1>
+                <p>Eventos, capacitaciones, cumpleaños y fechas importantes</p>
+            </div>
+        </div>
+    </div>
+    <div class="phw-wave">
+        <svg viewBox="0 0 1440 60" preserveAspectRatio="none"><path d="M0,32 C240,60 480,4 720,20 C960,36 1200,58 1440,28 L1440,60 L0,60 Z" fill="#f0f4f8"/></svg>
+    </div>
+</div>
+
+<div class="intranet-shell">
+    <div class="intranet-main">
+        <div class="tab-content reveal">
+            <div class="cal-layout">
+                <div>
+                    <div class="cal-header">
+                        <h2 id="calMonthTitle">Julio 2026</h2>
+                        <div class="cal-nav">
+                            <button onclick="cal.prev()"><i class="fas fa-chevron-left"></i></button>
+                            <button class="cal-today-btn" onclick="cal.today()">Hoy</button>
+                            <button onclick="cal.next()"><i class="fas fa-chevron-right"></i></button>
+                        </div>
+                    </div>
+                    <div class="cal-grid" id="calGrid"></div>
+                </div>
+                <div class="cal-sidebar">
+                    <h3><i class="fas fa-list" style="margin-right:6px;color:var(--ag);"></i> Eventos del mes</h3>
+                    <div class="cal-events-list" id="calEventsList"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="pfooter">
+    &copy; 2026 Sociedad Portuaria Mardique S.A. Intranet Corporativa &mdash; Todos los derechos reservados.
+</div>
+
+<script src="/js/msal-config.js"></script>
+<script src="/js/intranet.js"></script>
+<script>
+const MOCK_EVENTS = [
+    { date: "2026-07-11", title: "Capacitación SAP", type: "capacitacion" },
+    { date: "2026-07-14", title: "Reunión de gerencia", type: "reunion" },
+    { date: "2026-07-18", title: "Cumpleaños corporativo", type: "cumple" },
+    { date: "2026-07-20", title: "Día de la Independencia", type: "feriado" },
+    { date: "2026-07-22", title: "Taller de liderazgo", type: "capacitacion" },
+    { date: "2026-07-25", title: "Revisión presupuesto Q3", type: "reunion" },
+    { date: "2026-07-28", title: "Entrega de reportes", type: "general" },
+    { date: "2026-07-30", title: "Capacitación SST", type: "capacitacion" },
+    { date: "2026-08-01", title: "Inicio mes fiscal", type: "general" },
+    { date: "2026-08-05", title: "Reunión operativa", type: "reunion" },
+    { date: "2026-08-07", title: "Cumpleaños Carlos M.", type: "cumple" },
+    { date: "2026-08-12", title: "Auditoría interna", type: "reunion" },
+    { date: "2026-08-15", title: "Capacitación Power BI", type: "capacitacion" },
+    { date: "2026-08-19", title: "Comité de convivencia", type: "reunion" },
+    { date: "2026-08-22", title: "Cumpleaños Ana G.", type: "cumple" },
+    { date: "2026-08-28", title: "Cierre contable mensual", type: "general" }
+];
+
+const EVENT_COLORS = { cumple: "event-cumple", capacitacion: "event-capacitacion", feriado: "event-feriado", reunion: "event-reunion", general: "event-general" };
+const EVENT_DOT = { cumple: "#f59e0b", capacitacion: "#3b82f6", feriado: "#ec4899", reunion: "#10b981", general: "#8b5cf6" };
+const EVENT_LABEL = { cumple: "Cumpleaños", capacitacion: "Capacitación", feriado: "Feriado", reunion: "Reunión", general: "General" };
+const WEEKDAYS = ["Dom","Lun","Mar","Mié","Jue","Vie","Sáb"];
+const MONTHS = ["Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre"];
+
+const cal = {
+    year: 2026, month: 6,
+    prev(){ this.month--; if(this.month<0){this.month=11;this.year--;} this.render(); },
+    next(){ this.month++; if(this.month>11){this.month=0;this.year++;} this.render(); },
+    today(){
+        const n=new Date();
+        this.year=n.getFullYear(); this.month=n.getMonth();
+        this.render();
+    },
+    render(){
+        const title=document.getElementById("calMonthTitle");
+        title.textContent=MONTHS[this.month]+" "+this.year;
+
+        const first=new Date(this.year,this.month,1);
+        const last=new Date(this.year,this.month+1,0);
+        const startDay=first.getDay();
+        const daysInMonth=last.getDate();
+        const prevLast=new Date(this.year,this.month,0);
+        const prevDays=prevLast.getDate();
+
+        const todayStr=new Date().toISOString().slice(0,10);
+        let html='';
+        WEEKDAYS.forEach(d=>{html+='<div class="cal-weekday">'+d+'</div>';});
+
+        for(let i=startDay-1;i>=0;i--){
+            const d=prevDays-i;
+            html+=`<div class="cal-day other"><div class="cal-day-num">${d}</div></div>`;
+        }
+        for(let d=1;d<=daysInMonth;d++){
+            const dateStr=this.year+'-'+String(this.month+1).padStart(2,'0')+'-'+String(d).padStart(2,'0');
+            const isToday=dateStr===todayStr;
+            const events=this.getEvents(dateStr);
+            html+=`<div class="cal-day${isToday?' today':''}"><div class="cal-day-num">${d}</div>`;
+            events.forEach(ev=>{
+                html+=`<div class="cal-event ${EVENT_COLORS[ev.type]||'event-general'}" title="${ev.title}">${ev.title}</div>`;
+            });
+            html+='</div>';
+        }
+        const remaining=42-startDay-daysInMonth;
+        for(let d=1;d<=remaining;d++){
+            html+=`<div class="cal-day other"><div class="cal-day-num">${d}</div></div>`;
+        }
+        document.getElementById("calGrid").innerHTML=html;
+
+        this.renderSidebar();
+    },
+    getEvents(dateStr){
+        return MOCK_EVENTS.filter(ev=>ev.date===dateStr);
+    },
+    renderSidebar(){
+        const el=document.getElementById("calEventsList");
+        const monthStr=this.year+'-'+String(this.month+1).padStart(2,'0');
+        const events=MOCK_EVENTS
+            .filter(ev=>ev.date.startsWith(monthStr))
+            .sort((a,b)=>a.date.localeCompare(b.date));
+        if(!events.length){
+            el.innerHTML='<div style="color:var(--mx);font-size:12px;padding:12px 0;text-align:center;">No hay eventos este mes</div>';
+            return;
+        }
+        el.innerHTML=events.map(ev=>{
+            const day=parseInt(ev.date.slice(8));
+            return `<div class="cal-side-event">
+                <div class="se-date">${day}</div>
+                <div class="se-dot" style="background:${EVENT_DOT[ev.type]||'#8b5cf6'}"></div>
+                <div class="se-body">
+                    <strong>${ev.title}</strong>
+                    <span>${EVENT_LABEL[ev.type]||'General'}</span>
+                </div>
+            </div>`;
+        }).join('');
+    }
+};
+
+document.addEventListener("DOMContentLoaded", function() {
+    if (!isMsalAuthenticated()) { window.location.href = "/login"; return; }
+    if (isMockMode()) { const mb = document.getElementById("mockBadge"); if (mb) mb.style.display = "inline-flex"; }
+
+    getCurrentUser().then(user => {
+        const el = document.getElementById("userDisplay");
+        if (el) el.textContent = user.displayName || user.userPrincipalName || "Empleado";
+    }).catch(() => {});
+
+    const hdr = document.getElementById('intranet-header');
+    window.addEventListener('scroll', () => hdr?.classList.toggle('scrolled', window.scrollY > 60), { passive: true });
+
+    const revealObs = new IntersectionObserver(entries => {
+        entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+    }, { threshold: 0.1 });
+    document.querySelectorAll('.reveal').forEach(el => revealObs.observe(el));
+
+    const n=new Date();
+    cal.year=n.getFullYear(); cal.month=n.getMonth();
+    cal.render();
+});
+</script>
+</body>
+</html>

@@ -32,6 +32,9 @@ public class Document {
 
     private String descripcion;
 
+    @Column(name = "destinatarios")
+    private String destinatarios;
+
     public Document() {}
 
     public Long getId() { return id; }
@@ -54,4 +57,6 @@ public class Document {
     public void setEmailCc(String emailCc) { this.emailCc = emailCc; }
     public String getDescripcion() { return descripcion; }
     public void setDescripcion(String descripcion) { this.descripcion = descripcion; }
+    public String getDestinatarios() { return destinatarios; }
+    public void setDestinatarios(String destinatarios) { this.destinatarios = destinatarios; }
 }

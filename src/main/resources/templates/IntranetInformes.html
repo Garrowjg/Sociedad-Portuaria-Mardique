@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Informes — Intranet Mardique</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/css/panel-nav.css">
+    <link rel="stylesheet" href="/css/inicio.css">
+    <link rel="stylesheet" href="/css/portal.css">
+    <script src="https://alcdn.msauth.net/browser/2.38.0/js/msal-browser.min.js"></script>
+    <style>
+        @keyframes fadeInDown{from{opacity:0;transform:translateY(-24px)}to{opacity:1;transform:translateY(0)}}
+        @keyframes fadeInUp{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:translateY(0)}}
+        @keyframes floatIcon{0%,100%{transform:translateY(0)}25%{transform:translateY(-12px)}75%{transform:translateY(-8px)}}
+        .phero-badge{animation:fadeInDown .6s ease both}
+        .phero-main h1{animation:fadeInUp .7s ease .1s both}
+        .phero-main p{animation:fadeInUp .7s ease .25s both}
+        .phero-floaters{position:absolute;inset:0;overflow:hidden;pointer-events:none;z-index:0}
+        .phero-floaters i{position:absolute;color:rgba(255,255,255,.08);animation:floatIcon 9s ease-in-out infinite}
+        .phero-floaters i:nth-child(1){font-size:60px;top:14%;left:6%;animation-delay:0s}
+        .phero-floaters i:nth-child(2){font-size:40px;top:62%;left:14%;animation-delay:1.4s}
+        .phero-floaters i:nth-child(3){font-size:48px;top:20%;right:8%;animation-delay:.7s}
+        .phero-floaters i:nth-child(4){font-size:36px;bottom:12%;right:16%;animation-delay:2.1s}
+        body{background:#f3f4f6!important;}
+        .intranet-shell{max-width:1320px;margin:0 auto;padding:0 24px 90px;display:flex;flex-direction:column;gap:22px;}
+        .intranet-main{flex:1;min-width:0;}
+        body .section-header{margin-bottom:24px;padding-bottom:16px;border-bottom:2px solid #eef1f4;}
+        body .section-header h2{display:flex;align-items:center;gap:10px;font-size:19px;font-weight:800;color:var(--pd);margin:0;letter-spacing:-.2px;}
+        body .section-header h2 i{color:var(--ag);font-size:17px;width:34px;height:34px;flex-shrink:0;display:inline-flex;align-items:center;justify-content:center;background:rgba(240,154,54,.12);border-radius:9px;}
+        body .section-header p{margin-top:6px!important;}
+        body .tab-content{background:#fff;border:1px solid var(--bdr);border-radius:16px;padding:34px 36px;box-shadow:0 4px 22px rgba(15,42,58,.06);}
+        @media(max-width:700px){ body .tab-content{padding:22px 18px;} }
+        .mock-mode-badge { display: inline-flex; align-items: center; gap: 5px; padding: 4px 14px; border-radius: 50px; font-size: 11px; font-weight: 700; background: #fef3c7; color: #92400e; border: 1px solid #f59e0b; margin-left: 10px; }
+        .user-greeting{font-size:15px;color:rgba(255,255,255,.75);margin-top:4px;}
+        .user-badge{display:inline-block;padding:3px 12px;border-radius:50px;font-size:11px;font-weight:700;background:rgba(240,154,54,.14);color:var(--ag);border:1px solid rgba(240,154,54,.3);margin-top:8px;}
+        @media(max-width:768px){ .header-user-name{display:none;} }
+        .report-area-menu{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:28px;padding-bottom:20px;border-bottom:1px solid #eef1f4;}
+        .report-area-btn{display:inline-flex;align-items:center;gap:8px;padding:10px 20px;border-radius:50px;font-size:12.5px;font-weight:700;font-family:inherit;border:2px solid var(--bdr);background:#fff;color:var(--tx);cursor:pointer;transition:all .2s ease;}
+        .report-area-btn:hover{border-color:var(--ag);color:var(--ag);}
+        .report-area-btn.active{background:var(--ag);border-color:var(--ag);color:#fff;}
+        .report-area-btn i{font-size:13px;}
+        .report-frame-wrap{width:100%;border-radius:14px;overflow:hidden;box-shadow:0 4px 24px rgba(15,42,58,.08);background:#f9fafb;position:relative;}
+        .report-frame-wrap iframe{display:block;width:100%!important;border:none;border-radius:10px;}
+        .report-embed-container iframe{width:100%!important;border:none!important;border-radius:10px;}
+        .report-embed-container{display:none;}
+        .report-placeholder{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:80px 20px;text-align:center;color:var(--mx);}
+        .report-placeholder i{font-size:48px;margin-bottom:16px;opacity:.4;color:var(--pd);}
+        .report-placeholder h3{font-size:16px;font-weight:700;color:var(--pd);margin:0 0 6px;}
+        .report-placeholder p{font-size:13px;max-width:380px;line-height:1.5;}
+        .report-config-note{font-size:11px;color:#94a3b8;margin-top:12px;text-align:center;border-top:1px solid #eef1f4;padding-top:12px;}
+        @media(max-width:700px){ .report-frame-wrap iframe{height:380px;} }
+    </style>
+</head>
+<body>
+
+<div th:replace="IntranetNav :: nav(current='informes')"></div>
+
+<div class="phero">
+    <div class="phw-glow"></div>
+    <div class="phero-floaters">
+        <i class="fas fa-chart-pie"></i>
+        <i class="fas fa-chart-line"></i>
+        <i class="fas fa-chart-bar"></i>
+        <i class="fas fa-chart-simple"></i>
+    </div>
+    <div class="phw-container">
+        <div class="phero-grid">
+            <div class="phero-main">
+                <div class="phero-badge"><i class="fas fa-chart-simple"></i> Power BI</div>
+                <h1>Informes / Reportes</h1>
+                <p>Reportes interactivos Power BI por área de la empresa</p>
+            </div>
+        </div>
+    </div>
+    <div class="phw-wave">
+        <svg viewBox="0 0 1440 60" preserveAspectRatio="none"><path d="M0,32 C240,60 480,4 720,20 C960,36 1200,58 1440,28 L1440,60 L0,60 Z" fill="#f0f4f8"/></svg>
+    </div>
+</div>
+
+<div class="intranet-shell">
+    <div class="intranet-main">
+        <div class="tab-content reveal">
+            <div class="section-header">
+                <h2><i class="fas fa-chart-simple"></i> Informes Power BI</h2>
+                <p style="color:var(--mx);font-size:13px;margin-top:4px;">Selecciona un área para ver su reporte interactivo</p>
+            </div>
+            <div class="report-area-menu" id="reportMenu"></div>
+            <div class="report-frame-wrap" id="reportFrameWrap">
+                <div class="report-placeholder" id="reportPlaceholder">
+                    <i class="fas fa-hand-pointer"></i>
+                    <h3>Selecciona un área</h3>
+                    <p>Elige un área del menú superior para visualizar su reporte Power BI</p>
+                </div>
+            </div>
+            <div class="report-config-note">
+                <i class="fas fa-info-circle"></i> Los iframes de Power BI se leen desde la columna <strong>Informe</strong> de la lista <strong>Areas</strong> en SharePoint.
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="pfooter">
+    &copy; 2026 Sociedad Portuaria Mardique S.A. Intranet Corporativa &mdash; Todos los derechos reservados.
+</div>
+
+<script src="/js/msal-config.js"></script>
+<script src="/js/intranet.js"></script>
+<script>
+let reportAreas = [];
+
+function renderReportMenu(){
+    const menu = document.getElementById("reportMenu");
+    if (!menu) return;
+    menu.innerHTML = reportAreas.map(a => `
+    <button class="report-area-btn" data-id="${a.id}" onclick="selectReportArea('${a.id}')">
+        <i class="fas fa-chart-line"></i> ${escapeHtml(a.Title)}
+    </button>`).join("");
+}
+
+function selectReportArea(id){
+    const area = reportAreas.find(a => a.id === id);
+    if (!area) return;
+    document.querySelectorAll(".report-area-btn").forEach(b => b.classList.remove("active"));
+    document.querySelector(`.report-area-btn[data-id="${id}"]`).classList.add("active");
+    const wrap = document.getElementById("reportFrameWrap");
+    const placeholder = document.getElementById("reportPlaceholder");
+    if (area.Informe && area.Informe.includes("<iframe")) {
+        placeholder.style.display = "none";
+        let container = wrap.querySelector(".report-embed-container");
+        if (!container) {
+            container = document.createElement("div");
+            container.className = "report-embed-container";
+            wrap.appendChild(container);
+        }
+        container.innerHTML = area.Informe.replace(/width="[^"]*"/gi,'width="100%"').replace(/height="[^"]*"/gi,'height="520"');
+        container.style.display = "block";
+    } else {
+        placeholder.style.display = "flex";
+        const container = wrap.querySelector(".report-embed-container");
+        if (container) container.style.display = "none";
+        placeholder.innerHTML = `
+        <i class="fas fa-wrench"></i>
+        <h3>Reporte no configurado</h3>
+        <p>El reporte Power BI para <strong>${escapeHtml(area.Title)}</strong> aún no tiene un iframe asignado.<br>Ve a SharePoint → lista <strong>Areas</strong> → columna <strong>Informe</strong> y pega el código del iframe.</p>`;
+    }
+}
+
+function loadReportAreas(){
+    getAreas().then(areas => {
+        reportAreas = areas;
+        renderReportMenu();
+    }).catch(() => {
+        document.getElementById("reportMenu").innerHTML = '<div style="color:var(--mx);font-size:13px;padding:10px 0;">Error al cargar áreas</div>';
+    });
+}
+
+document.addEventListener("DOMContentLoaded", function() {
+    if (!isMsalAuthenticated()) { window.location.href = "/login"; return; }
+    if (isMockMode()) { const mb = document.getElementById("mockBadge"); if (mb) mb.style.display = "inline-flex"; }
+
+    getCurrentUser().then(user => {
+        const name = user.displayName || user.userPrincipalName || "Empleado";
+        document.getElementById("userDisplay").textContent = name;
+        document.getElementById("userName").textContent = name;
+        if (user.jobTitle) document.getElementById("userBadge").textContent = user.jobTitle;
+    }).catch(() => {});
+
+    loadReportAreas();
+
+    const hdr = document.getElementById('intranet-header');
+    window.addEventListener('scroll', () => hdr?.classList.toggle('scrolled', window.scrollY > 60), { passive: true });
+
+    const revealObs = new IntersectionObserver(entries => {
+        entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+    }, { threshold: 0.1 });
+    document.querySelectorAll('.reveal').forEach(el => revealObs.observe(el));
+});
+</script>
+</body>
+</html>

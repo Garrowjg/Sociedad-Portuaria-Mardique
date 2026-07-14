@@ -92,7 +92,7 @@ public class PaginasController {
     public String procedimientos(Authentication auth, Model model) {
         if (auth != null && auth.isAuthenticated()) return "redirect:/sesion-activa";
         model.addAttribute("pageContents", loadPageContents("procedimientos"));
-        model.addAttribute("docs", documentRepository.findByTipo("PROCEDIMIENTO"));
+        model.addAttribute("docs", publicDocs(documentRepository.findByTipo("PROCEDIMIENTO")));
         return "Procedimientos";
     }
 
@@ -100,7 +100,7 @@ public class PaginasController {
     public String tarifas(Authentication auth, Model model) {
         if (auth != null && auth.isAuthenticated()) return "redirect:/sesion-activa";
         model.addAttribute("pageContents", loadPageContents("tarifas"));
-        model.addAttribute("docs", documentRepository.findByTipo("TARIFA"));
+        model.addAttribute("docs", publicDocs(documentRepository.findByTipo("TARIFA")));
         model.addAttribute("reglamentoDoc", documentRepository.findByTipoAndCardKey("TARIFA", "REGLAMENTO").orElse(null));
         model.addAttribute("tarifaIframeUrl", transformIframeUrl(systemConfigRepository.findByConfigKey("TARIFA_IFRAME_URL").map(SystemConfig::getConfigValue).orElse("")));
         model.addAttribute("tarifaPhone", systemConfigRepository.findByConfigKey("TARIFA_PHONE").map(SystemConfig::getConfigValue).orElse("(57) (5) 669 0730"));
@@ -112,8 +112,10 @@ public class PaginasController {
     public String tramitesEnLinea(Authentication auth, Model model) {
         if (auth != null && auth.isAuthenticated()) return "redirect:/sesion-activa";
         model.addAttribute("pageContents", loadPageContents("tramites"));
-        model.addAttribute("docs", documentRepository.findByTipo("TRAMITE"));
-        model.addAttribute("cardDocs", loadCardDocs("TRAMITE"));
+        model.addAttribute("docs", publicDocs(documentRepository.findByTipo("TRAMITE")));
+        Map<String, Document> cardDocs = loadCardDocs("TRAMITE");
+        cardDocs.values().removeIf(d -> d.getDestinatarios() != null && !d.getDestinatarios().isEmpty());
+        model.addAttribute("cardDocs", cardDocs);
         model.addAttribute("reglamentoDoc", documentRepository.findByTipoAndCardKey("TRAMITE", "REGLAMENTO").orElse(null));
         return "Tramitesenlinea";
     }
@@ -309,6 +311,10 @@ public class PaginasController {
         List<Document> docs = documentRepository.findByTipoAndCardKeyIsNotNull(tipo);
         return docs.stream().filter(d -> d.getCardKey() != null)
             .collect(Collectors.toMap(Document::getCardKey, d -> d, (a, b) -> a));
+    }
+
+    private List<Document> publicDocs(List<Document> docs) {
+        return docs.stream().filter(d -> d.getDestinatarios() == null || d.getDestinatarios().isEmpty()).collect(Collectors.toList());
     }
 
     private String transformIframeUrl(String url) {

@@ -3,11 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="_csrf" th:content="${_csrf.token}">
+    <meta name="_csrf_header" th:content="${_csrf.headerName}">
     <title>Iniciar Sesión — Mardique</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="/css/inicio.css">
+    <link rel="stylesheet" href="/css/panel-nav.css">
     <style>
         :root {
             --primary-blue: #28648c;
@@ -25,7 +28,7 @@
         body { font-family: 'Plus Jakarta Sans', sans-serif; background: var(--bg-light); color: var(--text-dark); min-height: 100vh; display: flex; flex-direction: column; }
         .auth-wrapper { flex: 1; display: flex; align-items: center; justify-content: center; padding: 140px 20px 60px; background: linear-gradient(135deg, var(--primary-dark) 0%, #0f2a3a 100%); position: relative; overflow: hidden; }
         .auth-wrapper::before { content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%; background: radial-gradient(ellipse at 30% 20%, rgba(0,163,224,0.06) 0%, transparent 50%), radial-gradient(ellipse at 70% 80%, rgba(240,154,54,0.04) 0%, transparent 50%); pointer-events: none; }
-        .auth-card { background: rgba(255,255,255,0.97); border-radius: 16px; padding: 48px 40px; width: 100%; max-width: 420px; box-shadow: 0 20px 60px rgba(0,0,0,0.3); position: relative; }
+        .auth-card { background: rgba(255,255,255,0.97); border-radius: 16px; padding: 48px 40px; width: 100%; max-width: 420px; box-shadow: 0 20px 60px rgba(0,0,0,0.3); position: relative; margin: auto; }
         .auth-card-logo { text-align: center; margin-bottom: 28px; }
         .auth-card-logo img { height: 42px; }
         .auth-card h1 { font-size: 22px; font-weight: 700; text-align: center; margin-bottom: 4px; color: var(--primary-dark); }
@@ -47,7 +50,18 @@
         .auth-card .demo-box h4 { font-size: 12px; font-weight: 700; color: var(--primary-blue); margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.3px; }
         .auth-card .demo-box .demo-row { display: flex; justify-content: space-between; padding: 4px 0; color: var(--text-muted); }
         .auth-card .demo-box .demo-row span { font-weight: 600; color: var(--text-dark); }
-        @media (max-width:480px) { .auth-card { padding: 32px 24px; } }
+        .m365-section { margin: 20px 0; }
+        .divider-text { display: flex; align-items: center; gap: 12px; margin-bottom: 14px; }
+        .divider-text::before, .divider-text::after { content: ''; flex: 1; height: 1px; background: #e2e8f0; }
+        .divider-text span { font-size: 11px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: .4px; white-space: nowrap; }
+        .btn-m365 { width: 100%; padding: 14px; border: 2px solid var(--primary-blue); border-radius: var(--radius); background: transparent; color: var(--primary-dark); font-size: 13px; font-weight: 700; font-family: inherit; cursor: pointer; transition: var(--transition); display: flex; align-items: center; justify-content: center; gap: 8px; }
+        .btn-m365:hover { background: var(--primary-blue); color: #fff; transform: translateY(-1px); box-shadow: 0 6px 20px rgba(27,69,98,.25); }
+        .btn-m365 i { font-size: 16px; }
+        .btn-mock { width: 100%; padding: 10px; border: 2px dashed var(--accent-gold); border-radius: var(--radius); background: rgba(240,154,54,0.06); color: var(--accent-gold); font-size: 12px; font-weight: 700; font-family: inherit; cursor: pointer; transition: var(--transition); display: flex; align-items: center; justify-content: center; gap: 8px; margin-top: 8px; }
+        .btn-mock:hover { background: rgba(240,154,54,0.12); }
+        .mock-badge { display: inline-block; padding: 2px 10px; border-radius: 50px; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.3px; background: #fef3c7; color: #92400e; border: 1px solid #f59e0b; margin-bottom: 12px; }
+        @media (max-width:768px) { .auth-card { padding: 32px 24px; } .auth-card .demo-row { flex-direction: column; gap: 2px; } }
+        @media (max-width:480px) { .auth-card { padding: 24px 16px; } }
     </style>
     <style>body { animation: pageBlurIn 0.4s ease-out; } @keyframes pageBlurIn { from { filter: blur(4px); } to { filter: blur(0); } }</style>
 <script src="/js/inicio.js"></script>
@@ -61,6 +75,9 @@
             </div>
             <h1>Iniciar Sesión</h1>
             <p class="sub">Acceda a su panel de control</p>
+            <div id="mockIndicator" style="display:none;text-align:center;">
+                <span class="mock-badge"><i class="fas fa-flask"></i> Modo Prueba</span>
+            </div>
             <div th:if="${param.error}" class="msg msg-error"><i class="fas fa-exclamation-circle"></i> Usuario o contraseña incorrectos <span th:if="${param.attempts}" th:text="|(intento ${param.attempts[0]} de 5)|"></span></div>
             <div th:if="${param.blocked}" class="msg msg-error"><i class="fas fa-lock"></i> Demasiados intentos. Espere 15 minutos.</div>
             <div th:if="${param.registered}" class="msg msg-success"><i class="fas fa-check-circle"></i> Registro exitoso. Inicie sesión.</div>
@@ -76,6 +93,15 @@
                 </div>
                 <button type="submit" class="btn-submit"><i class="fas fa-arrow-right-to-bracket"></i> ENTRAR</button>
             </form>
+            <div class="m365-section">
+                <div class="divider-text"><span>Acceso Corporativo</span></div>
+                <button id="btnM365" class="btn-m365" onclick="startMsalLogin()">
+                    <i class="fas fa-building"></i> Acceso Corporativo — Microsoft 365
+                </button>
+                <button id="btnMockAccess" class="btn-mock" onclick="startMockLogin()">
+                    <i class="fas fa-flask"></i> Acceso de Prueba (Simulado)
+                </button>
+            </div>
             <div class="divider"></div>
             <div class="demo-box">
                 <h4><i class="fas fa-flask" style="margin-right:4px;"></i> Credenciales de prueba</h4>
@@ -88,10 +114,10 @@
     </div>
     <div th:replace="~{Inicio :: footer}"></div>
     <div class="drawer-overlay" id="drawerOverlay"></div>
-    <nav class="mobile-nav-drawer" id="mobileDrawer" aria-label="Men&uacute; m&oacute;vil">
+    <nav class="mobile-nav-drawer" id="mobileDrawer">
         <div class="drawer-header">
             <img src="/images/Logo.png" alt="Mardique">
-            <button class="drawer-close" id="drawerClose" aria-label="Cerrar men&uacute;">&times;</button>
+            <button class="drawer-close" id="drawerClose">&times;</button>
         </div>
         <div class="drawer-nav">
             <a href="/inicio">INICIO</a>
@@ -115,7 +141,39 @@
             <a href="/contacto" class="drawer-contact-btn"><i class="fas fa-phone-alt"></i> CONT&Aacute;CTANOS</a>
         </div>
     </nav>
+    <script src="https://alcdn.msauth.net/browser/2.38.0/js/msal-browser.min.js"></script>
+    <script src="/js/msal-config.js"></script>
+    <script>
+        function startMsalLogin() {
+            localStorage.removeItem("intranet_modo_prueba");
+            msalInstance.loginRedirect(loginRequest);
+        }
+        function startMockLogin() {
+            localStorage.setItem("intranet_modo_prueba", "true");
+            sessionStorage.setItem("msalAccount", JSON.stringify({
+                homeAccountId: "mock",
+                environment: "login.microsoftonline.com",
+                tenantId: "f33bed9f-22bd-4350-b7da-66bd88fc6458",
+                username: "carlos.martinez@mardique.com.co",
+                name: "Carlos Martínez"
+            }));
+            sessionStorage.setItem("msalToken", "mock-token-" + Date.now());
+            sessionStorage.setItem("msalTokenExpires", String(Date.now() + 3600000));
+            window.location.href = "/intranet/dashboard";
+        }
+        document.addEventListener('DOMContentLoaded', function() {
+            if (localStorage.getItem("intranet_modo_prueba") === "true") {
+                document.getElementById("mockIndicator").style.display = "block";
+            }
+            handleMsalRedirect().then(response => {
+                if (response) {
+                    window.location.href = '/intranet/dashboard';
+                }
+            }).catch(err => {
+                console.error('MSAL init error:', err);
+            });
+        });
+    </script>
     <script>window.addEventListener('scroll',()=>{document.getElementById('main-header')?.classList.toggle('scrolled',window.scrollY>60);});</script>
 </body>
 </html>
-
