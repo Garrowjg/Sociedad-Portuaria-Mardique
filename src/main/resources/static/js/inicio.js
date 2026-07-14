@@ -920,7 +920,6 @@ document.addEventListener('keydown', function(e) {
             if (nodeAlpha > 0.25) {
             }
             ctx.restore();
-            // Label: solo cuando el nodo está seleccionado (click), nunca automático
             if (isSelected) {
                 ctx.save(); ctx.globalAlpha = 1;
                 ctx.font = `600 10px 'Plus Jakarta Sans', sans-serif`;

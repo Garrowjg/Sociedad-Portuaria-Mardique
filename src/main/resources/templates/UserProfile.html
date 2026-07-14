@@ -190,7 +190,6 @@
     <div th:if="${error}" class="msg msg-error reveal delay-1"><i class="fas fa-exclamation-circle"></i> <span th:text="${error}">Error al actualizar el perfil</span></div>
 
     <div class="profile-grid">
-        <!-- ── Account summary card ── -->
         <div class="acc-card reveal delay-2">
             <div class="acc-avatar"
                  th:text="${#strings.substring(profileUser.nombres,0,1)} + ${#strings.substring(profileUser.apellidos,0,1)}">JG</div>
@@ -217,7 +216,6 @@
             <div class="acc-badge"><i class="fas fa-circle"></i> Cuenta activa</div>
         </div>
 
-        <!-- ── Right column: forms ── -->
         <div>
             <div class="form-card reveal delay-3">
                 <h2><i class="fas fa-edit"></i> Editar información personal</h2>

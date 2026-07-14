@@ -94,7 +94,6 @@ nav { flex: 1; display: flex; justify-content: center; padding-right: 20px; }
 }
 .header-contact-btn:hover { background-color: #c9730e; transform: translateY(-2px); box-shadow: 0 4px 12px rgba(226,135,22,0.3); }
 
-/* ── INTERMEDIO: evitar que el nav se apriete antes del menú hamburguesa ── */
 @media (max-width: 1200px) {
     .nav-menu { gap: clamp(14px, 2.5vw, 24px); }
     .nav-menu li a { font-size: 11px; letter-spacing: 0.2px; }
@@ -478,7 +477,7 @@ nav { flex: 1; display: flex; justify-content: center; padding-right: 20px; }
 .cta-buttons { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; }
 .btn-outline-light { background: transparent; color: #fff; border: 1px solid rgba(255,255,255,0.6); }
 .btn-outline-light:hover { background: #fff; color: var(--primary-blue); transform: translateY(-2px); }
-/* ── FOOTER ── */
+
 footer {
     background: linear-gradient(180deg, var(--primary-dark) 0%, #0a1a2b 100%);
     padding: 60px 0 0 0;
@@ -672,7 +671,7 @@ footer::before {
     .strategic-map { width: 100%; height: 380px; }
     .ag-gallery { grid-template-columns: repeat(2,1fr); }
     .why-us-right { padding: 32px 24px; }
-    /* Header adjustments for ventanas estrechas */
+    
     .nav-menu { gap: 12px; }
     .nav-menu li a { font-size: 10px; letter-spacing: 0; }
     .nav-menu li.dropdown .dropdown-trigger { font-size: 10px; letter-spacing: 0; }
@@ -683,9 +682,6 @@ footer::before {
     header.scrolled { padding: 7px 0; }
 }
 
-/* ============================================================
-   MOBILE MENU — hamburguesa
-   ============================================================ */
 .mobile-menu-toggle {
     display: none;
     flex-direction: column;
@@ -714,7 +710,6 @@ footer::before {
 .mobile-menu-toggle.open span:nth-child(2) { opacity: 0; }
 .mobile-menu-toggle.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
 
-/* Drawer lateral */
 .mobile-nav-drawer {
     position: fixed; top: 0; right: 0;
     width: 280px; height: 100vh;
@@ -731,7 +726,6 @@ footer::before {
 }
 .mobile-nav-drawer.open { transform: translateX(0); visibility: visible; }
 
-/* Cabecera del drawer */
 .drawer-header {
     display: flex;
     align-items: center;
@@ -757,7 +751,6 @@ footer::before {
 }
 .drawer-close:hover { background: rgba(240,154,54,0.15); color: var(--accent-gold); border-color: rgba(240,154,54,0.3); }
 
-/* Cuerpo del menú */
 .drawer-nav {
     display: flex;
     flex-direction: column;
@@ -765,7 +758,6 @@ footer::before {
     flex: 1;
 }
 
-/* Enlace normal */
 .drawer-nav > a {
     display: block;
     padding: 13px 20px;
@@ -788,7 +780,6 @@ footer::before {
 .drawer-nav > a:active { background: rgba(255,255,255,0.04); color: #fff; border-left-color: var(--accent-gold); }
 .drawer-nav > a.active { color: var(--accent-gold); border-left-color: var(--accent-gold); }
 
-/* Botón de submenú (dropdown trigger) */
 .drawer-item {
     display: flex;
     align-items: center;
@@ -812,7 +803,6 @@ footer::before {
 .drawer-item:hover,
 .drawer-item:active { background: rgba(255,255,255,0.04); color: #fff; border-left-color: var(--accent-gold); }
 
-/* Chevron dentro del botón */
 .drawer-chevron {
     font-size: 10px;
     color: rgba(255,255,255,0.35);
@@ -822,7 +812,6 @@ footer::before {
 }
 .drawer-item.open .drawer-chevron { transform: rotate(180deg); color: var(--accent-cyan); }
 
-/* Submenú */
 .drawer-submenu {
     display: none;
     background: rgba(0,0,0,0.18);
@@ -846,14 +835,12 @@ footer::before {
 .drawer-submenu > a:hover,
 .drawer-submenu > a:active { background: rgba(0,163,224,0.06); color: var(--accent-cyan); }
 
-/* Separador */
 .drawer-divider {
     height: 1px;
     background: rgba(255,255,255,0.06);
     margin: 6px 18px;
 }
 
-/* Botón contáctanos al fondo */
 .drawer-contact-btn {
     display: flex;
     align-items: center;
@@ -875,7 +862,6 @@ footer::before {
 .drawer-contact-btn:hover,
 .drawer-contact-btn:active { background: #d6852a !important; color: #fff !important; }
 
-/* Overlay oscuro */
 .drawer-overlay {
     display: none;
     position: fixed; inset: 0;
@@ -885,18 +871,15 @@ footer::before {
 }
 .drawer-overlay.open { display: block; }
 
-/* ============================================================
-   BREAKPOINT 768px
-   ============================================================ */
 @media (max-width: 768px) {
-    /* Ocultar SOLO nav del header, no el drawer */
+    
     header nav, .header-contact-btn { display: none; }
     .mobile-menu-toggle { display: flex; }
     .header-content { padding: 0 16px; gap: 10px; }
     .container { padding: 0 16px; }
     header { padding: 10px 0; }
 
-    /* Logo: caja más compacta y bien centrada para el header angosto */
+    
     .logo-box {
         padding: 6px 14px 6px 11px;
         border-radius: 10px;
@@ -907,7 +890,7 @@ footer::before {
     header.scrolled .logo-box { padding: 4px 12px 4px 9px; }
     header.scrolled .logo-box img { height: 24px; }
 
-    /* Hero */
+    
     .hero { height: 88vh; min-height: 560px; }
     .hero-content { max-width: 100%; text-align: left; }
     .hero-badge { font-size: 10px; padding: 5px 12px; }
@@ -919,7 +902,7 @@ footer::before {
         background: linear-gradient(160deg, rgba(27,69,98,0.97) 0%, rgba(27,69,98,0.85) 50%, rgba(0,0,0,0.35) 100%);
     }
 
-    /* Stats strip */
+    
     .stats-strip { padding: 8px 0; }
     .stats-container { grid-template-columns: repeat(2, 1fr); gap: 0; }
     .stat-item {
@@ -934,7 +917,7 @@ footer::before {
     .stat-text h4 { font-size: 16px; }
     .stat-text p { font-size: 10.5px; }
 
-    /* Services section */
+    
     .services-section { padding: 48px 0; }
     .section-layout { flex-direction: column; gap: 24px; }
     .services-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; }
@@ -948,7 +931,7 @@ footer::before {
     .why-text { font-size: 12.5px; }
     .why-icon-wrapper { width: 34px; height: 34px; font-size: 13px; }
 
-    /* Strategic / Globe — ocupa todo el ancho de pantalla */
+    
     .strategic-section { padding: 48px 0 0; }
     .strategic-layout { flex-direction: column; gap: 28px; }
     .strategic-text { padding-bottom: 0; }
@@ -964,7 +947,7 @@ footer::before {
     .globe-hint { font-size: 9px; padding: 4px 8px; }
     .route-benefits li { padding: 11px 14px; font-size: 12.5px; }
 
-    /* About gallery */
+    
     .about-gallery { padding: 48px 0; }
     .ag-layout { flex-direction: column; gap: 28px; }
     .ag-text h2 { font-size: 22px; }
@@ -972,27 +955,24 @@ footer::before {
     .ag-gallery { grid-template-columns: repeat(2, 1fr); gap: 8px; }
     .gallery-img { height: 130px; }
 
-    /* CTA band */
+    
     .cta-band { padding: 48px 0; }
     .cta-band h2 { font-size: 24px; }
     .cta-band p { font-size: 14px; margin-bottom: 28px; }
     .cta-buttons { flex-direction: column; align-items: center; gap: 12px; }
     .cta-buttons .btn { width: 100%; max-width: 320px; justify-content: center; }
 
-    /* Footer */
+    
     footer { padding: 48px 0 0; }
     .footer-grid { grid-template-columns: 1fr; gap: 28px; }
     .footer-grid > div:nth-child(3) > div { flex-direction: column; gap: 20px; }
     .footer-bottom { flex-direction: column; gap: 10px; text-align: center; }
     .footer-bottom-links { justify-content: center; }
 
-    /* Botones táctiles */
+    
     .btn { min-height: 44px; }
 }
 
-/* ============================================================
-   BREAKPOINT 480px — teléfonos pequeños
-   ============================================================ */
 @media (max-width: 480px) {
     .hero-title { font-size: 24px; }
     .hero-badge { font-size: 9.5px; }
@@ -1012,9 +992,6 @@ footer::before {
     .hero-title { font-size: 24px; }
 }
 
-/* ============================================================
-   MOBILE GLOBE TOGGLE — tarjeta colapsable
-   ============================================================ */
 .globe-mobile-toggle {
     display: none;
 }
@@ -1152,9 +1129,6 @@ footer::before {
     }
 }
 
-/* ============================================================
-   HOVER → ACTIVE en dispositivos touch
-   ============================================================ */
 @media (hover: none) and (pointer: coarse) {
     .service-card:active {
         transform: translateY(-4px);
@@ -1180,7 +1154,7 @@ footer::before {
     .globe-zoom-btn:active { background: var(--accent-gold); border-color: var(--accent-gold); color: #fff; }
     .cert-item:active .cert-circle { border-color: var(--accent-cyan); box-shadow: 0 0 10px rgba(0,163,224,0.4); transform: scale(1.05); }
 }
-/* ─── MODAL OVERLAY ─── */
+
 .modal-overlay {
     display: none;
     position: fixed;

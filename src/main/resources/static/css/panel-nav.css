@@ -45,7 +45,6 @@ body {
     to   { filter: blur(0);   opacity: 1;    }
 }
 
-/* ─── HAMBURGUESA ANIMADA (bars → X) ─── */
 .mob-toggle span {
     transition: transform 0.3s ease, opacity 0.2s !important;
 }
@@ -59,7 +58,6 @@ body {
     transform: translateY(-7px) rotate(-45deg);
 }
 
-/* ─── BOTÓN SALIR LLAMATIVO (header) ─── */
 .btn-logout {
     display: inline-flex !important;
     align-items: center !important;
@@ -86,7 +84,6 @@ body {
     transform: translateY(-1px) !important;
 }
 
-/* ─── BOTÓN CERRAR SESIÓN EN DRAWER ─── */
 .drawer-logout-btn {
     display: flex !important;
     align-items: center !important;
@@ -115,7 +112,6 @@ body {
     box-shadow: 0 4px 20px rgba(240,154,54,0.3) !important;
 }
 
-/* ─── EFECTO ESPEJO (glass) EN HEADER AL HACER SCROLL — TODAS LAS PANTALLAS ─── */
 header {
     transition: background-color 0.6s cubic-bezier(0.4, 0, 0.2, 1),
     backdrop-filter 0.6s cubic-bezier(0.4, 0, 0.2, 1),
@@ -161,7 +157,6 @@ header.scrolled .header-content::after {
     header.scrolled .logo-box img { height: 22px !important; }
 }
 
-/* ─── BOTÓN FLOTANTE INICIO (esquina inferior derecha) ─── */
 .float-home {
     position: fixed;
     bottom: 28px;
