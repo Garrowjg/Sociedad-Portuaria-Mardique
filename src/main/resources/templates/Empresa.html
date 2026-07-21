@@ -12,10 +12,8 @@
     <link rel="stylesheet" href="/css/panel-nav.css">
 
     <style>
-        /* SCROLL PROGRESS */
         #scroll-progress { position: fixed; top: 0; left: 0; height: 3px; width: 0%; background: linear-gradient(90deg, var(--accent-gold), var(--accent-cyan)); z-index: 9999; transition: width 0.1s linear; }
 
-        /* REVEAL ON SCROLL */
         .reveal { opacity: 0; transform: translateY(32px); transition: opacity 0.65s cubic-bezier(0.4,0,0.2,1), transform 0.65s cubic-bezier(0.4,0,0.2,1); }
         .reveal.visible { opacity: 1; transform: none; }
         .reveal-left  { opacity: 0; transform: translateX(-44px); transition: opacity 0.65s ease, transform 0.65s ease; }
@@ -47,7 +45,7 @@
 
         .container { max-width: 1280px; margin: 0 auto; padding: 0 24px; width: 100%; }
 
-        /* BOTONES */
+
         .btn {
             display: inline-flex; align-items: center; justify-content: center;
             padding: 12px 24px; font-size: 12.5px; font-weight: 700; border-radius: 6px;
@@ -70,7 +68,7 @@
         .btn-dark { background-color: var(--primary-blue); color: var(--text-light); border: none; }
         .btn-dark:hover { background-color: var(--primary-dark); transform: translateY(-2px); box-shadow: 0 5px 15px rgba(40,100,140,0.2); }
 
-        /* HEADER STICKY */
+
         header { background-color: var(--primary-dark); padding: 16px 0; position: sticky; top: 0; z-index: 500; box-shadow: 0 2px 20px rgba(0,0,0,0.15); transition: padding 0.3s ease; }
         header.scrolled { padding: 11px 0; }
         .header-content { display: flex; justify-content: space-between; align-items: center; }
@@ -127,7 +125,6 @@
         }
         .header-contact-btn:hover { background-color: #c9730e; transform: translateY(-2px); box-shadow: 0 4px 12px rgba(226,135,22,0.3); }
 
-        /* HERO DE PÁGINA INTERNA CON PARALLAX */
         .page-hero {
             position: relative; height: 400px; display: flex; align-items: flex-end;
             overflow: hidden;
@@ -143,12 +140,10 @@
             background: linear-gradient(180deg, rgba(27,69,98,0.45) 0%, rgba(27,69,98,0.65) 45%, rgba(27,69,98,0.93) 100%);
             z-index: 2;
         }
-        /* Partículas hero */
         .hero-particles { position: absolute; inset: 0; z-index: 2; overflow: hidden; pointer-events: none; }
         .hero-particle { position: absolute; border-radius: 50%; background: rgba(240,154,54,0.12); animation: floatParticle linear infinite; }
         @keyframes floatParticle { 0%,100%{transform:translateY(0) scale(1);opacity:.5} 50%{transform:translateY(-28px) scale(1.08);opacity:.2} }
         .page-hero .container { position: relative; z-index: 3; padding-bottom: 52px; }
-        /* Scroll hint */
         .scroll-hint { position: absolute; bottom: 18px; left: 50%; transform: translateX(-50%); z-index: 4; display: flex; flex-direction: column; align-items: center; gap: 6px; color: rgba(255,255,255,0.45); font-size: 10px; letter-spacing: 1.5px; text-transform: uppercase; animation: bounceDown 2s ease infinite; }
         .scroll-hint i { font-size: 15px; }
         @keyframes bounceDown { 0%,100%{transform:translateX(-50%) translateY(0)} 50%{transform:translateX(-50%) translateY(6px)} }
@@ -171,7 +166,6 @@
         }
         .page-hero-line.animate { width: 60px; }
 
-        /* BARRA DE INDICADORES */
         .stats-strip {
             background-color: var(--primary-dark); padding: 0; color: var(--text-light);
             border-bottom: 1px solid rgba(255,255,255,0.05);
@@ -185,7 +179,6 @@
         .stat-text h4 { font-size: 17px; font-weight: 700; margin-bottom: 1px; }
         .stat-text p { font-size: 11.5px; color: var(--text-muted); line-height: 1.3; }
 
-        /* SOMOS MARDIQUE */
         .about-intro { padding: 72px 0; background: var(--bg-light); }
         .intro-layout { display: flex; gap: 56px; align-items: flex-start; }
         .intro-text { flex: 1.3; }
@@ -205,7 +198,6 @@
         .intro-image-badge h4 { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: var(--accent-gold); margin-bottom: 4px; }
         .intro-image-badge p { font-size: 11.5px; color: rgba(255,255,255,0.8); line-height: 1.4; }
 
-        /* CARACTERÍSTICAS PORTUARIAS */
         .features-section { background: var(--text-light); padding: 64px 0; border-top: 1px solid var(--border-color); }
         .features-layout { display: flex; gap: 32px; align-items: flex-start; }
         .features-left { flex: 1.2; }
@@ -230,7 +222,6 @@
         .feature-card p { font-size: 12px; color: #556b82; line-height: 1.45; }
 
 
-        /* MISIÓN Y VISIÓN — REDISEÑO SIN BUG DE PARALLAX */
         .mv-section-wrapper {
             padding: 90px 0;
             background: var(--primary-dark);
@@ -238,7 +229,6 @@
             overflow: hidden;
         }
 
-        /* Fondo decorativo con imagen — sin overflow:hidden en el card para evitar el bug */
         .mv-section-wrapper::before {
             content: '';
             position: absolute;
@@ -251,7 +241,6 @@
             z-index: 0;
         }
 
-        /* Gradiente sobre la imagen */
         .mv-section-wrapper::after {
             content: '';
             position: absolute;
@@ -265,7 +254,6 @@
             z-index: 2;
         }
 
-        /* Header de la sección */
         .mv-section-header {
             text-align: center;
             margin-bottom: 52px;
@@ -297,7 +285,6 @@
             margin: 16px auto 0;
         }
 
-        /* Grid de tarjetas */
         .mv-cards-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -317,7 +304,6 @@
             overflow: hidden;
         }
 
-        /* Línea de acento superior */
         .mv-item::before {
             content: '';
             position: absolute;
@@ -333,7 +319,6 @@
             transform: scaleX(1);
         }
 
-        /* Resplandor de fondo al hover */
         .mv-item::after {
             content: '';
             position: absolute;
@@ -356,7 +341,7 @@
             box-shadow: 0 24px 48px rgba(0,0,0,0.25);
         }
 
-        /* Ícono con fondo pill */
+
         .mv-icon-wrap {
             display: inline-flex;
             align-items: center;
@@ -414,7 +399,7 @@
         }
 
 
-        /* PERMISOS OFICIALES */
+
         .permits-section { background: var(--bg-light); padding: 72px 0; }
         .permits-layout { display: flex; gap: 48px; align-items: flex-start; }
         .permits-text { flex: 1; }
@@ -444,7 +429,6 @@
         .cert-card h4 { font-size: 12.5px; font-weight: 700; color: var(--primary-dark); margin-bottom: 4px; }
         .cert-card p { font-size: 11px; color: #556b82; line-height: 1.4; }
 
-        /* CTA BAND */
         .cta-band {
             background: var(--primary-dark); padding: 56px 0; text-align: center;
             position: relative; overflow: hidden;
@@ -454,7 +438,6 @@
         .cta-band p { font-size: 14px; color: rgba(255,255,255,0.7); margin-bottom: 28px; }
         .cta-buttons { display: flex; justify-content: center; gap: 14px; }
 
-        /* ── FOOTER ── */
         footer {
             background: linear-gradient(180deg, var(--primary-dark) 0%, #0a1a2b 100%);
             padding: 60px 0 0 0;

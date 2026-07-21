@@ -1,12 +1,9 @@
 package com.example.MardiqueWeb.Config;
 
-import com.example.MardiqueWeb.Service.AuditService;
-import com.example.MardiqueWeb.Service.CustomUserDetailsService;
 import com.example.MardiqueWeb.Config.CustomAuthenticationFailureHandler;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -21,16 +18,10 @@ import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 @EnableWebSecurity
 public class SecurityConfig {
 
-    private final CustomUserDetailsService userDetailsService;
     private final CustomAuthenticationFailureHandler failureHandler;
-    private final AuditService auditService;
 
-    public SecurityConfig(CustomUserDetailsService userDetailsService,
-                          CustomAuthenticationFailureHandler failureHandler,
-                          AuditService auditService) {
-        this.userDetailsService = userDetailsService;
+    public SecurityConfig(CustomAuthenticationFailureHandler failureHandler) {
         this.failureHandler = failureHandler;
-        this.auditService = auditService;
     }
 
     @Bean
@@ -51,8 +42,8 @@ public class SecurityConfig {
                         .loginPage("/login")
                         .defaultSuccessUrl("/dashboard")
                         .successHandler((request, response, authentication) -> {
-                            auditService.log(authentication.getName(), "LOGIN_SUCCESS",
-                                    "Successful login from IP: " + request.getRemoteAddr(), request);
+                            CustomAuthenticationFailureHandler.clearBlock(authentication.getName());
+                            CustomAuthenticationFailureHandler.clearSessionAttempts(request, authentication.getName());
                             response.sendRedirect("/dashboard");
                         })
                         .failureHandler(failureHandler)
@@ -84,14 +75,6 @@ public class SecurityConfig {
                                 .policy(ReferrerPolicyHeaderWriter.ReferrerPolicy.STRICT_ORIGIN_WHEN_CROSS_ORIGIN))
                 );
         return http.build();
-    }
-
-    @Bean
-    public DaoAuthenticationProvider authenticationProvider() {
-        DaoAuthenticationProvider auth = new DaoAuthenticationProvider();
-        auth.setUserDetailsService(userDetailsService);
-        auth.setPasswordEncoder(passwordEncoder());
-        return auth;
     }
 
     @Bean
