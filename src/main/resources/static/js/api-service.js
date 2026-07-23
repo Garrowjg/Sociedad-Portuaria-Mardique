@@ -134,7 +134,7 @@ let MOCK_SUPPORT_TICKETS = [
 
 const MOCK_AREAS_REAL_LIST = {
     "value": [
-        { "id": "1", "fields": { "Title": "Sistemas", "Sitio": "", "Contactos": "Ramiro Rodelo del Valle - Coordinador de Tecnologia de Informacion\nJohnnier Gomez - Aprendiz TI\nAdelino Aragon - Tecnico de Sistemas\nOmar Caicedo Martinez - Analista TI", "Informe": "<iframe title=\"Dashboard\" width=\"100%\" height=\"400\" src=\"https://app.powerbi.com/view?r=eyJrIjoiNjBjMDRkMTAtZWMzNC00NGVlLWIwODEtNzE1ZWQ5M2MyNmQwIiwidCI6ImYzM2JlZDlmLTIyYmQtNDM1MC1iN2RhLTY2YmQ4OGZjNjQ1OCIsImMiOjR9\" frameborder=\"0\" allowFullScreen=\"true\"></iframe>", "cover": "https://img.freepik.com/free-photo/server-room_53876-97067.jpg", "descripcion_larga": "Encargada de la infraestructura tecnológica, soporte a usuarios, administración de sistemas ERP y seguridad informática." } },
+        { "id": "1", "fields": { "Title": "Sistemas", "Sitio": "", "Contactos": "Ramiro Rodelo del Valle - Coordinador de Tecnologia de Informacion\nJohnnier Gomez - Aprendiz TI\nAdelino Aragon - Tecnico de Sistemas\nOmar Caicedo Martinez - Analista TI", "Informe": "<iframe title=\"Dashboard\" width=\"600\" height=\"373.5\" src=\"https://app.powerbi.com/view?r=eyJrIjoiYTc1OTUxYTMtY2E0NS00MWI1LTlkN2MtZDllMDBjMzZiNmRmIiwidCI6ImYzM2JlZDlmLTIyYmQtNDM1MC1iN2RhLTY2YmQ4OGZjNjQ1OCIsImMiOjR9\" frameborder=\"0\" allowFullScreen=\"true\"></iframe>", "cover": "https://img.freepik.com/free-photo/server-room_53876-97067.jpg", "descripcion_larga": "Encargada de la infraestructura tecnológica, soporte a usuarios, administración de sistemas ERP y seguridad informática." } },
         { "id": "2", "fields": { "Title": "Contabilidad", "Sitio": "", "Contactos": "Carlos Molina Lozano - Coordinador Contable\nYordanis Chavez - Analista Contable\nSebastián Vasquez - Analista Contable\nYuliana Ramirez - Aprendiz Contable", "Informe": "", "cover": "https://img.freepik.com/free-photo/accountants-working-late-office_1098-18496.jpg", "descripcion_larga": "Gestión de cuentas por pagar y cobrar, conciliaciones bancarias, elaboración de estados financieros y reportes fiscales." } },
         { "id": "3", "fields": { "Title": "Talento Humano", "Sitio": "", "Contactos": "Adriana Meola - Coordinadora Talento Humano\nDuván Simancas - Analista Talento Humano\nValentina Ospino - Aprendiz Talento Humano", "Informe": "", "cover": "https://img.freepik.com/free-photo/group-people-working-out-business-meeting_1303-15780.jpg", "descripcion_larga": "Administración del personal, nómina, bienestar laboral, seguridad y salud en el trabajo, y desarrollo organizacional." } }
     ]
@@ -324,6 +324,18 @@ async function getAreas() {
         cover: item.fields.cover || "",
         descripcion_larga: item.fields.descripcion_larga || ""
     }));
+}
+
+async function updateReportIframe(areaId, iframeHtml) {
+    const url = GRAPH_BASE + "/sites/" + SHAREPOINT_SITE_ID + "/lists/Areas/items/" + areaId;
+    const data = await graphFetch(url, {
+        method: "PATCH",
+        body: JSON.stringify({ fields: { Informe: iframeHtml } })
+    });
+    if (data) return data;
+    const area = MOCK_AREAS_REAL_LIST.value.find(a => a.id === areaId);
+    if (area) area.fields.Informe = iframeHtml;
+    return { success: true };
 }
 
 async function getConversations() {

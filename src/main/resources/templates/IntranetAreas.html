@@ -145,7 +145,6 @@
                             <div id="area-detail-links"></div>
                         </div>
                     </div>
-                    <div id="area-detail-informe" style="margin-top:28px;padding-top:28px;border-top:1px solid #eef1f4;"></div>
                 </div>
             </div>
         </div>
@@ -260,14 +259,6 @@ function openAreaDetail(id){
     document.getElementById("area-detail-links").innerHTML = DEFAULT_LINKS.map(l => `
     <a href="${l.url}" target="_blank" rel="noopener" class="area-link-item"><i class="fas fa-globe"></i> ${escapeHtml(l.texto)}</a>
     `).join("");
-
-    const informeEl = document.getElementById("area-detail-informe");
-    if (area.Informe) {
-        informeEl.innerHTML = '<h4 style="font-size:13px;font-weight:800;color:var(--pd);text-transform:uppercase;letter-spacing:.4px;margin:0 0 16px;padding-bottom:10px;border-bottom:2px solid rgba(240,154,54,.25);"><i class="fas fa-chart-pie"></i> Informe / Dashboard</h4><div class="area-informe-wrap" style="border-radius:12px;overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,.06);">' + area.Informe + '</div>';
-        informeEl.style.display = "block";
-    } else {
-        informeEl.style.display = "none";
-    }
 
 }
 

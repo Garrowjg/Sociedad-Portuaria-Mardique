@@ -12,7 +12,9 @@
     <link rel="stylesheet" href="/css/portal.css">
     <script src="https://alcdn.msauth.net/browser/2.38.0/js/msal-browser.min.js"></script>
     <style>
-        @keyframes fadeInDown{from{opacity:0;transform:translateY(-24px)}to{opacity:1;transform:translateY(0)}}
+        .intranet-toast{display:none;position:fixed;bottom:24px;left:50%;transform:translateX(-50%);padding:12px 24px;border-radius:var(--r);font-size:13px;font-weight:600;z-index:9999;box-shadow:0 8px 32px rgba(0,0,0,.15);max-width:90%;text-align:center;}
+        .intranet-toast.success{background:#16a34a;color:#fff;}
+        .intranet-toast.error{background:#dc2626;color:#fff;}}
         @keyframes fadeInUp{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:translateY(0)}}
         @keyframes floatIcon{0%,100%{transform:translateY(0)}25%{transform:translateY(-12px)}75%{transform:translateY(-8px)}}
         .phero-badge{animation:fadeInDown .6s ease both}
@@ -51,12 +53,50 @@
         .report-placeholder h3{font-size:16px;font-weight:700;color:var(--pd);margin:0 0 6px;}
         .report-placeholder p{font-size:13px;max-width:380px;line-height:1.5;}
         .report-config-note{font-size:11px;color:#94a3b8;margin-top:12px;text-align:center;border-top:1px solid #eef1f4;padding-top:12px;}
-        @media(max-width:700px){ .report-frame-wrap iframe{height:380px;} }
+        .report-add-btn{background:var(--ag);border-color:var(--ag);color:#fff;}
+        .report-add-btn:hover{background:#d4891f;border-color:#d4891f;color:#fff;}
+        .modal-overlay{display:none;position:fixed;inset:0;background:rgba(15,42,58,.45);z-index:1000;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(3px);}
+        .modal-overlay.active{display:flex;}
+        .modal-box{background:#fff;border-radius:16px;max-width:720px;width:100%;max-height:90vh;overflow-y:auto;box-shadow:0 16px 48px rgba(15,42,58,.2);padding:32px 36px;}
+        .modal-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;padding-bottom:16px;border-bottom:2px solid #eef1f4;}
+        .modal-header h3{font-size:18px;font-weight:800;color:var(--pd);margin:0;display:flex;align-items:center;gap:10px;}
+        .modal-header h3 i{color:var(--ag);font-size:16px;width:34px;height:34px;display:flex;align-items:center;justify-content:center;background:rgba(240,154,54,.12);border-radius:9px;}
+        .modal-close{width:32px;height:32px;border:none;background:#f3f4f6;border-radius:8px;cursor:pointer;font-size:16px;color:var(--mx);display:flex;align-items:center;justify-content:center;transition:all .2s;}
+        .modal-close:hover{background:#e5e7eb;color:var(--tx);}
+        .welcome-step{text-align:center;padding:16px 0 8px;}
+        .welcome-step i{font-size:52px;color:var(--ag);margin-bottom:12px;}
+        .welcome-step h4{font-size:17px;font-weight:800;color:var(--pd);margin:0 0 8px;}
+        .welcome-step p{font-size:13px;color:var(--mx);max-width:460px;margin:0 auto;line-height:1.6;}
+        .step-list{margin:20px 0 0;padding:0;list-style:none;display:flex;flex-direction:column;gap:10px;}
+        .step-item{display:flex;align-items:flex-start;gap:14px;padding:14px 18px;background:#f9fafb;border-radius:12px;border:1px solid #eef1f4;}
+        .step-num{width:28px;height:28px;flex:none;border-radius:50%;background:var(--ag);color:#fff;font-size:12px;font-weight:800;display:flex;align-items:center;justify-content:center;}
+        .step-body{flex:1;min-width:0;}
+        .step-body strong{display:block;font-size:13px;color:var(--pd);margin-bottom:2px;}
+        .step-body p{font-size:12px;color:var(--mx);margin:0;line-height:1.5;}
+        .step-body code{display:inline-block;padding:2px 8px;background:#eef1f4;border-radius:4px;font-size:11px;color:var(--pd);font-weight:600;}
+        .modal-area-select{margin:16px 0;display:flex;flex-direction:column;gap:6px;}
+        .modal-area-select label{font-size:12px;font-weight:700;color:var(--pd);}
+        .modal-area-select select{padding:10px 14px;border:1.5px solid var(--bdr);border-radius:8px;font-size:13px;font-family:inherit;background:#fff;outline:none;}
+        .modal-area-select select:focus{border-color:var(--ag);}
+        .modal-iframe-input{margin:12px 0;display:flex;flex-direction:column;gap:6px;}
+        .modal-iframe-input label{font-size:12px;font-weight:700;color:var(--pd);}
+        .modal-iframe-input textarea{padding:12px 14px;border:1.5px solid var(--bdr);border-radius:8px;font-size:12.5px;font-family:monospace;background:#f9fafb;outline:none;resize:vertical;min-height:100px;line-height:1.5;}
+        .modal-iframe-input textarea:focus{border-color:var(--ag);}
+        .modal-actions{display:flex;gap:10px;justify-content:flex-end;margin-top:20px;padding-top:16px;border-top:1px solid #eef1f4;}
+        .modal-btn{padding:10px 24px;border-radius:8px;font-size:13px;font-weight:700;font-family:inherit;border:none;cursor:pointer;transition:all .2s;}
+        .modal-btn-primary{background:var(--ag);color:#fff;}
+        .modal-btn-primary:hover{background:#d4891f;}
+        .modal-btn-primary:disabled{opacity:.5;cursor:not-allowed;}
+        .modal-btn-secondary{background:#f3f4f6;color:var(--tx);}
+        .modal-btn-secondary:hover{background:#e5e7eb;}
+        @media(max-width:700px){ .report-frame-wrap iframe{height:380px;} .modal-box{padding:24px 20px;} }
     </style>
 </head>
 <body>
 
 <div th:replace="IntranetNav :: nav(current='informes')"></div>
+
+<div id="intranet-toast" class="intranet-toast"></div>
 
 <div class="phero">
     <div class="phw-glow"></div>
@@ -102,6 +142,62 @@
     </div>
 </div>
 
+<div class="modal-overlay" id="addReportModal">
+    <div class="modal-box">
+        <div class="modal-header">
+            <h3><i class="fas fa-plus-circle"></i> Agregar Informe Power BI</h3>
+            <button class="modal-close" onclick="closeAddReportModal()"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="welcome-step">
+            <i class="fab fa-microsoft"></i>
+            <h4>Sigue estos pasos para publicar tu dashboard</h4>
+            <p>Al final pega el código <code>&lt;iframe&gt;</code> que Power BI genera y asígnaselo a un área.</p>
+        </div>
+        <ol class="step-list">
+            <li class="step-item">
+                <span class="step-num">1</span>
+                <div class="step-body">
+                    <strong>Publica desde Power BI Desktop</strong>
+                    <p>Abre tu archivo <strong>.pbix</strong>, ve a <code>Archivo → Publicar → Publicar en Power BI</code>. Selecciona el espacio de trabajo y espera a que termine.</p>
+                </div>
+            </li>
+            <li class="step-item">
+                <span class="step-num">2</span>
+                <div class="step-body">
+                    <strong>Ve al informe en Power BI Service</strong>
+                    <p>Ingresa a <a href="https://app.powerbi.com" target="_blank" rel="noopener">app.powerbi.com</a>, busca tu informe en <strong>Mis espacios de trabajo</strong> o en el espacio donde lo publicaste y ábrelo.</p>
+                </div>
+            </li>
+            <li class="step-item">
+                <span class="step-num">3</span>
+                <div class="step-body">
+                    <strong>Obtén el código de inserción</strong>
+                    <p>Estando en el informe, ve a <code>Archivo → Insertar informe → Público en web (público)</code> (o <code>Incrustar</code> según la versión). Acepta el aviso de seguridad y copia el código <strong>&lt;iframe&gt;</strong> que aparece.</p>
+                </div>
+            </li>
+            <li class="step-item">
+                <span class="step-num">4</span>
+                <div class="step-body">
+                    <strong>Elige el área y pega el iframe</strong>
+                    <p>Selecciona el área al que pertenece este dashboard y pega el código <code>&lt;iframe ...&gt;&lt;/iframe&gt;</code> completo en el campo de abajo.</p>
+                </div>
+            </li>
+        </ol>
+        <div class="modal-area-select">
+            <label for="modalAreaSelect">Área destinataria</label>
+            <select id="modalAreaSelect"></select>
+        </div>
+        <div class="modal-iframe-input">
+            <label for="modalIframeInput">Código iframe de Power BI</label>
+            <textarea id="modalIframeInput" placeholder="Pega aquí el código &lt;iframe&gt; que copiaste de Power BI..."></textarea>
+        </div>
+        <div class="modal-actions">
+            <button class="modal-btn modal-btn-secondary" onclick="closeAddReportModal()">Cancelar</button>
+            <button class="modal-btn modal-btn-primary" id="saveReportBtn" onclick="saveReportIframe()"><i class="fas fa-save"></i> Guardar Informe</button>
+        </div>
+    </div>
+</div>
+
 <div class="pfooter">
     &copy; 2026 Sociedad Portuaria Mardique S.A. Intranet Corporativa &mdash; Todos los derechos reservados.
 </div>
@@ -118,7 +214,10 @@ function renderReportMenu(){
     menu.innerHTML = reportAreas.map(a => `
     <button class="report-area-btn" data-id="${a.id}" onclick="selectReportArea('${a.id}')">
         <i class="fas fa-chart-line"></i> ${escapeHtml(a.Title)}
-    </button>`).join("");
+    </button>`).join("") + `
+    <button class="report-area-btn report-add-btn" onclick="openAddReportModal()">
+        <i class="fas fa-plus"></i> Agregar Informe
+    </button>`;
 }
 
 function selectReportArea(id){
@@ -155,6 +254,48 @@ function loadReportAreas(){
         renderReportMenu();
     }).catch(() => {
         document.getElementById("reportMenu").innerHTML = '<div style="color:var(--mx);font-size:13px;padding:10px 0;">Error al cargar áreas</div>';
+    });
+}
+
+function openAddReportModal(){
+    const select = document.getElementById("modalAreaSelect");
+    select.innerHTML = reportAreas.map(a => `<option value="${a.id}">${escapeHtml(a.Title)}</option>`).join("");
+    document.getElementById("modalIframeInput").value = "";
+    document.getElementById("modalIframeInput").placeholder = "Pega aquí el código <iframe> que copiaste de Power BI...";
+    document.getElementById("saveReportBtn").disabled = false;
+    document.getElementById("saveReportBtn").innerHTML = '<i class="fas fa-save"></i> Guardar Informe';
+    document.getElementById("addReportModal").classList.add("active");
+}
+
+function closeAddReportModal(){
+    document.getElementById("addReportModal").classList.remove("active");
+}
+
+function saveReportIframe(){
+    const select = document.getElementById("modalAreaSelect");
+    const areaId = select.value;
+    const iframeHtml = document.getElementById("modalIframeInput").value.trim();
+    if (!iframeHtml) {
+        showIntranetToast("Debes pegar el código iframe de Power BI", "error");
+        return;
+    }
+    if (!iframeHtml.includes("<iframe")) {
+        showIntranetToast("El código ingresado no parece ser un iframe válido", "error");
+        return;
+    }
+    const btn = document.getElementById("saveReportBtn");
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Guardando...';
+    updateReportIframe(areaId, iframeHtml).then(() => {
+        const area = reportAreas.find(a => a.id === areaId);
+        if (area) area.Informe = iframeHtml;
+        closeAddReportModal();
+        showIntranetToast("Informe guardado correctamente para " + (area ? area.Title : ""), "success");
+        selectReportArea(areaId);
+    }).catch(() => {
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fas fa-save"></i> Guardar Informe';
+        showIntranetToast("Error al guardar el informe", "error");
     });
 }
 
