@@ -151,8 +151,10 @@ function renderDocuments(items, containerId, isRoot) {
     items.forEach(item => {
         const isFolder = item.folder;
         const icon = isFolder ? "fa-folder" : getFileIcon(item.name);
+        const seed = encodeURIComponent(item.name || item.id || "doc");
+        const thumbUrl = "https://picsum.photos/seed/" + seed + "/400/250";
         html += '<div class="doc-card" data-id="' + (item.id || "") + '" data-folder="' + (isFolder ? "true" : "false") + '" data-url="' + (item.webUrl || "") + '">';
-        html += '<div class="doc-icon"><i class="fas ' + icon + '"></i></div>';
+        html += '<div class="doc-thumb"><img src="' + thumbUrl + '" alt="" loading="lazy"><div class="doc-thumb-icon"><i class="fas ' + icon + '"></i></div></div>';
         html += '<div class="doc-info"><div class="doc-name">' + escapeHtml(item.name) + '</div>';
         if (!isFolder) html += '<div class="doc-meta">' + formatFileSize(item.size) + ' &middot; ' + formatDate(item.lastModifiedDateTime) + '</div>';
         if (isFolder) html += '<div class="doc-meta">' + (item.folder?.childCount || 0) + ' elementos</div>';
@@ -191,8 +193,10 @@ function renderDocumentsWithFilter(items, containerId) {
     filtered.forEach(item => {
         const isFolder = item.folder;
         const icon = isFolder ? "fa-folder" : getFileIcon(item.name);
+        const seed = encodeURIComponent(item.name || item.id || "doc");
+        const thumbUrl = "https://picsum.photos/seed/" + seed + "/400/250";
         html += '<div class="doc-card" data-id="' + (item.id || "") + '" data-folder="' + (isFolder ? "true" : "false") + '" data-url="' + (item.webUrl || "") + '">';
-        html += '<div class="doc-icon"><i class="fas ' + icon + '"></i></div>';
+        html += '<div class="doc-thumb"><img src="' + thumbUrl + '" alt="" loading="lazy"><div class="doc-thumb-icon"><i class="fas ' + icon + '"></i></div></div>';
         html += '<div class="doc-info"><div class="doc-name">' + escapeHtml(item.name) + '</div>';
         if (!isFolder) html += '<div class="doc-meta">' + formatFileSize(item.size) + ' &middot; ' + formatDate(item.lastModifiedDateTime) + '</div>';
         if (isFolder) html += '<div class="doc-meta">' + (item.folder?.childCount || 0) + ' elementos</div>';

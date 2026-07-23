@@ -164,12 +164,40 @@ function getMockDriveRoot() {
 }
 
 function getMockDriveItems(folderId) {
+    const subItems = MOCK_SUBFOLDER_ITEMS[folderId];
+    if (subItems) return subItems;
     const folderKey = MOCK_DEPARTMENTS.find(d => d.id === folderId)?.id;
     if (folderKey && MOCK_FILES_BY_SECTOR[folderKey]) {
         return MOCK_FILES_BY_SECTOR[folderKey];
     }
     return [];
 }
+
+const MOCK_SUBFOLDER_ITEMS = {
+    "rh-006": [
+        { id: "rh-006a", name: "Inducción Nuevos Ingresos.pdf", size: 180000, file: { mimeType: "application/pdf" }, lastModifiedDateTime: "2026-03-01T09:00:00Z", webUrl: "#", createdBy: { user: { displayName: "Ana Gómez" } } },
+        { id: "rh-006b", name: "Curso Seguridad en Puertos.docx", size: 220000, file: { mimeType: "application/vnd.openxmlformats-officedocument.wordprocessingml.document" }, lastModifiedDateTime: "2026-03-10T11:00:00Z", webUrl: "#", createdBy: { user: { displayName: "Pedro Ruiz" } } },
+        { id: "rh-006c", name: "Certificados 2026", folder: { childCount: 2 }, lastModifiedDateTime: "2026-04-01T08:00:00Z", webUrl: "#", createdBy: { user: { displayName: "Ana Gómez" } } }
+    ],
+    "rh-006c": [
+        { id: "rh-006c1", name: "Certificado Ana Gómez.pdf", size: 45000, file: { mimeType: "application/pdf" }, lastModifiedDateTime: "2026-04-01T08:00:00Z", webUrl: "#", createdBy: { user: { displayName: "Ana Gómez" } } },
+        { id: "rh-006c2", name: "Certificado Pedro Ruiz.pdf", size: 44000, file: { mimeType: "application/pdf" }, lastModifiedDateTime: "2026-04-01T08:00:00Z", webUrl: "#", createdBy: { user: { displayName: "Pedro Ruiz" } } }
+    ],
+    "fn-004": [
+        { id: "fn-004a", name: "Factura Proveedor A.pdf", size: 95000, file: { mimeType: "application/pdf" }, lastModifiedDateTime: "2026-04-10T14:00:00Z", webUrl: "#", createdBy: { user: { displayName: "Carlos Vega" } } },
+        { id: "fn-004b", name: "Recibo de Pago Nómina Marzo.xlsx", size: 45000, file: { mimeType: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" }, lastModifiedDateTime: "2026-03-28T10:00:00Z", webUrl: "#", createdBy: { user: { displayName: "Laura Jiménez" } } },
+        { id: "fn-004c", name: "Conciliación Bancaria Febrero.xlsx", size: 68000, file: { mimeType: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" }, lastModifiedDateTime: "2026-03-05T12:00:00Z", webUrl: "#", createdBy: { user: { displayName: "Carlos Vega" } } }
+    ],
+    "ti-005": [
+        { id: "ti-005a", name: "Backup Servidor Principal.zip", size: 150000000, file: { mimeType: "application/zip" }, lastModifiedDateTime: "2026-04-12T23:00:00Z", webUrl: "#", createdBy: { user: { displayName: "Carlos Martínez" } } },
+        { id: "ti-005b", name: "Backup Base Datos SAP.zip", size: 80000000, file: { mimeType: "application/zip" }, lastModifiedDateTime: "2026-04-12T23:00:00Z", webUrl: "#", createdBy: { user: { displayName: "Carlos Martínez" } } }
+    ],
+    "ti-006": [
+        { id: "ti-006a", name: "Soporte Incidencia #1024.pdf", size: 120000, file: { mimeType: "application/pdf" }, lastModifiedDateTime: "2026-04-14T16:00:00Z", webUrl: "#", createdBy: { user: { displayName: "Andrés Ramírez" } } },
+        { id: "ti-006b", name: "Formato Solicitud Soporte.docx", size: 35000, file: { mimeType: "application/vnd.openxmlformats-officedocument.wordprocessingml.document" }, lastModifiedDateTime: "2026-04-13T09:30:00Z", webUrl: "#", createdBy: { user: { displayName: "Andrés Ramírez" } } },
+        { id: "ti-006c", name: "Reporte de Incidentes Q1.xlsx", size: 92000, file: { mimeType: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" }, lastModifiedDateTime: "2026-04-01T15:00:00Z", webUrl: "#", createdBy: { user: { displayName: "Carlos Martínez" } } }
+    ]
+};
 
 async function getCurrentUser() {
     const data = await graphFetch("https://graph.microsoft.com/v1.0/me?$select=displayName,mail,jobTitle,department,officeLocation,userPrincipalName");

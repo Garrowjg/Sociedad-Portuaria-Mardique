@@ -40,7 +40,10 @@
         .doc-summary-item{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--mx);}
         .doc-summary-item strong{color:var(--pd);font-size:14px;}
         .doc-summary-item i{color:var(--ag);font-size:14px;}
-        .doc-breadcrumb{font-size:12.5px;color:var(--mx);margin-bottom:16px;font-weight:600;}
+        .doc-breadcrumb{font-size:12.5px;color:var(--mx);margin-bottom:16px;font-weight:600;display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+        .doc-back-btn{display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:8px;border:1px solid var(--bdr);background:#fff;color:var(--tx);cursor:pointer;font-size:12px;transition:all .2s ease;flex:none;}
+        .doc-back-btn:hover{background:#f0f4f8;border-color:#c7cdd4;}
+        .doc-back-btn.hidden{visibility:hidden;pointer-events:none;}
         .doc-breadcrumb .crumb-link{color:var(--ac);cursor:pointer;}
         .doc-breadcrumb .crumb-link:hover{color:var(--ag);}
         .doc-breadcrumb .crumb-current{color:var(--pd);font-weight:800;}
@@ -49,15 +52,38 @@
         .doc-empty i{font-size:36px;margin-bottom:12px;opacity:.4;color:var(--pd);}
         .doc-empty span{font-size:13px;font-weight:600;}
         .intranet-loading{display:flex;align-items:center;justify-content:center;gap:10px;padding:48px 20px;color:var(--mx);font-size:13px;font-weight:600;}
-        .doc-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:14px;}
-        .doc-card{background:#fff;border:1px solid var(--bdr);border-radius:12px;padding:16px;cursor:pointer;transition:all .25s ease;position:relative;overflow:hidden;}
-        .doc-card:hover{border-color:var(--ag);box-shadow:0 8px 24px rgba(15,42,58,.1);transform:translateY(-2px);}
-        .doc-card-folder{border-left:4px solid #f09a36;}
-        .doc-card-file{border-left:4px solid #28648c;}
-        .doc-card-icon{width:44px;height:44px;display:flex;align-items:center;justify-content:center;font-size:18px;border-radius:10px;margin-bottom:12px;}
-        .doc-card-folder .doc-card-icon{background:rgba(240,154,54,.1);color:#f09a36;}
-        .doc-card-file .doc-card-icon{background:rgba(40,100,140,.08);color:#28648c;}
-        .doc-card-name{font-size:13.5px;font-weight:700;color:var(--pd);line-height:1.3;margin-bottom:4px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
+        .doc-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:16px;}
+        .doc-list{display:flex;flex-direction:column;gap:6px;}
+        .doc-list .doc-card{flex-direction:row;align-items:center;}
+        .doc-list .doc-card-header{border-bottom:none;padding:8px 12px;flex:1;min-width:0;gap:12px;}
+        .doc-list .doc-thumb{width:56px;height:56px;flex:none;border-radius:8px;margin:6px 0 6px 6px;}
+        .doc-list .doc-thumb svg{max-width:60%;max-height:70%;}
+        .doc-list .doc-thumb-badge{display:none;}
+        .doc-list .doc-card-body{display:none;}
+        .doc-toolbar{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin-bottom:18px;}
+        .doc-search-wrap{position:relative;flex:1;min-width:180px;max-width:360px;}
+        .doc-search-wrap i{position:absolute;left:12px;top:50%;transform:translateY(-50%);font-size:13px;color:var(--mx);pointer-events:none;}
+        .doc-search{width:100%;padding:8px 12px 8px 34px;border:1.5px solid var(--bdr);border-radius:8px;font-size:13px;font-family:inherit;background:#fff;outline:none;transition:border-color .2s;box-sizing:border-box;}
+        .doc-search:focus{border-color:var(--ag);}
+        .doc-search::placeholder{color:#b0b8c1;}
+        .doc-type-filters{display:flex;gap:5px;flex-wrap:wrap;}
+        .doc-type-filter{padding:5px 12px;border-radius:6px;font-size:11px;font-weight:700;font-family:inherit;border:1.5px solid var(--bdr);background:#fff;color:var(--tx);cursor:pointer;transition:all .2s ease;}
+        .doc-type-filter:hover{border-color:var(--ag);color:var(--ag);}
+        .doc-type-filter.active{background:var(--pd);border-color:var(--pd);color:#fff;}
+        .doc-view-toggle{display:flex;gap:0;border:1.5px solid var(--bdr);border-radius:8px;overflow:hidden;flex:none;}
+        .doc-view-btn{padding:7px 11px;background:#fff;border:none;cursor:pointer;font-size:13px;color:var(--mx);transition:all .2s ease;display:flex;align-items:center;}
+        .doc-view-btn:not(:last-child){border-right:1.5px solid var(--bdr);}
+        .doc-view-btn:hover{background:#f0f4f8;}
+        .doc-view-btn.active{background:var(--pd);color:#fff;}
+        .doc-card{background:#fff;border:1px solid #dfe3e8;border-radius:10px;cursor:pointer;transition:all .18s ease;position:relative;overflow:hidden;display:flex;flex-direction:column;}
+        .doc-card:hover{border-color:#c7cdd4;box-shadow:0 4px 14px rgba(15,42,58,.1);}
+        .doc-card-header{display:flex;align-items:center;gap:9px;padding:11px 12px;border-bottom:1px solid #eef1f4;}
+        .doc-card-header .doc-file-icon{width:20px;height:20px;flex:none;display:flex;align-items:center;justify-content:center;font-size:15px;}
+        .doc-card-header .doc-card-name{flex:1;min-width:0;font-size:13px;font-weight:600;color:#3c4043;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+        .doc-thumb{width:100%;height:148px;display:flex;align-items:center;justify-content:center;position:relative;background:#f6f8fa;}
+        .doc-thumb svg{width:auto;height:auto;max-width:66%;max-height:82%;display:block;filter:drop-shadow(0 3px 8px rgba(15,42,58,.14));}
+        .doc-thumb-badge{position:absolute;bottom:8px;right:8px;padding:2px 8px;border-radius:5px;font-size:9.5px;font-weight:800;text-transform:uppercase;letter-spacing:.4px;background:rgba(15,42,58,.72);color:#fff;z-index:1;}
+        .doc-card-body{padding:9px 12px 12px;}
         .doc-card-meta{font-size:11px;color:var(--mx);display:flex;flex-direction:column;gap:2px;}
         .doc-card-meta span{display:flex;align-items:center;gap:4px;}
         .mock-mode-badge{display:inline-flex;align-items:center;gap:5px;padding:4px 14px;border-radius:50px;font-size:11px;font-weight:700;background:#fef3c7;color:#92400e;border:1px solid #f59e0b;margin-left:10px;}
@@ -99,7 +125,26 @@
         <div class="tab-content reveal">
             <div class="doc-sector-tabs" id="sectorTabs"></div>
             <div class="doc-summary" id="docSummary"></div>
+            <div class="doc-toolbar">
+                <div class="doc-search-wrap">
+                    <i class="fas fa-search"></i>
+                    <input class="doc-search" id="docSearch" type="text" placeholder="Buscar documentos..." oninput="filterDocs()">
+                </div>
+                <div class="doc-type-filters" id="docTypeFilters">
+                    <button class="doc-type-filter active" data-type="todos" onclick="setTypeFilter('todos')">Todos</button>
+                    <button class="doc-type-filter" data-type="pdf" onclick="setTypeFilter('pdf')">PDF</button>
+                    <button class="doc-type-filter" data-type="doc" onclick="setTypeFilter('doc')">Word</button>
+                    <button class="doc-type-filter" data-type="xls" onclick="setTypeFilter('xls')">Excel</button>
+                    <button class="doc-type-filter" data-type="image" onclick="setTypeFilter('image')">Imagen</button>
+                    <button class="doc-type-filter" data-type="folder" onclick="setTypeFilter('folder')">Carpetas</button>
+                </div>
+                <div class="doc-view-toggle">
+                    <button class="doc-view-btn active" id="viewGrid" onclick="setView('grid')" title="Vista cuadrícula"><i class="fas fa-th"></i></button>
+                    <button class="doc-view-btn" id="viewList" onclick="setView('list')" title="Vista lista"><i class="fas fa-list"></i></button>
+                </div>
+            </div>
             <div class="doc-breadcrumb" id="doc-breadcrumb">
+                <button class="doc-back-btn" id="docBackBtn" onclick="goBack()" title="Volver"><i class="fas fa-arrow-left"></i></button>
                 <span class="crumb-current">Documentos</span>
             </div>
             <div id="documents-container"></div>
@@ -115,193 +160,367 @@
 <script src="/js/api-service.js"></script>
 <script src="/js/intranet.js"></script>
 <script>
-const SECTORS = [
-    { id: "todos", name: "Todos", icon: "fa-folder-open" },
-    { id: "rrhh", name: "Recursos Humanos", icon: "fa-users" },
-    { id: "finanzas", name: "Finanzas", icon: "fa-chart-line" },
-    { id: "ti", name: "Tecnología e Informática", icon: "fa-laptop-code" }
-];
+    const SECTORS = [
+        { id: "todos", name: "Todos", icon: "fa-folder-open" },
+        { id: "rrhh", name: "Recursos Humanos", icon: "fa-users" },
+        { id: "finanzas", name: "Finanzas", icon: "fa-chart-line" },
+        { id: "ti", name: "Tecnología e Informática", icon: "fa-laptop-code" }
+    ];
 
-let currentSector = "todos";
-let currentFolderId = null;
-let docBreadcrumbState = [{ id: "root", name: "Documentos" }];
+    let currentSector = "todos";
+    let currentFolderId = null;
+    let docBreadcrumbState = [{ id: "root", name: "Documentos" }];
+    let currentItems = [];
+    let currentView = "grid";
+    let currentTypeFilter = "todos";
+    let currentSearchTerm = "";
 
-function selectSector(sectorId){
-    currentSector = sectorId;
-    currentFolderId = null;
-    docBreadcrumbState = [{ id: "root", name: "Documentos" }];
-    document.querySelectorAll(".doc-sector-tab").forEach(t => t.classList.toggle("active", t.dataset.id === sectorId));
-    loadDocs();
-}
-
-function loadDocs(){
-    const cont = document.getElementById("documents-container");
-    if (!cont) return;
-    cont.innerHTML = '<div class="intranet-loading"><i class="fas fa-spinner fa-spin"></i><span>Cargando documentos...</span></div>';
-    if (currentSector === "todos") {
-        getDriveRoot().then(items => {
-            renderSectorCards(items);
-        }).catch(() => { cont.innerHTML = '<div class="doc-empty"><i class="fas fa-exclamation-triangle"></i><span>Error al cargar</span></div>'; });
-    } else {
-        getDriveItems(currentSector).then(items => {
-            renderDocGrid(items);
-        }).catch(() => { cont.innerHTML = '<div class="doc-empty"><i class="fas fa-exclamation-triangle"></i><span>Error al cargar</span></div>'; });
+    function selectSector(sectorId){
+        currentSector = sectorId;
+        currentFolderId = null;
+        docBreadcrumbState = [{ id: "root", name: "Documentos" }];
+        resetFilters();
+        document.querySelectorAll(".doc-sector-tab").forEach(t => t.classList.toggle("active", t.dataset.id === sectorId));
+        loadDocs();
     }
-}
 
-function renderSectorCards(sectors){
-    const cont = document.getElementById("documents-container");
-    if (!cont) return;
-    if (!sectors || !sectors.length) {
-        cont.innerHTML = '<div class="doc-empty"><i class="fas fa-folder-open"></i><span>No hay sectores disponibles</span></div>';
-        return;
+    function loadDocs(){
+        const cont = document.getElementById("documents-container");
+        if (!cont) return;
+        cont.innerHTML = '<div class="intranet-loading"><i class="fas fa-spinner fa-spin"></i><span>Cargando documentos...</span></div>';
+        if (currentSector === "todos") {
+            getDriveRoot().then(items => {
+                renderSectorCards(items);
+            }).catch(() => { cont.innerHTML = '<div class="doc-empty"><i class="fas fa-exclamation-triangle"></i><span>Error al cargar</span></div>'; });
+        } else {
+            getDriveItems(currentSector).then(items => {
+                renderDocGrid(items);
+            }).catch(() => { cont.innerHTML = '<div class="doc-empty"><i class="fas fa-exclamation-triangle"></i><span>Error al cargar</span></div>'; });
+        }
     }
-    const html = '<div class="doc-grid">' + sectors.map(s => {
+
+    const DOC_TYPE_COLORS = {
+        pdf:"#dc2626", doc:"#2563eb", docx:"#2563eb",
+        xls:"#16a34a", xlsx:"#16a34a", csv:"#0e7490",
+        ppt:"#ea580c", pptx:"#ea580c",
+        jpg:"#a855f7", jpeg:"#a855f7", png:"#a855f7", gif:"#a855f7", webp:"#a855f7",
+        mp4:"#db2777", mov:"#db2777",
+        zip:"#78716c", rar:"#78716c", "7z":"#78716c",
+        txt:"#64748b"
+    };
+
+    function getDocColor(name){
+        const ext = (name || "").split(".").pop().toLowerCase();
+        return DOC_TYPE_COLORS[ext] || "#94a3b8";
+    }
+
+    // Vista previa tipo "hoja de documento" al estilo Google Drive: página blanca
+    // con proporción real (sin estirar), esquina doblada y una franja de color
+    // según el tipo de archivo, con líneas simulando texto.
+    function docPagePreviewSVG(name){
+        const color = getDocColor(name);
+        return '<svg viewBox="0 0 120 156" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet">' +
+            '<path d="M8 0 H90 L120 30 V150 A6 6 0 0 1 114 156 H8 A6 6 0 0 1 2 150 V6 A6 6 0 0 1 8 0 Z" fill="#ffffff" stroke="#e1e5ea" stroke-width="1.5"/>' +
+            '<path d="M90 0 L90 30 H120 Z" fill="#eef1f4" stroke="#e1e5ea" stroke-width="1.5"/>' +
+            '<rect x="16" y="14" width="8" height="8" rx="2" fill="' + color + '"/>' +
+            '<rect x="28" y="16" width="34" height="4.5" rx="2" fill="' + color + '" opacity=".55"/>' +
+            '<rect x="16" y="46" width="88" height="5" rx="2" fill="#e6e9ed"/>' +
+            '<rect x="16" y="59" width="88" height="5" rx="2" fill="#e6e9ed"/>' +
+            '<rect x="16" y="72" width="62" height="5" rx="2" fill="#e6e9ed"/>' +
+            '<rect x="16" y="92" width="88" height="5" rx="2" fill="#eef1f4"/>' +
+            '<rect x="16" y="105" width="88" height="5" rx="2" fill="#eef1f4"/>' +
+            '<rect x="16" y="118" width="88" height="5" rx="2" fill="#eef1f4"/>' +
+            '<rect x="16" y="131" width="48" height="5" rx="2" fill="#eef1f4"/>' +
+            '</svg>';
+    }
+
+    // Vista previa tipo "carpeta" plana al estilo Google Drive, con proporción
+    // fija (sin estirar) y color corporativo.
+    function folderPreviewSVG(){
+        const color = "#f09a36";
+        return '<svg viewBox="0 0 140 112" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet">' +
+            '<path d="M6 24 H52 L64 36 H134 A6 6 0 0 1 140 42 V100 A6 6 0 0 1 134 106 H6 A6 6 0 0 1 0 100 V30 A6 6 0 0 1 6 24 Z" fill="' + color + '"/>' +
+            '<path d="M0 40 H140 V100 A6 6 0 0 1 134 106 H6 A6 6 0 0 1 0 100 Z" fill="' + color + '" opacity=".85"/>' +
+            '</svg>';
+    }
+
+    function renderSectorCards(sectors){
+        currentItems = sectors || [];
+        renderCurrentDocs();
+    }
+
+    function renderCurrentDocs(){
+        const cont = document.getElementById("documents-container");
+        if (!cont) return;
+        let items = currentItems;
+        if (!items || !items.length) {
+            cont.innerHTML = '<div class="doc-empty"><i class="fas fa-folder-open"></i><span>' + (currentSector === "todos" ? 'No hay sectores disponibles' : 'No hay documentos en este sector') + '</span></div>';
+            return;
+        }
+        if (currentSearchTerm) {
+            const t = currentSearchTerm.toLowerCase();
+            items = items.filter(i => i.name && i.name.toLowerCase().includes(t));
+        }
+        if (currentTypeFilter !== "todos") {
+            if (currentTypeFilter === "folder") {
+                items = items.filter(i => i.folder);
+            } else if (currentTypeFilter === "image") {
+                items = items.filter(i => !i.folder && /\.(jpg|jpeg|png|gif|webp)$/i.test(i.name));
+            } else {
+                items = items.filter(i => !i.folder && i.name && i.name.toLowerCase().endsWith("." + currentTypeFilter));
+            }
+        }
+        if (!items.length) {
+            cont.innerHTML = '<div class="doc-empty"><i class="fas fa-search"></i><span>No se encontraron documentos con esos filtros</span></div>';
+            return;
+        }
+        const isSectorsView = currentSector === "todos" && !currentFolderId;
+        const viewClass = currentView === "list" ? "doc-list" : "doc-grid";
+        cont.innerHTML = '<div class="' + viewClass + '">' + items.map(item => {
+            if (isSectorsView) return renderSectorCard(item);
+            return renderDocCard(item);
+        }).join("") + '</div>';
+        updateBackBtn();
+    }
+
+    function renderSectorCard(s){
         const dept = MOCK_DEPARTMENTS.find(d => d.id === s.id);
         const icon = dept?.icon || "fa-folder";
         const count = s.folder?.childCount || 0;
-        return '<div class="doc-card doc-card-folder" onclick="openSector(\'' + s.id + '\')">' +
-            '<div class="doc-card-icon"><i class="fas ' + icon + '"></i></div>' +
-            '<div class="doc-card-name">' + escapeHtml(s.name || dept?.name || "") + '</div>' +
-            '<div class="doc-card-meta"><span><i class="far fa-file"></i> ' + count + ' documentos</span></div>' +
-        '</div>';
-    }).join("") + '</div>';
-    cont.innerHTML = html;
-}
-
-function openSector(id){
-    currentSector = id;
-    currentFolderId = null;
-    docBreadcrumbState.push({ id, name: MOCK_DEPARTMENTS.find(d => d.id === id)?.name || id });
-    renderBreadcrumb();
-    document.querySelectorAll(".doc-sector-tab").forEach(t => t.classList.toggle("active", t.dataset.id === id));
-    const cont = document.getElementById("documents-container");
-    cont.innerHTML = '<div class="intranet-loading"><i class="fas fa-spinner fa-spin"></i><span>Cargando documentos...</span></div>';
-    getDriveItems(id).then(items => renderDocGrid(items)).catch(() => {});
-}
-
-function renderDocGrid(items){
-    const cont = document.getElementById("documents-container");
-    if (!cont) return;
-    if (!items || !items.length) {
-        cont.innerHTML = '<div class="doc-empty"><i class="fas fa-folder-open"></i><span>No hay documentos en este sector</span></div>';
-        return;
+        return '<div class="doc-card" data-sector="' + s.id + '">' +
+            '<div class="doc-card-header"><span class="doc-file-icon"><i class="fas ' + icon + '" style="color:#f09a36"></i></span>' +
+            '<span class="doc-card-name">' + escapeHtml(s.name || dept?.name || "") + '</span></div>' +
+            '<div class="doc-thumb">' + folderPreviewSVG() + '</div>' +
+            '<div class="doc-card-body"><div class="doc-card-meta"><span><i class="far fa-file"></i> ' + count + ' documentos</span></div></div>' +
+            '</div>';
     }
-    cont.innerHTML = '<div class="doc-grid">' + items.map(item => {
-        const isFolder = item.folder;
+
+    function openSector(id){
+        currentSector = id;
+        currentFolderId = null;
+        docBreadcrumbState = [{ id: "root", name: "Documentos" }, { id, name: MOCK_DEPARTMENTS.find(d => d.id === id)?.name || id }];
+        resetFilters();
+        renderBreadcrumb();
+        document.querySelectorAll(".doc-sector-tab").forEach(t => t.classList.toggle("active", t.dataset.id === id));
+        const cont = document.getElementById("documents-container");
+        cont.innerHTML = '<div class="intranet-loading"><i class="fas fa-spinner fa-spin"></i><span>Cargando documentos...</span></div>';
+        getDriveItems(id).then(items => renderDocGrid(items)).catch(() => {});
+    }
+
+    function renderDocGrid(items){
+        currentItems = items || [];
+        renderCurrentDocs();
+    }
+
+    function renderDocCard(item){
+        const isFolder = !!item.folder;
         const icon = isFolder ? "fa-folder" : getFileIcon(item.name);
-        const iconColor = isFolder ? "doc-card-folder" : "doc-card-file";
+        const iconColor = isFolder ? "#f09a36" : getDocColor(item.name);
+        const ext = isFolder ? null : item.name.split(".").pop();
         const meta = isFolder
             ? '<span><i class="far fa-folder"></i> ' + (item.folder?.childCount || 0) + ' elementos</span>'
-            : '<span><i class="far fa-file"></i> ' + formatFileSize(item.size) + '</span><span><i class="far fa-calendar-alt"></i> ' + formatDate(item.lastModifiedDateTime) + '</span>';
-        return '<div class="doc-card ' + iconColor + '" onclick="openDocItem(\'' + item.id + '\',' + isFolder + ')">' +
-            '<div class="doc-card-icon"><i class="fas ' + icon + '"></i></div>' +
-            '<div class="doc-card-name">' + escapeHtml(item.name) + '</div>' +
-            '<div class="doc-card-meta">' + meta + '</div>' +
-        '</div>';
-    }).join("") + '</div>';
-}
+            : '<span><i class="far fa-hdd"></i> ' + formatFileSize(item.size) + '</span><span><i class="far fa-calendar-alt"></i> ' + formatDate(item.lastModifiedDateTime) + '</span>';
+        const preview = isFolder ? folderPreviewSVG() : docPagePreviewSVG(item.name);
+        return '<div class="doc-card" data-doc-id="' + item.id + '" data-is-folder="' + isFolder + '">' +
+            '<div class="doc-card-header"><span class="doc-file-icon"><i class="fas ' + icon + '" style="color:' + iconColor + '"></i></span>' +
+            '<span class="doc-card-name">' + escapeHtml(item.name) + '</span></div>' +
+            '<div class="doc-thumb">' + preview + (ext ? '<span class="doc-thumb-badge">.' + ext + '</span>' : '') + '</div>' +
+            '<div class="doc-card-body"><div class="doc-card-meta">' + meta + '</div></div>' +
+            '</div>';
+    }
 
-function openDocItem(id, isFolder){
-    if (isFolder) {
-        docBreadcrumbState.push({ id, name: "..." });
+    function openDocItem(id, isFolder){
+        if (isFolder) {
+            currentFolderId = id;
+            const folder = currentItems.find(i => i.id === id);
+            docBreadcrumbState.push({ id, name: folder ? folder.name : "..." });
+            renderBreadcrumb();
+            const cont = document.getElementById("documents-container");
+            cont.innerHTML = '<div class="intranet-loading"><i class="fas fa-spinner fa-spin"></i><span>Cargando...</span></div>';
+            getDriveItems(id).then(items => {
+                if (!items || !items.length) items = [];
+                renderDocGrid(items);
+            }).catch(() => {});
+        } else {
+            window.open("#", "_blank");
+        }
+    }
+
+    function renderBreadcrumb(){
+        const el = document.getElementById("doc-breadcrumb");
+        if (!el) return;
+        const isRoot = docBreadcrumbState.length <= 1 && currentSector === "todos";
+        let html = '<button class="doc-back-btn' + (isRoot ? ' hidden' : '') + '" onclick="goBack()" title="Volver"><i class="fas fa-arrow-left"></i></button>';
+        if (docBreadcrumbState.length <= 1 && currentSector !== "todos") {
+            const sector = SECTORS.find(s => s.id === currentSector);
+            if (sector) {
+                html += '<span class="crumb-link" onclick="goToRoot()">Documentos</span> <span class="crumb-sep">/</span> <span class="crumb-current">' + sector.name + '</span>';
+                el.innerHTML = html;
+                return;
+            }
+        }
+        html += docBreadcrumbState.map((b, i) => {
+            if (i === docBreadcrumbState.length - 1) return '<span class="crumb-current">' + escapeHtml(b.name) + '</span>';
+            return '<span class="crumb-link" onclick="goToCrumb(' + i + ')">' + escapeHtml(b.name) + '</span> <span class="crumb-sep">/</span> ';
+        }).join("");
+        el.innerHTML = html;
+    }
+
+    function goBack(){
+        if (currentFolderId) {
+            const prev = docBreadcrumbState[docBreadcrumbState.length - 2];
+            if (prev) goToCrumb(docBreadcrumbState.length - 2);
+        } else if (currentSector !== "todos") {
+            goToRoot();
+        }
+    }
+
+    function goToRoot(){
+        docBreadcrumbState = [{ id: "root", name: "Documentos" }];
+        currentSector = "todos";
+        currentFolderId = null;
+        resetFilters();
+        document.querySelectorAll(".doc-sector-tab").forEach(t => t.classList.toggle("active", t.dataset.id === "todos"));
         renderBreadcrumb();
-        const cont = document.getElementById("documents-container");
-        cont.innerHTML = '<div class="intranet-loading"><i class="fas fa-spinner fa-spin"></i><span>Cargando...</span></div>';
-        getDriveItems(id).then(items => renderDocGrid(items)).catch(() => {});
-    } else {
-        window.open("#", "_blank");
+        loadDocs();
     }
-}
 
-function renderBreadcrumb(){
-    const el = document.getElementById("doc-breadcrumb");
-    if (!el) return;
-    if (docBreadcrumbState.length <= 1 && currentSector !== "todos") {
-        const sector = SECTORS.find(s => s.id === currentSector);
-        if (sector) {
-            el.innerHTML = '<span class="crumb-link" onclick="goToRoot()">Documentos</span> <span class="crumb-sep">/</span> <span class="crumb-current">' + sector.name + '</span>';
-            return;
+    function goToCrumb(idx){
+        docBreadcrumbState = docBreadcrumbState.slice(0, idx + 1);
+        renderBreadcrumb();
+        if (idx === 0) {
+            currentSector = "todos";
+            currentFolderId = null;
+            resetFilters();
+            loadDocs();
+        } else {
+            const crumb = docBreadcrumbState[idx];
+            if (crumb) {
+                const sectorMatch = MOCK_DEPARTMENTS.find(d => d.id === crumb.id);
+                if (sectorMatch) {
+                    currentSector = crumb.id;
+                    currentFolderId = null;
+                    resetFilters();
+                    document.querySelectorAll(".doc-sector-tab").forEach(t => t.classList.toggle("active", t.dataset.id === crumb.id));
+                    const cont = document.getElementById("documents-container");
+                    cont.innerHTML = '<div class="intranet-loading"><i class="fas fa-spinner fa-spin"></i><span>Cargando...</span></div>';
+                    getDriveItems(crumb.id).then(items => renderDocGrid(items)).catch(() => {});
+                } else {
+                    currentFolderId = crumb.id;
+                    const cont = document.getElementById("documents-container");
+                    cont.innerHTML = '<div class="intranet-loading"><i class="fas fa-spinner fa-spin"></i><span>Cargando...</span></div>';
+                    getDriveItems(crumb.id).then(items => renderDocGrid(items)).catch(() => {});
+                }
+            }
         }
     }
-    el.innerHTML = docBreadcrumbState.map((b, i) => {
-        if (i === docBreadcrumbState.length - 1) return '<span class="crumb-current">' + escapeHtml(b.name) + '</span>';
-        return '<span class="crumb-link" onclick="goToCrumb(' + i + ')">' + escapeHtml(b.name) + '</span> <span class="crumb-sep">/</span> ';
-    }).join("");
-}
 
-function goToRoot(){
-    docBreadcrumbState = [{ id: "root", name: "Documentos" }];
-    currentSector = "todos";
-    currentFolderId = null;
-    document.querySelectorAll(".doc-sector-tab").forEach(t => t.classList.toggle("active", t.dataset.id === "todos"));
-    renderBreadcrumb();
-    loadDocs();
-}
+    function filterDocs(){
+        currentSearchTerm = document.getElementById("docSearch").value;
+        renderCurrentDocs();
+    }
 
-function goToCrumb(idx){
-    docBreadcrumbState = docBreadcrumbState.slice(0, idx + 1);
-    renderBreadcrumb();
-    if (idx === 0) { currentSector = "todos"; loadDocs(); }
-}
+    function setTypeFilter(type){
+        currentTypeFilter = type;
+        document.querySelectorAll(".doc-type-filter").forEach(b => b.classList.toggle("active", b.dataset.type === type));
+        renderCurrentDocs();
+    }
 
-function renderTabs(){
-    const tabs = document.getElementById("sectorTabs");
-    if (!tabs) return;
-    tabs.innerHTML = SECTORS.map(s => {
-        let count = "";
-        if (s.id !== "todos") {
-            const files = MOCK_FILES_BY_SECTOR[s.id];
-            count = files ? files.length : 0;
-        }
-        return '<button class="doc-sector-tab' + (s.id === currentSector ? ' active' : '') + '" data-id="' + s.id + '" onclick="selectSector(\'' + s.id + '\')">' +
-            '<i class="fas ' + s.icon + '"></i> ' + s.name +
-            (count !== "" ? ' <span class="tab-count">' + count + '</span>' : '') +
-        '</button>';
-    }).join("");
-}
+    function setView(view){
+        currentView = view;
+        document.getElementById("viewGrid").classList.toggle("active", view === "grid");
+        document.getElementById("viewList").classList.toggle("active", view === "list");
+        renderCurrentDocs();
+    }
 
-function renderSummary(){
-    const el = document.getElementById("docSummary");
-    if (!el) return;
-    let totalFiles = 0, totalFolders = 0;
-    SECTORS.filter(s => s.id !== "todos").forEach(s => {
-        const files = MOCK_FILES_BY_SECTOR[s.id] || [];
-        files.forEach(f => { if (f.folder) totalFolders++; else totalFiles++; });
+    function updateBackBtn(){
+        const btn = document.getElementById("docBackBtn");
+        if (!btn) return;
+        const isRoot = docBreadcrumbState.length <= 1 && currentSector === "todos";
+        btn.classList.toggle("hidden", isRoot);
+    }
+
+    function resetFilters(){
+        currentSearchTerm = "";
+        currentTypeFilter = "todos";
+        const searchEl = document.getElementById("docSearch");
+        if (searchEl) searchEl.value = "";
+        document.querySelectorAll(".doc-type-filter").forEach(b => b.classList.toggle("active", b.dataset.type === "todos"));
+    }
+
+    function renderTabs(){
+        const tabs = document.getElementById("sectorTabs");
+        if (!tabs) return;
+        tabs.innerHTML = SECTORS.map(s => {
+            let count = "";
+            if (s.id !== "todos") {
+                const files = MOCK_FILES_BY_SECTOR[s.id];
+                count = files ? files.length : 0;
+            }
+            return '<button class="doc-sector-tab' + (s.id === currentSector ? ' active' : '') + '" data-id="' + s.id + '" onclick="selectSector(\'' + s.id + '\')">' +
+                '<i class="fas ' + s.icon + '"></i> ' + s.name +
+                (count !== "" ? ' <span class="tab-count">' + count + '</span>' : '') +
+                '</button>';
+        }).join("");
+    }
+
+    function renderSummary(){
+        const el = document.getElementById("docSummary");
+        if (!el) return;
+        let totalFiles = 0, totalFolders = 0;
+        SECTORS.filter(s => s.id !== "todos").forEach(s => {
+            const files = MOCK_FILES_BY_SECTOR[s.id] || [];
+            files.forEach(f => { if (f.folder) totalFolders++; else totalFiles++; });
+        });
+        el.innerHTML = '<div class="doc-summary-item"><i class="fas fa-file"></i> <strong>' + totalFiles + '</strong> Archivos</div>' +
+            '<div class="doc-summary-item"><i class="fas fa-folder"></i> <strong>' + totalFolders + '</strong> Carpetas</div>' +
+            '<div class="doc-summary-item"><i class="fas fa-layer-group"></i> <strong>' + (SECTORS.length - 1) + '</strong> Sectores</div>';
+    }
+
+    document.addEventListener("DOMContentLoaded", function() {
+        if (!isMsalAuthenticated()) { window.location.href = "/login"; return; }
+        if (isMockMode()) { const mb = document.getElementById("mockBadge"); if (mb) mb.style.display = "inline-flex"; }
+
+        getCurrentUser().then(user => {
+            const name = user.displayName || user.userPrincipalName || "Empleado";
+            document.getElementById("userDisplay").textContent = name;
+            const dept = user.department || user.officeLocation || "";
+            if (dept) {
+                const deptLower = dept.toLowerCase();
+                const sectorMap = { "tecnología e informática": "ti", "ti": "ti", "recursos humanos": "rrhh", "rrhh": "rrhh", "finanzas": "finanzas" };
+                const matched = Object.entries(sectorMap).find(([key]) => deptLower.includes(key));
+                if (matched) currentSector = matched[1];
+            }
+        }).catch(() => {});
+
+        renderTabs();
+        renderSummary();
+        loadDocs();
+
+        const docCont = document.getElementById("documents-container");
+        docCont.addEventListener("click", function(e) {
+            const card = e.target.closest(".doc-card");
+            if (!card) return;
+            const sector = card.dataset.sector;
+            if (sector) {
+                openSector(sector);
+                return;
+            }
+            const docId = card.dataset.docId;
+            if (docId) {
+                const isFolder = card.dataset.isFolder === "true";
+                openDocItem(docId, isFolder);
+            }
+        });
+
+        const hdr = document.getElementById('intranet-header');
+        window.addEventListener('scroll', () => hdr?.classList.toggle('scrolled', window.scrollY > 60), { passive: true });
+
+        const revealObs = new IntersectionObserver(entries => {
+            entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+        }, { threshold: 0.1 });
+        document.querySelectorAll('.reveal').forEach(el => revealObs.observe(el));
     });
-    el.innerHTML = '<div class="doc-summary-item"><i class="fas fa-file"></i> <strong>' + totalFiles + '</strong> Archivos</div>' +
-        '<div class="doc-summary-item"><i class="fas fa-folder"></i> <strong>' + totalFolders + '</strong> Carpetas</div>' +
-        '<div class="doc-summary-item"><i class="fas fa-layer-group"></i> <strong>' + (SECTORS.length - 1) + '</strong> Sectores</div>';
-}
-
-document.addEventListener("DOMContentLoaded", function() {
-    if (!isMsalAuthenticated()) { window.location.href = "/login"; return; }
-    if (isMockMode()) { const mb = document.getElementById("mockBadge"); if (mb) mb.style.display = "inline-flex"; }
-
-    getCurrentUser().then(user => {
-        const name = user.displayName || user.userPrincipalName || "Empleado";
-        document.getElementById("userDisplay").textContent = name;
-        const dept = user.department || user.officeLocation || "";
-        if (dept) {
-            const deptLower = dept.toLowerCase();
-            const sectorMap = { "tecnología e informática": "ti", "ti": "ti", "recursos humanos": "rrhh", "rrhh": "rrhh", "finanzas": "finanzas" };
-            const matched = Object.entries(sectorMap).find(([key]) => deptLower.includes(key));
-            if (matched) currentSector = matched[1];
-        }
-    }).catch(() => {});
-
-    renderTabs();
-    renderSummary();
-    loadDocs();
-
-    const hdr = document.getElementById('intranet-header');
-    window.addEventListener('scroll', () => hdr?.classList.toggle('scrolled', window.scrollY > 60), { passive: true });
-
-    const revealObs = new IntersectionObserver(entries => {
-        entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
-    }, { threshold: 0.1 });
-    document.querySelectorAll('.reveal').forEach(el => revealObs.observe(el));
-});
 </script>
 </body>
 </html>
