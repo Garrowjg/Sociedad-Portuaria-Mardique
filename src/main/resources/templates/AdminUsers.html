@@ -261,6 +261,11 @@
                                 <span th:text="${u.enabled ? 'Desactivar' : 'Activar'}"></span>
                             </button>
                         </form>
+                        <form th:if="${blockedUsernames.contains(u.username)}" th:action="@{/admin/users/unblock/{username}(username=${u.username})}" method="post" style="display:inline;">
+                            <button type="submit" class="btn btn-green" title="Quitar bloqueo por intentos fallidos">
+                                <i class="fas fa-lock-open"></i> Desbloquear
+                            </button>
+                        </form>
                     </div>
                 </td>
             </tr>

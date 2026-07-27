@@ -1,5 +1,6 @@
 package com.example.MardiqueWeb.Controller;
 
+import com.example.MardiqueWeb.Config.CustomAuthenticationFailureHandler;
 import com.example.MardiqueWeb.Entity.*;
 import com.example.MardiqueWeb.Repository.*;
 import com.example.MardiqueWeb.Service.AuditService;
@@ -84,6 +85,13 @@ public class AdminController {
                 model.addAttribute("userDepartamento", null);
             }
         }
+        Set<String> blockedUsernames = new java.util.HashSet<>();
+        for (User u : userRepository.findAll()) {
+            if (CustomAuthenticationFailureHandler.isBlocked(u.getUsername())) {
+                blockedUsernames.add(u.getUsername());
+            }
+        }
+        model.addAttribute("blockedUsernames", blockedUsernames);
     }
 
     @GetMapping("/dashboard")
@@ -143,6 +151,18 @@ public class AdminController {
         String action = user.isEnabled() ? "USER_ENABLE" : "USER_DISABLE";
         auditService.log(auth.getName(), action, "User " + user.getUsername() + " " + (user.isEnabled() ? "activated" : "deactivated"), request);
         ra.addFlashAttribute("success", "Usuario " + (user.isEnabled() ? "activado" : "desactivado"));
+        return "redirect:/admin/users";
+    }
+
+    @PostMapping("/users/unblock/{username}")
+    public String unblockUser(@PathVariable String username, HttpServletRequest request, Authentication auth, RedirectAttributes ra) {
+        User currentAdmin = userRepository.findByUsername(auth.getName()).orElse(null);
+        if (currentAdmin != null && currentAdmin.getDepartamento() != null) {
+            throw new AccessDeniedException("No tienes permiso para desbloquear usuarios");
+        }
+        CustomAuthenticationFailureHandler.clearBlock(username);
+        auditService.log(auth.getName(), "USER_UNBLOCK", "Unblocked user: " + username, request);
+        ra.addFlashAttribute("success", "Bloqueo de " + username + " eliminado");
         return "redirect:/admin/users";
     }
 
