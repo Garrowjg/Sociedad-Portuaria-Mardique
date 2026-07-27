@@ -6,6 +6,8 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.DisabledException;
+import org.springframework.security.authentication.LockedException;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationFailureHandler;
 import org.springframework.stereotype.Component;
@@ -36,6 +38,19 @@ public class CustomAuthenticationFailureHandler extends SimpleUrlAuthenticationF
         try {
             auditService.log(username, "LOGIN_FAILED", "Failed login attempt from IP: " + request.getRemoteAddr(), request);
         } catch (Exception ignored) {}
+
+        if (exception instanceof DisabledException) {
+            setDefaultFailureUrl("/login?disabled");
+            super.onAuthenticationFailure(request, response, exception);
+            return;
+        }
+
+        if (exception instanceof LockedException) {
+            blockedUsers.put(username, System.currentTimeMillis() + BLOCK_MS);
+            setDefaultFailureUrl("/login?blocked");
+            super.onAuthenticationFailure(request, response, exception);
+            return;
+        }
 
         try {
             loginAttemptService.loginFailed(username, request.getRemoteAddr());
