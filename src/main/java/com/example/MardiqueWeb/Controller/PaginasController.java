@@ -241,6 +241,14 @@ public class PaginasController {
             model.addAttribute("error", "El usuario ya existe");
             return "Register";
         }
+        if (!username.matches("^[a-zA-Z0-9_]{3,20}$")) {
+            model.addAttribute("error", "El usuario solo puede contener letras, números y guiones bajos (3-20 caracteres)");
+            return "Register";
+        }
+        if (email != null && userRepository.existsByEmail(email)) {
+            model.addAttribute("error", "El email ya está registrado");
+            return "Register";
+        }
         if (!password.equals(confirmPassword)) {
             model.addAttribute("error", "Las contrase\u00f1as no coinciden");
             return "Register";

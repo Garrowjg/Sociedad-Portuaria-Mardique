@@ -267,6 +267,10 @@ public class UserController {
             ra.addFlashAttribute("error", "El formato del email no es válido");
             return "redirect:/user/profile";
         }
+        if (email != null && !email.equals(user.getEmail()) && userRepository.existsByEmail(email)) {
+            ra.addFlashAttribute("error", "El email ya está registrado en otro usuario");
+            return "redirect:/user/profile";
+        }
         user.setEmail(email);
         user.setNombres(nombres);
         user.setApellidos(apellidos);

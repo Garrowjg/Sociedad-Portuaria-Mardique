@@ -16,6 +16,9 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.transaction.annotation.Transactional;
 import java.io.IOException;
 import java.util.List;
@@ -110,17 +113,21 @@ public class AdminController {
     }
 
     @GetMapping("/users")
-    public String listUsers(Model model, Authentication auth) {
+    public String listUsers(Model model, Authentication auth,
+                            @RequestParam(defaultValue = "0") int page,
+                            @RequestParam(defaultValue = "20") int size) {
         User currentUser = userRepository.findByUsername(auth.getName()).orElse(null);
         if (currentUser != null && currentUser.getDepartamento() != null) {
             return "redirect:/admin/dashboard";
         }
-        List<User> allUsers = userRepository.findAll();
-        model.addAttribute("users", allUsers);
-        model.addAttribute("totalUsers", allUsers.size());
-        model.addAttribute("activeUsers", allUsers.stream().filter(User::isEnabled).count());
-        model.addAttribute("empresaUsers", allUsers.stream().filter(u -> "EMPRESA".equals(u.getTipo())).count());
-        model.addAttribute("clienteUsers", allUsers.stream().filter(u -> "CLIENTE".equals(u.getTipo())).count());
+        Page<User> userPage = userRepository.findAll(PageRequest.of(page, size, Sort.by("id").descending()));
+        model.addAttribute("users", userPage.getContent());
+        model.addAttribute("currentPage", page);
+        model.addAttribute("totalPages", userPage.getTotalPages());
+        model.addAttribute("totalUsers", userRepository.count());
+        model.addAttribute("activeUsers", userRepository.countByEnabled(true));
+        model.addAttribute("empresaUsers", userRepository.countByTipo("EMPRESA"));
+        model.addAttribute("clienteUsers", userRepository.countByTipo("CLIENTE"));
         return "AdminUsers";
     }
 
@@ -169,6 +176,10 @@ public class AdminController {
         }
         if (email != null && !email.matches("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$")) {
             ra.addFlashAttribute("error", "El formato del email no es válido");
+            return "redirect:/admin/users";
+        }
+        if (email != null && !email.equals(user.getEmail()) && userRepository.existsByEmail(email)) {
+            ra.addFlashAttribute("error", "El email ya está registrado en otro usuario");
             return "redirect:/admin/users";
         }
         user.setNombres(nombres);
@@ -267,8 +278,10 @@ public class AdminController {
     public String listPayments(Model model,
                                 @RequestParam(required = false) String estado,
                                 @RequestParam(required = false) String moneda,
-                                @RequestParam(required = false) String search) {
-        List<Payment> all = paymentRepository.findAll();
+                                @RequestParam(required = false) String search,
+                                @RequestParam(defaultValue = "0") int page,
+                                @RequestParam(defaultValue = "20") int size) {
+        List<Payment> all = paymentRepository.findAll(Sort.by(Sort.Direction.DESC, "id"));
         var stream = all.stream();
         if (estado != null && !estado.isEmpty()) {
             boolean proc = "CONFIRMADO".equals(estado);
@@ -282,7 +295,16 @@ public class AdminController {
             stream = stream.filter(p -> (p.getUsername() != null && p.getUsername().toLowerCase().contains(q))
                                      || (p.getConcepto() != null && p.getConcepto().toLowerCase().contains(q)));
         }
-        model.addAttribute("payments", stream.toList());
+        List<Payment> filtered = stream.toList();
+        int totalItems = filtered.size();
+        int totalPages = (int) Math.ceil((double) totalItems / size);
+        int from = Math.min(page * size, totalItems);
+        int to = Math.min(from + size, totalItems);
+        List<Payment> paged = filtered.subList(from, to);
+
+        model.addAttribute("payments", paged);
+        model.addAttribute("currentPage", page);
+        model.addAttribute("totalPages", totalPages);
         model.addAttribute("selEstado", estado);
         model.addAttribute("selMoneda", moneda);
         model.addAttribute("search", search);

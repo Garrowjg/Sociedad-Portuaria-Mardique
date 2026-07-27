@@ -260,6 +260,25 @@
             </tbody>
         </table>
     </div>
+
+    <div class="pagination" th:if="${totalPages > 1}" style="display:flex;justify-content:center;gap:8px;margin:24px 0;flex-wrap:wrap;">
+        <a th:href="@{/admin/payments(page=${currentPage - 1}, estado=${selEstado}, moneda=${selMoneda}, search=${search})}" th:if="${currentPage > 0}" class="btn btn-cyan" style="padding:8px 14px;font-size:12px;">
+            <i class="fas fa-chevron-left"></i> Anterior
+        </a>
+        <span th:each="i : ${#numbers.sequence(0, totalPages - 1)}" th:if="${totalPages <= 10}">
+            <a th:href="@{/admin/payments(page=${i}, estado=${selEstado}, moneda=${selMoneda}, search=${search})}" th:text="${i + 1}" th:class="${i == currentPage ? 'btn btn-gold' : 'btn btn-cyan'}" style="padding:8px 14px;font-size:12px;min-width:36px;text-align:center;"></a>
+        </span>
+        <span th:if="${totalPages > 10}">
+            <span th:if="${currentPage > 2}" style="padding:8px 14px;font-size:12px;">...</span>
+            <span th:each="i : ${#numbers.sequence(currentPage - 2, currentPage + 2)}" th:if="${i >= 0 && i < totalPages}">
+                <a th:href="@{/admin/payments(page=${i}, estado=${selEstado}, moneda=${selMoneda}, search=${search})}" th:text="${i + 1}" th:class="${i == currentPage ? 'btn btn-gold' : 'btn btn-cyan'}" style="padding:8px 14px;font-size:12px;min-width:36px;text-align:center;"></a>
+            </span>
+            <span th:if="${currentPage < totalPages - 3}" style="padding:8px 14px;font-size:12px;">...</span>
+        </span>
+        <a th:href="@{/admin/payments(page=${currentPage + 1}, estado=${selEstado}, moneda=${selMoneda}, search=${search})}" th:if="${currentPage < totalPages - 1}" class="btn btn-cyan" style="padding:8px 14px;font-size:12px;">
+            Siguiente <i class="fas fa-chevron-right"></i>
+        </a>
+    </div>
 </div>
 
     <div class="pfooter">
