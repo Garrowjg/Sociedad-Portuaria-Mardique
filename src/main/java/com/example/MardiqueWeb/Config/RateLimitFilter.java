@@ -9,6 +9,7 @@ import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -16,9 +17,14 @@ import java.util.concurrent.atomic.AtomicInteger;
 @Order(1)
 public class RateLimitFilter implements Filter {
 
-    private static final int MAX_REQUESTS_PER_MINUTE = 60;
-    private static final int MAX_LOGIN_ATTEMPTS_PER_MINUTE = 10;
+    private static final int MAX_REQUESTS_PER_MINUTE = 200;
+    private static final int MAX_LOGIN_ATTEMPTS_PER_MINUTE = 15;
     private static final long WINDOW_MS = 60_000;
+
+    private static final Set<String> RATE_LIMITED_PATHS = Set.of(
+            "/login", "/register", "/contacto/pqrs", "/contacto/message",
+            "/user/payment/register", "/admin/migrate-encryption"
+    );
 
     private final Map<String, RequestWindow> requestCounts = new ConcurrentHashMap<>();
 
@@ -28,9 +34,24 @@ public class RateLimitFilter implements Filter {
         HttpServletRequest request = (HttpServletRequest) req;
         HttpServletResponse response = (HttpServletResponse) res;
 
-        String ip = getClientIp(request);
         String path = request.getRequestURI();
-        int limit = path.startsWith("/login") ? MAX_LOGIN_ATTEMPTS_PER_MINUTE : MAX_REQUESTS_PER_MINUTE;
+
+        boolean isLimited = false;
+        for (String prefix : RATE_LIMITED_PATHS) {
+            if (path.startsWith(prefix)) {
+                isLimited = true;
+                break;
+            }
+        }
+
+        if (!isLimited) {
+            chain.doFilter(req, res);
+            return;
+        }
+
+        String ip = getClientIp(request);
+        int limit = (path.startsWith("/login") || path.startsWith("/register"))
+                ? MAX_LOGIN_ATTEMPTS_PER_MINUTE : MAX_REQUESTS_PER_MINUTE;
 
         RequestWindow window = requestCounts.compute(ip, (key, w) -> {
             if (w == null || System.currentTimeMillis() - w.start > WINDOW_MS) {
