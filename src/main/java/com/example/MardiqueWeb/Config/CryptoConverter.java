@@ -19,11 +19,21 @@ public class CryptoConverter implements AttributeConverter<String, String> {
 
     @Override
     public String convertToDatabaseColumn(String attribute) {
+        if (attribute == null) return null;
         return encryptionService.encrypt(attribute);
     }
 
     @Override
     public String convertToEntityAttribute(String dbData) {
-        return encryptionService.decrypt(dbData);
+        if (dbData == null || dbData.isEmpty()) return dbData;
+        try {
+            return encryptionService.decrypt(dbData);
+        } catch (RuntimeException e) {
+            try {
+                return encryptionService.decryptLegacy(dbData);
+            } catch (RuntimeException e2) {
+                return dbData;
+            }
+        }
     }
 }

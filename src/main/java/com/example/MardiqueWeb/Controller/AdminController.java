@@ -4,9 +4,11 @@ import com.example.MardiqueWeb.Entity.*;
 import com.example.MardiqueWeb.Repository.*;
 import com.example.MardiqueWeb.Service.AuditService;
 import com.example.MardiqueWeb.Service.CloudinaryService;
+import com.example.MardiqueWeb.Service.EncryptionService;
 import com.example.MardiqueWeb.Service.PdfService;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -55,6 +57,9 @@ public class AdminController {
 
     @Autowired
     private AuditService auditService;
+
+    @Autowired
+    private EncryptionService encryptionService;
 
     private static final Set<String> ALLOWED_EXTENSIONS = Set.of("pdf", "png", "jpg", "jpeg", "gif", "webp");
 
@@ -121,7 +126,11 @@ public class AdminController {
 
     @PostMapping("/users/toggle/{id}")
     public String toggleUser(@PathVariable Long id, HttpServletRequest request, Authentication auth, RedirectAttributes ra) {
-        User user = userRepository.findById(id).orElseThrow(() -> new RuntimeException("User not found: " + id));
+        User currentAdmin = userRepository.findByUsername(auth.getName()).orElse(null);
+        User user = userRepository.findById(id).orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+        if (currentAdmin != null && currentAdmin.getDepartamento() != null) {
+            throw new AccessDeniedException("No tienes permiso para modificar este usuario");
+        }
         user.setEnabled(!user.isEnabled());
         userRepository.save(user);
         String action = user.isEnabled() ? "USER_ENABLE" : "USER_DISABLE";
@@ -132,7 +141,11 @@ public class AdminController {
 
     @PostMapping("/users/role/{id}")
     public String changeRole(@PathVariable Long id, @RequestParam String role, HttpServletRequest request, Authentication auth, RedirectAttributes ra) {
-        User user = userRepository.findById(id).orElseThrow(() -> new RuntimeException("User not found: " + id));
+        User currentAdmin = userRepository.findByUsername(auth.getName()).orElse(null);
+        User user = userRepository.findById(id).orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+        if (currentAdmin != null && currentAdmin.getDepartamento() != null) {
+            throw new AccessDeniedException("No tienes permiso para cambiar roles");
+        }
         String oldRole = user.getRole();
         user.setRole(role);
         userRepository.save(user);
@@ -149,7 +162,15 @@ public class AdminController {
                               @RequestParam(required = false) String categoria,
                               HttpServletRequest request, Authentication auth,
                               RedirectAttributes ra) {
-        User user = userRepository.findById(id).orElseThrow(() -> new RuntimeException("User not found: " + id));
+        User currentAdmin = userRepository.findByUsername(auth.getName()).orElse(null);
+        User user = userRepository.findById(id).orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+        if (currentAdmin != null && currentAdmin.getDepartamento() != null) {
+            throw new AccessDeniedException("No tienes permiso para modificar este usuario");
+        }
+        if (email != null && !email.matches("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$")) {
+            ra.addFlashAttribute("error", "El formato del email no es válido");
+            return "redirect:/admin/users";
+        }
         user.setNombres(nombres);
         user.setApellidos(apellidos);
         user.setEmail(email);
@@ -214,7 +235,7 @@ public class AdminController {
     @PostMapping("/solicitudes/responder/{id}")
     public String responderSolicitud(@PathVariable Long id, @RequestParam String respuesta,
                                       RedirectAttributes ra) {
-        SupportTicket ticket = supportTicketRepository.findById(id).orElseThrow(() -> new RuntimeException("SupportTicket not found: " + id));
+        SupportTicket ticket = supportTicketRepository.findById(id).orElseThrow(() -> new RuntimeException("Ticket no encontrado"));
         ticket.setRespuesta(respuesta);
         ticket.setStatus("CERRADO");
         supportTicketRepository.save(ticket);
@@ -225,7 +246,7 @@ public class AdminController {
     @PostMapping("/solicitudes/responder-solicitud/{id}")
     public String responderSolicitud(@PathVariable Long id, @RequestParam String estado,
                                       @RequestParam String respuestaAdmin, RedirectAttributes ra) {
-        Solicitud s = solicitudRepository.findById(id).orElseThrow(() -> new RuntimeException("Solicitud not found: " + id));
+        Solicitud s = solicitudRepository.findById(id).orElseThrow(() -> new RuntimeException("Solicitud no encontrada"));
         s.setEstado(estado);
         s.setRespuestaAdmin(respuestaAdmin);
         solicitudRepository.save(s);
@@ -235,7 +256,7 @@ public class AdminController {
 
     @PostMapping("/solicitudes/status/{id}")
     public String updateSolicitudStatus(@PathVariable Long id, @RequestParam String estado, RedirectAttributes ra) {
-        Solicitud s = solicitudRepository.findById(id).orElseThrow(() -> new RuntimeException("Solicitud not found: " + id));
+        Solicitud s = solicitudRepository.findById(id).orElseThrow(() -> new RuntimeException("Solicitud no encontrada"));
         s.setEstado(estado);
         solicitudRepository.save(s);
         ra.addFlashAttribute("success", "Solicitud actualizada");
@@ -276,7 +297,7 @@ public class AdminController {
                                    HttpServletRequest request, Authentication auth,
                                    RedirectAttributes ra) {
         try {
-            Payment p = paymentRepository.findById(paymentId).orElseThrow(() -> new RuntimeException("Payment not found: " + paymentId));
+            Payment p = paymentRepository.findById(paymentId).orElseThrow(() -> new RuntimeException("Pago no encontrado"));
             p.setProcessed(true);
             Payment saved = paymentRepository.save(p);
 
@@ -336,7 +357,7 @@ public class AdminController {
 
     @PostMapping("/config/update")
     public String updateConfig(@RequestParam Long id, @RequestParam String configValue, HttpServletRequest request, Authentication auth, RedirectAttributes ra) {
-        SystemConfig config = systemConfigRepository.findById(id).orElseThrow(() -> new RuntimeException("Config not found: " + id));
+        SystemConfig config = systemConfigRepository.findById(id).orElseThrow(() -> new RuntimeException("Config no encontrada"));
         String oldVal = config.getConfigValue();
         config.setConfigValue(configValue);
         systemConfigRepository.save(config);
@@ -354,6 +375,29 @@ public class AdminController {
         }
         ra.addFlashAttribute("success", "Configuraci&oacute;n eliminada");
         return "redirect:/admin/config";
+    }
+
+    @PostMapping("/migrate-encryption")
+    @ResponseBody
+    @Transactional
+    public String migrateEncryption(Authentication auth) {
+        User currentAdmin = userRepository.findByUsername(auth.getName()).orElse(null);
+        if (currentAdmin == null || currentAdmin.getDepartamento() != null) {
+            return "Solo administradores generales pueden migrar";
+        }
+        List<User> users = userRepository.findAll();
+        int count = 0;
+        for (User user : users) {
+            boolean changed = false;
+            if (user.getEmail() != null) { user.setEmail(user.getEmail()); changed = true; }
+            if (user.getTelefono() != null) { user.setTelefono(user.getTelefono()); changed = true; }
+            if (user.getNit() != null) { user.setNit(user.getNit()); changed = true; }
+            if (changed) {
+                userRepository.save(user);
+                count++;
+            }
+        }
+        return "Migración completada. " + count + " usuarios re-encryptados al nuevo formato AES/GCM.";
     }
 
     @GetMapping("/mensajes")

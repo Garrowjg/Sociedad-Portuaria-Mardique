@@ -250,7 +250,7 @@ public class UserController {
 
     @GetMapping("/profile")
     public String profile(Model model, Authentication auth) {
-        User user = userRepository.findByUsername(auth.getName()).orElseThrow(() -> new RuntimeException("User not found: " + auth.getName()));
+        User user = userRepository.findByUsername(auth.getName()).orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
         model.addAttribute("profileUser", user);
         return "UserProfile";
     }
@@ -262,7 +262,11 @@ public class UserController {
                                   @RequestParam(required = false) String telefono,
                                   Authentication auth,
                                   RedirectAttributes ra) {
-        User user = userRepository.findByUsername(auth.getName()).orElseThrow(() -> new RuntimeException("User not found: " + auth.getName()));
+        User user = userRepository.findByUsername(auth.getName()).orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+        if (email != null && !email.matches("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$")) {
+            ra.addFlashAttribute("error", "El formato del email no es válido");
+            return "redirect:/user/profile";
+        }
         user.setEmail(email);
         user.setNombres(nombres);
         user.setApellidos(apellidos);
