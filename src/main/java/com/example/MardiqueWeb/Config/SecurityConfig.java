@@ -32,7 +32,7 @@ public class SecurityConfig {
                                 "/tarifas", "/tramites-en-linea", "/galeria", "/contacto",
                                 "/contacto/pqrs", "/contacto/message", "/sesion-activa", "/error",
                                 "/css/**", "/js/**", "/images/**", "/videos/**", "/uploads/**",
-                                "/login", "/register", "/intranet/**").permitAll()
+                                "/login", "/register", "/intranet/**", "/api/chatbot/**").permitAll()
                         .requestMatchers("/admin/**").hasRole("ADMIN")
                         .requestMatchers("/editor/**").hasRole("EDITOR")
                         .requestMatchers("/user/**").hasRole("USER")

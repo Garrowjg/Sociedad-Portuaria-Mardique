@@ -1,12 +1,9 @@
 package com.example.MardiqueWeb.Controller;
 
-import com.example.MardiqueWeb.Config.CustomAuthenticationFailureHandler;
 import com.example.MardiqueWeb.Entity.*;
 import com.example.MardiqueWeb.Repository.*;
-import com.example.MardiqueWeb.Service.AuditService;
-import com.example.MardiqueWeb.Service.CloudinaryService;
-import com.example.MardiqueWeb.Service.EncryptionService;
-import com.example.MardiqueWeb.Service.PdfService;
+import com.example.MardiqueWeb.Service.*;
+import com.example.MardiqueWeb.Config.CustomAuthenticationFailureHandler;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.AccessDeniedException;
@@ -23,7 +20,9 @@ import org.springframework.data.domain.Sort;
 import org.springframework.transaction.annotation.Transactional;
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Controller
 @RequestMapping("/admin")
@@ -64,6 +63,9 @@ public class AdminController {
 
     @Autowired
     private EncryptionService encryptionService;
+
+    @Autowired
+    private KnowledgeBaseService knowledgeBaseService;
 
     private static final Set<String> ALLOWED_EXTENSIONS = Set.of("pdf", "png", "jpg", "jpeg", "gif", "webp");
 
@@ -417,6 +419,60 @@ public class AdminController {
         }
         ra.addFlashAttribute("success", "Configuraci&oacute;n eliminada");
         return "redirect:/admin/config";
+    }
+
+    @GetMapping("/chatbot")
+    public String chatbotAdmin(Model model) {
+        List<KnowledgeChunk> allChunks = knowledgeBaseService.findAll();
+        Map<String, List<KnowledgeChunk>> grouped = allChunks.stream()
+                .collect(Collectors.groupingBy(KnowledgeChunk::getSource));
+        model.addAttribute("chunks", allChunks);
+        model.addAttribute("groupedChunks", grouped);
+        model.addAttribute("chunkCount", allChunks.size());
+        model.addAttribute("sourceCount", grouped.size());
+        return "AdminChatbot";
+    }
+
+    @PostMapping("/chatbot/upload")
+    public String chatbotUpload(@RequestParam("file") MultipartFile file, RedirectAttributes ra) {
+        if (file.isEmpty()) {
+            ra.addFlashAttribute("error", "Selecciona un archivo PDF");
+            return "redirect:/admin/chatbot";
+        }
+        String filename = file.getOriginalFilename();
+        if (filename == null || !filename.toLowerCase().endsWith(".pdf")) {
+            ra.addFlashAttribute("error", "Solo se permiten archivos PDF");
+            return "redirect:/admin/chatbot";
+        }
+        try {
+            int chunks = knowledgeBaseService.processPdf(file, filename);
+            ra.addFlashAttribute("success", "PDF procesado: " + chunks + " fragmentos generados desde \"" + filename + "\"");
+        } catch (Exception e) {
+            ra.addFlashAttribute("error", "Error al procesar el PDF: " + e.getMessage());
+        }
+        return "redirect:/admin/chatbot";
+    }
+
+    @PostMapping("/chatbot/text")
+    public String chatbotText(@RequestParam String title, @RequestParam String content, RedirectAttributes ra) {
+        if (title == null || title.isBlank() || content == null || content.isBlank()) {
+            ra.addFlashAttribute("error", "Completa todos los campos");
+            return "redirect:/admin/chatbot";
+        }
+        try {
+            int chunks = knowledgeBaseService.processRawText(content, title);
+            ra.addFlashAttribute("success", "Texto agregado: " + chunks + " fragmentos generados desde \"" + title + "\"");
+        } catch (Exception e) {
+            ra.addFlashAttribute("error", "Error al procesar el texto: " + e.getMessage());
+        }
+        return "redirect:/admin/chatbot";
+    }
+
+    @PostMapping("/chatbot/delete")
+    public String chatbotDelete(@RequestParam String source, RedirectAttributes ra) {
+        knowledgeBaseService.deleteBySource(source);
+        ra.addFlashAttribute("success", "Documento \"" + source + "\" eliminado de la base de conocimiento");
+        return "redirect:/admin/chatbot";
     }
 
     @PostMapping("/migrate-encryption")

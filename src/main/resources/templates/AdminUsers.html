@@ -74,6 +74,7 @@
                 <li><a href="/admin/solicitudes"><i class="fas fa-file-alt"></i> Solicitudes</a></li>
                 <li><a href="/admin/mensajes"><i class="fas fa-envelope"></i> Mensajes</a></li>
                 <li><a href="/admin/payments"><i class="fas fa-credit-card"></i> Pagos</a></li>
+                <li th:if="${isFullAdmin}"><a href="/admin/chatbot" th:classappend="${currentPage == 'chatbot' ? 'active' : ''}"><i class="fas fa-robot"></i> Chatbot</a></li>
                 <li><a href="/admin/config"><i class="fas fa-cog"></i> Config</a></li>
             </ul>
         </nav>
@@ -390,6 +391,7 @@
         <a href="/admin/solicitudes"><i class="fas fa-file-alt"></i> Solicitudes</a>
         <a href="/admin/mensajes"><i class="fas fa-envelope"></i> Mensajes</a>
         <a href="/admin/payments"><i class="fas fa-credit-card"></i> Pagos</a>
+        <a th:if="${isFullAdmin}" href="/admin/chatbot" th:classappend="${currentPage == 'chatbot' ? 'active' : ''}"><i class="fas fa-robot"></i> Chatbot</a>
         <a href="/admin/config"><i class="fas fa-cog"></i> Config</a>
         <div class="drawer-divider"></div>
         <button class="drawer-logout-btn" onclick="closeDrw();document.getElementById('logoutModal').classList.add('show')">

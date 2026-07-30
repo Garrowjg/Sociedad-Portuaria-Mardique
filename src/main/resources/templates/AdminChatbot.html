@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chatbot — Admin Mardique</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/css/panel-nav.css">
+    <link rel="stylesheet" href="/css/inicio.css">
+    <link rel="stylesheet" href="/css/portal.css">
+    <style>
+        body{opacity:0;animation:pageFadeIn .4s ease forwards!important}
+        @keyframes pageFadeIn{from{opacity:0}to{opacity:1}}
+        .msg{padding:14px 18px;border-radius:var(--r);font-size:13px;margin-bottom:24px;display:flex;align-items:center;gap:10px;}
+        .msg-success{background:#f0fdf4;border:1px solid #bbf7d0;color:#16a34a;}
+        .msg-error{background:#fef2f2;border:1px solid #fecaca;color:#dc2626;}
+        .chunk-preview{font-size:12px;color:#64748b;max-height:60px;overflow:hidden;text-overflow:ellipsis;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;}
+        .badge-pdf{background:#fef3c7;color:#d97706;}
+        .badge-text{background:#e0f2fe;color:#0284c7;}
+        .source-group{background:var(--sur);border-radius:var(--rl);padding:16px;margin-bottom:16px;border:1.5px solid var(--bdr);}
+        .source-title{font-weight:700;font-size:14px;color:var(--pd);margin-bottom:8px;}
+        .source-count{font-size:11px;color:var(--mx);}
+        pre{background:#1e293b;color:#e2e8f0;padding:16px;border-radius:var(--r);font-size:12px;overflow-x:auto;margin:0;}
+        .api-box{background:#fffbeb;border:1px solid #fde68a;border-radius:var(--r);padding:16px;margin-top:16px;}
+        .api-box code{background:#1e293b;color:#e2e8f0;padding:8px 12px;border-radius:6px;font-size:12px;display:block;margin-top:8px;}
+    </style>
+</head>
+<body>
+<div id="scroll-progress"></div>
+<header id="main-header">
+    <div class="hdr header-content">
+        <a href="/admin/dashboard" class="logo-box">
+            <img src="/images/Logo.png" alt="Mardique">
+        </a>
+        <nav>
+            <ul class="nav-menu">
+                <li><a href="/admin/dashboard"><i class="fas fa-chart-pie"></i> Dashboard</a></li>
+                <li th:if="${isFullAdmin}"><a href="/admin/users"><i class="fas fa-users-cog"></i> Usuarios</a></li>
+                <li><a href="/admin/solicitudes"><i class="fas fa-file-alt"></i> Solicitudes</a></li>
+                <li><a href="/admin/mensajes"><i class="fas fa-envelope"></i> Mensajes</a></li>
+                <li><a href="/admin/payments"><i class="fas fa-credit-card"></i> Pagos</a></li>
+                <li th:if="${isFullAdmin}" class="active"><a href="/admin/chatbot"><i class="fas fa-robot"></i> Chatbot</a></li>
+                <li th:if="${isFullAdmin}"><a href="/admin/config"><i class="fas fa-cog"></i> Config</a></li>
+            </ul>
+        </nav>
+        <div class="hdr-right">
+            <span class="hdr-user" th:text="${#authentication.name}">admin</span>
+            <button class="btn-logout" onclick="document.getElementById('logoutModal').classList.add('show')">
+                <i class="fas fa-sign-out-alt"></i> Salir
+            </button>
+        </div>
+        <button class="mobile-menu-toggle" id="mobileToggle" aria-label="Abrir menú">
+            <span></span><span></span><span></span>
+        </button>
+    </div>
+</header>
+
+<div class="phero">
+    <div class="phw-glow"></div>
+    <div class="phero-floaters">
+        <i class="fas fa-robot"></i>
+        <i class="fas fa-brain"></i>
+        <i class="fas fa-file-alt"></i>
+        <i class="fas fa-comment-dots"></i>
+    </div>
+    <div class="phw-container">
+        <div class="phero-grid">
+            <div class="phero-main">
+                <div class="phero-badge"><i class="fas fa-robot"></i> Administrar Chatbot</div>
+                <h1>Base de <strong>Conocimiento</strong></h1>
+                <p>Sube PDFs o escribe texto para que el chatbot aprenda sobre la empresa y responda preguntas.</p>
+                <div class="phero-actions">
+                    <a href="/admin/chatbot" class="btn btn-gold"><i class="fas fa-sync-alt"></i> Actualizar</a>
+                    <a href="/admin/dashboard" class="btn btn-outline-w"><i class="fas fa-chart-pie"></i> Dashboard</a>
+                </div>
+            </div>
+            <div class="phero-card">
+                <div class="phero-card-head">
+                    <span class="phero-card-name"><i class="fas fa-database"></i> Conocimiento</span>
+                    <span class="phw-status"><i class="fas fa-circle"></i> Activo</span>
+                </div>
+                <div class="phw-stats">
+                    <div class="phw-stat">
+                        <div class="phw-stat-ico"><i class="fas fa-file"></i></div>
+                        <div><div class="phw-stat-num" th:text="${chunkCount}">0</div><div class="phw-stat-lbl">Fragmentos</div></div>
+                    </div>
+                    <div class="phw-stat">
+                        <div class="phw-stat-ico"><i class="fas fa-layer-group"></i></div>
+                        <div><div class="phw-stat-num" th:text="${sourceCount}">0</div><div class="phw-stat-lbl">Documentos</div></div>
+                    </div>
+                    <div class="phw-stat">
+                        <div class="phw-stat-ico"><i class="fas fa-robot"></i></div>
+                        <div><div class="phw-stat-num">Llama 3</div><div class="phw-stat-lbl">Modelo IA</div></div>
+                    </div>
+                    <div class="phw-stat">
+                        <div class="phw-stat-ico"><i class="fas fa-globe"></i></div>
+                        <div><div class="phw-stat-num">P&uacute;blico</div><div class="phw-stat-lbl">Acceso</div></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="phw-wave">
+        <svg viewBox="0 0 1440 60" preserveAspectRatio="none"><path d="M0,32 C240,60 480,4 720,20 C960,36 1200,58 1440,28 L1440,60 L0,60 Z" fill="#f0f4f8"/></svg>
+    </div>
+</div>
+
+<div class="body">
+    <div th:if="${success}" class="msg msg-success reveal">
+        <i class="fas fa-check-circle"></i> <span th:text="${success}">Documento procesado correctamente</span>
+    </div>
+    <div th:if="${error}" class="msg msg-error reveal">
+        <i class="fas fa-exclamation-circle"></i> <span th:text="${error}">Error al procesar el documento</span>
+    </div>
+
+    <div class="stats-row reveal">
+        <div class="stat-box" style="cursor:pointer;" onclick="document.getElementById('uploadPdfModal').classList.add('show')">
+            <div class="stat-ico" style="background: rgba(240, 154, 54, 0.12); color: var(--ag);">
+                <i class="fas fa-file-pdf"></i>
+            </div>
+            <div>
+                <div class="stat-num" style="font-size:14px;">Subir PDF</div>
+                <div class="stat-lbl">Alimenta el chatbot con documentos</div>
+            </div>
+        </div>
+        <div class="stat-box" style="cursor:pointer;" onclick="document.getElementById('manualTextModal').classList.add('show')">
+            <div class="stat-ico" style="background: rgba(0, 163, 224, 0.12); color: var(--ac);">
+                <i class="fas fa-pen-fancy"></i>
+            </div>
+            <div>
+                <div class="stat-num" style="font-size:14px;">Agregar Texto</div>
+                <div class="stat-lbl">Escribe informaci&oacute;n manualmente</div>
+            </div>
+        </div>
+        <div class="stat-box" onclick="document.getElementById('apiInfoModal').classList.add('show')" style="cursor:pointer;">
+            <div class="stat-ico" style="background: rgba(139, 92, 246, 0.12); color: #8b5cf6;">
+                <i class="fas fa-code"></i>
+            </div>
+            <div>
+                <div class="stat-num" style="font-size:14px;">API Key</div>
+                <div class="stat-lbl">Ver c&oacute;mo configurar</div>
+            </div>
+        </div>
+    </div>
+
+    <div th:each="entry : ${groupedChunks}" class="source-group reveal">
+        <div class="source-title">
+            <i th:class="${entry.key.endsWith('.pdf') ? 'fas fa-file-pdf' : 'fas fa-file-alt'}" style="margin-right:8px;"></i>
+            <span th:text="${entry.key}">documento.pdf</span>
+            <span class="source-count" th:text="|(${#lists.size(entry.value)} fragmentos)|"></span>
+            <form th:action="@{/admin/chatbot/delete}" method="post" style="display:inline;float:right;">
+                <input type="hidden" name="source" th:value="${entry.key}">
+                <button type="submit" class="btn btn-red" style="padding:4px 10px;font-size:11px;" onclick="return confirm('¿Eliminar todos los fragmentos de este documento?')">
+                    <i class="fas fa-trash"></i> Eliminar
+                </button>
+            </form>
+        </div>
+        <div th:each="chunk : ${entry.value}" style="padding:8px 0;border-bottom:1px solid var(--bdr);">
+            <div style="font-size:11px;color:var(--mx);margin-bottom:2px;" th:text="${chunk.section}">Parte 1</div>
+            <div class="chunk-preview" th:text="${chunk.content}">Contenido del fragmento...</div>
+        </div>
+    </div>
+
+    <div th:if="${#lists.isEmpty(chunks)}" class="empty-state" style="margin:40px 0;">
+        <i class="fas fa-robot"></i>
+        <p>No hay informaci&oacute;n en la base de conocimiento. Sube PDFs o agrega texto para empezar.</p>
+    </div>
+</div>
+
+<div class="modal-overlay" id="uploadPdfModal">
+    <div class="modal-box">
+        <h2><i class="fas fa-file-pdf" style="color:var(--ag);"></i> Subir PDF</h2>
+        <p style="text-align:center;color:var(--mx);font-size:13px;margin-bottom:20px;">El texto se extraer&aacute; autom&aacute;ticamente y se dividir&aacute; en fragmentos para alimentar al chatbot.</p>
+        <form method="post" th:action="@{/admin/chatbot/upload}" enctype="multipart/form-data">
+            <div class="form-group">
+                <label>Archivo PDF</label>
+                <input type="file" name="file" accept=".pdf,application/pdf" required style="width:100%;padding:10px;border:1.5px solid var(--bdr);border-radius:var(--r);font-size:13px;">
+            </div>
+            <div class="modal-actions">
+                <button type="button" class="btn-cancel" onclick="document.getElementById('uploadPdfModal').classList.remove('show')">Cancelar</button>
+                <button type="submit" class="btn btn-gold"><i class="fas fa-upload"></i> Subir y Procesar</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="modal-overlay" id="manualTextModal">
+    <div class="modal-box">
+        <h2><i class="fas fa-pen-fancy" style="color:var(--ac);"></i> Agregar Texto Manual</h2>
+        <p style="text-align:center;color:var(--mx);font-size:13px;margin-bottom:20px;">Escribe informaci&oacute;n sobre la empresa, servicios, tarifas, etc.</p>
+        <form method="post" th:action="@{/admin/chatbot/text}">
+            <div class="form-group">
+                <label>T&iacute;tulo / Fuente</label>
+                <input type="text" name="title" placeholder="Ej: Informaci&oacute;n General de Mardique" required style="width:100%;padding:10px 14px;border:1.5px solid var(--bdr);border-radius:var(--r);font-size:13px;font-family:inherit;">
+            </div>
+            <div class="form-group">
+                <label>Contenido</label>
+                <textarea name="content" rows="8" placeholder="Escribe aqu&iacute; la informaci&oacute;n que quieres que el chatbot conozca..." required style="width:100%;padding:10px 14px;border:1.5px solid var(--bdr);border-radius:var(--r);font-size:13px;font-family:inherit;resize:vertical;"></textarea>
+            </div>
+            <div class="modal-actions">
+                <button type="button" class="btn-cancel" onclick="document.getElementById('manualTextModal').classList.remove('show')">Cancelar</button>
+                <button type="submit" class="btn btn-gold"><i class="fas fa-save"></i> Agregar</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="modal-overlay" id="apiInfoModal">
+    <div class="modal-box">
+        <h2><i class="fas fa-key"></i> Configurar API Key</h2>
+        <p style="text-align:center;color:var(--mx);font-size:13px;margin-bottom:20px;">El chatbot usa <strong>Groq API</strong> con el modelo <strong>Llama 3 70B</strong>. Es gratis.</p>
+        <div class="api-box">
+            <strong>1. Obt&eacute;n tu API Key:</strong>
+            <p style="font-size:12px;color:var(--mx);margin:8px 0;">Ve a <a href="https://console.groq.com" target="_blank">console.groq.com</a>, reg&iacute;strate y genera una API Key gratuita.</p>
+            <strong>2. Configura en Railway:</strong>
+            <code>GROQ_API_KEY=tu_api_key_aqui</code>
+            <strong>3. O localmente en IntelliJ:</strong>
+            <code>GROQ_API_KEY=tu_api_key_aqui</code>
+        </div>
+        <div class="modal-actions">
+            <button type="button" class="btn-cancel" onclick="document.getElementById('apiInfoModal').classList.remove('show')">Cerrar</button>
+        </div>
+    </div>
+</div>
+
+<div class="modal-overlay" id="logoutModal">
+    <div class="modal-box">
+        <i class="fas fa-sign-out-alt" style="font-size: 46px; color: var(--ag); margin-bottom: 12px; display: block;"></i>
+        <h2>Cerrar Sesi&oacute;n</h2>
+        <p>¿Estás seguro de que deseas cerrar tu sesi&oacute;n?</p>
+        <div class="modal-actions">
+            <button type="button" class="btn-cancel" onclick="document.getElementById('logoutModal').classList.remove('show')">Cancelar</button>
+            <a href="/logout" class="btn btn-red"><i class="fas fa-sign-out-alt"></i> Cerrar Sesi&oacute;n</a>
+        </div>
+    </div>
+</div>
+
+<div class="drawer-overlay" id="drawerOverlay"></div>
+<nav class="mobile-nav-drawer" id="mobileDrawer" aria-label="Menú móvil">
+    <div class="drawer-header">
+        <img src="/images/Logo.png" alt="Mardique">
+        <button class="drawer-close" id="drawerClose" aria-label="Cerrar menú">&times;</button>
+    </div>
+    <div class="drawer-nav">
+        <a href="/admin/dashboard"><i class="fas fa-chart-pie"></i> Dashboard</a>
+        <a th:if="${isFullAdmin}" href="/admin/users"><i class="fas fa-users-cog"></i> Usuarios</a>
+        <a href="/admin/solicitudes"><i class="fas fa-file-alt"></i> Solicitudes</a>
+        <a href="/admin/mensajes"><i class="fas fa-envelope"></i> Mensajes</a>
+        <a href="/admin/payments"><i class="fas fa-credit-card"></i> Pagos</a>
+        <a th:if="${isFullAdmin}" href="/admin/chatbot" class="active"><i class="fas fa-robot"></i> Chatbot</a>
+        <a th:if="${isFullAdmin}" href="/admin/config"><i class="fas fa-cog"></i> Config</a>
+        <div class="drawer-divider"></div>
+        <button class="drawer-logout-btn" onclick="closeDrw();document.getElementById('logoutModal').classList.add('show')">
+            <i class="fas fa-sign-out-alt"></i> Cerrar Sesi&oacute;n
+        </button>
+    </div>
+</nav>
+
+<script>
+    const progressBar = document.getElementById('scroll-progress');
+    window.addEventListener('scroll', () => {
+        if (progressBar) progressBar.style.width = (window.scrollY / (document.documentElement.scrollHeight - window.innerHeight) * 100) + '%';
+    }, { passive: true });
+    const mainHdr = document.getElementById('main-header');
+    window.addEventListener('scroll', () => { mainHdr.classList.toggle('scrolled', window.scrollY > 60); }, { passive: true });
+    const obs = new IntersectionObserver(entries => { entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); }); }, { threshold: 0.1 });
+    document.querySelectorAll('.reveal').forEach(el => obs.observe(el));
+    document.getElementById('logoutModal').addEventListener('click', function(e) { if (e.target === this) this.classList.remove('show'); });
+    document.getElementById('uploadPdfModal')?.addEventListener('click', function(e) { if (e.target === this) this.classList.remove('show'); });
+    document.getElementById('manualTextModal')?.addEventListener('click', function(e) { if (e.target === this) this.classList.remove('show'); });
+    document.getElementById('apiInfoModal')?.addEventListener('click', function(e) { if (e.target === this) this.classList.remove('show'); });
+
+    const tog = document.getElementById('mobileToggle');
+    const drw = document.getElementById('mobileDrawer');
+    const ov = document.getElementById('drawerOverlay');
+    const cl = document.getElementById('drawerClose');
+    function openDrw() { drw.classList.add('open'); ov.classList.add('open'); tog.classList.add('open'); document.body.style.overflow = 'hidden'; }
+    function closeDrw() { drw.classList.remove('open'); ov.classList.remove('open'); tog.classList.remove('open'); document.body.style.overflow = ''; }
+    tog && tog.addEventListener('click', () => drw.classList.contains('open') ? closeDrw() : openDrw());
+    cl && cl.addEventListener('click', closeDrw);
+    ov && ov.addEventListener('click', closeDrw);
+</script>
+<script src="/js/panel-nav.js"></script>
+<a href="/admin/dashboard" class="float-home" aria-label="Ir a inicio"><i class="fas fa-home"></i></a>
+</body>
+</html>
