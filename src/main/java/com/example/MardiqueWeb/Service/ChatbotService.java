@@ -11,12 +11,16 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
 public class ChatbotService {
+
+    private static final Logger log = LoggerFactory.getLogger(ChatbotService.class);
 
     @Value("${groq.api.key}")
     private String groqApiKey;
@@ -26,7 +30,7 @@ public class ChatbotService {
 
     private final RestTemplate restTemplate = new RestTemplate();
     private static final String GROQ_URL = "https://api.groq.com/openai/v1/chat/completions";
-    private static final String MODEL = "llama3-70b-8192";
+    private static final String MODEL = "llama-3.3-70b-versatile";
 
     public String ask(String question) {
         String context = findRelevantContext(question);
@@ -94,6 +98,7 @@ public class ChatbotService {
             }
             return "Lo siento, no pude procesar tu consulta en este momento.";
         } catch (Exception e) {
+            log.error("Groq API error: {}", e.getMessage(), e);
             return "Lo siento, ocurrió un error al procesar tu consulta. Intenta de nuevo más tarde.";
         }
     }

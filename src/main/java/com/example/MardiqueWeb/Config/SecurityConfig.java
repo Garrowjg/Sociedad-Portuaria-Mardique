@@ -59,7 +59,8 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.ignoringRequestMatchers(
                         new AntPathRequestMatcher("/contacto/pqrs"),
                         new AntPathRequestMatcher("/contacto/message"),
-                        new AntPathRequestMatcher("/admin/migrate-encryption")))
+                        new AntPathRequestMatcher("/admin/migrate-encryption"),
+                        new AntPathRequestMatcher("/api/chatbot/**")))
                 .headers(headers -> headers
                         .xssProtection(xss -> xss.headerValue(XXssProtectionHeaderWriter.HeaderValue.ENABLED_MODE_BLOCK))
                         .contentSecurityPolicy(csp -> csp.policyDirectives(
