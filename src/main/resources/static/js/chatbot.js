@@ -1,5 +1,6 @@
 (function() {
     const STORAGE_KEY = 'mardique_chat_history';
+    const SESSION_KEY = 'mardique_chat_session';
     const MAX_CHARS = 200;
     const WELCOME = '¡Hola! Soy el asistente virtual de Sociedad Portuaria Mardique. ¿En qué puedo ayudarte?';
 
@@ -45,6 +46,10 @@
 
     function loadChat() { try { return JSON.parse(sessionStorage.getItem(STORAGE_KEY)) || []; } catch(e) { return []; } }
     function saveChat(msgs) { try { sessionStorage.setItem(STORAGE_KEY, JSON.stringify(msgs)); } catch(e) {} }
+
+    let sessionId = '';
+    function loadSession() { try { sessionId = sessionStorage.getItem(SESSION_KEY) || ''; } catch(e) { sessionId = ''; } }
+    function saveSession(id) { if (!id) return; sessionId = id; try { sessionStorage.setItem(SESSION_KEY, id); } catch(e) {} }
 
     const CONTACT_AREAS = [
         'Gerente Comercial', 'Representante Legal', 'Gerente de Operaciones',
@@ -671,7 +676,7 @@
             return fetch('/api/chatbot/ask', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ question: question, repeatCount: blockedRepeat }),
+                body: JSON.stringify({ question: question, repeatCount: blockedRepeat, sessionId: sessionId }),
                 signal: controller.signal
             })
                 .then(function(r) { return r.json(); })
@@ -680,6 +685,7 @@
                     answer = data.answer || 'Lo siento, no pude procesar tu consulta.';
                     showForm = data.form === true;
                     wasBlocked = data.blocked === true;
+                    if (data.sessionId) saveSession(data.sessionId);
                     finalize();
                 })
                 .catch(function(err) {
@@ -694,13 +700,15 @@
         fetch('/api/chatbot/ask/stream', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ question: question, repeatCount: blockedRepeat }),
+            body: JSON.stringify({ question: question, repeatCount: blockedRepeat, sessionId: sessionId }),
             signal: streamController.signal
         })
             .then(function(response) {
                 if (!response.ok || !response.body) {
                     throw new Error('stream not available');
                 }
+                const sid = response.headers.get('X-Session-Id');
+                if (sid) saveSession(sid);
                 var reader = response.body.getReader();
                 var decoder = new TextDecoder('utf-8');
                 var buffer = '';
@@ -773,6 +781,7 @@
     /* ---------- Events ---------- */
 
     function openModal() {
+        loadSession();
         loadFaqs();
         modal.classList.remove('closing');
         modal.classList.add('open');
@@ -840,6 +849,7 @@
 
     window.addEventListener('beforeunload', function() {
         sessionStorage.removeItem(STORAGE_KEY);
+        sessionStorage.removeItem(SESSION_KEY);
     });
 
     loadFaqs();

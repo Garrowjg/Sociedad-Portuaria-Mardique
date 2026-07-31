@@ -98,7 +98,22 @@ public class ChatbotService {
             "lineas", "comunicarme", "cita", "reunion", "agendar", "tarifario", "naviero", "naviera",
             "empresa", "compania", "spmardique", "informacion", "servicios", "zona", "franca",
             "calado", "eslora", "manga", "registro", "requisitos", "cotizacion", "cotizar", "maniobra",
-            "maniobras", "seguimiento", "carga", "descarga", "cliente"
+            "maniobras", "seguimiento", "carga", "descarga", "cliente",
+            // Comercio exterior / import-export
+            "exportacion", "exportaciones", "exportar", "exportan", "importacion", "importaciones",
+            "importar", "importan", "comercio exterior", "mercancia", "mercancias", "comprador",
+            "vendedor", "trasbordo", "trasbordos", "cabotaje", "cabotajes", "multimodal",
+            // Tipos de carga / graneles agrícolas y minerales que maneja el puerto
+            "maiz", "cereal", "cereales", "soya", "trigo", "azucar", "carbon", "clinker", "cemento",
+            "acero", "fertilizante", "fertilizantes", "combustible", "combustibles", "petroleo",
+            "crudo", "crudos", "gas", "quimico", "quimicos", "mineral", "minerales", "biodiesel",
+            "melaza", "arroz",
+            // Infraestructura y operación
+            "silo", "silos", "almacenamiento", "almacenaje", "bodega", "bodegas", "patio", "patios",
+            "terminal", "terminales", "navegacion", "atraque", "fondeo", "practico", "practicaje",
+            "pilotaje", "shore base", "rio magdalena", "canal del dique", "bahia de cartagena",
+            "cormagdalena", "cardique", "concesion", "licencia ambiental", "capacidad", "toneladas",
+            "empleados", "trabajadores", "sostenibilidad", "seguridad industrial", "medio ambiente"
     };
 
     private static final String[] CONTACT_INTENT_KEYWORDS = {
@@ -117,13 +132,28 @@ public class ChatbotService {
             "gusto", "mucho gusto", "encantado", "hello", "hi", "ey", "oye", "buen dia", "buenas"
     };
 
+    // Sobrecargas sin historial, por compatibilidad con llamadas existentes desde el controller.
     public Map<String, Object> ask(String question, int repeatCount) {
+        return ask(question, repeatCount, List.of());
+    }
+
+    public void askStream(String question, int repeatCount, SseEmitter emitter) {
+        askStream(question, repeatCount, List.of(), emitter, answer -> {});
+    }
+
+    /**
+     * @param history mensajes previos de la conversación en orden cronológico, cada uno como
+     *                Map.of("role", "user"|"assistant", "content", "..."). Es lo que permite que
+     *                el modelo recuerde de qué se viene hablando y no repita siempre lo mismo
+     *                ante preguntas de seguimiento o reformuladas.
+     */
+    public Map<String, Object> ask(String question, int repeatCount, List<Map<String, String>> history) {
         int tier = Math.min(Math.max(repeatCount, 0), 2);
 
         // 1. Saludo / conversación casual -> la IA responde normalmente
         if (isGreeting(question)) {
             String context = findRelevantContext(question);
-            String answer = callGroq(buildSystemPrompt(context, tier), question);
+            String answer = callGroq(buildSystemPrompt(context, tier), question, history);
             return Map.of("answer", answer, "form", false, "blocked", false);
         }
 
@@ -149,41 +179,56 @@ public class ChatbotService {
             return Map.of("answer", OFF_TOPIC_TIERS[tier], "form", false, "blocked", true);
         }
 
-        // 6. Siempre se deja responder a la IA (con o sin contexto). El propio
-        //    system prompt le indica cómo comportarse cuando no hay contexto,
-        //    y al usar el modelo la redacción varía en cada intento en vez de
-        //    repetir siempre el mismo texto enlatado.
+        // 6. Siempre se deja responder a la IA (con o sin contexto), pasándole el historial
+        //    real de la conversación para que pueda profundizar, dar ángulos nuevos y no
+        //    repetir la misma respuesta enlatada ante preguntas parecidas.
         String systemPrompt = buildSystemPrompt(context, tier);
-        String answer = callGroq(systemPrompt, question);
+        String answer = callGroq(systemPrompt, question, history);
         return Map.of("answer", sanitizeContext(answer), "form", false, "blocked", context.isEmpty());
     }
 
-    public void askStream(String question, int repeatCount, SseEmitter emitter) {
+    public void askStream(String question, int repeatCount, List<Map<String, String>> history, SseEmitter emitter) {
+        askStream(question, repeatCount, history, emitter, answer -> {});
+    }
+
+    /**
+     * @param onComplete se invoca exactamente una vez, al terminar, con el texto final que el
+     *                    usuario vio (ya sea el mensaje fijo de saludo/contacto/FAQ/fuera-de-tema,
+     *                    o el texto acumulado del streaming de la IA). Pensado para que el
+     *                    controller pueda persistir el turno completo en base de datos sin tener
+     *                    que reconstruirlo token a token.
+     */
+    public void askStream(String question, int repeatCount, List<Map<String, String>> history, SseEmitter emitter,
+                           java.util.function.Consumer<String> onComplete) {
         int tier = Math.min(Math.max(repeatCount, 0), 2);
         try {
             if (isGreeting(question)) {
-                streamGroq(buildSystemPrompt(findRelevantContext(question), tier), question, emitter, false, false);
+                streamGroq(buildSystemPrompt(findRelevantContext(question), tier), question, history, emitter, false, false, onComplete);
                 return;
             }
             if (isContactIntent(question)) {
-                sendEvent(emitter, CONTACT_REFUSAL_TIERS[tier], true, true);
+                String text = CONTACT_REFUSAL_TIERS[tier];
+                sendEvent(emitter, text, true, true, onComplete);
                 return;
             }
             Faq faq = findFaqMatch(question);
             if (faq != null) {
-                sendEvent(emitter, sanitizeContext(faq.getAnswer()), false, false);
+                String text = sanitizeContext(faq.getAnswer());
+                sendEvent(emitter, text, false, false, onComplete);
                 return;
             }
             String context = findRelevantContext(question);
             if (context.isEmpty() && isOffTopic(question)) {
-                sendEvent(emitter, OFF_TOPIC_TIERS[tier], false, true);
+                String text = OFF_TOPIC_TIERS[tier];
+                sendEvent(emitter, text, false, true, onComplete);
                 return;
             }
-            streamGroq(buildSystemPrompt(context, tier), question, emitter, false, context.isEmpty());
+            streamGroq(buildSystemPrompt(context, tier), question, history, emitter, false, context.isEmpty(), onComplete);
         } catch (Exception e) {
             log.error("Stream error: {}", e.getMessage(), e);
             try {
-                sendEvent(emitter, "Lo siento, ocurrió un error al procesar tu consulta.", false, false);
+                String text = "Lo siento, ocurrió un error al procesar tu consulta.";
+                sendEvent(emitter, text, false, false, onComplete);
             } catch (Exception ex) {
                 emitter.complete();
             }
@@ -285,15 +330,16 @@ public class ChatbotService {
 
     private String buildSystemPrompt(String context, int tier) {
         StringBuilder sb = new StringBuilder();
-        sb.append("Eres el asistente virtual de Sociedad Portuaria Mardique S.A., un puerto multipropósito ubicado en Cartagena, Colombia.\n\n");
-        sb.append("REGLAS ESTRICTAS:\n");
-        sb.append("- Responde EN MÁXIMO 3-4 líneas.\n");
-        sb.append("- Sé directo y preciso. No des listas largas ni párrafos enormes.\n");
-        sb.append("- Usa negritas para datos clave (nombres de áreas).\n");
+        sb.append("Eres el asistente virtual de Sociedad Portuaria Mardique S.A., un puerto multipropósito privado de uso público ubicado en Cartagena, Colombia.\n\n");
+        sb.append("REGLAS DE ESTILO:\n");
+        sb.append("- Adapta la extensión a la pregunta: para datos puntuales o saludos, 2-4 líneas; si el usuario pide que lo convenzas, que profundices o compares, puedes usar hasta 6-8 líneas o una lista corta con viñetas. Nunca sacrifiques información útil solo por acortar.\n");
+        sb.append("- Sé directo y concreto, evita relleno y frases de relleno vacías.\n");
+        sb.append("- Usa negritas para datos clave (nombres de áreas, cifras, ubicaciones).\n");
         sb.append("- Si el usuario te saluda (hola, buenos días, ¿cómo estás?) responde de forma amable y natural, preséntate brevemente y pregunta en qué le puedes ayudar. No des respuestas de máquina.\n");
-        sb.append("- Nunca inventes información. Si no lo sabes, dilo con tus propias palabras, sin sonar repetitivo.\n");
+        sb.append("- Nunca inventes información que no esté en este prompt, en el contexto entregado o en las FAQ. Si no tienes el dato exacto, dilo con naturalidad y ofrece una alternativa (contacto, formulario).\n");
         sb.append("- Usa un tono amable, cercano y profesional, como una persona real del equipo de atención, no como un script.\n");
-        sb.append("- IMPORTANTE: redacta cada respuesta con tus propias palabras. Nunca copies literalmente una respuesta anterior de esta conversación ni uses siempre la misma frase para decir lo mismo.\n\n");
+        sb.append("- MUY IMPORTANTE - VARÍA TUS RESPUESTAS: tienes abajo el HISTORIAL DE LA CONVERSACIÓN. Si el usuario pregunta algo parecido a lo que ya preguntó o insiste en el mismo tema con otras palabras, NO repitas la misma respuesta ni la misma estructura de frases. Aporta un ángulo, dato o ejemplo nuevo que no hayas mencionado antes en esta conversación, o profundiza un nivel más de detalle. Si de verdad no tienes nada nuevo que agregar, dilo con honestidad en vez de reciclar el mismo texto.\n");
+        sb.append("- Si el usuario pide que 'lo convenzas' de algo o pregunta '¿qué tan bueno es Mardique?', no repitas siempre la misma lista de servicios: elige un enfoque distinto cada vez (por ejemplo: ubicación estratégica y conectividad fluvial, experiencia operando cargas de gran volumen, capacidad de silos y almacenamiento, seguridad y cumplimiento ambiental, cifras de crecimiento, casos reales de operación).\n\n");
 
         sb.append("EJEMPLOS DE CÓMO CONVERSAR (no los copies literal, son solo guía de tono):\n");
         sb.append("Usuario: hola, buenas\n");
@@ -304,6 +350,15 @@ public class ChatbotService {
         sb.append("Asistente: No comparto datos de contacto directo por política de la empresa, pero si agendas tu solicitud aquí mismo, un representante del área te contacta enseguida. ¿Te ayudo a dejar la solicitud?\n\n");
         sb.append("Usuario: ¿cuál es la capital de Francia?\n");
         sb.append("Asistente: Eso se sale un poco de lo mío 😅 Mi fuerte son los temas de Mardique: servicios portuarios, tarifas, trámites y contacto. ¿Te ayudo con algo de eso?\n\n");
+
+        sb.append("DATOS REALES DE LA EMPRESA (puedes usarlos libremente, son públicos y verificados):\n");
+        sb.append("- Mardique es un puerto multipropósito privado de uso público, con conexión directa al río Magdalena a través del Canal del Dique y a la Bahía de Cartagena, lo que la conecta con el interior del país y con el resto del mundo.\n");
+        sb.append("- Es, por su posición estratégica, uno de los pocos puertos capaces de reducir trasbordos y cabotajes en operaciones de importación y exportación con conexión directa al interior de Colombia.\n");
+        sb.append("- Servicios principales: grúas móviles; infraestructura para manejo y almacenaje de hidrocarburos (con autorización del Ministerio de Minas y Energía para almacenamiento de crudos y combustibles líquidos); silos para graneles sólidos; manejo de carga general y de proyecto; shore base; manipulación de contenedores; y operaciones de transporte terrestre y fluvial.\n");
+        sb.append("- Mueve tanto graneles agrícolas (por ejemplo maíz amarillo, en operaciones de más de 50.000 toneladas por buque, a un ritmo de hasta 10.000 toneladas/día) como minerales e insumos para construcción (por ejemplo clinker a granel, en arribos de más de 60.000 toneladas).\n");
+        sb.append("- Cuenta con concesión portuaria otorgada por Cormagdalena y licencia ambiental otorgada por Cardique.\n");
+        sb.append("- Ubicada en Cartagena, Bolívar (corregimiento de Santa Ana / Isla de Barú, vía a Barú). Opera 24 horas, los 365 días del año; las oficinas administrativas atienden en horario hábil de lunes a viernes.\n");
+        sb.append("- Misión: prestar servicios portuarios y logísticos con excelencia y ventajas competitivas para sus usuarios y clientes. Visión: ser la terminal más importante de Colombia en servicios portuarios y logísticos, mediante una plataforma logística multimodal que impulse el comercio exterior del país.\n\n");
 
         if (context.isEmpty()) {
             sb.append("SITUACIÓN ACTUAL: no se encontró información específica en la base de conocimiento para esta pregunta.\n");
@@ -363,8 +418,33 @@ public class ChatbotService {
         return sb.toString();
     }
 
-    private String callGroq(String systemPrompt, String userMessage) {
+    /**
+     * Construye la lista de mensajes para Groq: system + historial real de la conversación
+     * (recortado a los últimos turnos para no disparar el consumo de tokens) + el mensaje actual.
+     * Pasar el historial es lo que le permite al modelo "recordar" de qué se viene hablando,
+     * en vez de responder siempre la misma frase genérica a preguntas parecidas.
+     */
+    private List<Map<String, String>> buildMessages(String systemPrompt, String userMessage, List<Map<String, String>> history) {
+        List<Map<String, String>> messages = new java.util.ArrayList<>();
+        messages.add(Map.of("role", "system", "content", systemPrompt));
+        if (history != null && !history.isEmpty()) {
+            int maxTurns = 12; // últimos ~12 mensajes (6 intercambios) para no saturar el contexto
+            int from = Math.max(0, history.size() - maxTurns);
+            for (Map<String, String> turn : history.subList(from, history.size())) {
+                String role = turn.getOrDefault("role", "user");
+                String content = turn.getOrDefault("content", "");
+                if (!content.isBlank()) {
+                    messages.add(Map.of("role", role, "content", content));
+                }
+            }
+        }
+        messages.add(Map.of("role", "user", "content", userMessage));
+        return messages;
+    }
+
+    private String callGroq(String systemPrompt, String userMessage, List<Map<String, String>> history) {
         String[] models = { groqModel, groqModelFallback };
+        List<Map<String, String>> messages = buildMessages(systemPrompt, userMessage, history);
         for (String model : models) {
             try {
                 HttpHeaders headers = new HttpHeaders();
@@ -373,12 +453,9 @@ public class ChatbotService {
 
                 Map<String, Object> requestBody = Map.of(
                         "model", model,
-                        "messages", List.of(
-                                Map.of("role", "system", "content", systemPrompt),
-                                Map.of("role", "user", "content", userMessage)
-                        ),
-                        "temperature", 0.5,
-                        "max_tokens", 300
+                        "messages", messages,
+                        "temperature", 0.65,
+                        "max_tokens", 600
                 );
 
                 HttpEntity<Map<String, Object>> request = new HttpEntity<>(requestBody, headers);
@@ -405,7 +482,7 @@ public class ChatbotService {
         return "Lo siento, ocurrió un error al procesar tu consulta. Intenta de nuevo más tarde.";
     }
 
-    private void sendEvent(SseEmitter emitter, String text, boolean form, boolean blocked) {
+    private void sendEvent(SseEmitter emitter, String text, boolean form, boolean blocked, java.util.function.Consumer<String> onComplete) {
         try {
             Map<String, Object> payload = new java.util.LinkedHashMap<>();
             payload.put("token", text);
@@ -414,26 +491,30 @@ public class ChatbotService {
             emitter.send(SseEmitter.event().name("message").data(payload));
             emitter.send(SseEmitter.event().name("done").data(Map.of("done", true)));
             emitter.complete();
+            onComplete.accept(text);
         } catch (Exception e) {
             log.error("SSE send error: {}", e.getMessage());
             emitter.complete();
         }
     }
 
-    private void streamGroq(String systemPrompt, String userMessage, SseEmitter emitter, boolean form, boolean blocked) {
+    private void streamGroq(String systemPrompt, String userMessage, List<Map<String, String>> history, SseEmitter emitter,
+                             boolean form, boolean blocked, java.util.function.Consumer<String> onComplete) {
         try {
-            boolean ok = attemptStream(systemPrompt, userMessage, emitter, form, blocked, groqModel);
+            boolean ok = attemptStream(systemPrompt, userMessage, history, emitter, form, blocked, groqModel, onComplete);
             if (!ok) {
                 log.warn("Groq stream falló con el modelo principal '{}', reintentando con '{}'", groqModel, groqModelFallback);
-                ok = attemptStream(systemPrompt, userMessage, emitter, form, blocked, groqModelFallback);
+                ok = attemptStream(systemPrompt, userMessage, history, emitter, form, blocked, groqModelFallback, onComplete);
             }
             if (!ok) {
-                sendEvent(emitter, "No pude conectarme con el servicio de IA en este momento. Intenta de nuevo.", false, false);
+                String text = "No pude conectarme con el servicio de IA en este momento. Intenta de nuevo.";
+                sendEvent(emitter, text, false, false, onComplete);
             }
         } catch (Exception e) {
             log.error("Groq stream error: {}", e.getMessage(), e);
             try {
-                sendEvent(emitter, "Lo siento, ocurrió un error al procesar tu consulta. Intenta de nuevo más tarde.", false, false);
+                String text = "Lo siento, ocurrió un error al procesar tu consulta. Intenta de nuevo más tarde.";
+                sendEvent(emitter, text, false, false, onComplete);
             } catch (Exception ex) {
                 emitter.complete();
             }
@@ -446,17 +527,16 @@ public class ChatbotService {
      * para que el llamador pueda reintentar con otro modelo sin duplicar contenido.
      * Errores a mitad de stream se propagan como excepción (no se reintenta).
      */
-    private boolean attemptStream(String systemPrompt, String userMessage, SseEmitter emitter,
-                                  boolean form, boolean blocked, String model) throws Exception {
+    private boolean attemptStream(String systemPrompt, String userMessage, List<Map<String, String>> history,
+                                  SseEmitter emitter, boolean form, boolean blocked, String model,
+                                  java.util.function.Consumer<String> onComplete) throws Exception {
         ObjectMapper mapper = new ObjectMapper();
+        List<Map<String, String>> messages = buildMessages(systemPrompt, userMessage, history);
         String requestBody = mapper.writeValueAsString(Map.of(
                 "model", model,
-                "messages", List.of(
-                        Map.of("role", "system", "content", systemPrompt),
-                        Map.of("role", "user", "content", userMessage)
-                ),
-                "temperature", 0.5,
-                "max_tokens", 300,
+                "messages", messages,
+                "temperature", 0.65,
+                "max_tokens", 600,
                 "stream", true
         ));
 
@@ -474,6 +554,7 @@ public class ChatbotService {
             return false;
         }
 
+        StringBuilder fullAnswer = new StringBuilder();
         BufferedReader reader = new BufferedReader(new InputStreamReader(response.body(), StandardCharsets.UTF_8));
         String line;
         while ((line = reader.readLine()) != null) {
@@ -484,8 +565,10 @@ public class ChatbotService {
                 JsonNode node = mapper.readTree(data);
                 JsonNode delta = node.path("choices").path(0).path("delta").path("content");
                 if (delta.isTextual() && !delta.asText().isEmpty()) {
+                    String token = sanitizeContext(delta.asText());
+                    fullAnswer.append(token);
                     Map<String, Object> payload = new java.util.LinkedHashMap<>();
-                    payload.put("token", sanitizeContext(delta.asText()));
+                    payload.put("token", token);
                     payload.put("form", form);
                     payload.put("blocked", blocked);
                     emitter.send(SseEmitter.event().name("message").data(payload));
@@ -495,6 +578,7 @@ public class ChatbotService {
         }
         emitter.send(SseEmitter.event().name("done").data(Map.of("done", true)));
         emitter.complete();
+        onComplete.accept(fullAnswer.toString());
         return true;
     }
 }

@@ -1,8 +1,10 @@
 package com.example.MardiqueWeb.Controller;
 
+import com.example.MardiqueWeb.Entity.ChatMessage;
 import com.example.MardiqueWeb.Entity.ChatbotRating;
 import com.example.MardiqueWeb.Entity.Faq;
 import com.example.MardiqueWeb.Entity.SupportTicket;
+import com.example.MardiqueWeb.Repository.ChatMessageRepository;
 import com.example.MardiqueWeb.Repository.ChatbotRatingRepository;
 import com.example.MardiqueWeb.Repository.FaqRepository;
 import com.example.MardiqueWeb.Repository.SupportTicketRepository;
@@ -17,6 +19,7 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
 @RestController
@@ -35,28 +38,47 @@ public class ApiChatbotController {
     @Autowired
     private ChatbotRatingRepository chatbotRatingRepository;
 
+    @Autowired
+    private ChatMessageRepository chatMessageRepository;
+
+    // Máximo de mensajes previos (usuario+asistente) que se recuperan de Postgres por sesión
+    private static final int MAX_HISTORY_MESSAGES = 20;
+
     private static final String EMAIL_REGEX = "^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$";
     private static final String PHONE_REGEX = "^[0-9+\\-\\s()]{7,20}$";
     private static final String CEDULA_REGEX = "^[0-9]{4,12}$";
 
     @PostMapping("/ask")
-    public Map<String, Object> ask(@RequestBody Map<String, String> body) {
-        String question = body.get("question");
+    public Map<String, Object> ask(@RequestBody Map<String, Object> body) {
+        String question = asString(body.get("question"));
         if (question == null || question.isBlank()) {
             return Map.of("answer", "Escribe una pregunta para poder ayudarte.", "form", false, "blocked", false);
         }
         if (question.length() > 500) {
             return Map.of("answer", "Tu pregunta es muy larga. Intenta resumirla en máximo 500 caracteres.", "form", false, "blocked", false);
         }
-        int repeatCount = parseRepeatCount(body.get("repeatCount"));
-        return chatbotService.ask(question, repeatCount);
+        int repeatCount = parseRepeatCount(asString(body.get("repeatCount")));
+        String sessionId = resolveSessionId(asString(body.get("sessionId")));
+
+        List<Map<String, String>> history = loadHistory(sessionId);
+        Map<String, Object> result = chatbotService.ask(question, repeatCount, history);
+
+        // Persistimos el turno completo en Postgres para que la próxima pregunta de esta
+        // misma sesión recuerde de qué se viene hablando.
+        chatMessageRepository.save(new ChatMessage(sessionId, "user", question));
+        Object answerObj = result.get("answer");
+        chatMessageRepository.save(new ChatMessage(sessionId, "assistant", answerObj != null ? answerObj.toString() : ""));
+
+        Map<String, Object> response = new LinkedHashMap<>(result);
+        response.put("sessionId", sessionId);
+        return response;
     }
 
     @PostMapping(value = "/ask/stream", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
-    public SseEmitter askStream(@RequestBody Map<String, String> body) {
+    public ResponseEntity<SseEmitter> askStream(@RequestBody Map<String, Object> body) {
         SseEmitter emitter = new SseEmitter(60000L);
-        String question = body.get("question");
-        int repeatCount = parseRepeatCount(body.get("repeatCount"));
+        String question = asString(body.get("question"));
+        int repeatCount = parseRepeatCount(asString(body.get("repeatCount")));
         if (question == null || question.isBlank()) {
             question = "hola";
         }
@@ -64,8 +86,35 @@ public class ApiChatbotController {
             question = question.substring(0, 500);
         }
         final String q = question;
-        CompletableFuture.runAsync(() -> chatbotService.askStream(q, repeatCount, emitter));
-        return emitter;
+        final String sessionId = resolveSessionId(asString(body.get("sessionId")));
+        List<Map<String, String>> history = loadHistory(sessionId);
+
+        chatMessageRepository.save(new ChatMessage(sessionId, "user", q));
+
+        CompletableFuture.runAsync(() -> chatbotService.askStream(q, repeatCount, history, emitter,
+                finalAnswer -> chatMessageRepository.save(new ChatMessage(sessionId, "assistant", finalAnswer))));
+
+        // El frontend debe leer este header (fetch + ReadableStream, no sirve con EventSource nativo
+        // porque el endpoint es POST) y guardar el sessionId (sessionStorage) para reenviarlo en cada
+        // siguiente pregunta de la misma conversación.
+        return ResponseEntity.ok().header("X-Session-Id", sessionId).body(emitter);
+    }
+
+    private String resolveSessionId(String sessionId) {
+        if (sessionId == null || sessionId.isBlank()) {
+            return UUID.randomUUID().toString();
+        }
+        return sessionId.trim();
+    }
+
+    private List<Map<String, String>> loadHistory(String sessionId) {
+        List<ChatMessage> messages = chatMessageRepository.findBySessionIdOrderByIdAsc(sessionId);
+        int from = Math.max(0, messages.size() - MAX_HISTORY_MESSAGES);
+        List<Map<String, String>> history = new ArrayList<>();
+        for (ChatMessage m : messages.subList(from, messages.size())) {
+            history.add(Map.of("role", m.getRole(), "content", m.getContent()));
+        }
+        return history;
     }
 
     private int parseRepeatCount(String value) {
@@ -75,6 +124,10 @@ public class ApiChatbotController {
         } catch (NumberFormatException e) {
             return 0;
         }
+    }
+
+    private String asString(Object value) {
+        return value == null ? null : value.toString();
     }
 
     @GetMapping("/faqs")
