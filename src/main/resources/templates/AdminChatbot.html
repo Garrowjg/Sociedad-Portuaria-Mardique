@@ -137,6 +137,15 @@
                 <div class="stat-lbl">Escribe informaci&oacute;n manualmente</div>
             </div>
         </div>
+        <div class="stat-box" style="cursor:pointer;" onclick="document.getElementById('faqModal').classList.add('show')">
+            <div class="stat-ico" style="background: rgba(240, 154, 54, 0.12); color: var(--ag);">
+                <i class="fas fa-question-circle"></i>
+            </div>
+            <div>
+                <div class="stat-num" style="font-size:14px;">Preguntas Frecuentes</div>
+                <div class="stat-lbl">Gestionar el men&uacute; del chat</div>
+            </div>
+        </div>
         <div class="stat-box" onclick="document.getElementById('apiInfoModal').classList.add('show')" style="cursor:pointer;">
             <div class="stat-ico" style="background: rgba(139, 92, 246, 0.12); color: #8b5cf6;">
                 <i class="fas fa-code"></i>
@@ -144,6 +153,38 @@
             <div>
                 <div class="stat-num" style="font-size:14px;">API Key</div>
                 <div class="stat-lbl">Ver c&oacute;mo configurar</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="source-group reveal" style="margin-bottom:16px;">
+        <div class="source-title">
+            <i class="fas fa-question-circle" style="margin-right:8px;color:var(--ag);"></i>
+            Preguntas Frecuentes del Chatbot
+            <span class="source-count" th:text="|(${#lists.size(faqs)} preguntas)|"></span>
+            <button type="button" class="btn btn-gold" style="padding:4px 10px;font-size:11px;float:right;" onclick="openFaqModal()">
+                <i class="fas fa-plus"></i> Agregar
+            </button>
+        </div>
+        <div th:if="${#lists.isEmpty(faqs)}" class="chunk-preview" style="padding:8px 0;">
+            No hay preguntas frecuentes. Agrega algunas para el men&uacute; del chat.
+        </div>
+        <div th:each="faq : ${faqs}" style="padding:10px 0;border-bottom:1px solid var(--bdr);">
+            <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+                <div style="flex:1;min-width:200px;">
+                    <div style="font-size:13px;font-weight:700;color:var(--pd);" th:text="${faq.question}">Pregunta</div>
+                    <div class="chunk-preview" th:text="${faq.answer}">Respuesta...</div>
+                </div>
+                <div style="display:flex;gap:6px;flex-shrink:0;">
+                    <button type="button" class="btn btn-outline" style="padding:4px 10px;font-size:11px;" th:attr="data-id=${faq.id},data-q=${faq.question},data-a=${faq.answer},data-orden=${faq.orden},data-activo=${faq.activo}" onclick="editFaq(this)">
+                        <i class="fas fa-edit"></i> Editar
+                    </button>
+                    <form th:action="@{/admin/chatbot/faq/delete/{id}(id=${faq.id})}" method="post" style="display:inline;">
+                        <button type="submit" class="btn btn-red" style="padding:4px 10px;font-size:11px;" onclick="return confirm('¿Eliminar esta pregunta frecuente?')">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </form>
+                </div>
             </div>
         </div>
     </div>
@@ -210,17 +251,46 @@
     </div>
 </div>
 
+<div class="modal-overlay" id="faqModal">
+    <div class="modal-box">
+        <h2><i class="fas fa-question-circle" style="color:var(--ag);"></i> <span id="faqModalTitle">Agregar Pregunta Frecuente</span></h2>
+        <p style="text-align:center;color:var(--mx);font-size:13px;margin-bottom:20px;">Estas preguntas aparecen en el men&uacute; del chat y el chatbot las responde autom&aacute;ticamente.</p>
+        <form method="post" th:action="@{/admin/chatbot/faq/save}" id="faqForm">
+            <input type="hidden" name="id" id="faqId">
+            <div class="form-group">
+                <label>Pregunta</label>
+                <input type="text" name="question" id="faqQuestion" required maxlength="300" placeholder="Ej: ¿Cómo contacto con el Gerente Comercial?" style="width:100%;padding:10px 14px;border:1.5px solid var(--bdr);border-radius:var(--r);font-size:13px;font-family:inherit;">
+            </div>
+            <div class="form-group">
+                <label>Respuesta</label>
+                <textarea name="answer" id="faqAnswer" rows="4" required placeholder="Escribe la respuesta del chatbot..." style="width:100%;padding:10px 14px;border:1.5px solid var(--bdr);border-radius:var(--r);font-size:13px;font-family:inherit;resize:vertical;"></textarea>
+            </div>
+            <div class="form-group" style="display:flex;gap:16px;align-items:center;">
+                <label style="display:flex;align-items:center;gap:6px;cursor:pointer;">
+                    <input type="checkbox" name="activo" value="true" id="faqActivo" style="width:16px;height:16px;" checked> Activa
+                </label>
+                <label style="display:flex;align-items:center;gap:6px;">
+                    Orden
+                    <input type="number" name="orden" id="faqOrden" value="0" min="0" style="width:70px;padding:8px;border:1.5px solid var(--bdr);border-radius:var(--r);font-size:13px;">
+                </label>
+            </div>
+            <div class="modal-actions">
+                <button type="button" class="btn-cancel" onclick="document.getElementById('faqModal').classList.remove('show')">Cancelar</button>
+                <button type="submit" class="btn btn-gold"><i class="fas fa-save"></i> Guardar</button>
+            </div>
+        </form>
+    </div>
+</div>
+
 <div class="modal-overlay" id="apiInfoModal">
     <div class="modal-box">
-        <h2><i class="fas fa-key"></i> Configurar API Key</h2>
-        <p style="text-align:center;color:var(--mx);font-size:13px;margin-bottom:20px;">El chatbot usa <strong>Groq API</strong> con el modelo <strong>Llama 3 70B</strong>. Es gratis.</p>
+        <h2><i class="fas fa-key"></i> API Key de Groq</h2>
+        <p style="text-align:center;color:var(--mx);font-size:13px;margin-bottom:20px;">El chatbot usa <strong>Groq API</strong> con el modelo <strong>Llama 3.3 70B</strong>. La clave ya est&aacute; configurada.</p>
         <div class="api-box">
-            <strong>1. Obt&eacute;n tu API Key:</strong>
-            <p style="font-size:12px;color:var(--mx);margin:8px 0;">Ve a <a href="https://console.groq.com" target="_blank">console.groq.com</a>, reg&iacute;strate y genera una API Key gratuita.</p>
-            <strong>2. Configura en Railway:</strong>
-            <code>GROQ_API_KEY=tu_api_key_aqui</code>
-            <strong>3. O localmente en IntelliJ:</strong>
-            <code>GROQ_API_KEY=tu_api_key_aqui</code>
+            <strong>Estado:</strong>
+            <p style="font-size:12px;color:var(--mx);margin:8px 0;">La API key est&aacute; configurada en <code>application.properties</code>. No se requiere configurar variables de entorno.</p>
+            <strong>Modelo:</strong>
+            <code>llama-3.3-70b-versatile</code>
         </div>
         <div class="modal-actions">
             <button type="button" class="btn-cancel" onclick="document.getElementById('apiInfoModal').classList.remove('show')">Cerrar</button>
@@ -274,6 +344,27 @@
     document.getElementById('uploadPdfModal')?.addEventListener('click', function(e) { if (e.target === this) this.classList.remove('show'); });
     document.getElementById('manualTextModal')?.addEventListener('click', function(e) { if (e.target === this) this.classList.remove('show'); });
     document.getElementById('apiInfoModal')?.addEventListener('click', function(e) { if (e.target === this) this.classList.remove('show'); });
+    document.getElementById('faqModal')?.addEventListener('click', function(e) { if (e.target === this) this.classList.remove('show'); });
+
+    function openFaqModal() {
+        document.getElementById('faqForm').reset();
+        document.getElementById('faqId').value = '';
+        document.getElementById('faqModalTitle').textContent = 'Agregar Pregunta Frecuente';
+        document.getElementById('faqActivo').checked = true;
+        document.getElementById('faqOrden').value = 0;
+        document.getElementById('faqModal').classList.add('show');
+    }
+
+    function editFaq(btn) {
+        document.getElementById('faqForm').reset();
+        document.getElementById('faqId').value = btn.getAttribute('data-id');
+        document.getElementById('faqQuestion').value = btn.getAttribute('data-q');
+        document.getElementById('faqAnswer').value = btn.getAttribute('data-a');
+        document.getElementById('faqOrden').value = btn.getAttribute('data-orden') || '0';
+        document.getElementById('faqActivo').checked = btn.getAttribute('data-activo') !== 'false';
+        document.getElementById('faqModalTitle').textContent = 'Editar Pregunta Frecuente';
+        document.getElementById('faqModal').classList.add('show');
+    }
 
     const tog = document.getElementById('mobileToggle');
     const drw = document.getElementById('mobileDrawer');

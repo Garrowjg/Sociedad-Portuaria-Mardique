@@ -67,6 +67,9 @@ public class AdminController {
     @Autowired
     private KnowledgeBaseService knowledgeBaseService;
 
+    @Autowired
+    private FaqRepository faqRepository;
+
     private static final Set<String> ALLOWED_EXTENSIONS = Set.of("pdf", "png", "jpg", "jpeg", "gif", "webp");
 
     private boolean allowedFile(String filename) {
@@ -430,7 +433,45 @@ public class AdminController {
         model.addAttribute("groupedChunks", grouped);
         model.addAttribute("chunkCount", allChunks.size());
         model.addAttribute("sourceCount", grouped.size());
+        model.addAttribute("faqs", faqRepository.findAllByOrderByOrdenAsc());
         return "AdminChatbot";
+    }
+
+    @PostMapping("/chatbot/faq/save")
+    public String faqSave(@RequestParam(required = false) Long id,
+                          @RequestParam String question,
+                          @RequestParam String answer,
+                          @RequestParam(defaultValue = "0") int orden,
+                          @RequestParam(defaultValue = "false") boolean activo,
+                          RedirectAttributes ra) {
+        if (question == null || question.isBlank() || answer == null || answer.isBlank()) {
+            ra.addFlashAttribute("error", "Pregunta y respuesta son obligatorias");
+            return "redirect:/admin/chatbot";
+        }
+        Faq faq;
+        if (id != null) {
+            faq = faqRepository.findById(id).orElse(null);
+            if (faq == null) {
+                ra.addFlashAttribute("error", "La pregunta frecuente no existe");
+                return "redirect:/admin/chatbot";
+            }
+        } else {
+            faq = new Faq();
+        }
+        faq.setQuestion(question.trim());
+        faq.setAnswer(answer.trim());
+        faq.setOrden(orden);
+        faq.setActivo(activo);
+        faqRepository.save(faq);
+        ra.addFlashAttribute("success", id != null ? "Pregunta frecuente actualizada" : "Pregunta frecuente agregada");
+        return "redirect:/admin/chatbot";
+    }
+
+    @PostMapping("/chatbot/faq/delete/{id}")
+    public String faqDelete(@PathVariable Long id, RedirectAttributes ra) {
+        faqRepository.deleteById(id);
+        ra.addFlashAttribute("success", "Pregunta frecuente eliminada");
+        return "redirect:/admin/chatbot";
     }
 
     @PostMapping("/chatbot/upload")

@@ -14,16 +14,19 @@ public class DataInitializer implements CommandLineRunner {
     private final PageContentRepository pageContentRepository;
     private final ContactRepository contactRepository;
     private final SystemConfigRepository systemConfigRepository;
+    private final FaqRepository faqRepository;
 
     public DataInitializer(UserRepository userRepository, PasswordEncoder passwordEncoder,
                            PageContentRepository pageContentRepository,
                            ContactRepository contactRepository,
-                           SystemConfigRepository systemConfigRepository) {
+                           SystemConfigRepository systemConfigRepository,
+                           FaqRepository faqRepository) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.pageContentRepository = pageContentRepository;
         this.contactRepository = contactRepository;
         this.systemConfigRepository = systemConfigRepository;
+        this.faqRepository = faqRepository;
     }
 
     private void createUserIfNotExists(String username, String rawPassword, String email, String nombres, String apellidos, String role, String departamento) {
@@ -55,6 +58,33 @@ public class DataInitializer implements CommandLineRunner {
         seedConfigIfAbsent("TARIFA_IFRAME_URL", "", "URL del iframe para la página de Tarifas (Google Sheets, SharePoint, PDF, etc.)");
         seedConfigIfAbsent("TARIFA_PHONE", "(57) (5) 669 0730", "Teléfono de contacto para información de tarifas");
         seedConfigIfAbsent("TARIFA_EMAIL", "info@spmardique.com", "Correo de contacto para información de tarifas");
+
+        if (faqRepository.count() == 0) {
+            seedFaqs();
+        }
+    }
+
+    private void seedFaqs() {
+        faqRepository.save(new Faq("¿Qué servicios ofrece Mardique?",
+            "Mardique ofrece servicios portuarios multipropósito: **carga general, gráneles, contenedores, hidrocarburos y grúas móviles**, además de infraestructura y logística portuaria para el desarrollo del país."));
+        faqRepository.save(new Faq("¿Dónde está ubicada la empresa?",
+            "Estamos ubicados en **Km 7 Vía a Mamonal, Cartagena, Colombia**. Teléfono PBX: **(57) (5) 669 0730**."));
+        faqRepository.save(new Faq("¿Cómo puedo contactar al Gerente Comercial?",
+            "Para contactar al **Gerente Comercial**, agenda una cita o solicita información a través del formulario de contacto del chat y un representante te atenderá."));
+        faqRepository.save(new Faq("¿Cómo radico una PQRS?",
+            "Puedes radicar tu petición, queja, reclamo o solicitud en la sección **Contacto** de nuestra página web, llenando el formulario de PQRS."));
+        faqRepository.save(new Faq("¿Cuáles son los horarios de atención?",
+            "Nuestras operaciones portuarias se realizan las **24 horas, los 365 días del año**. Las oficinas administrativas atienden en horario hábil de lunes a viernes."));
+        faqRepository.save(new Faq("¿Qué se necesita para inscribirse como usuario?",
+            "Para inscribirte debes contactar al **Oficial de Cumplimiento** mediante el formulario de contacto del chat (área Inscripción de Usuarios), quien te indicará los requisitos documentales según tu perfil (cliente o proveedor)."));
+        faqRepository.save(new Faq("¿Cómo solicito información de tarifas?",
+            "Para información de tarifas, agenda una cita o solicita información a través del formulario de contacto del chat (área **Gerente Comercial**) y nuestro equipo te atenderá."));
+        faqRepository.save(new Faq("¿Cómo contacto con Talento Humano?",
+            "Para temas de empleo, pasantías y trámites de personal, agenda una cita o solicita información a través del formulario del chat (área **Talento Humano**)."));
+        faqRepository.save(new Faq("¿Qué trámites puedo realizar en línea?",
+            "Puedes descargar formatos de solicitudes de servicio, inscripciones y otros trámites en la sección **Trámites en Línea** de nuestra página web."));
+        faqRepository.save(new Faq("¿Quién atiende la documentación aduanera?",
+            "La **Documentación Aduanera** tiene un área especializada. Agenda una cita o solicita información a través del formulario de contacto del chat y un representante te atenderá."));
     }
 
     private void seedPageContent() {

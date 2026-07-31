@@ -1,5 +1,7 @@
 (function() {
     const STORAGE_KEY = 'mardique_chat_history';
+    const MAX_CHARS = 200;
+    const WELCOME = '¡Hola! Soy el asistente virtual de Sociedad Portuaria Mardique. ¿En qué puedo ayudarte?';
 
     /* ---------- Estilos del ícono del launcher (imagen animada) ---------- */
     (function injectRobotStyles() {
@@ -32,7 +34,28 @@
     function loadChat() { try { return JSON.parse(sessionStorage.getItem(STORAGE_KEY)) || []; } catch(e) { return []; } }
     function saveChat(msgs) { try { sessionStorage.setItem(STORAGE_KEY, JSON.stringify(msgs)); } catch(e) {} }
 
-    const QUICK_QUESTIONS = ['¿Qué servicios ofrecen?', '¿Dónde están ubicados?', '¿Cómo los contacto?'];
+    const CONTACT_AREAS = [
+        'Gerente Comercial', 'Representante Legal', 'Gerente de Operaciones',
+        'Gerencia Administrativa', 'Seguridad', 'Documentación Aduanera',
+        'Talento Humano', 'Contabilidad', 'Coordinación de Operaciones',
+        'Supervisor Zona Franca', 'Inscripción de Usuarios', 'Asistente Adm. y Compras'
+    ];
+
+    const QUICK_ACTIONS = [
+        '¿Qué servicios ofrecen?',
+        '¿Dónde están ubicados?',
+        '¿Qué trámites están disponibles?',
+        'Agendar cita o solicitar información'
+    ];
+
+    const IDLE_NUDGE_MS = 90000;
+    const IDLE_RATING_MS = 60000;
+
+    let FAQS = [];
+    let faqLoaded = false;
+    let idleTimers = [];
+    let ratingSent = false;
+    let nudgeSent = false;
 
     /* ---------- Build DOM ---------- */
 
@@ -71,12 +94,21 @@
         '</div>' +
         '</div>' +
         '<div class="cb-messages" id="cbMessages"></div>' +
+        '<div class="cb-faq-panel" id="cbFaqPanel">' +
+        '<div class="cb-faq-head"><i class="cb-faq-ico">?</i> Preguntas frecuentes</div>' +
+        '<div class="cb-faq-list" id="cbFaqList"></div>' +
+        '</div>' +
         '<div class="cb-input-area">' +
-        '<input class="cb-input" id="cbInput" placeholder="Escribe tu pregunta..." autocomplete="off">' +
+        '<button class="cb-faq-btn" id="cbFaqBtn" aria-label="Preguntas frecuentes">' +
+        '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">' +
+        '<circle cx="12" cy="12" r="10"/><path d="M9.1 9a3 3 0 0 1 5.8 1c0 2-3 2-3 4"/><circle cx="12" cy="17.2" r="0.3" fill="currentColor"/></svg>' +
+        '</button>' +
+        '<input class="cb-input" id="cbInput" placeholder="Escribe tu pregunta..." autocomplete="off" maxlength="' + MAX_CHARS + '">' +
         '<button class="cb-send" id="cbSend" aria-label="Enviar">' +
         '<svg viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>' +
         '</button>' +
-        '</div>';
+        '</div>' +
+        '<div class="cb-counter" id="cbCounter">0 / ' + MAX_CHARS + '</div>';
 
     document.body.appendChild(launcher);
     document.body.appendChild(modal);
@@ -88,8 +120,12 @@
     const inputEl = document.getElementById('cbInput');
     const sendBtn = document.getElementById('cbSend');
     const closeBtn = document.getElementById('cbClose');
+    const faqBtn = document.getElementById('cbFaqBtn');
+    const faqPanel = document.getElementById('cbFaqPanel');
+    const faqList = document.getElementById('cbFaqList');
+    const counterEl = document.getElementById('cbCounter');
 
-    /* ---------- Scroll: progress ring + header-style hue on the launcher ---------- */
+    /* ---------- Scroll: progress ring ---------- */
 
     const RING_C = 2 * Math.PI * 41;
     ringFill.style.strokeDasharray = RING_C.toFixed(1);
@@ -162,7 +198,6 @@
             t += 0.09;
             ctx.clearRect(0, 0, W, H);
 
-            // distant faint ships crossing the header, evoking the homepage trade-route motif
             ships.forEach(function(s) {
                 s.x += s.speed;
                 if (s.x > W + 30) s.x = -30;
@@ -177,6 +212,47 @@
         }
         draw();
     })();
+
+    /* ---------- FAQs ---------- */
+
+    function loadFaqs() {
+        if (faqLoaded) return;
+        fetch('/api/chatbot/faqs')
+            .then(function(r) { return r.json(); })
+            .then(function(data) {
+                if (Array.isArray(data) && data.length) {
+                    FAQS = data;
+                    faqLoaded = true;
+                    renderFaqList();
+                }
+            })
+            .catch(function() {});
+    }
+
+    function renderFaqList() {
+        faqList.innerHTML = '';
+        FAQS.forEach(function(faq) {
+            const item = document.createElement('button');
+            item.type = 'button';
+            item.className = 'cb-faq-item';
+            item.textContent = faq.question;
+            item.addEventListener('click', function() {
+                toggleFaqPanel(false);
+                if (inputEl.value.trim()) {
+                    inputEl.value = '';
+                    updateCounter();
+                }
+                sendMessage(faq.question);
+            });
+            faqList.appendChild(item);
+        });
+    }
+
+    function toggleFaqPanel(force) {
+        const willOpen = force !== undefined ? force : !faqPanel.classList.contains('open');
+        faqPanel.classList.toggle('open', willOpen);
+        faqBtn.classList.toggle('active', willOpen);
+    }
 
     /* ---------- Chat logic ---------- */
 
@@ -209,7 +285,7 @@
         if (withChips) {
             const chips = document.createElement('div');
             chips.className = 'cb-chips';
-            QUICK_QUESTIONS.forEach(function(q) {
+            QUICK_ACTIONS.forEach(function(q) {
                 const chip = document.createElement('button');
                 chip.className = 'cb-chip';
                 chip.type = 'button';
@@ -248,17 +324,232 @@
     function restoreHistory() {
         const msgs = loadChat();
         messagesEl.innerHTML = '';
+        // Siempre se muestra el saludo + preguntas rápidas, sin duplicarlos
+        addBotBubble(WELCOME, true);
+        msgs.forEach(function(m) {
+            if (m.type === 'bot' && m.text === WELCOME) return;
+            if (m.type === 'bot') addBotBubble(m.text);
+            else addUserBubble(m.text);
+        });
         if (msgs.length === 0) {
-            const welcome = '¡Hola! Soy el asistente virtual de Sociedad Portuaria Mardique. ¿En qué puedo ayudarte?';
-            addBotBubble(welcome, true);
-            saveChat([{ text: welcome, type: 'bot' }]);
-        } else {
-            msgs.forEach(function(m) {
-                if (m.type === 'bot') addBotBubble(m.text);
-                else addUserBubble(m.text);
-            });
+            saveChat([{ text: WELCOME, type: 'bot' }]);
         }
+        scrollBottom();
     }
+
+    /* ---------- Contact form ---------- */
+
+    function buildContactForm() {
+        const wrap = document.createElement('div');
+        wrap.className = 'cb-form';
+        wrap.innerHTML =
+            '<div class="cb-form-title">Solicitud de contacto</div>' +
+            '<label class="cb-form-label">Nombre completo</label>' +
+            '<input class="cb-form-input" id="cfNombre" placeholder="Ej: Juan Pérez" maxlength="100">' +
+            '<label class="cb-form-label">Cédula</label>' +
+            '<input class="cb-form-input" id="cfCedula" placeholder="Ej: 123456789" maxlength="20">' +
+            '<label class="cb-form-label">Correo</label>' +
+            '<input class="cb-form-input" id="cfCorreo" type="email" placeholder="correo@ejemplo.com" maxlength="120">' +
+            '<label class="cb-form-label">Teléfono</label>' +
+            '<input class="cb-form-input" id="cfTelefono" placeholder="Ej: 3001234567" maxlength="20">' +
+            '<label class="cb-form-label">Área encargada</label>' +
+            '<select class="cb-form-input" id="cfArea">' +
+            CONTACT_AREAS.map(function(a) { return '<option value="' + a + '">' + a + '</option>'; }).join('') +
+            '</select>' +
+            '<div class="cb-form-actions">' +
+            '<button type="button" class="cb-form-btn primary" data-tipo="AGENDAR CITA">Agendar cita</button>' +
+            '<button type="button" class="cb-form-btn" data-tipo="AGENDAR REUNIÓN">Agendar reunión</button>' +
+            '<button type="button" class="cb-form-btn" data-tipo="SOLICITAR INFORMACIÓN">Solicitar información</button>' +
+            '</div>' +
+            '<div class="cb-form-status" id="cfStatus"></div>';
+
+        const send = function(tipo) {
+            const nombre = wrap.querySelector('#cfNombre').value.trim();
+            const cedula = wrap.querySelector('#cfCedula').value.trim();
+            const correo = wrap.querySelector('#cfCorreo').value.trim();
+            const telefono = wrap.querySelector('#cfTelefono').value.trim();
+            const area = wrap.querySelector('#cfArea').value;
+            const statusEl = wrap.querySelector('#cfStatus');
+
+            if (!/^[A-Za-zÀ-ÿñÑ\s'.-]{3,120}$/.test(nombre)) {
+                statusEl.textContent = 'El nombre solo puede contener letras (mínimo 3).';
+                statusEl.className = 'cb-form-status error';
+                return;
+            }
+            if (!/^[0-9]{4,12}$/.test(cedula)) {
+                statusEl.textContent = 'La cédula debe contener solo números (4-12 dígitos).';
+                statusEl.className = 'cb-form-status error';
+                return;
+            }
+            if (!/^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/.test(correo)) {
+                statusEl.textContent = 'El correo no tiene un formato válido.';
+                statusEl.className = 'cb-form-status error';
+                return;
+            }
+            if (!/^[0-9+\-\s()]{7,20}$/.test(telefono)) {
+                statusEl.textContent = 'El teléfono debe tener 7-20 caracteres (números, +, espacios, paréntesis).';
+                statusEl.className = 'cb-form-status error';
+                return;
+            }
+
+            wrap.querySelectorAll('.cb-form-btn').forEach(function(b) { b.disabled = true; });
+            statusEl.textContent = 'Enviando...';
+            statusEl.className = 'cb-form-status';
+
+            fetch('/api/chatbot/contact', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ nombre: nombre, cedula: cedula, correo: correo, telefono: telefono, area: area, tipo: tipo })
+            })
+                .then(function(r) { return r.json(); })
+                .then(function(data) {
+                    if (data && data.ok === 'true') {
+                        statusEl.textContent = '✓ ' + data.message;
+                        statusEl.className = 'cb-form-status success';
+                        wrap.querySelectorAll('input,select,.cb-form-btn').forEach(function(el) { el.disabled = true; });
+                    } else {
+                        statusEl.textContent = (data && data.message) || 'No se pudo enviar. Intenta de nuevo.';
+                        statusEl.className = 'cb-form-status error';
+                        wrap.querySelectorAll('.cb-form-btn').forEach(function(b) { b.disabled = false; });
+                    }
+                })
+                .catch(function() {
+                    statusEl.textContent = 'Error de conexión. Intenta de nuevo.';
+                    statusEl.className = 'cb-form-status error';
+                    wrap.querySelectorAll('.cb-form-btn').forEach(function(b) { b.disabled = false; });
+                });
+        };
+
+        wrap.querySelectorAll('.cb-form-btn').forEach(function(b) {
+            b.addEventListener('click', function() { send(b.getAttribute('data-tipo')); });
+        });
+
+        return wrap;
+    }
+
+    function addContactForm() {
+        const row = document.createElement('div');
+        row.className = 'cb-row';
+        row.id = 'cbContactRow';
+        row.innerHTML = robotAvatarHtml() + '<div class="cb-form-wrap"></div>';
+        row.querySelector('.cb-form-wrap').appendChild(buildContactForm());
+        messagesEl.appendChild(row);
+        scrollBottom();
+    }
+
+    /* ---------- Rating ---------- */
+
+    function addRatingPrompt() {
+        if (ratingSent) return;
+        ratingSent = true;
+
+        const msg = '¿Cómo calificarías la atención que recibiste? **1** (muy mala) a **5** (excelente).';
+        const row = document.createElement('div');
+        row.className = 'cb-row';
+        row.id = 'cbRatingRow';
+        row.innerHTML = robotAvatarHtml() + '<div class="cb-rating"></div>';
+        const ratingBox = row.querySelector('.cb-rating');
+
+        const text = document.createElement('div');
+        text.className = 'cb-rating-text';
+        text.innerHTML = renderMarkdown(msg);
+        ratingBox.appendChild(text);
+
+        const stars = document.createElement('div');
+        stars.className = 'cb-rating-stars';
+        for (let i = 1; i <= 5; i++) {
+            const star = document.createElement('button');
+            star.type = 'button';
+            star.className = 'cb-star';
+            star.dataset.value = i;
+            star.textContent = '★';
+            star.title = i + ' estrellas';
+            star.addEventListener('click', function() { submitRating(i); });
+            stars.appendChild(star);
+        }
+        ratingBox.appendChild(stars);
+
+        const commentBox = document.createElement('div');
+        commentBox.className = 'cb-rating-comment';
+        commentBox.innerHTML =
+            '<textarea class="cb-rating-input" placeholder="¿Algo que nos ayude a mejorar? (opcional)" maxlength="500"></textarea>' +
+            '<button type="button" class="cb-rating-send" style="display:none;">Enviar comentario</button>';
+        ratingBox.appendChild(commentBox);
+
+        const input = commentBox.querySelector('.cb-rating-input');
+        const sendCommentBtn = commentBox.querySelector('.cb-rating-send');
+
+        function submitRating(value) {
+            ratingBox.querySelectorAll('.cb-star').forEach(function(s) {
+                s.classList.toggle('active', parseInt(s.dataset.value) <= value);
+            });
+            input.style.display = '';
+            sendCommentBtn.style.display = '';
+
+            fetch('/api/chatbot/rating', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ rating: String(value), comment: input.value.trim() })
+            })
+                .then(function(r) { return r.json(); })
+                .then(function(data) {
+                    const thanks = document.createElement('div');
+                    thanks.className = 'cb-rating-thanks';
+                    thanks.textContent = (data && data.message) || '¡Gracias por tu calificación!';
+                    ratingBox.appendChild(thanks);
+                    sendCommentBtn.remove();
+                    input.remove();
+                })
+                .catch(function() {
+                    const thanks = document.createElement('div');
+                    thanks.className = 'cb-rating-thanks';
+                    thanks.textContent = '¡Gracias por tu calificación!';
+                    ratingBox.appendChild(thanks);
+                    sendCommentBtn.remove();
+                    input.remove();
+                });
+        }
+
+        sendCommentBtn.addEventListener('click', function() {
+            submitRating(parseInt(ratingBox.querySelector('.cb-star.active').dataset.value));
+        });
+
+        messagesEl.appendChild(row);
+        scrollBottom();
+    }
+
+    /* ---------- Idle timers ---------- */
+
+    function clearIdleTimers() {
+        idleTimers.forEach(function(t) { clearTimeout(t); });
+        idleTimers = [];
+    }
+
+    function scheduleIdleNudge() {
+        clearIdleTimers();
+        idleTimers.push(setTimeout(function() {
+            if (!modal.classList.contains('open')) return;
+            if (nudgeSent) return;
+            nudgeSent = true;
+            addBotBubble('¿Sigues ahí? ¿Hay algo más en lo que pueda ayudarte?');
+            scheduleIdleRating();
+        }, IDLE_NUDGE_MS));
+    }
+
+    function scheduleIdleRating() {
+        idleTimers.push(setTimeout(function() {
+            if (!modal.classList.contains('open')) return;
+            addRatingPrompt();
+        }, IDLE_RATING_MS));
+    }
+
+    function resetIdleTimer() {
+        if (!modal.classList.contains('open')) return;
+        clearIdleTimers();
+        scheduleIdleNudge();
+    }
+
+    /* ---------- Send / receive ---------- */
 
     function sendMessage(question) {
         let msgs = loadChat();
@@ -270,6 +561,28 @@
         sendBtn.disabled = true;
         inputEl.disabled = true;
 
+        const startedAt = Date.now();
+        const MIN_TYPING_MS = 900;
+        const FORM_DELAY_MS = 2000;
+
+        function revealAnswer(answer, showForm) {
+            const remaining = Math.max(0, MIN_TYPING_MS - (Date.now() - startedAt));
+            setTimeout(function() {
+                hideTyping();
+                addBotBubble(answer);
+                msgs = loadChat();
+                msgs.push({ text: answer, type: 'bot' });
+                saveChat(msgs);
+                if (showForm) {
+                    setTimeout(addContactForm, FORM_DELAY_MS);
+                }
+                sendBtn.disabled = false;
+                inputEl.disabled = false;
+                inputEl.focus();
+                resetIdleTimer();
+            }, remaining);
+        }
+
         fetch('/api/chatbot/ask', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -277,31 +590,26 @@
         })
             .then(function(r) { return r.json(); })
             .then(function(data) {
-                hideTyping();
                 const answer = data.answer || 'Lo siento, no pude procesar tu consulta.';
-                addBotBubble(answer);
-                msgs = loadChat();
-                msgs.push({ text: answer, type: 'bot' });
-                saveChat(msgs);
+                revealAnswer(answer, data.form === true);
             })
             .catch(function() {
-                hideTyping();
-                const errMsg = 'Error de conexión. Intenta de nuevo.';
-                addBotBubble(errMsg);
-                msgs = loadChat();
-                msgs.push({ text: errMsg, type: 'bot' });
-                saveChat(msgs);
-            })
-            .finally(function() {
-                sendBtn.disabled = false;
-                inputEl.disabled = false;
-                inputEl.focus();
+                revealAnswer('Error de conexión. Intenta de nuevo.', false);
             });
+    }
+
+    /* ---------- Counter ---------- */
+
+    function updateCounter() {
+        const len = inputEl.value.length;
+        counterEl.textContent = len + ' / ' + MAX_CHARS;
+        counterEl.classList.toggle('near-limit', len >= MAX_CHARS);
     }
 
     /* ---------- Events ---------- */
 
     function openModal() {
+        loadFaqs();
         modal.classList.remove('closing');
         modal.classList.add('open');
         launcher.style.display = 'none';
@@ -309,6 +617,9 @@
         restoreHistory();
         inputEl.focus();
         requestAnimationFrame(function() { headerSceneResize(); });
+        nudgeSent = false;
+        ratingSent = false;
+        resetIdleTimer();
     }
 
     function closeModal() {
@@ -316,6 +627,8 @@
         modal.classList.remove('open');
         modal.classList.add('closing');
         launcher.style.display = 'flex';
+        toggleFaqPanel(false);
+        clearIdleTimers();
         modal.addEventListener('animationend', function handler() {
             modal.classList.remove('closing');
             modal.removeEventListener('animationend', handler);
@@ -326,10 +639,23 @@
 
     closeBtn.addEventListener('click', closeModal);
 
+    faqBtn.addEventListener('click', function() {
+        if (!faqLoaded && FAQS.length === 0) {
+            loadFaqs();
+        }
+        toggleFaqPanel();
+        if (faqPanel.classList.contains('open') && faqList.children.length === 0 && FAQS.length) {
+            renderFaqList();
+        }
+    });
+
     sendBtn.addEventListener('click', function() {
         const text = inputEl.value.trim();
         if (!text) return;
         inputEl.value = '';
+        updateCounter();
+        toggleFaqPanel(false);
+        resetIdleTimer();
         sendMessage(text);
     });
 
@@ -340,6 +666,10 @@
         }
     });
 
+    inputEl.addEventListener('input', updateCounter);
+
+    inputEl.addEventListener('focus', resetIdleTimer);
+
     modal.addEventListener('click', function(e) {
         if (e.target === modal) closeModal();
     });
@@ -347,4 +677,6 @@
     window.addEventListener('beforeunload', function() {
         sessionStorage.removeItem(STORAGE_KEY);
     });
+
+    loadFaqs();
 })();
