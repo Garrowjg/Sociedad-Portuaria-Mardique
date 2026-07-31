@@ -3,6 +3,18 @@
     const MAX_CHARS = 200;
     const WELCOME = '¡Hola! Soy el asistente virtual de Sociedad Portuaria Mardique. ¿En qué puedo ayudarte?';
 
+    /* ---------- Precarga del ícono para que no parpadee el texto alt ---------- */
+    const LOGO_SRC = '/images/Chatbot.png';
+    (function preloadLogo() {
+        const link = document.createElement('link');
+        link.rel = 'preload';
+        link.as = 'image';
+        link.href = LOGO_SRC;
+        document.head.appendChild(link);
+        const img = new Image();
+        img.src = LOGO_SRC;
+    })();
+
     /* ---------- Estilos del ícono del launcher (imagen animada) ---------- */
     (function injectRobotStyles() {
         const style = document.createElement('style');
@@ -11,6 +23,7 @@
         .cb-robot-img{
             width: 88%; height: 88%; object-fit: contain; display: block;
             border-radius: 50%;
+            background: radial-gradient(circle at 30% 30%, #fff, #eef4f9);
             animation: cbRobotFloat 3s ease-in-out infinite;
             filter: drop-shadow(0 2px 6px rgba(0,0,0,.3));
             transition: transform .2s ease, filter .2s ease;
@@ -73,7 +86,7 @@
         '<circle class="cb-ring-fill" id="cbRingFill" cx="45" cy="45" r="41"></circle>' +
         '</svg>' +
         '<button class="cb-button" id="cbButton" aria-label="Abrir chat">' +
-        '<img src="' + LOGO_SRC + '" alt="Asistente Mardique" class="cb-robot-img" id="cbRobot">' +
+        '<img src="' + LOGO_SRC + '" alt="" class="cb-robot-img" id="cbRobot">' +
         '</button>' +
         '<span class="cb-unread" id="cbUnread" style="display:none">1</span>';
 
@@ -85,7 +98,7 @@
         '<div class="cb-header" id="cbHeader">' +
         '<canvas id="cbHeaderCanvas"></canvas>' +
         '<div class="cb-header-content">' +
-        '<div class="cb-header-badge"><img src="' + LOGO_SRC + '" alt="Asistente Mardique"></div>' +
+        '<div class="cb-header-badge"><img src="' + LOGO_SRC + '" alt=""></div>' +
         '<div class="cb-header-text">' +
         '<div class="cb-header-title">Asistente Mardique</div>' +
         '<div class="cb-header-sub"><span class="cb-status-dot"></span>En línea · Respondemos tus dudas</div>' +
