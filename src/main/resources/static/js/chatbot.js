@@ -4,7 +4,7 @@
     const WELCOME = '¡Hola! Soy el asistente virtual de Sociedad Portuaria Mardique. ¿En qué puedo ayudarte?';
 
     /* ---------- Precarga del ícono para que no parpadee el texto alt ---------- */
-    const LOGO_SRC = '/images/Chatbot.png';
+    const LOGO_SRC = '/images/ChatbotBtn.png';
     (function preloadLogo() {
         const link = document.createElement('link');
         link.rel = 'preload';
@@ -23,7 +23,6 @@
         .cb-robot-img{
             width: 88%; height: 88%; object-fit: contain; display: block;
             border-radius: 50%;
-            background: radial-gradient(circle at 30% 30%, #fff, #eef4f9);
             animation: cbRobotFloat 3s ease-in-out infinite;
             filter: drop-shadow(0 2px 6px rgba(0,0,0,.3));
             transition: transform .2s ease, filter .2s ease;
@@ -71,8 +70,6 @@
     let nudgeSent = false;
 
     /* ---------- Build DOM ---------- */
-
-    const LOGO_SRC = '/images/Chatbot.png';
 
     const launcher = document.createElement('div');
     launcher.className = 'cb-launcher';
@@ -125,6 +122,7 @@
 
     document.body.appendChild(launcher);
     document.body.appendChild(modal);
+    launcher.style.opacity = '0';
 
     const btn = document.getElementById('cbButton');
     const ringFill = document.getElementById('cbRingFill');
@@ -619,14 +617,33 @@
         counterEl.classList.toggle('near-limit', len >= MAX_CHARS);
     }
 
+    /* ---------- Launcher animations ---------- */
+
+    function hideLauncher() {
+        launcher.classList.remove('cb-entering');
+        launcher.classList.add('cb-leaving');
+        unreadEl.style.display = 'none';
+    }
+
+    function showLauncher() {
+        launcher.classList.remove('cb-leaving');
+        void launcher.offsetWidth;
+        launcher.classList.add('cb-entering');
+    }
+
+    launcher.addEventListener('animationend', function(e) {
+        if (e.animationName === 'cbLauncherIn') {
+            launcher.classList.remove('cb-entering');
+        }
+    });
+
     /* ---------- Events ---------- */
 
     function openModal() {
         loadFaqs();
         modal.classList.remove('closing');
         modal.classList.add('open');
-        launcher.style.display = 'none';
-        unreadEl.style.display = 'none';
+        hideLauncher();
         restoreHistory();
         inputEl.focus();
         requestAnimationFrame(function() { headerSceneResize(); });
@@ -639,7 +656,7 @@
         if (!modal.classList.contains('open')) return;
         modal.classList.remove('open');
         modal.classList.add('closing');
-        launcher.style.display = 'flex';
+        showLauncher();
         toggleFaqPanel(false);
         clearIdleTimers();
         modal.addEventListener('animationend', function handler() {
@@ -692,4 +709,9 @@
     });
 
     loadFaqs();
+
+    setTimeout(function() {
+        launcher.style.opacity = '';
+        launcher.classList.add('cb-entering');
+    }, 600);
 })();
