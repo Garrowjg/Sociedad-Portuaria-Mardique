@@ -359,7 +359,7 @@ document.addEventListener("DOMContentLoaded", function() {
     getCurrentUser().then(user => {
         const name = user.displayName || user.userPrincipalName || "Empleado";
         document.getElementById("userDisplay").textContent = name;
-        document.getElementById("userName").textContent = name;
+        const userNameEl = document.getElementById("userName"); if (userNameEl) userNameEl.textContent = name;
         if (user.jobTitle) document.getElementById("userBadge").textContent = user.jobTitle;
     }).catch(() => {});
 

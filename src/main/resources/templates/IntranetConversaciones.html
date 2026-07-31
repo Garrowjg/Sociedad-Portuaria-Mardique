@@ -141,7 +141,7 @@ function renderConversations(items){
     <div class="conv-post">
         <div class="conv-post-head">
             <div class="conv-post-avatar">${initials(p.author)}</div>
-            <div><strong>${escapeHtml(p.author)}</strong><span>${p.time}</span></div>
+            <div><strong>${escapeHtml(p.author)}</strong><span>${escapeHtml(p.time || '')}</span></div>
         </div>
         <div class="conv-post-text">${escapeHtml(p.text)}</div>
         <div class="conv-post-actions">
@@ -184,7 +184,7 @@ function loadConversations(){
         });
         renderConversations(mapped);
     }).catch(err => {
-        cont.innerHTML = '<div class="conv-post-empty"><i class="fas fa-exclamation-triangle" style="font-size:20px;color:#dc2626;margin-bottom:8px;display:block;"></i>Error al cargar: ' + err.message + '</div>';
+        cont.innerHTML = '<div class="conv-post-empty"><i class="fas fa-exclamation-triangle" style="font-size:20px;color:#dc2626;margin-bottom:8px;display:block;"></i>Error al cargar: ' + escapeHtml(err.message || '') + '</div>';
     });
 }
 
@@ -195,7 +195,7 @@ document.addEventListener("DOMContentLoaded", function() {
     getCurrentUser().then(user => {
         const name = user.displayName || user.userPrincipalName || "Empleado";
         document.getElementById("userDisplay").textContent = name;
-        document.getElementById("userName").textContent = name;
+        const userNameEl = document.getElementById("userName"); if (userNameEl) userNameEl.textContent = name;
         if (user.jobTitle) document.getElementById("userBadge").textContent = user.jobTitle;
         const convAvatar = document.getElementById("conv-my-avatar");
         if (convAvatar) convAvatar.textContent = initials(name);

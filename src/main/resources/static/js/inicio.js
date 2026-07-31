@@ -96,7 +96,9 @@ document.addEventListener('DOMContentLoaded', function () {
     const co = new IntersectionObserver(entries => {
         entries.forEach(e => {
             if (!e.isIntersecting) return;
-            const tgt = parseInt(e.target.dataset.target), step = tgt / 50; let cur = 0;
+            const tgt = parseInt(e.target.dataset.target, 10);
+            if (isNaN(tgt) || tgt <= 0) { e.target.textContent = e.target.dataset.target || '0'; co.unobserve(e.target); return; }
+            const step = tgt / 50; let cur = 0;
             const t = setInterval(() => { cur += step; if (cur >= tgt) { e.target.textContent = tgt; clearInterval(t); } else e.target.textContent = Math.floor(cur); }, 28);
             co.unobserve(e.target);
         });

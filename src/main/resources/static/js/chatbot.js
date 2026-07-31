@@ -340,7 +340,10 @@
         addBotBubble(WELCOME, true);
         msgs.forEach(function(m) {
             if (m.type === 'bot' && m.text === WELCOME) return;
-            if (m.type === 'bot') addBotBubble(m.text);
+            if (m.type === 'bot') {
+                addBotBubble(m.text);
+                if (m.form) addContactForm(m);
+            }
             else addUserBubble(m.text);
         });
         if (msgs.length === 0) {
@@ -351,7 +354,7 @@
 
     /* ---------- Contact form ---------- */
 
-    function buildContactForm() {
+    function buildContactForm(saved) {
         const wrap = document.createElement('div');
         wrap.className = 'cb-form';
         wrap.innerHTML =
@@ -374,6 +377,14 @@
             '<button type="button" class="cb-form-btn" data-tipo="SOLICITAR INFORMACIÓN">Solicitar información</button>' +
             '</div>' +
             '<div class="cb-form-status" id="cfStatus"></div>';
+
+        // Si ya fue enviado antes (se restaura del historial), mostrarlo en estado completado
+        if (saved && saved.submitted) {
+            const statusEl = wrap.querySelector('#cfStatus');
+            statusEl.textContent = '✓ ' + (saved.submittedMsg || 'Tu solicitud fue enviada. Un representante te contactará pronto.');
+            statusEl.className = 'cb-form-status success';
+            wrap.querySelectorAll('input,select,.cb-form-btn').forEach(function(el) { el.disabled = true; });
+        }
 
         const send = function(tipo) {
             const nombre = wrap.querySelector('#cfNombre').value.trim();
@@ -419,6 +430,18 @@
                         statusEl.textContent = '✓ ' + data.message;
                         statusEl.className = 'cb-form-status success';
                         wrap.querySelectorAll('input,select,.cb-form-btn').forEach(function(el) { el.disabled = true; });
+                        // Marca el formulario como enviado en el historial para que al reabrir el chat se conserve
+                        try {
+                            const ms = JSON.parse(sessionStorage.getItem(STORAGE_KEY)) || [];
+                            for (let i = ms.length - 1; i >= 0; i--) {
+                                if (ms[i] && ms[i].type === 'bot' && ms[i].form) {
+                                    ms[i].submitted = true;
+                                    ms[i].submittedMsg = data.message;
+                                    break;
+                                }
+                            }
+                            sessionStorage.setItem(STORAGE_KEY, JSON.stringify(ms));
+                        } catch (e) {}
                     } else {
                         statusEl.textContent = (data && data.message) || 'No se pudo enviar. Intenta de nuevo.';
                         statusEl.className = 'cb-form-status error';
@@ -439,12 +462,12 @@
         return wrap;
     }
 
-    function addContactForm() {
+    function addContactForm(saved) {
         const row = document.createElement('div');
         row.className = 'cb-row';
         row.id = 'cbContactRow';
         row.innerHTML = robotAvatarHtml() + '<div class="cb-form-wrap"></div>';
-        row.querySelector('.cb-form-wrap').appendChild(buildContactForm());
+        row.querySelector('.cb-form-wrap').appendChild(buildContactForm(saved));
         messagesEl.appendChild(row);
         scrollBottom();
     }
@@ -563,132 +586,161 @@
 
     /* ---------- Send / receive ---------- */
 
-        function sendMessage(question) {
-            let msgs = loadChat();
-            addUserBubble(question);
-            msgs.push({ text: question, type: 'user' });
+    function sendMessage(question) {
+        let msgs = loadChat();
+        addUserBubble(question);
+        msgs.push({ text: question, type: 'user' });
+        saveChat(msgs);
+
+        showTyping();
+        sendBtn.disabled = true;
+        inputEl.disabled = true;
+
+        const FORM_DELAY_MS = 2000;
+        let answer = '';
+        let showForm = false;
+        let wasBlocked = false;
+        let botRow = null;
+        let botMsg = null;
+        let done = false;
+
+        function createBotRow() {
+            hideTyping();
+            const row = document.createElement('div');
+            row.className = 'cb-row';
+            row.innerHTML = robotAvatarHtml() + '<div class="cb-msg bot"></div>';
+            messagesEl.appendChild(row);
+            botMsg = row.querySelector('.cb-msg');
+            botRow = row;
+        }
+
+        function finalize() {
+            if (done) return;
+            done = true;
+            hideTyping();
+            if (botMsg) {
+                botMsg.innerHTML = renderMarkdown(answer);
+            } else if (answer) {
+                addBotBubble(answer);
+            } else {
+                addBotBubble('No obtuve una respuesta. Intenta de nuevo en un momento.');
+            }
+            scrollBottom();
+            msgs = loadChat();
+            const botEntry = { text: answer, type: 'bot' };
+            if (showForm) botEntry.form = true;
+            msgs.push(botEntry);
             saveChat(msgs);
-
-            showTyping();
-            sendBtn.disabled = true;
-            inputEl.disabled = true;
-
-            const FORM_DELAY_MS = 2000;
-            let answer = '';
-            let showForm = false;
-            let wasBlocked = false;
-            let botRow = null;
-            let botMsg = null;
-            let done = false;
-
-            function createBotRow() {
-                const row = document.createElement('div');
-                row.className = 'cb-row';
-                row.innerHTML = robotAvatarHtml() + '<div class="cb-msg bot"></div>';
-                messagesEl.appendChild(row);
-                botMsg = row.querySelector('.cb-msg');
-                botRow = row;
+            if (showForm) {
+                setTimeout(addContactForm, FORM_DELAY_MS);
             }
+            if (wasBlocked) {
+                blockedRepeat = Math.min(blockedRepeat + 1, 10);
+            } else {
+                blockedRepeat = 0;
+            }
+            sendBtn.disabled = false;
+            inputEl.disabled = false;
+            inputEl.focus();
+            resetIdleTimer();
+        }
 
-            function finalize() {
-                if (done) return;
-                done = true;
-                hideTyping();
-                if (botMsg) {
-                    botMsg.innerHTML = renderMarkdown(answer);
-                } else if (answer) {
-                    addBotBubble(answer);
-                }
+        function handleSSE(line) {
+            const idx = line.indexOf('data:');
+            if (idx < 0) return;
+            let json;
+            try {
+                json = JSON.parse(line.slice(idx + 5).trim());
+            } catch (e) { return; }
+            if (json.token) {
+                answer += json.token;
+                if (!botMsg) createBotRow();
+                botMsg.innerHTML = renderMarkdown(answer);
                 scrollBottom();
-                msgs = loadChat();
-                msgs.push({ text: answer, type: 'bot' });
-                saveChat(msgs);
-                if (showForm) {
-                    setTimeout(addContactForm, FORM_DELAY_MS);
-                }
-                if (wasBlocked) {
-                    blockedRepeat = Math.min(blockedRepeat + 1, 10);
-                } else {
-                    blockedRepeat = 0;
-                }
-                sendBtn.disabled = false;
-                inputEl.disabled = false;
-                inputEl.focus();
-                resetIdleTimer();
+                if (json.form === true) showForm = true;
+                if (json.blocked === true) wasBlocked = true;
             }
+            if (json.done === true) finalize();
+        }
 
-            function handleSSE(line) {
-                const idx = line.indexOf('data:');
-                if (idx < 0) return;
-                let json;
-                try {
-                    json = JSON.parse(line.slice(idx + 5).trim());
-                } catch (e) { return; }
-                if (json.token) {
-                    answer += json.token;
-                    if (!botMsg) createBotRow();
-                    botMsg.innerHTML = renderMarkdown(answer);
-                    scrollBottom();
-                    if (json.form === true) showForm = true;
-                    if (json.blocked === true) wasBlocked = true;
-                }
-                if (json.done === true) finalize();
-            }
+        const REQUEST_TIMEOUT_MS = 25000;
 
-            function requestJson() {
-                return fetch('/api/chatbot/ask', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ question: question, repeatCount: blockedRepeat })
-                })
-                    .then(function(r) { return r.json(); })
-                    .then(function(data) {
-                        answer = data.answer || 'Lo siento, no pude procesar tu consulta.';
-                        showForm = data.form === true;
-                        wasBlocked = data.blocked === true;
-                        finalize();
-                    });
-            }
-
-            fetch('/api/chatbot/ask/stream', {
+        function requestJson() {
+            const controller = new AbortController();
+            const timeoutId = setTimeout(function() { controller.abort(); }, REQUEST_TIMEOUT_MS);
+            return fetch('/api/chatbot/ask', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ question: question, repeatCount: blockedRepeat })
+                body: JSON.stringify({ question: question, repeatCount: blockedRepeat }),
+                signal: controller.signal
             })
-                .then(function(response) {
-                    if (!response.ok || !response.body) {
-                        throw new Error('stream not available');
-                    }
-                    var reader = response.body.getReader();
-                    var decoder = new TextDecoder('utf-8');
-                    var buffer = '';
-
-                    function pump() {
-                        return reader.read().then(function(result) {
-                            if (result.done) {
-                                if (answer) finalize();
-                                return;
-                            }
-                            buffer += decoder.decode(result.value, { stream: true });
-                            var lines = buffer.split('\n');
-                            buffer = lines.pop();
-                            for (var i = 0; i < lines.length; i++) {
-                                var l = lines[i].trim();
-                                if (l) handleSSE(l);
-                                if (done) return;
-                            }
-                            return pump();
-                        });
-                    }
-                    return pump();
+                .then(function(r) { return r.json(); })
+                .then(function(data) {
+                    clearTimeout(timeoutId);
+                    answer = data.answer || 'Lo siento, no pude procesar tu consulta.';
+                    showForm = data.form === true;
+                    wasBlocked = data.blocked === true;
+                    finalize();
                 })
-                .catch(function() {
-                    requestJson().catch(function() {
-                        answer = 'Error de conexión. Intenta de nuevo.';
-                        finalize();
-                    });
+                .catch(function(err) {
+                    clearTimeout(timeoutId);
+                    throw err;
                 });
         }
+
+        const streamController = new AbortController();
+        const streamTimeoutId = setTimeout(function() { streamController.abort(); }, REQUEST_TIMEOUT_MS);
+
+        fetch('/api/chatbot/ask/stream', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ question: question, repeatCount: blockedRepeat }),
+            signal: streamController.signal
+        })
+            .then(function(response) {
+                if (!response.ok || !response.body) {
+                    throw new Error('stream not available');
+                }
+                var reader = response.body.getReader();
+                var decoder = new TextDecoder('utf-8');
+                var buffer = '';
+
+                function pump() {
+                    return reader.read().then(function(result) {
+                        clearTimeout(streamTimeoutId);
+                        if (result.done) {
+                            finalize();
+                            return;
+                        }
+                        buffer += decoder.decode(result.value, { stream: true });
+                        var lines = buffer.split('\n');
+                        buffer = lines.pop();
+                        for (var i = 0; i < lines.length; i++) {
+                            var l = lines[i].trim();
+                            if (l) handleSSE(l);
+                            if (done) return;
+                        }
+                        return pump();
+                    });
+                }
+                return pump();
+            })
+            .catch(function() {
+                clearTimeout(streamTimeoutId);
+                if (done) return;
+                // Si el streaming ya había traído texto parcial, no se vuelve a pedir
+                // todo de cero (evita una segunda respuesta distinta pisando la primera).
+                // Solo se reintenta con la ruta JSON si no llegó ningún token todavía.
+                if (botMsg) {
+                    finalize();
+                    return;
+                }
+                requestJson().catch(function() {
+                    answer = 'Error de conexión. Intenta de nuevo.';
+                    finalize();
+                });
+            });
+    }
 
     /* ---------- Counter ---------- */
 

@@ -238,7 +238,7 @@ function openAreaDetail(id){
 
     const contactos = parseContactos(area.Contactos);
 
-    const sitioUrl = area.Sitio && area.Sitio !== "..." ? area.Sitio : "";
+    const sitioUrl = safeUrl(area.Sitio && area.Sitio !== "..." ? area.Sitio : "");
     document.getElementById("area-detail-site").innerHTML = `
     <div class="area-site-card">
         <div class="area-site-card-top"><i class="fas fa-link"></i> Sitio del área</div>
@@ -291,7 +291,7 @@ document.addEventListener("DOMContentLoaded", function() {
     getCurrentUser().then(user => {
         const name = user.displayName || user.userPrincipalName || "Empleado";
         document.getElementById("userDisplay").textContent = name;
-        document.getElementById("userName").textContent = name;
+        const userNameEl = document.getElementById("userName"); if (userNameEl) userNameEl.textContent = name;
         if (user.jobTitle) document.getElementById("userBadge").textContent = user.jobTitle;
     }).catch(() => {});
 

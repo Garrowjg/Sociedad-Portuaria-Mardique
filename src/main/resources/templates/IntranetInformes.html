@@ -211,11 +211,31 @@
 <script>
 let reportAreas = [];
 
+function escJs(s){ return String(s == null ? '' : s).replace(/\\/g,"\\\\").replace(/'/g,"\\'").replace(/"/g,"&quot;").replace(/</g,"&lt;"); }
+
+function sanitizeReportIframe(html){
+    if (!html || !html.includes("<iframe")) return "";
+    var m = html.match(/<iframe[^>]*>/i);
+    if (!m) return "";
+    var tag = m[0];
+    var srcMatch = tag.match(/src\s*=\s*["']([^"']+)["']/i);
+    var src = srcMatch ? srcMatch[1].trim() : "";
+    if (!src || !/^https:\/\//i.test(src)) return "";
+    var host = src.replace(/^https?:\/\//i, "").split(/[/?#]/)[0].toLowerCase();
+    var allowed = ["app.powerbi.com", "powerbi.com", "sharepoint.com", "office.com", "drive.google.com", "docs.google.com", "youtube.com", "google.com", "onedrive.com"];
+    if (!allowed.some(function(d){ return host === d || host.endsWith("." + d); })) return "";
+    var title = "";
+    var titleMatch = tag.match(/title\s*=\s*["']([^"']*)["']/i);
+    if (titleMatch) title = titleMatch[1].replace(/"/g, "&quot;");
+    return '<iframe src="' + src.replace(/"/g, "&quot;") + '" width="100%" height="520" style="border:0;"' +
+        (title ? ' title="' + title + '"' : '') + ' allowfullscreen></iframe>';
+}
+
 function renderReportMenu(){
     const menu = document.getElementById("reportMenu");
     if (!menu) return;
     menu.innerHTML = reportAreas.map(a => `
-    <button class="report-area-btn" data-id="${a.id}" onclick="selectReportArea('${a.id}')">
+    <button class="report-area-btn" data-id="${escJs(a.id)}" onclick="selectReportArea('${escJs(a.id)}')">
         <i class="fas fa-chart-line"></i> ${escapeHtml(a.Title)}
     </button>`).join("") + `
     <button class="report-area-btn report-add-btn" onclick="openAddReportModal()">
@@ -227,7 +247,8 @@ function selectReportArea(id){
     const area = reportAreas.find(a => a.id === id);
     if (!area) return;
     document.querySelectorAll(".report-area-btn").forEach(b => b.classList.remove("active"));
-    document.querySelector(`.report-area-btn[data-id="${id}"]`).classList.add("active");
+    const btn = Array.from(document.querySelectorAll(".report-area-btn")).find(b => b.dataset.id === id);
+    if (btn) btn.classList.add("active");
     const wrap = document.getElementById("reportFrameWrap");
     const placeholder = document.getElementById("reportPlaceholder");
     if (area.Informe && area.Informe.includes("<iframe")) {
@@ -238,7 +259,7 @@ function selectReportArea(id){
             container.className = "report-embed-container";
             wrap.appendChild(container);
         }
-        container.innerHTML = area.Informe.replace(/width="[^"]*"/gi,'width="100%"').replace(/height="[^"]*"/gi,'height="520"');
+        container.innerHTML = sanitizeReportIframe(area.Informe);
         container.style.display = "block";
     } else {
         placeholder.style.display = "flex";
@@ -262,7 +283,7 @@ function loadReportAreas(){
 
 function openAddReportModal(){
     const select = document.getElementById("modalAreaSelect");
-    select.innerHTML = reportAreas.map(a => `<option value="${a.id}">${escapeHtml(a.Title)}</option>`).join("");
+    select.innerHTML = reportAreas.map(a => `<option value="${escJs(a.id)}">${escapeHtml(a.Title)}</option>`).join("");
     document.getElementById("modalIframeInput").value = "";
     document.getElementById("modalIframeInput").placeholder = "Pega aquí el código <iframe> que copiaste de Power BI...";
     document.getElementById("saveReportBtn").disabled = false;
@@ -286,12 +307,17 @@ function saveReportIframe(){
         showIntranetToast("El código ingresado no parece ser un iframe válido", "error");
         return;
     }
+    const cleaned = sanitizeReportIframe(iframeHtml);
+    if (!cleaned) {
+        showIntranetToast("El iframe debe ser https y de un dominio permitido (Power BI, SharePoint, Google Drive)", "error");
+        return;
+    }
     const btn = document.getElementById("saveReportBtn");
     btn.disabled = true;
     btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Guardando...';
-    updateReportIframe(areaId, iframeHtml).then(() => {
+    updateReportIframe(areaId, cleaned).then(() => {
         const area = reportAreas.find(a => a.id === areaId);
-        if (area) area.Informe = iframeHtml;
+        if (area) area.Informe = cleaned;
         closeAddReportModal();
         showIntranetToast("Informe guardado correctamente para " + (area ? area.Title : ""), "success");
         selectReportArea(areaId);
@@ -309,7 +335,7 @@ document.addEventListener("DOMContentLoaded", function() {
     getCurrentUser().then(user => {
         const name = user.displayName || user.userPrincipalName || "Empleado";
         document.getElementById("userDisplay").textContent = name;
-        document.getElementById("userName").textContent = name;
+        const userNameEl = document.getElementById("userName"); if (userNameEl) userNameEl.textContent = name;
         if (user.jobTitle) document.getElementById("userBadge").textContent = user.jobTitle;
     }).catch(() => {});
 

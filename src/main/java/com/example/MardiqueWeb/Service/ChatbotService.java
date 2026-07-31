@@ -39,6 +39,12 @@ public class ChatbotService {
     @Value("${groq.api-key}")
     private String groqApiKey;
 
+    @Value("${groq.model:openai/gpt-oss-120b}")
+    private String groqModel;
+
+    @Value("${groq.model-fallback:openai/gpt-oss-20b}")
+    private String groqModelFallback;
+
     @Autowired
     private KnowledgeChunkRepository knowledgeChunkRepository;
 
@@ -47,7 +53,6 @@ public class ChatbotService {
 
     private final RestTemplate restTemplate = new RestTemplate();
     private static final String GROQ_URL = "https://api.groq.com/openai/v1/chat/completions";
-    private static final String MODEL = "llama-3.3-70b-versatile";
 
     private static final String OFF_TOPIC_MSG =
             "Lo siento, mi enfoque es ayudarte únicamente con los temas relacionados con la Sociedad Portuaria Mardique y sus servicios portuarios, comerciales y logísticos. " +
@@ -66,16 +71,6 @@ public class ChatbotService {
             "Entiendo perfectamente que necesitas comunicarte lo antes posible. Por políticas de atención, y para " +
                     "garantizarte una asesoría dedicada y sin esperas, no compartimos números directos. Sin embargo, " +
                     "agendando tu cita aquí mismo, un representante te atenderá sin filas. **¿Te gustaría agendar tu cita ahora?**"
-    };
-
-    // Respuestas escalonadas cuando no hay información disponible (precios, datos internos, etc.)
-    private static final String[] NO_INFO_TIERS = {
-            "No tengo esa información disponible en este momento. Para más detalles, comunícate al **(57) 669 0730** o escríbenos a **info@spmardique.com**.",
-            "No tengo ese dato en mi base. Te recomiendo **solicitar información** a través del formulario del chat y un " +
-                    "representante del área correspondiente te lo confirmará con precisión.",
-            "Lamento no poder darte ese dato exacto por ahora, es información que maneja directamente el área responsable. " +
-                    "La forma más rápida de obtenerlo con precisión es **dejando tu solicitud aquí mismo** y te responderán " +
-                    "en breve. **¿Prefieres que te deje el formulario listo?**"
     };
 
     // Respuestas escalonadas ante temas fuera del alcance repetidos
@@ -128,45 +123,46 @@ public class ChatbotService {
         // 1. Saludo / conversación casual -> la IA responde normalmente
         if (isGreeting(question)) {
             String context = findRelevantContext(question);
-            String answer = callGroq(buildSystemPrompt(context), question);
+            String answer = callGroq(buildSystemPrompt(context, tier), question);
             return Map.of("answer", answer, "form", false, "blocked", false);
         }
 
-        // 2. Fuera de tema (medicina, deportes, etc.)
-        if (isOffTopic(question)) {
-            return Map.of("answer", OFF_TOPIC_TIERS[tier], "form", false, "blocked", true);
-        }
-
-        // 3. Intención de contacto / pedir datos privados de alguien -> mostrar formulario
+        // 2. Intención de contacto / pedir datos privados de alguien -> mostrar formulario
         if (isContactIntent(question)) {
             return Map.of("answer", CONTACT_REFUSAL_TIERS[tier], "form", true, "blocked", true);
         }
 
-        // 4. Respuesta exacta de FAQ si existe
+        // 3. Respuesta exacta de FAQ si existe
         Faq faq = findFaqMatch(question);
         if (faq != null) {
             return Map.of("answer", sanitizeContext(faq.getAnswer()), "form", false, "blocked", false);
         }
 
-        // 5. Consulta con la base de conocimiento
+        // 4. Consulta con la base de conocimiento
         String context = findRelevantContext(question);
-        if (context.isEmpty()) {
-            return Map.of("answer", NO_INFO_TIERS[tier], "form", false, "blocked", true);
+
+        // 5. Solo se bloquea como "fuera de tema" si NO hay keyword relacionada
+        //    Y TAMPOCO se encontró nada en la base de conocimiento. Antes se bloqueaba
+        //    con solo la keyword, lo que generaba falsos "fuera de tema" en preguntas
+        //    válidas mal redactadas.
+        if (context.isEmpty() && isOffTopic(question)) {
+            return Map.of("answer", OFF_TOPIC_TIERS[tier], "form", false, "blocked", true);
         }
-        String systemPrompt = buildSystemPrompt(context);
+
+        // 6. Siempre se deja responder a la IA (con o sin contexto). El propio
+        //    system prompt le indica cómo comportarse cuando no hay contexto,
+        //    y al usar el modelo la redacción varía en cada intento en vez de
+        //    repetir siempre el mismo texto enlatado.
+        String systemPrompt = buildSystemPrompt(context, tier);
         String answer = callGroq(systemPrompt, question);
-        return Map.of("answer", sanitizeContext(answer), "form", false, "blocked", false);
+        return Map.of("answer", sanitizeContext(answer), "form", false, "blocked", context.isEmpty());
     }
 
     public void askStream(String question, int repeatCount, SseEmitter emitter) {
         int tier = Math.min(Math.max(repeatCount, 0), 2);
         try {
             if (isGreeting(question)) {
-                streamGroq(buildSystemPrompt(findRelevantContext(question)), question, emitter, false, false);
-                return;
-            }
-            if (isOffTopic(question)) {
-                sendEvent(emitter, OFF_TOPIC_TIERS[tier], false, true);
+                streamGroq(buildSystemPrompt(findRelevantContext(question), tier), question, emitter, false, false);
                 return;
             }
             if (isContactIntent(question)) {
@@ -179,11 +175,11 @@ public class ChatbotService {
                 return;
             }
             String context = findRelevantContext(question);
-            if (context.isEmpty()) {
-                sendEvent(emitter, NO_INFO_TIERS[tier], false, true);
+            if (context.isEmpty() && isOffTopic(question)) {
+                sendEvent(emitter, OFF_TOPIC_TIERS[tier], false, true);
                 return;
             }
-            streamGroq(buildSystemPrompt(context), question, emitter, false, false);
+            streamGroq(buildSystemPrompt(context, tier), question, emitter, false, context.isEmpty());
         } catch (Exception e) {
             log.error("Stream error: {}", e.getMessage(), e);
             try {
@@ -287,25 +283,48 @@ public class ChatbotService {
         return c;
     }
 
-    private String buildSystemPrompt(String context) {
+    private String buildSystemPrompt(String context, int tier) {
         StringBuilder sb = new StringBuilder();
         sb.append("Eres el asistente virtual de Sociedad Portuaria Mardique S.A., un puerto multipropósito ubicado en Cartagena, Colombia.\n\n");
         sb.append("REGLAS ESTRICTAS:\n");
         sb.append("- Responde EN MÁXIMO 3-4 líneas.\n");
         sb.append("- Sé directo y preciso. No des listas largas ni párrafos enormes.\n");
         sb.append("- Usa negritas para datos clave (nombres de áreas).\n");
-        sb.append("- Si el usuario te saluda (hola, buenos días, ¿cómo estás?) responde de forma amable y natural, preséntate brevemente y pregunta en qué le puedes ayudar. No des respuestas de máquina ni repitas el mensaje de error.\n");
-        sb.append("- Si la pregunta es sobre algo que no tienes en la información, di: 'No tengo esa información, comunícate al (57) 669 0730 o info@spmardique.com.'\n");
-        sb.append("- Nunca inventes información. Si no lo sabes, dilo.\n");
-        sb.append("- Usa un tono amable pero profesional.\n\n");
-        sb.append("- IMPORTANTE: Tu enfoque principal son temas portuarios, logísticos y de la empresa Mardique. " +
-                "Si te preguntan por temas ajenos (medicina, deportes, política, recetas, etc.), responde exactamente: " +
-                "'Lo siento, mi enfoque es ayudarte únicamente con los temas relacionados con la Sociedad Portuaria Mardique y sus servicios portuarios, comerciales y logísticos. ¿Tienes alguna duda sobre nuestros servicios, tarifas, trámites o cómo contactarnos?'\n\n");
+        sb.append("- Si el usuario te saluda (hola, buenos días, ¿cómo estás?) responde de forma amable y natural, preséntate brevemente y pregunta en qué le puedes ayudar. No des respuestas de máquina.\n");
+        sb.append("- Nunca inventes información. Si no lo sabes, dilo con tus propias palabras, sin sonar repetitivo.\n");
+        sb.append("- Usa un tono amable, cercano y profesional, como una persona real del equipo de atención, no como un script.\n");
+        sb.append("- IMPORTANTE: redacta cada respuesta con tus propias palabras. Nunca copies literalmente una respuesta anterior de esta conversación ni uses siempre la misma frase para decir lo mismo.\n\n");
+
+        sb.append("EJEMPLOS DE CÓMO CONVERSAR (no los copies literal, son solo guía de tono):\n");
+        sb.append("Usuario: hola, buenas\n");
+        sb.append("Asistente: ¡Hola! Bienvenido a Mardique 👋 ¿En qué te puedo ayudar hoy? Puedo darte info sobre servicios, trámites o cómo contactarnos.\n\n");
+        sb.append("Usuario: ¿qué servicios ofrecen?\n");
+        sb.append("Asistente: Ofrecemos manejo de carga general, contenedores y graneles, además de servicios portuarios y logísticos asociados. ¿Buscas info de algún servicio en particular?\n\n");
+        sb.append("Usuario: necesito el celular del gerente\n");
+        sb.append("Asistente: No comparto datos de contacto directo por política de la empresa, pero si agendas tu solicitud aquí mismo, un representante del área te contacta enseguida. ¿Te ayudo a dejar la solicitud?\n\n");
+        sb.append("Usuario: ¿cuál es la capital de Francia?\n");
+        sb.append("Asistente: Eso se sale un poco de lo mío 😅 Mi fuerte son los temas de Mardique: servicios portuarios, tarifas, trámites y contacto. ¿Te ayudo con algo de eso?\n\n");
+
+        if (context.isEmpty()) {
+            sb.append("SITUACIÓN ACTUAL: no se encontró información específica en la base de conocimiento para esta pregunta.\n");
+            if (tier == 0) {
+                sb.append("Dile de forma natural y breve que no tienes ese dato exacto en este momento, y sugiere comunicarse " +
+                        "al (57) 669 0730 o info@spmardique.com. Si la pregunta claramente no tiene nada que ver con Mardique " +
+                        "(temas ajenos como medicina, deportes, recetas, política, etc.), acláralo con amabilidad y redirige " +
+                        "la conversación hacia en qué sí puedes ayudar.\n\n");
+            } else if (tier == 1) {
+                sb.append("Ya le dijiste antes que no tenías ese dato. Esta vez varía la redacción (no repitas la misma frase) " +
+                        "y sugiere dejar su solicitud en el formulario del chat para que un representante del área lo confirme.\n\n");
+            } else {
+                sb.append("Es al menos el tercer intento con este mismo tema. Sé empático, varía la redacción de nuevo, y anímalo " +
+                        "directamente a dejar la solicitud en el formulario ('¿te dejo el formulario listo?').\n\n");
+            }
+        }
+
         sb.append("- PRIVACIDAD (MUY IMPORTANTE): NUNCA reveles números de teléfono personales, correos electrónicos personales ni datos de contacto directo de empleados (gerentes, Oscar, representantes, personal). " +
                 "Es información privada y está PROHIBIDO mencionar nombres de empleados junto con su teléfono o correo. " +
-                "Si el usuario pide el número o correo de una persona o empleado, responde: " +
-                "'Para contactar al [área o persona que piden], agenda una cita o solicita información y un representante te atenderá.' " +
-                "y dile que complete el formulario de contacto del chat.\n\n");
+                "Si el usuario pide el número o correo de una persona o empleado, dile con tus palabras que no compartes esos datos " +
+                "por política de la empresa, y que agendando una cita o dejando su solicitud, un representante lo atenderá.\n\n");
         sb.append("- Si el usuario pregunta cómo contactar, agendar una cita o reunión, o solicitar información, " +
                 "indícale que complete el formulario de contacto que aparecerá en el chat y menciona brevemente que " +
                 "un representante del área elegida lo atenderá.\n\n");
@@ -340,46 +359,50 @@ public class ChatbotService {
         if (!context.isEmpty()) {
             sb.append("INFORMACIÓN DE LA EMPRESA:\n").append(context).append("\n\n");
             sb.append("Usa ÚNICAMENTE esta información para responder. No agregues información que no esté aquí.");
-        } else {
-            sb.append("No hay información específica para esta pregunta en la base de conocimiento. " +
-                    "Responde con lo que conozcas de Mardique (servicios, líneas de atención) o sugiere contactar " +
-                    "al (57) 669 0730 o info@spmardique.com.");
         }
         return sb.toString();
     }
 
     private String callGroq(String systemPrompt, String userMessage) {
-        try {
-            HttpHeaders headers = new HttpHeaders();
-            headers.setContentType(MediaType.APPLICATION_JSON);
-            headers.setBearerAuth(groqApiKey);
+        String[] models = { groqModel, groqModelFallback };
+        for (String model : models) {
+            try {
+                HttpHeaders headers = new HttpHeaders();
+                headers.setContentType(MediaType.APPLICATION_JSON);
+                headers.setBearerAuth(groqApiKey);
 
-            Map<String, Object> requestBody = Map.of(
-                    "model", MODEL,
-                    "messages", List.of(
-                            Map.of("role", "system", "content", systemPrompt),
-                            Map.of("role", "user", "content", userMessage)
-                    ),
-                    "temperature", 0.5,
-                    "max_tokens", 300
-            );
+                Map<String, Object> requestBody = Map.of(
+                        "model", model,
+                        "messages", List.of(
+                                Map.of("role", "system", "content", systemPrompt),
+                                Map.of("role", "user", "content", userMessage)
+                        ),
+                        "temperature", 0.5,
+                        "max_tokens", 300
+                );
 
-            HttpEntity<Map<String, Object>> request = new HttpEntity<>(requestBody, headers);
-            ResponseEntity<Map> response = restTemplate.postForEntity(GROQ_URL, request, Map.class);
+                HttpEntity<Map<String, Object>> request = new HttpEntity<>(requestBody, headers);
+                ResponseEntity<Map> response = restTemplate.postForEntity(GROQ_URL, request, Map.class);
 
-            Map body = response.getBody();
-            if (body != null && body.containsKey("choices")) {
-                List<Map<String, Object>> choices = (List<Map<String, Object>>) body.get("choices");
-                if (!choices.isEmpty()) {
-                    Map<String, Object> message = (Map<String, Object>) choices.get(0).get("message");
-                    return (String) message.get("content");
+                if (!response.getStatusCode().is2xxSuccessful()) {
+                    log.error("Groq API HTTP {} (model {}): {}", response.getStatusCode(), model, response.getBody());
+                    continue;
                 }
+
+                Map body = response.getBody();
+                if (body != null && body.containsKey("choices")) {
+                    List<Map<String, Object>> choices = (List<Map<String, Object>>) body.get("choices");
+                    if (!choices.isEmpty()) {
+                        Map<String, Object> message = (Map<String, Object>) choices.get(0).get("message");
+                        return (String) message.get("content");
+                    }
+                }
+                return "Lo siento, no pude procesar tu consulta en este momento.";
+            } catch (Exception e) {
+                log.error("Groq API error (model {}): {}", model, e.getMessage(), e);
             }
-            return "Lo siento, no pude procesar tu consulta en este momento.";
-        } catch (Exception e) {
-            log.error("Groq API error: {}", e.getMessage(), e);
-            return "Lo siento, ocurrió un error al procesar tu consulta. Intenta de nuevo más tarde.";
         }
+        return "Lo siento, ocurrió un error al procesar tu consulta. Intenta de nuevo más tarde.";
     }
 
     private void sendEvent(SseEmitter emitter, String text, boolean form, boolean blocked) {
@@ -399,48 +422,14 @@ public class ChatbotService {
 
     private void streamGroq(String systemPrompt, String userMessage, SseEmitter emitter, boolean form, boolean blocked) {
         try {
-            ObjectMapper mapper = new ObjectMapper();
-            String requestBody = mapper.writeValueAsString(Map.of(
-                    "model", MODEL,
-                    "messages", List.of(
-                            Map.of("role", "system", "content", systemPrompt),
-                            Map.of("role", "user", "content", userMessage)
-                    ),
-                    "temperature", 0.5,
-                    "max_tokens", 300,
-                    "stream", true
-            ));
-
-            HttpClient client = HttpClient.newHttpClient();
-            HttpRequest request = HttpRequest.newBuilder(URI.create(GROQ_URL))
-                    .header("Authorization", "Bearer " + groqApiKey)
-                    .header("Content-Type", "application/json")
-                    .POST(HttpRequest.BodyPublishers.ofString(requestBody))
-                    .build();
-
-            HttpResponse<InputStream> response = client.send(request, HttpResponse.BodyHandlers.ofInputStream());
-            BufferedReader reader = new BufferedReader(new InputStreamReader(response.body(), StandardCharsets.UTF_8));
-
-            String line;
-            while ((line = reader.readLine()) != null) {
-                if (!line.startsWith("data:")) continue;
-                String data = line.substring(5).trim();
-                if (data.equals("[DONE]")) break;
-                try {
-                    JsonNode node = mapper.readTree(data);
-                    JsonNode delta = node.path("choices").path(0).path("delta").path("content");
-                    if (delta.isTextual() && !delta.asText().isEmpty()) {
-                        Map<String, Object> payload = new java.util.LinkedHashMap<>();
-                        payload.put("token", sanitizeContext(delta.asText()));
-                        payload.put("form", form);
-                        payload.put("blocked", blocked);
-                        emitter.send(SseEmitter.event().name("message").data(payload));
-                    }
-                } catch (Exception ignore) {
-                }
+            boolean ok = attemptStream(systemPrompt, userMessage, emitter, form, blocked, groqModel);
+            if (!ok) {
+                log.warn("Groq stream falló con el modelo principal '{}', reintentando con '{}'", groqModel, groqModelFallback);
+                ok = attemptStream(systemPrompt, userMessage, emitter, form, blocked, groqModelFallback);
             }
-            emitter.send(SseEmitter.event().name("done").data(Map.of("done", true)));
-            emitter.complete();
+            if (!ok) {
+                sendEvent(emitter, "No pude conectarme con el servicio de IA en este momento. Intenta de nuevo.", false, false);
+            }
         } catch (Exception e) {
             log.error("Groq stream error: {}", e.getMessage(), e);
             try {
@@ -449,5 +438,63 @@ public class ChatbotService {
                 emitter.complete();
             }
         }
+    }
+
+    /**
+     * Intenta una solicitud de streaming a Groq con el modelo indicado.
+     * Devuelve false solo si la respuesta HTTP no fue 2xx (antes de emitir tokens),
+     * para que el llamador pueda reintentar con otro modelo sin duplicar contenido.
+     * Errores a mitad de stream se propagan como excepción (no se reintenta).
+     */
+    private boolean attemptStream(String systemPrompt, String userMessage, SseEmitter emitter,
+                                  boolean form, boolean blocked, String model) throws Exception {
+        ObjectMapper mapper = new ObjectMapper();
+        String requestBody = mapper.writeValueAsString(Map.of(
+                "model", model,
+                "messages", List.of(
+                        Map.of("role", "system", "content", systemPrompt),
+                        Map.of("role", "user", "content", userMessage)
+                ),
+                "temperature", 0.5,
+                "max_tokens", 300,
+                "stream", true
+        ));
+
+        HttpClient client = HttpClient.newHttpClient();
+        HttpRequest request = HttpRequest.newBuilder(URI.create(GROQ_URL))
+                .header("Authorization", "Bearer " + groqApiKey)
+                .header("Content-Type", "application/json")
+                .POST(HttpRequest.BodyPublishers.ofString(requestBody))
+                .build();
+
+        HttpResponse<InputStream> response = client.send(request, HttpResponse.BodyHandlers.ofInputStream());
+        if (response.statusCode() >= 300) {
+            String errBody = new String(response.body().readAllBytes(), StandardCharsets.UTF_8);
+            log.error("Groq HTTP {} (model {}): {}", response.statusCode(), model, errBody);
+            return false;
+        }
+
+        BufferedReader reader = new BufferedReader(new InputStreamReader(response.body(), StandardCharsets.UTF_8));
+        String line;
+        while ((line = reader.readLine()) != null) {
+            if (!line.startsWith("data:")) continue;
+            String data = line.substring(5).trim();
+            if (data.equals("[DONE]")) break;
+            try {
+                JsonNode node = mapper.readTree(data);
+                JsonNode delta = node.path("choices").path(0).path("delta").path("content");
+                if (delta.isTextual() && !delta.asText().isEmpty()) {
+                    Map<String, Object> payload = new java.util.LinkedHashMap<>();
+                    payload.put("token", sanitizeContext(delta.asText()));
+                    payload.put("form", form);
+                    payload.put("blocked", blocked);
+                    emitter.send(SseEmitter.event().name("message").data(payload));
+                }
+            } catch (Exception ignore) {
+            }
+        }
+        emitter.send(SseEmitter.event().name("done").data(Map.of("done", true)));
+        emitter.complete();
+        return true;
     }
 }
