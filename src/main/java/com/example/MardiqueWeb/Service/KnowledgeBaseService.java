@@ -5,8 +5,11 @@ import com.example.MardiqueWeb.Repository.KnowledgeChunkRepository;
 import org.apache.pdfbox.Loader;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.text.PDFTextStripper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -16,20 +19,31 @@ import java.util.List;
 @Service
 public class KnowledgeBaseService {
 
+    private static final Logger log = LoggerFactory.getLogger(KnowledgeBaseService.class);
+
     @Autowired
     private KnowledgeChunkRepository knowledgeChunkRepository;
 
     private static final int CHUNK_SIZE = 1000;
     private static final int CHUNK_OVERLAP = 100;
 
+    @Transactional
     public int processPdf(MultipartFile file, String filename) throws IOException {
-        try (PDDocument document = Loader.loadPDF(file.getBytes())) {
+        log.info("Processing PDF: {}, size: {} bytes", filename, file.getSize());
+        byte[] pdfBytes = file.getBytes();
+        try (PDDocument document = Loader.loadPDF(pdfBytes)) {
+            log.info("PDF loaded, pages: {}", document.getNumberOfPages());
             PDFTextStripper stripper = new PDFTextStripper();
             String text = stripper.getText(document);
+            log.info("Text extracted: {} chars", text.length());
             return processText(text, filename);
+        } catch (Exception e) {
+            log.error("Error processing PDF {}: {}", filename, e.getMessage(), e);
+            throw e;
         }
     }
 
+    @Transactional
     public int processText(String text, String source) {
         knowledgeChunkRepository.deleteBySource(source);
         List<String> chunks = chunkText(text);

@@ -40,31 +40,47 @@ public class ChatbotService {
     }
 
     private String findRelevantContext(String question) {
-        List<KnowledgeChunk> results = knowledgeChunkRepository.searchByText(question, 5);
+        // Full-text search
+        List<KnowledgeChunk> results = knowledgeChunkRepository.searchByText(question, 8);
+        // Fallback: search each significant word with ILIKE
         if (results.isEmpty()) {
-            results = knowledgeChunkRepository.searchByLike(question, 5);
+            String[] words = question.toLowerCase().split("\\s+");
+            java.util.Set<Long> seen = new java.util.HashSet<>();
+            for (String word : words) {
+                if (word.length() >= 3) {
+                    List<KnowledgeChunk> wordResults = knowledgeChunkRepository.searchByLike(word, 5);
+                    for (KnowledgeChunk kc : wordResults) {
+                        if (!seen.contains(kc.getId())) {
+                            results.add(kc);
+                            seen.add(kc.getId());
+                        }
+                    }
+                }
+            }
         }
         if (results.isEmpty()) {
             return "";
         }
         return results.stream()
-                .map(kc -> "[Fuente: " + kc.getSource() + " - " + kc.getSection() + "]\n" + kc.getContent())
-                .collect(Collectors.joining("\n\n---\n\n"));
+                .map(kc -> kc.getContent())
+                .collect(Collectors.joining("\n\n"));
     }
 
     private String buildSystemPrompt(String context) {
         StringBuilder sb = new StringBuilder();
-        sb.append("Eres un asistente virtual de la Sociedad Portuaria Mardique S.A., un puerto marítimo en la región Caribe colombiana. ");
-        sb.append("Responde preguntas sobre la empresa, sus servicios, trámites, tarifas, contacto y operaciones portuarias. ");
-        sb.append("Sé amable, profesional y responde en español de forma clara y concisa.\n\n");
+        sb.append("Eres el asistente virtual de Sociedad Portuaria Mardique S.A.\n\n");
+        sb.append("REGLAS ESTRICTAS:\n");
+        sb.append("- Responde EN MÁXIMO 3-4 líneas.\n");
+        sb.append("- Sé directo y preciso. No des listas largas ni párrafos enormes.\n");
+        sb.append("- Usa negritas para datos clave (teléfonos, correos, nombres).\n");
+        sb.append("- Si la pregunta es sobre algo que no tienes en la información, di: 'No tengo esa información, comunícate al [teléfono/correo de contacto].'\n");
+        sb.append("- Nunca inventes información. Si no lo sabes, dilo.\n");
+        sb.append("- Usa un tono amable pero profesional.\n\n");
         if (!context.isEmpty()) {
-            sb.append("A continuación tienes información relevante de la base de conocimientos para responder:\n\n");
-            sb.append(context);
-            sb.append("\n\nUsa esta información para responder. Si no encuentras la respuesta en la información proporcionada, ");
-            sb.append("indica amablemente que no tienes esa información y sugiere contactar directamente con la empresa.");
+            sb.append("INFORMACIÓN DE LA EMPRESA:\n").append(context).append("\n\n");
+            sb.append("Usa ÚNICAMENTE esta información para responder. No agregues información que no esté aquí.");
         } else {
-            sb.append("No hay información específica en la base de conocimientos para esta consulta. ");
-            sb.append("Responde de forma general si es posible, o indica que no tienes la información y sugiere contactar con la empresa.");
+            sb.append("No hay información específica para esta pregunta. Sugiere contactar a la empresa directamente.");
         }
         return sb.toString();
     }
@@ -81,8 +97,8 @@ public class ChatbotService {
                     Map.of("role", "system", "content", systemPrompt),
                     Map.of("role", "user", "content", userMessage)
                 ),
-                "temperature", 0.7,
-                "max_tokens", 1024
+                "temperature", 0.5,
+                "max_tokens", 300
             );
 
             HttpEntity<Map<String, Object>> request = new HttpEntity<>(requestBody, headers);
