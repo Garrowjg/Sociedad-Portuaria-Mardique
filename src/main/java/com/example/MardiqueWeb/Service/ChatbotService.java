@@ -25,7 +25,7 @@ public class ChatbotService {
 
     private static final Logger log = LoggerFactory.getLogger(ChatbotService.class);
 
-    @Value("${groq.api.key}")
+    @Value("${groq.api-key}")
     private String groqApiKey;
 
     @Autowired
@@ -39,40 +39,40 @@ public class ChatbotService {
     private static final String MODEL = "llama-3.3-70b-versatile";
 
     private static final String OFF_TOPIC_MSG =
-        "Lo siento, mi enfoque es ayudarte únicamente con los temas relacionados con la Sociedad Portuaria Mardique y sus servicios portuarios, comerciales y logísticos. " +
-        "¿Tienes alguna duda sobre nuestros servicios, tarifas, trámites o cómo contactarnos?";
+            "Lo siento, mi enfoque es ayudarte únicamente con los temas relacionados con la Sociedad Portuaria Mardique y sus servicios portuarios, comerciales y logísticos. " +
+                    "¿Tienes alguna duda sobre nuestros servicios, tarifas, trámites o cómo contactarnos?";
 
     private static final String CONTACT_MSG =
-        "Para contactar al área o persona que necesitas, **agenda una cita o solicita información** y un representante de Mardique te atenderá. " +
-        "Por favor completa el siguiente formulario y te contactaremos a la brevedad.";
+            "Para contactar al área o persona que necesitas, **agenda una cita o solicita información** y un representante de Mardique te atenderá. " +
+                    "Por favor completa el siguiente formulario y te contactaremos a la brevedad.";
 
     // Palabras clave relacionadas con Mardique / sector portuario
     private static final String[] RELATED_KEYWORDS = {
-        "puerto", "portuaria", "mardique", "servicio", "servicios", "tarifa", "tarifas",
-        "tramite", "tramites", "barco", "barcos", "carga", "cargas", "contenedor", "contenedores",
-        "muelle", "muelles", "operacion", "operaciones", "aduana", "aduanera", "logistica",
-        "embarque", "desembarque", "nave", "naves", "buque", "buques", "grua", "gruas", "granel",
-        "graneles", "hidrocarburo", "hidrocarburos", "zona franca", "cliente", "clientes",
-        "proveedor", "proveedores", "inscripcion", "comercial", "certificacion", "documento",
-        "documentacion", "factura", "facturas", "pago", "pagos", "atracar", "remolque", "estiba",
-        "transporte", "contacto", "contactar", "contactarnos", "telefono", "correo", "email",
-        "ubicacion", "ubicados", "direccion", "horario", "horarios", "empleo", "pasantia",
-        "pasantias", "trabajo", "vacante", "vacantes", "solicitud", "solicitudes", "queja",
-        "reclamo", "peticion", "pqrs", "atencion", "atender", "gerente", "gerencia", "linea",
-        "lineas", "comunicarme", "cita", "reunion", "agendar", "tarifario", "naviero", "naviera",
-        "empresa", "compania", "spmardique", "informacion", "servicios", "zona", "franca",
-        "calado", "eslora", "manga", "registro", "requisitos", "cotizacion", "cotizar", "maniobra",
-        "maniobras", "seguimiento", "carga", "descarga", "cliente"
+            "puerto", "portuaria", "mardique", "servicio", "servicios", "tarifa", "tarifas",
+            "tramite", "tramites", "barco", "barcos", "carga", "cargas", "contenedor", "contenedores",
+            "muelle", "muelles", "operacion", "operaciones", "aduana", "aduanera", "logistica",
+            "embarque", "desembarque", "nave", "naves", "buque", "buques", "grua", "gruas", "granel",
+            "graneles", "hidrocarburo", "hidrocarburos", "zona franca", "cliente", "clientes",
+            "proveedor", "proveedores", "inscripcion", "comercial", "certificacion", "documento",
+            "documentacion", "factura", "facturas", "pago", "pagos", "atracar", "remolque", "estiba",
+            "transporte", "contacto", "contactar", "contactarnos", "telefono", "correo", "email",
+            "ubicacion", "ubicados", "direccion", "horario", "horarios", "empleo", "pasantia",
+            "pasantias", "trabajo", "vacante", "vacantes", "solicitud", "solicitudes", "queja",
+            "reclamo", "peticion", "pqrs", "atencion", "atender", "gerente", "gerencia", "linea",
+            "lineas", "comunicarme", "cita", "reunion", "agendar", "tarifario", "naviero", "naviera",
+            "empresa", "compania", "spmardique", "informacion", "servicios", "zona", "franca",
+            "calado", "eslora", "manga", "registro", "requisitos", "cotizacion", "cotizar", "maniobra",
+            "maniobras", "seguimiento", "carga", "descarga", "cliente"
     };
 
     private static final String[] CONTACT_INTENT_KEYWORDS = {
-        "contactar", "contacto", "contactarnos", "comunicarme", "hablar con", "atender",
-        "atencion", "agendar", "cita", "citas", "reunion", "reuniones", "telefono", "telefono de",
-        "numero", "numero de", "numero del", "correo", "correo de", "email", "email de",
-        "gerente", "gerencia", "representante", "asesor", "asesoria", "solicitar informacion",
-        "linea de atencion", "lineas de atencion", "informacion de contacto", "donde los contacto",
-        "como los contacto", "como contacto", "medio de contacto", "atenderme", "contactar al",
-        "hablar con el", "hablar con la", "con quien"
+            "contactar", "contacto", "contactarnos", "comunicarme", "hablar con", "atender",
+            "atencion", "agendar", "cita", "citas", "reunion", "reuniones", "telefono", "telefono de",
+            "numero", "numero de", "numero del", "correo", "correo de", "email", "email de",
+            "gerente", "gerencia", "representante", "asesor", "asesoria", "solicitar informacion",
+            "linea de atencion", "lineas de atencion", "informacion de contacto", "donde los contacto",
+            "como los contacto", "como contacto", "medio de contacto", "atenderme", "contactar al",
+            "hablar con el", "hablar con la", "con quien"
     };
 
     public Map<String, Object> ask(String question) {
@@ -176,15 +176,15 @@ public class ChatbotService {
         sb.append("- Nunca inventes información. Si no lo sabes, dilo.\n");
         sb.append("- Usa un tono amable pero profesional.\n\n");
         sb.append("- IMPORTANTE: Tu enfoque es ÚNICAMENTE temas portuarios, logísticos y de la empresa Mardique. " +
-                  "Si te preguntan por temas ajenos (medicina, deportes, política, recetas, etc.), responde exactamente: " +
-                  "'Lo siento, mi enfoque es ayudarte únicamente con los temas relacionados con la Sociedad Portuaria Mardique y sus servicios portuarios, comerciales y logísticos. ¿Tienes alguna duda sobre nuestros servicios, tarifas, trámites o cómo contactarnos?'\n\n");
+                "Si te preguntan por temas ajenos (medicina, deportes, política, recetas, etc.), responde exactamente: " +
+                "'Lo siento, mi enfoque es ayudarte únicamente con los temas relacionados con la Sociedad Portuaria Mardique y sus servicios portuarios, comerciales y logísticos. ¿Tienes alguna duda sobre nuestros servicios, tarifas, trámites o cómo contactarnos?'\n\n");
         sb.append("- PRIVACIDAD: NUNCA reveles números de teléfono personales, correos electrónicos personales ni datos de contacto directo de empleados (gerentes, representantes, etc.). " +
-                  "Es información privada. Si el usuario pide el número o correo de una persona, responde: " +
-                  "'Para contactar al [área o persona que piden], agenda una cita o solicita información y un representante te atenderá.' " +
-                  "y dile que complete el formulario de contacto del chat.\n\n");
+                "Es información privada. Si el usuario pide el número o correo de una persona, responde: " +
+                "'Para contactar al [área o persona que piden], agenda una cita o solicita información y un representante te atenderá.' " +
+                "y dile que complete el formulario de contacto del chat.\n\n");
         sb.append("- Si el usuario pregunta cómo contactar, agendar una cita o reunión, o solicitar información, " +
-                  "indícale que complete el formulario de contacto que aparecerá en el chat y menciona brevemente que " +
-                  "un representante del área elegida lo atenderá.\n\n");
+                "indícale que complete el formulario de contacto que aparecerá en el chat y menciona brevemente que " +
+                "un representante del área elegida lo atenderá.\n\n");
 
         // Agregar FAQs como contexto conocido
         List<Faq> faqs = faqRepository.findByActivoTrueOrderByOrdenAsc();
@@ -218,8 +218,8 @@ public class ChatbotService {
             sb.append("Usa ÚNICAMENTE esta información para responder. No agregues información que no esté aquí.");
         } else {
             sb.append("No hay información específica para esta pregunta en la base de conocimiento. " +
-                      "Responde con lo que conozcas de Mardique (servicios, líneas de atención) o sugiere contactar " +
-                      "al (57) 669 0730 o info@spmardique.com.");
+                    "Responde con lo que conozcas de Mardique (servicios, líneas de atención) o sugiere contactar " +
+                    "al (57) 669 0730 o info@spmardique.com.");
         }
         return sb.toString();
     }
@@ -231,13 +231,13 @@ public class ChatbotService {
             headers.setBearerAuth(groqApiKey);
 
             Map<String, Object> requestBody = Map.of(
-                "model", MODEL,
-                "messages", List.of(
-                    Map.of("role", "system", "content", systemPrompt),
-                    Map.of("role", "user", "content", userMessage)
-                ),
-                "temperature", 0.5,
-                "max_tokens", 300
+                    "model", MODEL,
+                    "messages", List.of(
+                            Map.of("role", "system", "content", systemPrompt),
+                            Map.of("role", "user", "content", userMessage)
+                    ),
+                    "temperature", 0.5,
+                    "max_tokens", 300
             );
 
             HttpEntity<Map<String, Object>> request = new HttpEntity<>(requestBody, headers);
