@@ -326,13 +326,18 @@ public class PaginasController {
     }
 
     private String transformIframeUrl(String url) {
-        if (url == null || url.isEmpty()) return url;
-        if (url.contains("drive.google.com") && url.contains("view?usp=sharing")) {
-            return url.replace("view?usp=sharing", "preview");
+        if (url == null || url.isBlank()) return "";
+        String trimmed = url.trim();
+        // Solo se permiten URLs http/https: bloquea javascript:, data:, vbscript:, etc.
+        if (!trimmed.toLowerCase().startsWith("https://") && !trimmed.toLowerCase().startsWith("http://")) {
+            return "";
         }
-        if (url.contains("drive.google.com") && url.contains("view?usp=drivesdk")) {
-            return url.replace("view?usp=drivesdk", "preview");
+        if (trimmed.contains("drive.google.com") && trimmed.contains("view?usp=sharing")) {
+            return trimmed.replace("view?usp=sharing", "preview");
         }
-        return url;
+        if (trimmed.contains("drive.google.com") && trimmed.contains("view?usp=drivesdk")) {
+            return trimmed.replace("view?usp=drivesdk", "preview");
+        }
+        return trimmed;
     }
 }

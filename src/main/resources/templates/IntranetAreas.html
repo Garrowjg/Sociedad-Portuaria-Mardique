@@ -192,6 +192,9 @@ function parseContactos(text){
     });
 }
 
+function escJs(s){ return String(s == null ? '' : s).replace(/\\/g,"\\\\").replace(/'/g,"\\'").replace(/"/g,"&quot;").replace(/</g,"&lt;"); }
+function safeUrl(u){ if(!u) return ''; var s=String(u).trim(); if(/^https?:\/\//i.test(s) || s.charAt(0)==='/') return s; return ''; }
+
 function renderAreas(areas){
     const cont = document.getElementById("areas-container");
     if (!cont) return;
@@ -202,11 +205,11 @@ function renderAreas(areas){
     loadedAreas = areas;
     cont.innerHTML = areas.map(a => {
         const contactos = parseContactos(a.Contactos);
-        const coverSrc = a.cover || '';
+        const coverSrc = safeUrl(a.cover);
         return `
-        <div class="area-card" onclick="openAreaDetail('${a.id}')">
+        <div class="area-card" onclick="openAreaDetail('${escJs(a.id)}')">
             <div class="area-card-banner">
-                ${coverSrc ? '<img src="' + coverSrc.replace(/&/g,"&amp;") + '" alt="" loading="lazy">' : '<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#1b4562,#26597e);font-size:40px;color:rgba(255,255,255,.15);"><i class="fas fa-building"></i></div>'}
+                ${coverSrc ? '<img src="' + coverSrc + '" alt="" loading="lazy">' : '<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#1b4562,#26597e);font-size:40px;color:rgba(255,255,255,.15);"><i class="fas fa-building"></i></div>'}
             </div>
             <div class="area-card-body">
                 <h3>${escapeHtml(a.Title)}</h3>

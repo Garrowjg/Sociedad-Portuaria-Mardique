@@ -19,11 +19,14 @@ public class RateLimitFilter implements Filter {
 
     private static final int MAX_REQUESTS_PER_MINUTE = 200;
     private static final int MAX_LOGIN_ATTEMPTS_PER_MINUTE = 15;
+    private static final int MAX_CHATBOT_REQUESTS_PER_MINUTE = 30;
     private static final long WINDOW_MS = 60_000;
+    private static final int MAX_CACHED_ENTRIES = 10_000;
 
     private static final Set<String> RATE_LIMITED_PATHS = Set.of(
             "/login", "/register", "/contacto/pqrs", "/contacto/message",
-            "/user/payment/register", "/admin/migrate-encryption"
+            "/user/payment/register", "/admin/migrate-encryption",
+            "/api/chatbot"
     );
 
     private final Map<String, RequestWindow> requestCounts = new ConcurrentHashMap<>();
@@ -49,9 +52,21 @@ public class RateLimitFilter implements Filter {
             return;
         }
 
+        // Evita crecimiento ilimitado del mapa: purga ventanas vencidas cuando hay muchas entradas
+        if (requestCounts.size() > MAX_CACHED_ENTRIES) {
+            long now = System.currentTimeMillis();
+            requestCounts.entrySet().removeIf(e -> now - e.getValue().start > WINDOW_MS);
+        }
+
         String ip = getClientIp(request);
-        int limit = (path.startsWith("/login") || path.startsWith("/register"))
-                ? MAX_LOGIN_ATTEMPTS_PER_MINUTE : MAX_REQUESTS_PER_MINUTE;
+        int limit;
+        if (path.startsWith("/api/chatbot")) {
+            limit = MAX_CHATBOT_REQUESTS_PER_MINUTE;
+        } else if (path.startsWith("/login") || path.startsWith("/register")) {
+            limit = MAX_LOGIN_ATTEMPTS_PER_MINUTE;
+        } else {
+            limit = MAX_REQUESTS_PER_MINUTE;
+        }
 
         RequestWindow window = requestCounts.compute(ip, (key, w) -> {
             if (w == null || System.currentTimeMillis() - w.start > WINDOW_MS) {

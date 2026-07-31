@@ -8,13 +8,16 @@ import com.example.MardiqueWeb.Repository.FaqRepository;
 import com.example.MardiqueWeb.Repository.SupportTicketRepository;
 import com.example.MardiqueWeb.Service.ChatbotService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 
 @RestController
 @RequestMapping("/api/chatbot")
@@ -40,12 +43,38 @@ public class ApiChatbotController {
     public Map<String, Object> ask(@RequestBody Map<String, String> body) {
         String question = body.get("question");
         if (question == null || question.isBlank()) {
-            return Map.of("answer", "Escribe una pregunta para poder ayudarte.", "form", false);
+            return Map.of("answer", "Escribe una pregunta para poder ayudarte.", "form", false, "blocked", false);
         }
         if (question.length() > 500) {
-            return Map.of("answer", "Tu pregunta es muy larga. Intenta resumirla en máximo 500 caracteres.", "form", false);
+            return Map.of("answer", "Tu pregunta es muy larga. Intenta resumirla en máximo 500 caracteres.", "form", false, "blocked", false);
         }
-        return chatbotService.ask(question);
+        int repeatCount = parseRepeatCount(body.get("repeatCount"));
+        return chatbotService.ask(question, repeatCount);
+    }
+
+    @PostMapping(value = "/ask/stream", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+    public SseEmitter askStream(@RequestBody Map<String, String> body) {
+        SseEmitter emitter = new SseEmitter(60000L);
+        String question = body.get("question");
+        int repeatCount = parseRepeatCount(body.get("repeatCount"));
+        if (question == null || question.isBlank()) {
+            question = "hola";
+        }
+        if (question.length() > 500) {
+            question = question.substring(0, 500);
+        }
+        final String q = question;
+        CompletableFuture.runAsync(() -> chatbotService.askStream(q, repeatCount, emitter));
+        return emitter;
+    }
+
+    private int parseRepeatCount(String value) {
+        if (value == null || value.isBlank()) return 0;
+        try {
+            return Math.max(0, Math.min(10, Integer.parseInt(value.trim())));
+        } catch (NumberFormatException e) {
+            return 0;
+        }
     }
 
     @GetMapping("/faqs")

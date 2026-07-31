@@ -4,6 +4,8 @@ import com.example.MardiqueWeb.Entity.Faq;
 import com.example.MardiqueWeb.Entity.KnowledgeChunk;
 import com.example.MardiqueWeb.Repository.FaqRepository;
 import com.example.MardiqueWeb.Repository.KnowledgeChunkRepository;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
@@ -12,9 +14,18 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.io.BufferedReader;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import java.nio.charset.StandardCharsets;
 import java.text.Normalizer;
 import java.util.List;
 import java.util.Map;
@@ -46,6 +57,36 @@ public class ChatbotService {
             "Para contactar al área o persona que necesitas, **agenda una cita o solicita información** y un representante de Mardique te atenderá. " +
                     "Por favor completa el siguiente formulario y te contactaremos a la brevedad.";
 
+    // Respuestas escalonadas ante peticiones repetidas (índice 0 = 1er intento)
+    private static final String[] CONTACT_REFUSAL_TIERS = {
+            CONTACT_MSG,
+            "Entiendo que necesitas comunicarte con el área o persona indicada. Por políticas de atención al cliente " +
+                    "no compartimos números directos, pero si **agendas una cita o dejas tu solicitud** en el formulario, " +
+                    "un representante te contactará a la brevedad.",
+            "Entiendo perfectamente que necesitas comunicarte lo antes posible. Por políticas de atención, y para " +
+                    "garantizarte una asesoría dedicada y sin esperas, no compartimos números directos. Sin embargo, " +
+                    "agendando tu cita aquí mismo, un representante te atenderá sin filas. **¿Te gustaría agendar tu cita ahora?**"
+    };
+
+    // Respuestas escalonadas cuando no hay información disponible (precios, datos internos, etc.)
+    private static final String[] NO_INFO_TIERS = {
+            "No tengo esa información disponible en este momento. Para más detalles, comunícate al **(57) 669 0730** o escríbenos a **info@spmardique.com**.",
+            "No tengo ese dato en mi base. Te recomiendo **solicitar información** a través del formulario del chat y un " +
+                    "representante del área correspondiente te lo confirmará con precisión.",
+            "Lamento no poder darte ese dato exacto por ahora, es información que maneja directamente el área responsable. " +
+                    "La forma más rápida de obtenerlo con precisión es **dejando tu solicitud aquí mismo** y te responderán " +
+                    "en breve. **¿Prefieres que te deje el formulario listo?**"
+    };
+
+    // Respuestas escalonadas ante temas fuera del alcance repetidos
+    private static final String[] OFF_TOPIC_TIERS = {
+            OFF_TOPIC_MSG,
+            "Como te comenté, mi función es atender temas de la Sociedad Portuaria Mardique y sus servicios " +
+                    "portuarios, comerciales y logísticos. ¿Te ayudo con algo relacionado, por ejemplo tarifas, trámites o cómo contactarnos?",
+            "Entiendo que tengas esa duda, pero no es un tema que pueda atender aquí. Mi especialidad son los servicios " +
+                    "de Mardique. Para no hacerte esperar, **¿te gustaría que te ayude con servicios, tarifas o trámites?**"
+    };
+
     // Palabras clave relacionadas con Mardique / sector portuario
     private static final String[] RELATED_KEYWORDS = {
             "puerto", "portuaria", "mardique", "servicio", "servicios", "tarifa", "tarifas",
@@ -75,28 +116,82 @@ public class ChatbotService {
             "hablar con el", "hablar con la", "con quien"
     };
 
-    public Map<String, Object> ask(String question) {
-        // 1. Fuera de tema (medicina, deportes, etc.)
+    private static final String[] GREETING_KEYWORDS = {
+            "hola", "buenas", "buenos dias", "buenas tardes", "buenas noches", "que tal", "que mas",
+            "como estas", "como esta", "como te va", "hey", "saludos", "bienvenido", "bienvenida",
+            "gusto", "mucho gusto", "encantado", "hello", "hi", "ey", "oye", "buen dia", "buenas"
+    };
+
+    public Map<String, Object> ask(String question, int repeatCount) {
+        int tier = Math.min(Math.max(repeatCount, 0), 2);
+
+        // 1. Saludo / conversación casual -> la IA responde normalmente
+        if (isGreeting(question)) {
+            String context = findRelevantContext(question);
+            String answer = callGroq(buildSystemPrompt(context), question);
+            return Map.of("answer", answer, "form", false, "blocked", false);
+        }
+
+        // 2. Fuera de tema (medicina, deportes, etc.)
         if (isOffTopic(question)) {
-            return Map.of("answer", OFF_TOPIC_MSG, "form", false);
+            return Map.of("answer", OFF_TOPIC_TIERS[tier], "form", false, "blocked", true);
         }
 
-        // 2. Intención de contacto / pedir datos privados de alguien -> mostrar formulario
+        // 3. Intención de contacto / pedir datos privados de alguien -> mostrar formulario
         if (isContactIntent(question)) {
-            return Map.of("answer", CONTACT_MSG, "form", true);
+            return Map.of("answer", CONTACT_REFUSAL_TIERS[tier], "form", true, "blocked", true);
         }
 
-        // 3. Respuesta exacta de FAQ si existe
+        // 4. Respuesta exacta de FAQ si existe
         Faq faq = findFaqMatch(question);
         if (faq != null) {
-            return Map.of("answer", faq.getAnswer(), "form", false);
+            return Map.of("answer", sanitizeContext(faq.getAnswer()), "form", false, "blocked", false);
         }
 
-        // 4. Consulta normal con la base de conocimiento
+        // 5. Consulta con la base de conocimiento
         String context = findRelevantContext(question);
+        if (context.isEmpty()) {
+            return Map.of("answer", NO_INFO_TIERS[tier], "form", false, "blocked", true);
+        }
         String systemPrompt = buildSystemPrompt(context);
         String answer = callGroq(systemPrompt, question);
-        return Map.of("answer", answer, "form", false);
+        return Map.of("answer", sanitizeContext(answer), "form", false, "blocked", false);
+    }
+
+    public void askStream(String question, int repeatCount, SseEmitter emitter) {
+        int tier = Math.min(Math.max(repeatCount, 0), 2);
+        try {
+            if (isGreeting(question)) {
+                streamGroq(buildSystemPrompt(findRelevantContext(question)), question, emitter, false, false);
+                return;
+            }
+            if (isOffTopic(question)) {
+                sendEvent(emitter, OFF_TOPIC_TIERS[tier], false, true);
+                return;
+            }
+            if (isContactIntent(question)) {
+                sendEvent(emitter, CONTACT_REFUSAL_TIERS[tier], true, true);
+                return;
+            }
+            Faq faq = findFaqMatch(question);
+            if (faq != null) {
+                sendEvent(emitter, sanitizeContext(faq.getAnswer()), false, false);
+                return;
+            }
+            String context = findRelevantContext(question);
+            if (context.isEmpty()) {
+                sendEvent(emitter, NO_INFO_TIERS[tier], false, true);
+                return;
+            }
+            streamGroq(buildSystemPrompt(context), question, emitter, false, false);
+        } catch (Exception e) {
+            log.error("Stream error: {}", e.getMessage(), e);
+            try {
+                sendEvent(emitter, "Lo siento, ocurrió un error al procesar tu consulta.", false, false);
+            } catch (Exception ex) {
+                emitter.complete();
+            }
+        }
     }
 
     private String normalize(String text) {
@@ -112,6 +207,15 @@ public class ChatbotService {
             if (q.contains(normalize(keyword))) return false;
         }
         return true;
+    }
+
+    private boolean isGreeting(String question) {
+        String q = normalize(question);
+        if (q.length() > 80) return false;
+        for (String keyword : GREETING_KEYWORDS) {
+            if (q.contains(normalize(keyword))) return true;
+        }
+        return false;
     }
 
     private boolean isContactIntent(String question) {
@@ -161,8 +265,26 @@ public class ChatbotService {
             return "";
         }
         return results.stream()
-                .map(kc -> kc.getContent())
+                .map(kc -> sanitizeContext(kc.getContent()))
+                .filter(c -> !c.isEmpty())
                 .collect(Collectors.joining("\n\n"));
+    }
+
+    /**
+     * Elimina datos personales de empleados del contexto antes de enviarlo a la IA:
+     * números de celular colombianos y correos personales.
+     */
+    private String sanitizeContext(String content) {
+        if (content == null || content.isEmpty()) return "";
+        String c = content;
+        // Celulares colombianos: 3xx xxx xxxx (con/sin espacios, guiones o puntos)
+        c = c.replaceAll("(?<!\\d)3\\d{2}\\s?\\d{3}\\s?\\d{4}(?!\\d)", "[número protegido]");
+        c = c.replaceAll("(?<!\\d)3\\d{9}(?!\\d)", "[número protegido]");
+        // Correos personales (no los institucionales públicos)
+        c = c.replaceAll("[A-Za-z0-9._%+-]+@(?!spmardique\\.com\\b)[A-Za-z0-9.-]+\\.[A-Za-z]{2,}", "[correo protegido]");
+        // Teléfonos fijos personales con 8 dígitos que no sean el PBX
+        c = c.replaceAll("(?<!\\d)(5)\\d{2}\\s?\\d{3}\\s?\\d{3}(?!\\d)", "[teléfono protegido]");
+        return c;
     }
 
     private String buildSystemPrompt(String context) {
@@ -171,15 +293,17 @@ public class ChatbotService {
         sb.append("REGLAS ESTRICTAS:\n");
         sb.append("- Responde EN MÁXIMO 3-4 líneas.\n");
         sb.append("- Sé directo y preciso. No des listas largas ni párrafos enormes.\n");
-        sb.append("- Usa negritas para datos clave (teléfonos, correos, nombres).\n");
+        sb.append("- Usa negritas para datos clave (nombres de áreas).\n");
+        sb.append("- Si el usuario te saluda (hola, buenos días, ¿cómo estás?) responde de forma amable y natural, preséntate brevemente y pregunta en qué le puedes ayudar. No des respuestas de máquina ni repitas el mensaje de error.\n");
         sb.append("- Si la pregunta es sobre algo que no tienes en la información, di: 'No tengo esa información, comunícate al (57) 669 0730 o info@spmardique.com.'\n");
         sb.append("- Nunca inventes información. Si no lo sabes, dilo.\n");
         sb.append("- Usa un tono amable pero profesional.\n\n");
-        sb.append("- IMPORTANTE: Tu enfoque es ÚNICAMENTE temas portuarios, logísticos y de la empresa Mardique. " +
+        sb.append("- IMPORTANTE: Tu enfoque principal son temas portuarios, logísticos y de la empresa Mardique. " +
                 "Si te preguntan por temas ajenos (medicina, deportes, política, recetas, etc.), responde exactamente: " +
                 "'Lo siento, mi enfoque es ayudarte únicamente con los temas relacionados con la Sociedad Portuaria Mardique y sus servicios portuarios, comerciales y logísticos. ¿Tienes alguna duda sobre nuestros servicios, tarifas, trámites o cómo contactarnos?'\n\n");
-        sb.append("- PRIVACIDAD: NUNCA reveles números de teléfono personales, correos electrónicos personales ni datos de contacto directo de empleados (gerentes, representantes, etc.). " +
-                "Es información privada. Si el usuario pide el número o correo de una persona, responde: " +
+        sb.append("- PRIVACIDAD (MUY IMPORTANTE): NUNCA reveles números de teléfono personales, correos electrónicos personales ni datos de contacto directo de empleados (gerentes, Oscar, representantes, personal). " +
+                "Es información privada y está PROHIBIDO mencionar nombres de empleados junto con su teléfono o correo. " +
+                "Si el usuario pide el número o correo de una persona o empleado, responde: " +
                 "'Para contactar al [área o persona que piden], agenda una cita o solicita información y un representante te atenderá.' " +
                 "y dile que complete el formulario de contacto del chat.\n\n");
         sb.append("- Si el usuario pregunta cómo contactar, agendar una cita o reunión, o solicitar información, " +
@@ -255,6 +379,75 @@ public class ChatbotService {
         } catch (Exception e) {
             log.error("Groq API error: {}", e.getMessage(), e);
             return "Lo siento, ocurrió un error al procesar tu consulta. Intenta de nuevo más tarde.";
+        }
+    }
+
+    private void sendEvent(SseEmitter emitter, String text, boolean form, boolean blocked) {
+        try {
+            Map<String, Object> payload = new java.util.LinkedHashMap<>();
+            payload.put("token", text);
+            payload.put("form", form);
+            payload.put("blocked", blocked);
+            emitter.send(SseEmitter.event().name("message").data(payload));
+            emitter.send(SseEmitter.event().name("done").data(Map.of("done", true)));
+            emitter.complete();
+        } catch (Exception e) {
+            log.error("SSE send error: {}", e.getMessage());
+            emitter.complete();
+        }
+    }
+
+    private void streamGroq(String systemPrompt, String userMessage, SseEmitter emitter, boolean form, boolean blocked) {
+        try {
+            ObjectMapper mapper = new ObjectMapper();
+            String requestBody = mapper.writeValueAsString(Map.of(
+                    "model", MODEL,
+                    "messages", List.of(
+                            Map.of("role", "system", "content", systemPrompt),
+                            Map.of("role", "user", "content", userMessage)
+                    ),
+                    "temperature", 0.5,
+                    "max_tokens", 300,
+                    "stream", true
+            ));
+
+            HttpClient client = HttpClient.newHttpClient();
+            HttpRequest request = HttpRequest.newBuilder(URI.create(GROQ_URL))
+                    .header("Authorization", "Bearer " + groqApiKey)
+                    .header("Content-Type", "application/json")
+                    .POST(HttpRequest.BodyPublishers.ofString(requestBody))
+                    .build();
+
+            HttpResponse<InputStream> response = client.send(request, HttpResponse.BodyHandlers.ofInputStream());
+            BufferedReader reader = new BufferedReader(new InputStreamReader(response.body(), StandardCharsets.UTF_8));
+
+            String line;
+            while ((line = reader.readLine()) != null) {
+                if (!line.startsWith("data:")) continue;
+                String data = line.substring(5).trim();
+                if (data.equals("[DONE]")) break;
+                try {
+                    JsonNode node = mapper.readTree(data);
+                    JsonNode delta = node.path("choices").path(0).path("delta").path("content");
+                    if (delta.isTextual() && !delta.asText().isEmpty()) {
+                        Map<String, Object> payload = new java.util.LinkedHashMap<>();
+                        payload.put("token", sanitizeContext(delta.asText()));
+                        payload.put("form", form);
+                        payload.put("blocked", blocked);
+                        emitter.send(SseEmitter.event().name("message").data(payload));
+                    }
+                } catch (Exception ignore) {
+                }
+            }
+            emitter.send(SseEmitter.event().name("done").data(Map.of("done", true)));
+            emitter.complete();
+        } catch (Exception e) {
+            log.error("Groq stream error: {}", e.getMessage(), e);
+            try {
+                sendEvent(emitter, "Lo siento, ocurrió un error al procesar tu consulta. Intenta de nuevo más tarde.", false, false);
+            } catch (Exception ex) {
+                emitter.complete();
+            }
         }
     }
 }

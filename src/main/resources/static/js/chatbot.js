@@ -68,6 +68,7 @@
     let idleTimers = [];
     let ratingSent = false;
     let nudgeSent = false;
+    let blockedRepeat = 0;
 
     /* ---------- Build DOM ---------- */
 
@@ -562,52 +563,132 @@
 
     /* ---------- Send / receive ---------- */
 
-    function sendMessage(question) {
-        let msgs = loadChat();
-        addUserBubble(question);
-        msgs.push({ text: question, type: 'user' });
-        saveChat(msgs);
+        function sendMessage(question) {
+            let msgs = loadChat();
+            addUserBubble(question);
+            msgs.push({ text: question, type: 'user' });
+            saveChat(msgs);
 
-        showTyping();
-        sendBtn.disabled = true;
-        inputEl.disabled = true;
+            showTyping();
+            sendBtn.disabled = true;
+            inputEl.disabled = true;
 
-        const startedAt = Date.now();
-        const MIN_TYPING_MS = 900;
-        const FORM_DELAY_MS = 2000;
+            const FORM_DELAY_MS = 2000;
+            let answer = '';
+            let showForm = false;
+            let wasBlocked = false;
+            let botRow = null;
+            let botMsg = null;
+            let done = false;
 
-        function revealAnswer(answer, showForm) {
-            const remaining = Math.max(0, MIN_TYPING_MS - (Date.now() - startedAt));
-            setTimeout(function() {
+            function createBotRow() {
+                const row = document.createElement('div');
+                row.className = 'cb-row';
+                row.innerHTML = robotAvatarHtml() + '<div class="cb-msg bot"></div>';
+                messagesEl.appendChild(row);
+                botMsg = row.querySelector('.cb-msg');
+                botRow = row;
+            }
+
+            function finalize() {
+                if (done) return;
+                done = true;
                 hideTyping();
-                addBotBubble(answer);
+                if (botMsg) {
+                    botMsg.innerHTML = renderMarkdown(answer);
+                } else if (answer) {
+                    addBotBubble(answer);
+                }
+                scrollBottom();
                 msgs = loadChat();
                 msgs.push({ text: answer, type: 'bot' });
                 saveChat(msgs);
                 if (showForm) {
                     setTimeout(addContactForm, FORM_DELAY_MS);
                 }
+                if (wasBlocked) {
+                    blockedRepeat = Math.min(blockedRepeat + 1, 10);
+                } else {
+                    blockedRepeat = 0;
+                }
                 sendBtn.disabled = false;
                 inputEl.disabled = false;
                 inputEl.focus();
                 resetIdleTimer();
-            }, remaining);
-        }
+            }
 
-        fetch('/api/chatbot/ask', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ question: question })
-        })
-            .then(function(r) { return r.json(); })
-            .then(function(data) {
-                const answer = data.answer || 'Lo siento, no pude procesar tu consulta.';
-                revealAnswer(answer, data.form === true);
+            function handleSSE(line) {
+                const idx = line.indexOf('data:');
+                if (idx < 0) return;
+                let json;
+                try {
+                    json = JSON.parse(line.slice(idx + 5).trim());
+                } catch (e) { return; }
+                if (json.token) {
+                    answer += json.token;
+                    if (!botMsg) createBotRow();
+                    botMsg.innerHTML = renderMarkdown(answer);
+                    scrollBottom();
+                    if (json.form === true) showForm = true;
+                    if (json.blocked === true) wasBlocked = true;
+                }
+                if (json.done === true) finalize();
+            }
+
+            function requestJson() {
+                return fetch('/api/chatbot/ask', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ question: question, repeatCount: blockedRepeat })
+                })
+                    .then(function(r) { return r.json(); })
+                    .then(function(data) {
+                        answer = data.answer || 'Lo siento, no pude procesar tu consulta.';
+                        showForm = data.form === true;
+                        wasBlocked = data.blocked === true;
+                        finalize();
+                    });
+            }
+
+            fetch('/api/chatbot/ask/stream', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ question: question, repeatCount: blockedRepeat })
             })
-            .catch(function() {
-                revealAnswer('Error de conexión. Intenta de nuevo.', false);
-            });
-    }
+                .then(function(response) {
+                    if (!response.ok || !response.body) {
+                        throw new Error('stream not available');
+                    }
+                    var reader = response.body.getReader();
+                    var decoder = new TextDecoder('utf-8');
+                    var buffer = '';
+
+                    function pump() {
+                        return reader.read().then(function(result) {
+                            if (result.done) {
+                                if (answer) finalize();
+                                return;
+                            }
+                            buffer += decoder.decode(result.value, { stream: true });
+                            var lines = buffer.split('\n');
+                            buffer = lines.pop();
+                            for (var i = 0; i < lines.length; i++) {
+                                var l = lines[i].trim();
+                                if (l) handleSSE(l);
+                                if (done) return;
+                            }
+                            return pump();
+                        });
+                    }
+                    return pump();
+                })
+                .catch(function() {
+                    requestJson().catch(function() {
+                        answer = 'Error de conexión. Intenta de nuevo.';
+                        finalize();
+                    });
+                });
+        }
 
     /* ---------- Counter ---------- */
 
@@ -649,6 +730,7 @@
         requestAnimationFrame(function() { headerSceneResize(); });
         nudgeSent = false;
         ratingSent = false;
+        blockedRepeat = 0;
         resetIdleTimer();
     }
 

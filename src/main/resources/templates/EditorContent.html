@@ -7,6 +7,8 @@
     <link rel="icon" type="image/png" sizes="192x192" href="/images/Icon192.png">
     <link rel="apple-touch-icon" sizes="180x180" href="/images/Icon180.png">
     <title>Contenido Web — Editor Mardique</title>
+    <meta name="_csrf" th:content="${_csrf.token}">
+    <meta name="_csrf_header" th:content="${_csrf.headerName}">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -426,6 +428,10 @@
             fd.append('page', page);
             fd.append('sectionKey', key);
             fd.append('content', content);
+            var csrfMeta = document.querySelector('meta[name="_csrf"]');
+            if (csrfMeta && csrfMeta.getAttribute('content')) {
+                fd.append('_csrf', csrfMeta.getAttribute('content'));
+            }
 
             promises.push(
                 fetch('/editor/content/save', {
