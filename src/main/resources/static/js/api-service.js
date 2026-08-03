@@ -384,3 +384,45 @@ async function getGalleryAlbumItems(albumId) {
     const album = MOCK_GALLERY_ALBUMS.find(a => a.id === albumId);
     return album || null;
 }
+
+/* ---------- Intranet: documentos subidos (backend local) ---------- */
+
+async function getIntranetDocs(sector) {
+    try {
+        const url = "/api/intranet/documents" + (sector ? "?sector=" + encodeURIComponent(sector) : "");
+        const res = await fetch(url);
+        if (!res.ok) return [];
+        return await res.json();
+    } catch (e) {
+        return [];
+    }
+}
+
+async function uploadIntranetDoc(sector, file, uploader) {
+    const fd = new FormData();
+    fd.append("sector", sector);
+    fd.append("file", file);
+    if (uploader) fd.append("uploader", uploader);
+    const res = await fetch("/api/intranet/documents", { method: "POST", body: fd });
+    const json = await res.json().catch(() => ({}));
+    if (!res.ok) throw new Error(json.message || "No se pudo subir el archivo.");
+    return json;
+}
+
+async function deleteIntranetDoc(id) {
+    try {
+        const res = await fetch("/api/intranet/documents/" + id, { method: "DELETE" });
+        const json = await res.json().catch(() => ({}));
+        return json.ok === true;
+    } catch (e) {
+        return false;
+    }
+}
+
+function intranetDocContentUrl(id) {
+    return "/api/intranet/documents/" + id + "/content";
+}
+
+function intranetDocThumbUrl(id) {
+    return "/api/intranet/documents/" + id + "/thumbnail";
+}

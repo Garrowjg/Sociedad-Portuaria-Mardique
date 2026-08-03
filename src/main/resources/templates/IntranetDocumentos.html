@@ -93,6 +93,56 @@
         .user-greeting{font-size:15px;color:rgba(255,255,255,.75);margin-top:4px;}
         .user-badge{display:inline-block;padding:3px 12px;border-radius:50px;font-size:11px;font-weight:700;background:rgba(240,154,54,.14);color:var(--ag);border:1px solid rgba(240,154,54,.3);margin-top:8px;}
         @media(max-width:768px){.header-user-name{display:none;}}
+        .doc-upload-btn{display:inline-flex;align-items:center;gap:7px;padding:8px 16px;border-radius:8px;font-size:12.5px;font-weight:700;font-family:inherit;background:var(--pd);color:#fff;border:none;cursor:pointer;transition:filter .2s ease;flex:none;}
+        .doc-upload-btn:hover{filter:brightness(1.12);}
+        .doc-upload-btn i{font-size:13px;}
+        .doc-modal{display:none;position:fixed;inset:0;z-index:10000;align-items:center;justify-content:center;}
+        .doc-modal.open{display:flex;}
+        .doc-modal-overlay{position:absolute;inset:0;background:rgba(15,42,58,.55);backdrop-filter:blur(2px);}
+        .doc-modal-box{position:relative;background:#fff;border-radius:14px;width:min(520px,92vw);box-shadow:0 24px 60px rgba(15,42,58,.3);overflow:hidden;display:flex;flex-direction:column;max-height:88vh;animation:fadeInUp .2s ease both;}
+        .doc-modal-head{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:14px 18px;border-bottom:1px solid #eef1f4;font-size:14px;font-weight:700;color:var(--pd);}
+        .doc-modal-head span{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+        .doc-modal-close{background:none;border:none;font-size:22px;line-height:1;color:var(--mx);cursor:pointer;flex:none;}
+        .doc-modal-close:hover{color:var(--pd);}
+        .doc-modal-body{padding:18px;display:flex;flex-direction:column;gap:12px;}
+        .doc-field{font-size:11px;font-weight:700;color:var(--mx);text-transform:uppercase;letter-spacing:.4px;}
+        .doc-modal-body select{width:100%;padding:9px 11px;border:1.5px solid var(--bdr);border-radius:8px;font-size:13px;font-family:inherit;background:#fff;outline:none;}
+        .doc-file-drop{display:flex;flex-direction:column;align-items:center;gap:8px;padding:22px;border:1.5px dashed var(--bdr);border-radius:10px;cursor:pointer;color:var(--mx);font-size:12.5px;text-align:center;background:#fafbfc;transition:.2s;}
+        .doc-file-drop:hover,.doc-file-drop.has-file{border-color:var(--ag);color:var(--ag);}
+        .doc-file-drop.has-file{font-weight:700;}
+        .doc-file-drop i{font-size:26px;opacity:.4;}
+        .doc-submit-btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;padding:9px 16px;border-radius:8px;font-size:13px;font-weight:700;font-family:inherit;border:none;cursor:pointer;transition:filter .2s;text-decoration:none;}
+        .doc-submit-btn.primary{background:var(--pd);color:#fff;}
+        .doc-submit-btn:hover{filter:brightness(1.1);}
+        .doc-submit-btn:disabled{opacity:.6;cursor:not-allowed;}
+        .doc-msg{font-size:12.5px;font-weight:600;text-align:center;}
+        .doc-msg.error{color:#dc2626;}
+        .doc-msg.success{color:#16a34a;}
+        .doc-preview-box{width:min(900px,94vw);}
+        .doc-preview-actions{display:flex;align-items:center;gap:10px;}
+        .doc-preview-body{overflow:hidden;background:#454a52;}
+        .doc-preview-body img,.doc-preview-body iframe{display:block;width:100%;height:70vh;border:none;background:#fff;}
+        .doc-preview-body img{object-fit:contain;background:#454a52;}
+        .doc-preview-na{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;height:70vh;color:#e6e8ec;background:#454a52;text-align:center;padding:20px;}
+        .doc-preview-na i{font-size:40px;opacity:.5;margin-bottom:6px;}
+        .doc-thumb-img{width:100%;height:100%;object-fit:cover;display:block;background:#f0f2f5;}
+        .doc-trash-btn{background:none;border:none;color:#dc2626;font-size:15px;cursor:pointer;padding:4px;}
+        .doc-trash-btn:hover{opacity:.7;}
+        .doc-tag{display:inline-flex;align-items:center;gap:4px;font-size:10px;font-weight:700;color:#7c3aed;background:#f3e8ff;border:1px solid #e9d5ff;border-radius:50px;padding:2px 8px;}
+        .doc-card-del{position:absolute;top:8px;right:8px;width:26px;height:26px;display:none;align-items:center;justify-content:center;border-radius:7px;border:none;background:rgba(220,38,38,.92);color:#fff;font-size:12px;cursor:pointer;z-index:2;box-shadow:0 2px 8px rgba(220,38,38,.35);transition:filter .15s ease;}
+        .doc-card-del:hover{filter:brightness(1.15);}
+        .doc-card:hover .doc-card-del{display:flex;}
+        .doc-sheet-preview{background:#fff;height:70vh;overflow:auto;padding:14px;box-sizing:border-box;}
+        .doc-sheet-table{border-collapse:collapse;font-size:12px;font-family:ui-monospace,Consolas,monospace;width:100%;}
+        .doc-sheet-table th,.doc-sheet-table td{border:1px solid #e2e6ea;padding:3px 8px;min-width:84px;max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#333;text-align:left;}
+        .doc-sheet-table th{background:#f1f3f5;color:#666;font-weight:700;position:sticky;top:0;}
+        .doc-sheet-table .doc-sheet-corner{background:#e9edf1;}
+        .doc-sheet-table .doc-sheet-rowh{background:#f1f3f5;color:#999;text-align:center;min-width:28px;position:sticky;left:0;}
+        .doc-sheet-table tr:nth-child(even) td{background:#fafbfc;}
+        .doc-sheet-msg{padding:40px 20px;text-align:center;color:#94a3b8;font-family:inherit;font-size:13px;font-weight:600;white-space:normal;border:none;}
+        .doc-preview-thumb{width:170px;height:auto;max-height:220px;object-fit:contain;border-radius:8px;box-shadow:0 10px 28px rgba(0,0,0,.4);background:#fff;margin-bottom:8px;}
+        .doc-preview-na small{color:#c9cdd3;font-size:12px;margin-bottom:10px;}
+        .doc-txt-preview{margin:0;padding:20px;white-space:pre-wrap;word-break:break-word;background:#fff;height:70vh;overflow:auto;font-size:12.5px;color:#333;font-family:ui-monospace,Consolas,monospace;box-sizing:border-box;}
     </style>
 </head>
 <body>
@@ -145,6 +195,7 @@
                     <button class="doc-view-btn active" id="viewGrid" onclick="setView('grid')" title="Vista cuadrícula"><i class="fas fa-th"></i></button>
                     <button class="doc-view-btn" id="viewList" onclick="setView('list')" title="Vista lista"><i class="fas fa-list"></i></button>
                 </div>
+                <button class="doc-upload-btn" onclick="openUploadModal()" title="Subir documento al sector seleccionado"><i class="fas fa-cloud-upload-alt"></i> Subir</button>
             </div>
             <div class="doc-breadcrumb" id="doc-breadcrumb">
                 <button class="doc-back-btn" id="docBackBtn" onclick="goBack()" title="Volver"><i class="fas fa-arrow-left"></i></button>
@@ -159,12 +210,50 @@
     &copy; 2026 Sociedad Portuaria Mardique S.A. Intranet Corporativa &mdash; Todos los derechos reservados.
 </div>
 
+<div class="doc-modal" id="docUploadModal">
+    <div class="doc-modal-overlay" onclick="closeUploadModal()"></div>
+    <div class="doc-modal-box">
+        <div class="doc-modal-head">
+            <span><i class="fas fa-cloud-upload-alt"></i>&nbsp; Subir documento</span>
+            <button class="doc-modal-close" onclick="closeUploadModal()">&times;</button>
+        </div>
+        <div class="doc-modal-body">
+            <label class="doc-field">Sector</label>
+            <select id="docUploadSector"></select>
+            <label class="doc-field">Archivo</label>
+            <div class="doc-file-drop" id="docUploadDrop" onclick="document.getElementById('docUploadFile').click()">
+                <i class="fas fa-file-upload"></i>
+                <span id="docUploadName">Selecciona un archivo (PDF, Word, Excel, imagen...)</span>
+                <input type="file" id="docUploadFile" hidden>
+            </div>
+            <button class="doc-submit-btn primary" id="docUploadSubmit" onclick="doUpload()"><i class="fas fa-upload"></i> Subir</button>
+            <div class="doc-msg" id="docUploadMsg"></div>
+        </div>
+    </div>
+</div>
+
+<div class="doc-modal" id="docPreviewModal">
+    <div class="doc-modal-overlay" onclick="closePreviewModal()"></div>
+    <div class="doc-modal-box doc-preview-box">
+        <div class="doc-modal-head">
+            <span id="docPreviewName"></span>
+            <div class="doc-preview-actions">
+                <button class="doc-trash-btn" id="docPreviewDelete" title="Eliminar documento" onclick="deleteCurrentDoc()"><i class="fas fa-trash"></i></button>
+                <a class="doc-submit-btn primary" id="docPreviewDownload" target="_blank" rel="noopener"><i class="fas fa-download"></i> Descargar</a>
+                <button class="doc-modal-close" onclick="closePreviewModal()">&times;</button>
+            </div>
+        </div>
+        <div class="doc-preview-body" id="docPreviewBody"></div>
+    </div>
+</div>
+
 <script src="/js/msal-config.js"></script>
 <script src="/js/api-service.js"></script>
 <script src="/js/intranet.js"></script>
 <script>
     const SECTORS = [
         { id: "todos", name: "Todos", icon: "fa-folder-open" },
+        { id: "general", name: "General", icon: "fa-folder" },
         { id: "rrhh", name: "Recursos Humanos", icon: "fa-users" },
         { id: "finanzas", name: "Finanzas", icon: "fa-chart-line" },
         { id: "ti", name: "Tecnología e Informática", icon: "fa-laptop-code" }
@@ -177,6 +266,12 @@
     let currentView = "grid";
     let currentTypeFilter = "todos";
     let currentSearchTerm = "";
+    let uploadedDocsBySector = {};
+    let uploadedCounts = {};
+    let uploadedLoaded = false;
+    let currentUserName = "";
+    let currentPreviewId = null;
+    const PREVIEW_IMAGES = ["jpg", "jpeg", "png", "gif", "webp", "svg"];
 
     function selectSector(sectorId){
         currentSector = sectorId;
@@ -187,18 +282,28 @@
         loadDocs();
     }
 
-    function loadDocs(){
+    async function loadDocs(){
         const cont = document.getElementById("documents-container");
         if (!cont) return;
         cont.innerHTML = '<div class="intranet-loading"><i class="fas fa-spinner fa-spin"></i><span>Cargando documentos...</span></div>';
         if (currentSector === "todos") {
-            getDriveRoot().then(items => {
+            try {
+                const items = await getDriveRoot();
                 renderSectorCards(items);
-            }).catch(() => { cont.innerHTML = '<div class="doc-empty"><i class="fas fa-exclamation-triangle"></i><span>Error al cargar</span></div>'; });
+            } catch (e) {
+                cont.innerHTML = '<div class="doc-empty"><i class="fas fa-exclamation-triangle"></i><span>Error al cargar</span></div>';
+            }
         } else {
-            getDriveItems(currentSector).then(items => {
-                renderDocGrid(items);
-            }).catch(() => { cont.innerHTML = '<div class="doc-empty"><i class="fas fa-exclamation-triangle"></i><span>Error al cargar</span></div>'; });
+            try {
+                const [mock, uploaded] = await Promise.all([
+                    getDriveItems(currentSector),
+                    getIntranetDocs(currentSector)
+                ]);
+                const merged = (uploaded || []).map(toDriveItem).concat(mock || []);
+                renderDocGrid(merged);
+            } catch (e) {
+                cont.innerHTML = '<div class="doc-empty"><i class="fas fa-exclamation-triangle"></i><span>Error al cargar</span></div>';
+            }
         }
     }
 
@@ -289,7 +394,7 @@
     function renderSectorCard(s){
         const dept = MOCK_DEPARTMENTS.find(d => d.id === s.id);
         const icon = dept?.icon || "fa-folder";
-        const count = s.folder?.childCount || 0;
+        const count = (s.folder?.childCount || 0) + (uploadedCounts[s.id] || 0);
         return '<div class="doc-card" data-sector="' + s.id + '">' +
             '<div class="doc-card-header"><span class="doc-file-icon"><i class="fas ' + icon + '" style="color:#f09a36"></i></span>' +
             '<span class="doc-card-name">' + escapeHtml(s.name || dept?.name || "") + '</span></div>' +
@@ -307,7 +412,7 @@
         document.querySelectorAll(".doc-sector-tab").forEach(t => t.classList.toggle("active", t.dataset.id === id));
         const cont = document.getElementById("documents-container");
         cont.innerHTML = '<div class="intranet-loading"><i class="fas fa-spinner fa-spin"></i><span>Cargando documentos...</span></div>';
-        getDriveItems(id).then(items => renderDocGrid(items)).catch(() => {});
+        loadDocs();
     }
 
     function renderDocGrid(items){
@@ -322,12 +427,20 @@
         const ext = isFolder ? null : item.name.split(".").pop();
         const meta = isFolder
             ? '<span><i class="far fa-folder"></i> ' + (item.folder?.childCount || 0) + ' elementos</span>'
-            : '<span><i class="far fa-hdd"></i> ' + formatFileSize(item.size) + '</span><span><i class="far fa-calendar-alt"></i> ' + formatDate(item.lastModifiedDateTime) + '</span>';
-        const preview = isFolder ? folderPreviewSVG() : docPagePreviewSVG(item.name);
+            : (item.uploaded
+                ? '<span><i class="far fa-user"></i> ' + escapeHtml(item.createdBy?.user?.displayName || "Equipo") + '</span><span><i class="far fa-calendar-alt"></i> ' + formatDate(item.lastModifiedDateTime) + '</span>'
+                : '<span><i class="far fa-hdd"></i> ' + formatFileSize(item.size) + '</span><span><i class="far fa-calendar-alt"></i> ' + formatDate(item.lastModifiedDateTime) + '</span>');
+        let preview;
+        if (isFolder) preview = folderPreviewSVG();
+        else if (item.uploaded) preview = '<img class="doc-thumb-img" src="' + intranetDocThumbUrl(item.realId) + '" alt="' + escapeHtml(item.name) + '" loading="lazy">';
+        else preview = docPagePreviewSVG(item.name);
+        const delBtn = item.uploaded
+            ? '<button class="doc-card-del" title="Eliminar documento" onclick="event.stopPropagation(); removeDoc(' + item.realId + ')"><i class="fas fa-trash"></i></button>'
+            : '';
         return '<div class="doc-card" data-doc-id="' + item.id + '" data-is-folder="' + isFolder + '">' +
             '<div class="doc-card-header"><span class="doc-file-icon"><i class="fas ' + icon + '" style="color:' + iconColor + '"></i></span>' +
-            '<span class="doc-card-name">' + escapeHtml(item.name) + '</span></div>' +
-            '<div class="doc-thumb">' + preview + (ext ? '<span class="doc-thumb-badge">.' + ext + '</span>' : '') + '</div>' +
+            '<span class="doc-card-name">' + escapeHtml(item.name) + '</span>' + (item.uploaded ? '<span class="doc-tag">SUBIDO</span>' : '') + '</div>' +
+            '<div class="doc-thumb">' + preview + delBtn + (ext ? '<span class="doc-thumb-badge">.' + ext + '</span>' : '') + '</div>' +
             '<div class="doc-card-body"><div class="doc-card-meta">' + meta + '</div></div>' +
             '</div>';
     }
@@ -345,8 +458,175 @@
                 renderDocGrid(items);
             }).catch(() => {});
         } else {
-            window.open("#", "_blank");
+            const item = currentItems.find(i => i.id === id);
+            if (item && item.uploaded && item.realId) {
+                openPreview(item);
+            } else {
+                window.open(item && item.webUrl ? item.webUrl : "#", "_blank");
+            }
         }
+    }
+
+    function toDriveItem(doc){
+        const ext = doc.fileType || ((doc.nombre || "").split(".").pop() || "").toLowerCase();
+        return {
+            id: "dt-" + doc.id,
+            realId: doc.id,
+            name: doc.nombre,
+            size: doc.fileSize,
+            uploaded: true,
+            fileType: ext,
+            lastModifiedDateTime: doc.uploadedAt,
+            webUrl: intranetDocContentUrl(doc.id),
+            createdBy: { user: { displayName: doc.uploadedBy || "Equipo Mardique" } }
+        };
+    }
+
+    function sheetColumnName(i){
+        let name = "";
+        while (i >= 0) { name = String.fromCharCode(65 + (i % 26)) + name; i = Math.floor(i / 26) - 1; }
+        return name;
+    }
+
+    function openPreview(item){
+        currentPreviewId = item.realId;
+        const url = intranetDocContentUrl(item.realId);
+        document.getElementById("docPreviewName").textContent = item.name;
+        document.getElementById("docPreviewDownload").href = url;
+        document.getElementById("docPreviewDelete").style.display = item.uploaded ? "inline-block" : "none";
+        const body = document.getElementById("docPreviewBody");
+        const ext = item.fileType || "";
+        if (PREVIEW_IMAGES.indexOf(ext) >= 0) {
+            body.innerHTML = '<img src="' + url + '" alt="' + escapeHtml(item.name) + '">';
+        } else if (ext === "pdf") {
+            body.innerHTML = '<iframe src="' + url + '" title="' + escapeHtml(item.name) + '"></iframe>';
+        } else if (ext === "txt" || ext === "csv") {
+            body.innerHTML = '<pre class="doc-txt-preview">Cargando contenido...</pre>';
+            fetch(url).then(r => r.text()).then(t => {
+                const pre = body.querySelector(".doc-txt-preview");
+                if (pre) pre.textContent = t.length > 50000 ? t.slice(0, 50000) + "\n… (archivo muy grande, descárgalo para verlo completo)" : t;
+            }).catch(() => {
+                body.innerHTML = '<div class="doc-preview-na"><i class="fas fa-file"></i><span>No se pudo leer el contenido.</span></div>';
+            });
+        } else if (ext === "xls" || ext === "xlsx" || ext === "doc" || ext === "docx" || ext === "ppt" || ext === "pptx") {
+            body.innerHTML = '<iframe src="/api/intranet/documents/' + item.realId + '/preview" title="' + escapeHtml(item.name) + '"></iframe>';
+        } else {
+            body.innerHTML = '<div class="doc-preview-na">' +
+                '<img class="doc-preview-thumb" src="' + intranetDocThumbUrl(item.realId) + '" alt="' + escapeHtml(item.name) + '">' +
+                '<span>' + escapeHtml(item.name) + '</span>' +
+                '<small>' + formatFileSize(item.size) + ' · ' + escapeHtml(item.createdBy?.user?.displayName || "Equipo") + ' · ' + formatDate(item.lastModifiedDateTime) + '</small>' +
+                '<a class="doc-submit-btn primary" href="' + url + '" download><i class="fas fa-download"></i> Descargar archivo</a>' +
+                '</div>';
+        }
+        document.getElementById("docPreviewModal").classList.add("open");
+    }
+
+    function closePreviewModal(){
+        document.getElementById("docPreviewBody").innerHTML = "";
+        currentPreviewId = null;
+        document.getElementById("docPreviewModal").classList.remove("open");
+    }
+
+    async function deleteCurrentDoc(){
+        if (!currentPreviewId) return;
+        await removeDoc(currentPreviewId);
+    }
+
+    async function removeDoc(id){
+        if (!id) return;
+        if (!confirm("¿Eliminar este documento?")) return;
+        const ok = await deleteIntranetDoc(id);
+        if (ok) {
+            closePreviewModal();
+            showIntranetToast("Documento eliminado", "success");
+            await refreshUploadedDocs();
+            renderTabs();
+            renderSummary();
+            loadDocs();
+        } else {
+            showIntranetToast("No se pudo eliminar el documento", "error");
+        }
+    }
+
+    function openUploadModal(){
+        const activeSector = SECTORS.find(s => s.id === currentSector && s.id !== "todos");
+        document.getElementById("docUploadSector").innerHTML = SECTORS.filter(s => s.id !== "todos").map(s =>
+            '<option value="' + s.id + '"' + (activeSector && activeSector.id === s.id ? ' selected' : '') + '>' + s.name + '</option>'
+        ).join("");
+        const fileInput = document.getElementById("docUploadFile");
+        fileInput.value = "";
+        document.getElementById("docUploadDrop").classList.remove("has-file");
+        document.getElementById("docUploadName").textContent = "Selecciona un archivo (PDF, Word, Excel, imagen...)";
+        document.getElementById("docUploadMsg").textContent = "";
+        document.getElementById("docUploadSubmit").disabled = false;
+        document.getElementById("docUploadModal").classList.add("open");
+    }
+
+    function closeUploadModal(){
+        document.getElementById("docUploadModal").classList.remove("open");
+    }
+
+    function selectUploadFile(){
+        const fileInput = document.getElementById("docUploadFile");
+        const file = fileInput.files && fileInput.files[0];
+        const drop = document.getElementById("docUploadDrop");
+        const nameEl = document.getElementById("docUploadName");
+        if (file) {
+            drop.classList.add("has-file");
+            nameEl.textContent = file.name;
+        } else {
+            drop.classList.remove("has-file");
+            nameEl.textContent = "Selecciona un archivo (PDF, Word, Excel, imagen...)";
+        }
+    }
+
+    async function doUpload(){
+        const fileInput = document.getElementById("docUploadFile");
+        const file = fileInput.files && fileInput.files[0];
+        const sector = document.getElementById("docUploadSector").value;
+        const msgEl = document.getElementById("docUploadMsg");
+        const submitBtn = document.getElementById("docUploadSubmit");
+        if (!file) {
+            msgEl.textContent = "Selecciona un archivo primero.";
+            msgEl.className = "doc-msg error";
+            return;
+        }
+        submitBtn.disabled = true;
+        msgEl.textContent = "Subiendo...";
+        msgEl.className = "doc-msg";
+        try {
+            const doc = await uploadIntranetDoc(sector, file, currentUserName);
+            closeUploadModal();
+            showIntranetToast("Documento subido correctamente", "success");
+            await refreshUploadedDocs();
+            renderTabs();
+            renderSummary();
+            loadDocs();
+        } catch (e) {
+            msgEl.textContent = e.message || "No se pudo subir el archivo.";
+            msgEl.className = "doc-msg error";
+            submitBtn.disabled = false;
+        }
+    }
+
+    async function refreshUploadedDocs(){
+        const sectors = SECTORS.filter(s => s.id !== "todos").map(s => s.id);
+        sectors.push("general");
+        const list = {};
+        const counts = {};
+        await Promise.all(sectors.map(async sec => {
+            try {
+                const docs = await getIntranetDocs(sec);
+                list[sec] = docs || [];
+                counts[sec] = (docs || []).length;
+            } catch (e) {
+                list[sec] = [];
+                counts[sec] = 0;
+            }
+        }));
+        uploadedDocsBySector = list;
+        uploadedCounts = counts;
+        uploadedLoaded = true;
     }
 
     function renderBreadcrumb(){
@@ -405,9 +685,7 @@
                     currentFolderId = null;
                     resetFilters();
                     document.querySelectorAll(".doc-sector-tab").forEach(t => t.classList.toggle("active", t.dataset.id === crumb.id));
-                    const cont = document.getElementById("documents-container");
-                    cont.innerHTML = '<div class="intranet-loading"><i class="fas fa-spinner fa-spin"></i><span>Cargando...</span></div>';
-                    getDriveItems(crumb.id).then(items => renderDocGrid(items)).catch(() => {});
+                    loadDocs();
                 } else {
                     currentFolderId = crumb.id;
                     const cont = document.getElementById("documents-container");
@@ -458,7 +736,7 @@
             let count = "";
             if (s.id !== "todos") {
                 const files = MOCK_FILES_BY_SECTOR[s.id];
-                count = files ? files.length : 0;
+                count = (files ? files.length : 0) + (uploadedCounts[s.id] || 0);
             }
             return '<button class="doc-sector-tab' + (s.id === currentSector ? ' active' : '') + '" data-id="' + s.id + '" onclick="selectSector(\'' + s.id + '\')">' +
                 '<i class="fas ' + s.icon + '"></i> ' + s.name +
@@ -474,18 +752,20 @@
         SECTORS.filter(s => s.id !== "todos").forEach(s => {
             const files = MOCK_FILES_BY_SECTOR[s.id] || [];
             files.forEach(f => { if (f.folder) totalFolders++; else totalFiles++; });
+            totalFiles += uploadedCounts[s.id] || 0;
         });
         el.innerHTML = '<div class="doc-summary-item"><i class="fas fa-file"></i> <strong>' + totalFiles + '</strong> Archivos</div>' +
             '<div class="doc-summary-item"><i class="fas fa-folder"></i> <strong>' + totalFolders + '</strong> Carpetas</div>' +
             '<div class="doc-summary-item"><i class="fas fa-layer-group"></i> <strong>' + (SECTORS.length - 1) + '</strong> Sectores</div>';
     }
 
-    document.addEventListener("DOMContentLoaded", function() {
+    document.addEventListener("DOMContentLoaded", async function() {
         if (!isMsalAuthenticated()) { window.location.href = "/login"; return; }
         if (isMockMode()) { const mb = document.getElementById("mockBadge"); if (mb) mb.style.display = "inline-flex"; }
 
         getCurrentUser().then(user => {
             const name = user.displayName || user.userPrincipalName || "Empleado";
+            currentUserName = name;
             document.getElementById("userDisplay").textContent = name;
             const dept = user.department || user.officeLocation || "";
             if (dept) {
@@ -498,7 +778,18 @@
 
         renderTabs();
         renderSummary();
+        await refreshUploadedDocs();
+        renderTabs();
+        renderSummary();
         loadDocs();
+
+        document.getElementById("docUploadFile").addEventListener("change", selectUploadFile);
+        document.addEventListener("keydown", function(e) {
+            if (e.key === "Escape") {
+                closeUploadModal();
+                closePreviewModal();
+            }
+        });
 
         const docCont = document.getElementById("documents-container");
         docCont.addEventListener("click", function(e) {

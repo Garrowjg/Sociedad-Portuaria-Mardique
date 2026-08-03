@@ -32,7 +32,8 @@ public class SecurityConfig {
                                 "/tarifas", "/tramites-en-linea", "/galeria", "/contacto",
                                 "/contacto/pqrs", "/contacto/message", "/sesion-activa", "/error",
                                 "/css/**", "/js/**", "/images/**", "/videos/**", "/uploads/**",
-                                "/login", "/register", "/intranet/**", "/api/chatbot/**").permitAll()
+                                "/login", "/register", "/intranet/**", "/api/chatbot/**",
+                                "/api/intranet/documents/**").permitAll()
                         .requestMatchers("/admin/**").hasRole("ADMIN")
                         .requestMatchers("/editor/**").hasRole("EDITOR")
                         .requestMatchers("/user/**").hasRole("USER")
@@ -60,7 +61,8 @@ public class SecurityConfig {
                         new AntPathRequestMatcher("/contacto/pqrs"),
                         new AntPathRequestMatcher("/contacto/message"),
                         new AntPathRequestMatcher("/admin/migrate-encryption"),
-                        new AntPathRequestMatcher("/api/chatbot/**")))
+                        new AntPathRequestMatcher("/api/chatbot/**"),
+                        new AntPathRequestMatcher("/api/intranet/documents/**")))
                 .headers(headers -> headers
                         .xssProtection(xss -> xss.headerValue(XXssProtectionHeaderWriter.HeaderValue.ENABLED_MODE_BLOCK))
                         .contentSecurityPolicy(csp -> csp.policyDirectives(
