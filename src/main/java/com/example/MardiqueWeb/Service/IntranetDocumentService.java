@@ -155,19 +155,58 @@ public class IntranetDocumentService {
         if (cached != null) return cached;
         byte[] png;
         String t = doc.getFileType();
-        if ("pdf".equals(t)) {
-            png = pdfThumb(doc);
-        } else if (IMAGE_TYPES.contains(t)) {
-            png = imageThumb(doc);
-        } else if ("txt".equals(t) || "csv".equals(t)) {
-            png = textThumb(doc);
-        } else if (isOfficeType(t)) {
-            png = officeThumb(doc);
-        } else {
-            png = genericThumb(doc);
+        try {
+            if ("pdf".equals(t)) {
+                png = pdfThumb(doc);
+            } else if (IMAGE_TYPES.contains(t)) {
+                png = imageThumb(doc);
+            } else if ("txt".equals(t) || "csv".equals(t)) {
+                png = textThumb(doc);
+            } else if (isOfficeType(t)) {
+                png = officeThumb(doc);
+            } else {
+                png = genericThumb(doc);
+            }
+        } catch (Throwable e) {
+            // Cualquier fallo (p.ej. falta de freetype/fontconfig para AWT) no debe romper
+            // la petición: se devuelve una miniatura simple dibujada sin texto.
+            png = simpleFallbackThumb(doc.getFileType());
         }
         THUMB_CACHE.put(doc.getId(), png);
         return png;
+    }
+
+    /** Miniatura de emergencia: dibujada con formas/colores pero SIN texto (no usa fuentes). */
+    private static byte[] simpleFallbackThumb(String ext) {
+        int w = 420, h = 560;
+        try {
+            BufferedImage img = new BufferedImage(w, h, BufferedImage.TYPE_INT_RGB);
+            Graphics2D g = img.createGraphics();
+            g.setColor(Color.WHITE);
+            g.fillRect(0, 0, w, h);
+            g.setColor(fileTypeColorSafe(ext));
+            g.fillRect(0, 0, w, 12);
+            g.fillRoundRect(40, 60, 340, 300, 14, 14);
+            g.dispose();
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            ImageIO.write(img, "png", baos);
+            return baos.toByteArray();
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    private static Color fileTypeColorSafe(String ext) {
+        if (ext == null) return new Color(148, 163, 184);
+        switch (ext.toLowerCase()) {
+            case "pdf": return new Color(220, 38, 38);
+            case "doc": case "docx": return new Color(37, 99, 235);
+            case "xls": case "xlsx": case "csv": return new Color(22, 163, 74);
+            case "ppt": case "pptx": return new Color(234, 88, 12);
+            case "jpg": case "jpeg": case "png": case "gif": case "webp": case "svg": return new Color(168, 85, 247);
+            case "txt": return new Color(100, 116, 139);
+            default: return new Color(148, 163, 184);
+        }
     }
 
     private byte[] pdfThumb(IntranetDocument doc) throws IOException {
