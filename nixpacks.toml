@@ -1,2 +1,2 @@
 [phases.setup]
-nixPkgs = ["libreoffice", "openjdk17"]
+nixPkgs = ["libreoffice", "openjdk21", "fontconfig", "freetype", "dejavu_fonts"]
