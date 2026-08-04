@@ -188,17 +188,16 @@
             <i class="fas fa-info-circle"></i> Selecciona la página pública que deseas editar.
         </p>
         <div class="page-grid reveal">
-            <th:block th:each="p : ${allPages}">
+            <th:block th:each="p : ${pages}">
                 <a th:href="@{/editor/content/{page}(page=${p})}" class="page-card">
-                    <i class="fas fa-file-alt"></i>
-                    <h3 th:text="${#strings.capitalize(#strings.replace(p, '-', ' '))}">Página</h3>
-                    <p>Editar contenido</p>
-                </a>
-            </th:block>
-            <th:block th:if="${allPages == null and pages == null}" th:each="p : ${ {'inicio','empresa','servicios','procedimientos','contacto','galeria','tramitesenlinea','tarifas'} }">
-                <a th:href="@{/editor/content/{page}(page=${p})}" class="page-card">
-                    <i class="fas fa-file-alt"></i>
-                    <h3 th:text="${#strings.capitalize(#strings.replace(p, '-', ' '))}">Página</h3>
+                    <th:block th:if="${p == 'tramites'}">
+                        <i class="fas fa-file-signature"></i>
+                        <h3>Trámites en Línea</h3>
+                    </th:block>
+                    <th:block th:unless="${p == 'tramites'}">
+                        <i class="fas fa-file-alt"></i>
+                        <h3 th:text="${#strings.capitalize(#strings.replace(p, '-', ' '))}">Página</h3>
+                    </th:block>
                     <p>Editar contenido</p>
                 </a>
             </th:block>
@@ -210,13 +209,14 @@
             <div>
                 <h1>
                     <i class="fas fa-edit"></i> Editando:
-                    <span class="page-badge" th:text="${#strings.capitalize(#strings.replace(page, '-', ' '))}">Página</span>
+                    <span class="page-badge" th:text="${pageLabel}">Página</span>
                 </h1>
             </div>
             <div class="page-selector-wrapper">
                 <label for="pageSelect"><i class="fas fa-arrows-alt-h"></i> Cambiar página:</label>
                 <select id="pageSelect" class="page-selector" onchange="navigateToPage(this.value)">
-                    <option th:each="p : ${pages}" th:value="${p}" th:selected="${p == page}" th:text="${#strings.capitalize(#strings.replace(p, '-', ' '))}">Página</option>
+                    <option th:each="p : ${pages}" th:value="${p}" th:selected="${p == page}"
+                        th:text="${p == 'tramites' ? 'Trámites en Línea' : #strings.capitalize(#strings.replace(p, '-', ' '))}">Página</option>
                 </select>
             </div>
         </div>

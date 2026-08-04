@@ -852,10 +852,8 @@
             <span><i class="fa-solid fa-chevron-right"></i></span>
             <span class="current">Contacto</span>
         </div>
-        <h1 class="page-hero-title">
-            Canales de <strong>Comunicación</strong>
-        </h1>
-        <p class="page-hero-sub">Estamos listos para atenderle. Contáctenos a través de cualquiera de nuestros canales y un representante le responderá a la brevedad.</p>
+        <h1 class="page-hero-title" th:utext="${pageContents['hero-title']} ?: 'Canales de &lt;strong&gt;Comunicaci&oacute;n&lt;/strong&gt;'">Canales de <strong>Comunicación</strong></h1>
+        <p class="page-hero-sub" th:utext="${pageContents['hero-sub']} ?: 'Estamos listos para atenderle. Cont&aacute;ctenos a trav&eacute;s de cualquiera de nuestros canales y un representante le responder&aacute; a la brevedad.'">Estamos listos para atenderle. Contáctenos a través de cualquiera de nuestros canales y un representante le responderá a la brevedad.</p>
         <div class="page-hero-line" id="heroLine"></div>
     </div>
     <div class="scroll-hint">
@@ -887,9 +885,9 @@
             <div>
                 <div class="reveal">
                     <span class="section-label">Comuníquese con nosotros</span>
-                    <h2 class="section-title">Estamos aquí<br>para <strong style="color:var(--accent-gold)">ayudarle</strong></h2>
+                    <h2 class="section-title" th:utext="${pageContents['section-title']} ?: 'Estamos aqu&iacute; para &lt;strong style=&quot;color:var(--accent-gold)&quot;&gt;ayudarle&lt;/strong&gt;'">Estamos aquí<br>para <strong style="color:var(--accent-gold)">ayudarle</strong></h2>
                     <div class="section-line"></div>
-                    <p style="color:#556b82;font-size:14px;line-height:1.7;margin-top:18px;margin-bottom:28px;">
+                    <p style="color:#556b82;font-size:14px;line-height:1.7;margin-top:18px;margin-bottom:28px;" th:utext="${pageContents['section-text']} ?: 'En Sociedad Portuaria Mardique nos comprometemos a dar respuesta oportuna a todas sus solicitudes. Nuestro equipo se encuentra disponible para orientarle en sus operaciones portuarias, comerciales y log&iacute;sticas.'">
                         En Sociedad Portuaria Mardique nos comprometemos a dar respuesta oportuna a todas sus solicitudes. Nuestro equipo se encuentra disponible para orientarle en sus operaciones portuarias, comerciales y logísticas.
                     </p>
                 </div>

@@ -672,9 +672,7 @@
             <span><i class="fas fa-chevron-right" style="font-size:9px;"></i></span>
             <span class="current">EMPRESA</span>
         </div>
-        <h1 class="page-hero-title">
-            SOMOS <strong>MARDIQUE</strong>
-        </h1>
+        <h1 class="page-hero-title" th:utext="${pageContents['hero-title']} ?: 'SOMOS &lt;strong&gt;MARDIQUE&lt;/strong&gt;'">SOMOS <strong>MARDIQUE</strong></h1>
         <div class="page-hero-line" id="heroLine"></div>
     </div>
     <div class="scroll-hint"><i class="fas fa-chevron-down"></i><span>Desplazar</span></div>
@@ -712,8 +710,8 @@
         <div class="intro-layout">
             <div class="intro-text reveal-left">
                 <div class="section-label">NUESTRA EMPRESA</div>
-                <h2>Un puerto de clase mundial<br>en <span>Colombia</span></h2>
-                <p>Sociedad Portuaria Mardique S.A. es un puerto multipropósito privado de uso público, ubicado estratégicamente en la Carretera Antigua Vía Barú, Corregimiento Santa Ana – Cartagena, Colombia.</p>
+                <h2 th:utext="${pageContents['section-title']} ?: 'Un puerto de clase mundial&lt;br&gt;en Colombia'">Un puerto de clase mundial<br>en <span>Colombia</span></h2>
+                <p th:utext="${pageContents['section-text']} ?: 'Sociedad Portuaria Mardique S.A. es un puerto multipropósito privado de uso público, ubicado estratégicamente en la Carretera Antigua Vía Barú, Corregimiento Santa Ana – Cartagena, Colombia.'">Sociedad Portuaria Mardique S.A. es un puerto multipropósito privado de uso público, ubicado estratégicamente en la Carretera Antigua Vía Barú, Corregimiento Santa Ana – Cartagena, Colombia.</p>
                 <p>Nuestra posición geoestratégica nos permite ser el único puerto con capacidad de disminuir trasbordos y cabotajes en las operaciones de importación y exportación de bienes, con conexión directa al interior del país a través del transporte multimodal fluvial y terrestre.</p>
                 <p>Contamos con concesión portuaria otorgada por Cormagdalena, y con más de 20 años de experiencia en la prestación de servicios portuarios y logísticos de excelencia.</p>
                 <div style="margin-top: 28px;">

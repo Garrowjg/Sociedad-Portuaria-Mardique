@@ -245,7 +245,7 @@ public class AdminController {
                                            || (s.getTitulo() != null && s.getTitulo().toLowerCase().contains(q)));
         }
         List<SupportTicket> allTickets = supportTicketRepository.findAllByOrderByCreatedAtDesc();
-        var tktStream = allTickets.stream().filter(t -> "PQRS".equals(t.getOrigen()));
+        var tktStream = allTickets.stream().filter(t -> "PQRS".equals(t.getOrigen()) || "CHATBOT".equals(t.getOrigen()));
         if (!isFullAdmin) {
             tktStream = tktStream.filter(t -> dept != null && dept.equals(t.getDepartamento()));
         }

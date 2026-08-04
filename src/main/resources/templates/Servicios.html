@@ -600,7 +600,7 @@
             <div class="page-hero-breadcrumb">
                 <a href="/inicio">INICIO</a><span>›</span><span class="current">SERVICIOS</span>
             </div>
-            <h1 class="page-hero-title">Nuestros <strong>Servicios</strong></h1>
+            <h1 class="page-hero-title" th:utext="${pageContents['hero-title']} ?: 'Nuestros &lt;strong&gt;Servicios&lt;/strong&gt;'">Nuestros <strong>Servicios</strong></h1>
             <div class="page-hero-line" id="heroLine"></div>
         </div>
         <div class="scroll-hint"><i class="fas fa-chevron-down"></i><span>Explorar</span></div>
@@ -643,7 +643,7 @@
         <div class="container">
             <div class="section-header reveal">
                 <span class="section-label">Infraestructura</span>
-                <h2 class="section-title">Servicios Marítimos y Fluviales</h2>
+                <h2 class="section-title" th:utext="${pageContents['section-title']} ?: 'Servicios Mar&iacute;timos y Fluviales'">Servicios Marítimos y Fluviales</h2>
                 <div class="section-line"></div>
             </div>
             <div class="premium-service reveal-left">
@@ -655,7 +655,7 @@
                 <div class="premium-text-box">
                     <span class="category-label">Operaciones Mayores</span>
                     <h3>Muelle Marítimo</h3>
-                    <p>Operaciones de muellaje y atraque de embarcaciones respaldadas por infraestructura robusta y tecnología de precisión para garantizar la eficiencia en cada maniobra.</p>
+                    <p th:utext="${pageContents['section-text']} ?: 'Operaciones de muellaje y atraque de embarcaciones respaldadas por infraestructura robusta y tecnología de precisión para garantizar la eficiencia en cada maniobra.'">Operaciones de muellaje y atraque de embarcaciones respaldadas por infraestructura robusta y tecnología de precisión para garantizar la eficiencia en cada maniobra.</p>
                     <ul class="service-bullets">
                         <li><i class="fas fa-anchor"></i> Muelle marítimo de 150 Mts de longitud operativa.</li>
                         <li><i class="fas fa-water"></i> Calado natural excepcional de 15 Mts.</li>

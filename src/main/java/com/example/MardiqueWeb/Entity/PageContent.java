@@ -18,6 +18,9 @@ public class PageContent {
     @Column(columnDefinition = "TEXT")
     private String content;
 
+    @Column(name = "original_content", columnDefinition = "TEXT")
+    private String originalContent;
+
     private String label;
 
     public PageContent() {}
@@ -37,6 +40,8 @@ public class PageContent {
     public void setSectionKey(String sectionKey) { this.sectionKey = sectionKey; }
     public String getContent() { return content; }
     public void setContent(String content) { this.content = content; }
+    public String getOriginalContent() { return originalContent; }
+    public void setOriginalContent(String originalContent) { this.originalContent = originalContent; }
     public String getLabel() { return label; }
     public void setLabel(String label) { this.label = label; }
 }

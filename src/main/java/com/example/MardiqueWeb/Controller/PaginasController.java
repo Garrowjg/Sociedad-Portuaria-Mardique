@@ -17,7 +17,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-import org.springframework.web.util.HtmlUtils;
 
 import java.util.List;
 import java.util.Map;
@@ -56,13 +55,13 @@ public class PaginasController {
     private static final Set<String> VALID_PETITION_TYPES = Set.of("Petici\u00f3n", "Queja", "Reclamo", "Solicitud");
     private static final Set<String> VALID_CATEGORIES = Set.of("CLIENTE", "PROVEEDOR", "AMBOS");
     private static final Set<String> COMMON_PASSWORDS = Set.of(
-        "password", "123456", "password123", "admin123", "qwerty", "abc123",
-        "letmein", "welcome", "monkey", "dragon", "master", "sunshine",
-        "contrase\u00f1a", "123456789", "12345678", "111111", "000000"
+            "password", "123456", "password123", "admin123", "qwerty", "abc123",
+            "letmein", "welcome", "monkey", "dragon", "master", "sunshine",
+            "contrase\u00f1a", "123456789", "12345678", "111111", "000000"
     );
 
     private String sanitize(String input) {
-        return input != null ? HtmlUtils.htmlEscape(input.trim()) : "";
+        return input != null ? input.trim() : "";
     }
 
     @GetMapping("/sesion-activa")
@@ -71,20 +70,23 @@ public class PaginasController {
     }
 
     @GetMapping({"/", "/inicio"})
-    public String inicio(Authentication auth) {
+    public String inicio(Authentication auth, Model model) {
         if (auth != null && auth.isAuthenticated()) return "redirect:/sesion-activa";
+        model.addAttribute("pageContents", loadPageContents("inicio"));
         return "Inicio";
     }
 
     @GetMapping("/empresa")
-    public String empresa(Authentication auth) {
+    public String empresa(Authentication auth, Model model) {
         if (auth != null && auth.isAuthenticated()) return "redirect:/sesion-activa";
+        model.addAttribute("pageContents", loadPageContents("empresa"));
         return "Empresa";
     }
 
     @GetMapping("/servicios")
-    public String servicios(Authentication auth) {
+    public String servicios(Authentication auth, Model model) {
         if (auth != null && auth.isAuthenticated()) return "redirect:/sesion-activa";
+        model.addAttribute("pageContents", loadPageContents("servicios"));
         return "Servicios";
     }
 
@@ -138,10 +140,10 @@ public class PaginasController {
 
     @PostMapping("/contacto/pqrs")
     public String submitPQRS(@RequestParam String tipoDocumento, @RequestParam String numeroDocumento,
-                              @RequestParam String nombreCompleto, @RequestParam String email,
-                              @RequestParam String telefono, @RequestParam String tipoPeticion,
-                              @RequestParam String departamento, @RequestParam String descripcion,
-                              RedirectAttributes ra) {
+                             @RequestParam String nombreCompleto, @RequestParam String email,
+                             @RequestParam String telefono, @RequestParam String tipoPeticion,
+                             @RequestParam String departamento, @RequestParam String descripcion,
+                             RedirectAttributes ra) {
         if (!VALID_DOC_TYPES.contains(tipoDocumento)) {
             ra.addFlashAttribute("pqrsError", "Tipo de documento inv\u00e1lido");
             return "redirect:/contacto#pqrs";
@@ -166,7 +168,7 @@ public class PaginasController {
         ticket.setTelefono(sanitize(telefono));
         ticket.setTipoPeticion(sanitize(tipoPeticion));
         ticket.setDepartamento(sanitize(departamento));
-        ticket.setMessage(HtmlUtils.htmlEscape(descripcion));
+        ticket.setMessage(descripcion != null ? descripcion.trim() : "");
         ticket.setSubject("PQRS: " + sanitize(tipoPeticion));
         ticket.setUsername(sanitize(nombreCompleto));
         ticket.setOrigen("PQRS");
@@ -178,11 +180,11 @@ public class PaginasController {
 
     @PostMapping("/contacto/message")
     public String submitContactMessage(@RequestParam String nombre,
-                                        @RequestParam String email,
-                                        @RequestParam String telefono,
-                                        @RequestParam(required = false, defaultValue = "General") String asunto,
-                                        @RequestParam String mensaje,
-                                        RedirectAttributes ra) {
+                                       @RequestParam String email,
+                                       @RequestParam String telefono,
+                                       @RequestParam(required = false, defaultValue = "General") String asunto,
+                                       @RequestParam String mensaje,
+                                       RedirectAttributes ra) {
         if (email == null || !email.matches("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$")) {
             ra.addFlashAttribute("mensajeError", "Email inv\u00e1lido");
             return "redirect:/contacto#contactenos";
@@ -192,7 +194,7 @@ public class PaginasController {
         ticket.setEmail(sanitize(email));
         ticket.setTelefono(sanitize(telefono));
         ticket.setSubject(sanitize(asunto));
-        ticket.setMessage(HtmlUtils.htmlEscape(mensaje));
+        ticket.setMessage(mensaje != null ? mensaje.trim() : "");
         ticket.setUsername(sanitize(nombre));
         ticket.setOrigen("CONTACTO");
         ticket.setStatus("ABIERTO");
@@ -216,15 +218,15 @@ public class PaginasController {
 
     @PostMapping("/register")
     public String doRegister(@RequestParam String username, @RequestParam String password,
-                              @RequestParam String email, @RequestParam String nombres,
-                              @RequestParam String apellidos,
-                              @RequestParam(required = false) String telefono,
-                              @RequestParam String confirmPassword,
-                              @RequestParam(defaultValue = "PERSONA") String tipo,
-                              @RequestParam(required = false) String nit,
-                              @RequestParam(required = false) String categoria,
-                              @RequestParam(required = false) String aceptaTerminos,
-                              Model model) {
+                             @RequestParam String email, @RequestParam String nombres,
+                             @RequestParam String apellidos,
+                             @RequestParam(required = false) String telefono,
+                             @RequestParam String confirmPassword,
+                             @RequestParam(defaultValue = "PERSONA") String tipo,
+                             @RequestParam(required = false) String nit,
+                             @RequestParam(required = false) String categoria,
+                             @RequestParam(required = false) String aceptaTerminos,
+                             Model model) {
         model.addAttribute("nombres", nombres);
         model.addAttribute("apellidos", apellidos);
         model.addAttribute("email", email);
@@ -301,7 +303,7 @@ public class PaginasController {
     public String dashboard(Authentication auth) {
         if (auth == null) return "redirect:/login";
         String role = auth.getAuthorities().stream().findFirst()
-            .map(g -> g.getAuthority()).orElse("ROLE_USER");
+                .map(g -> g.getAuthority()).orElse("ROLE_USER");
         return switch (role) {
             case "ROLE_ADMIN" -> "redirect:/admin/dashboard";
             case "ROLE_EDITOR" -> "redirect:/editor/dashboard";
@@ -312,13 +314,13 @@ public class PaginasController {
     private Map<String, String> loadPageContents(String page) {
         List<PageContent> contents = pageContentRepository.findByPage(page);
         return contents.stream().filter(c -> c.getSectionKey() != null)
-            .collect(Collectors.toMap(PageContent::getSectionKey, c -> c.getContent() == null ? "" : c.getContent(), (a, b) -> a));
+                .collect(Collectors.toMap(PageContent::getSectionKey, c -> c.getContent() == null ? "" : c.getContent(), (a, b) -> a));
     }
 
     private Map<String, Document> loadCardDocs(String tipo) {
         List<Document> docs = documentRepository.findByTipoAndCardKeyIsNotNull(tipo);
         return docs.stream().filter(d -> d.getCardKey() != null)
-            .collect(Collectors.toMap(Document::getCardKey, d -> d, (a, b) -> a));
+                .collect(Collectors.toMap(Document::getCardKey, d -> d, (a, b) -> a));
     }
 
     private List<Document> publicDocs(List<Document> docs) {

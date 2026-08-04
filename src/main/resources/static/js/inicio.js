@@ -246,9 +246,153 @@ document.addEventListener('keydown', function(e) {
 (function() {
     const canvas = document.getElementById('globeCanvas');
     if (!canvas) return;
-    const ctx = canvas.getContext('2d');
+
+    /* --- Animación fluida de la tarjeta de info (inyectada por JS para no depender del CSS externo) --- */
+    (function injectGlobeCardStyles() {
+        if (document.getElementById('globeCardDynamicStyles')) return;
+        const style = document.createElement('style');
+        style.id = 'globeCardDynamicStyles';
+        style.textContent = `
+            #globeInfoCard {
+                opacity: 0;
+                transform: scale(.86) translateY(16px);
+                transition: opacity .32s cubic-bezier(.22,1,.36,1), transform .38s cubic-bezier(.22,1,.36,1);
+                pointer-events: none;
+                will-change: opacity, transform;
+            }
+            #globeInfoCard.visible {
+                opacity: 1;
+                transform: scale(1) translateY(0);
+                pointer-events: auto;
+                animation: globeCardGlow 2.6s ease-in-out infinite;
+            }
+            #globeInfoCard.switching {
+                transition: opacity .15s ease, transform .15s ease;
+                opacity: 0;
+                transform: scale(.94) translateY(6px);
+            }
+            @keyframes globeCardGlow {
+                0%, 100% { box-shadow: 0 10px 40px rgba(0,180,255,.22), 0 0 0 1px rgba(0,200,255,.14); }
+                50% { box-shadow: 0 10px 48px rgba(0,210,255,.34), 0 0 0 1px rgba(0,220,255,.24); }
+            }
+            #globeInfoImg {
+                transition: opacity .28s ease, transform .45s cubic-bezier(.22,1,.36,1);
+            }
+            .globe-frame-vignette {
+                position: absolute; inset: 0; pointer-events: none; z-index: 2;
+                box-shadow: inset 0 0 70px rgba(0,4,14,0.55), inset 0 0 22px rgba(0,4,14,0.5);
+                border-radius: inherit;
+            }
+        `;
+        document.head.appendChild(style);
+    })();
+    function injectFrameAndStats() {
+        const container = canvas.closest('.strategic-map') || canvas.parentElement;
+        if (!container) return;
+        const cs = getComputedStyle(container);
+        if (cs.position === 'static') container.style.position = 'relative';
+
+        if (!container.querySelector('.globe-frame-vignette')) {
+            const vig = document.createElement('div');
+            vig.className = 'globe-frame-vignette';
+            container.appendChild(vig);
+        }
+    }
+    const ctx = canvas.getContext('2d', { alpha: true, desynchronized: true });
 
     const GOLD = '#f0a030', CYAN = '#00c8f0', TEAL = '#00e8a0', ROSE = '#ff6b6b';
+
+    /* --- GLOW SPRITE CACHE ---
+       Sustituye ctx.shadowBlur (muy costoso, recalcula un blur por píxel en cada frame)
+       por sprites pre-renderizados una sola vez y reutilizados con drawImage(). */
+    const _glowCache = {};
+    function getGlowSprite(rgb, size) {
+        const s = Math.max(8, Math.round(size / 8) * 8); // bucket para no explotar la caché
+        const key = rgb + '_' + s;
+        if (_glowCache[key]) return _glowCache[key];
+        const c = document.createElement('canvas');
+        c.width = c.height = s;
+        const g = c.getContext('2d');
+        const grad = g.createRadialGradient(s/2, s/2, 0, s/2, s/2, s/2);
+        grad.addColorStop(0, `rgba(${rgb},0.9)`);
+        grad.addColorStop(0.5, `rgba(${rgb},0.35)`);
+        grad.addColorStop(1, `rgba(${rgb},0)`);
+        g.fillStyle = grad;
+        g.beginPath(); g.arc(s/2, s/2, s/2, 0, Math.PI*2); g.fill();
+        _glowCache[key] = c;
+        return c;
+    }
+    function drawGlow(x, y, radius, rgb, alpha) {
+        const size = radius * 2;
+        const sprite = getGlowSprite(rgb, size);
+        ctx.save();
+        ctx.globalAlpha = alpha == null ? 1 : alpha;
+        ctx.globalCompositeOperation = 'lighter';
+        ctx.drawImage(sprite, x - size/2, y - size/2, size, size);
+        ctx.restore();
+    }
+
+    /* --- CLOUD SPRITES (pre-renderizadas una vez, en vez de un gradiente nuevo por nube y por frame) --- */
+    function makeCloudSprite(inner, outer, size) {
+        const c = document.createElement('canvas');
+        c.width = c.height = size;
+        const g = c.getContext('2d');
+        const grad = g.createRadialGradient(size/2, size/2, 0, size/2, size/2, size/2);
+        grad.addColorStop(0, inner);
+        grad.addColorStop(1, outer);
+        g.fillStyle = grad;
+        g.beginPath(); g.arc(size/2, size/2, size/2, 0, Math.PI*2); g.fill();
+        return c;
+    }
+    const cloudSpriteNear = makeCloudSprite('rgba(255,255,255,0.36)', 'rgba(255,255,255,0)', 128);
+    const cloudSpriteFar  = makeCloudSprite('rgba(255,255,255,0.22)', 'rgba(255,255,255,0)', 96);
+
+    /* Capa de estrellas estáticas pre-renderizada (offscreen). Solo un puñado de
+       estrellas "destacadas" siguen animándose en vivo; el resto se pinta una sola
+       vez y se reutiliza con drawImage(), eliminando ~145 arcos+shadowBlur por frame. */
+    let starLayer = null, starLayerCanvas = null;
+    function buildStarLayer() {
+        if (!starLayerCanvas) starLayerCanvas = document.createElement('canvas');
+        starLayerCanvas.width = canvas.width;
+        starLayerCanvas.height = canvas.height;
+        const g = starLayerCanvas.getContext('2d');
+        g.clearRect(0, 0, starLayerCanvas.width, starLayerCanvas.height);
+        stars.forEach(s => {
+            if (s.isFeature) return; // esas se dibujan en vivo con parpadeo real
+            const sx = s.x * canvas.width, sy = s.y * canvas.height;
+            g.globalAlpha = s.opacity * 0.85;
+            g.fillStyle = s.color;
+            g.beginPath(); g.arc(sx, sy, s.size, 0, Math.PI*2); g.fill();
+            if (s.size > 1.6) {
+                g.globalAlpha = s.opacity * 0.13;
+                g.beginPath(); g.arc(sx, sy, s.size*4, 0, Math.PI*2); g.fill();
+            }
+        });
+        starLayer = starLayerCanvas;
+    }
+
+    /* Fondo estático (no depende de rotación/zoom): se pre-renderiza una vez por resize. */
+    let bgLayer = null, bgLayerCanvas = null;
+    function buildBgLayer() {
+        if (!bgLayerCanvas) bgLayerCanvas = document.createElement('canvas');
+        bgLayerCanvas.width = canvas.width;
+        bgLayerCanvas.height = canvas.height;
+        const g = bgLayerCanvas.getContext('2d');
+        const g1 = g.createRadialGradient(canvas.width*0.14, canvas.height*0.12, 0, canvas.width*0.14, canvas.height*0.12, canvas.width*0.5);
+        g1.addColorStop(0, 'rgba(0,60,140,0.18)');
+        g1.addColorStop(0.5, 'rgba(0,30,80,0.08)');
+        g1.addColorStop(1, 'rgba(0,0,0,0)');
+        g.fillStyle = g1; g.fillRect(0,0,canvas.width,canvas.height);
+        const g2 = g.createRadialGradient(canvas.width*0.9, canvas.height*0.8, 0, canvas.width*0.9, canvas.height*0.8, canvas.width*0.4);
+        g2.addColorStop(0, 'rgba(100,0,80,0.10)');
+        g2.addColorStop(1, 'rgba(0,0,0,0)');
+        g.fillStyle = g2; g.fillRect(0,0,canvas.width,canvas.height);
+        const g3 = g.createRadialGradient(canvas.width*0.5, canvas.height*0.3, 0, canvas.width*0.5, canvas.height*0.3, canvas.width*0.45);
+        g3.addColorStop(0, 'rgba(0,20,60,0.07)');
+        g3.addColorStop(1, 'rgba(0,0,0,0)');
+        g.fillStyle = g3; g.fillRect(0,0,canvas.width,canvas.height);
+        bgLayer = bgLayerCanvas;
+    }
     let zoomScale = 1.0, targetZoom = 1.0;
     const ZOOM_MIN = 0.50, ZOOM_MAX = 3.0, ZOOM_STEP = 0.12;
 
@@ -284,10 +428,13 @@ document.addEventListener('keydown', function(e) {
 
     const ROUTES = [
         { from: 0, to: 1 }, { from: 0, to: 4 }, { from: 0, to: 8 },
-        { from: 0, to: 5 }, { from: 0, to: 13 }
+        { from: 0, to: 5 }, { from: 0, to: 13 },
+        { from: 1, to: 13 }, { from: 8, to: 10 }, { from: 13, to: 14 },
+        { from: 10, to: 11 }, { from: 14, to: 15 }, { from: 9, to: 8 }
     ];
 
     const particles = [];
+    injectFrameAndStats();
     ROUTES.forEach((r, i) => {
         for (let j = 0; j < 1; j++) {
             particles.push({ routeIdx: i, t: j * 0.4 + Math.random() * 0.1, speed: 0.0006 + Math.random() * 0.0004, dir: 1, type: 'ship' });
@@ -474,47 +621,29 @@ document.addEventListener('keydown', function(e) {
        PREMIUM DRAWING — DISEÑO CORPORATivo
        ================================================================ */
     function drawBackground() {
-        ctx.save();
-        const g1 = ctx.createRadialGradient(canvas.width*0.14, canvas.height*0.12, 0, canvas.width*0.14, canvas.height*0.12, canvas.width*0.5);
-        g1.addColorStop(0, 'rgba(0,60,140,0.18)');
-        g1.addColorStop(0.5, 'rgba(0,30,80,0.08)');
-        g1.addColorStop(1, 'rgba(0,0,0,0)');
-        ctx.fillStyle = g1; ctx.fillRect(0,0,canvas.width,canvas.height);
-        const g2 = ctx.createRadialGradient(canvas.width*0.9, canvas.height*0.8, 0, canvas.width*0.9, canvas.height*0.8, canvas.width*0.4);
-        g2.addColorStop(0, 'rgba(100,0,80,0.10)');
-        g2.addColorStop(1, 'rgba(0,0,0,0)');
-        ctx.fillStyle = g2; ctx.fillRect(0,0,canvas.width,canvas.height);
-        const g3 = ctx.createRadialGradient(canvas.width*0.5, canvas.height*0.3, 0, canvas.width*0.5, canvas.height*0.3, canvas.width*0.45);
-        g3.addColorStop(0, 'rgba(0,20,60,0.07)');
-        g3.addColorStop(1, 'rgba(0,0,0,0)');
-        ctx.fillStyle = g3; ctx.fillRect(0,0,canvas.width,canvas.height);
-        ctx.restore();
+        if (!bgLayer) buildBgLayer();
+        ctx.drawImage(bgLayer, 0, 0);
     }
 
     function drawStars() {
+        if (!starLayer) buildStarLayer();
+        ctx.drawImage(starLayer, 0, 0);
+        /* Solo las estrellas "destacadas" (5) se animan en vivo: parpadeo real sin costo relevante */
         const now = Date.now() * 0.001;
         ctx.save();
         stars.forEach(s => {
+            if (!s.isFeature) return;
             const twinkle = Math.sin(now * s.twinkleSpeed * 12 + s.twinkleOffset) * 0.35 + 0.65;
-            ctx.globalAlpha = s.opacity * twinkle;
             const sx = s.x * canvas.width, sy = s.y * canvas.height;
-            ctx.shadowColor = s.color;
-            ctx.shadowBlur = s.size > 1.5 ? 3 : 0;
+            ctx.globalAlpha = s.opacity * twinkle;
             ctx.fillStyle = s.color;
             ctx.beginPath(); ctx.arc(sx, sy, s.size, 0, Math.PI * 2); ctx.fill();
-            ctx.shadowBlur = 0;
-            if (s.size > 1.6) {
-                ctx.globalAlpha = s.opacity * twinkle * 0.15;
-                ctx.beginPath(); ctx.arc(sx, sy, s.size * 4, 0, Math.PI * 2); ctx.fill();
-            }
-            if (s.isFeature) {
-                ctx.globalAlpha = s.opacity * twinkle * 0.5;
-                ctx.strokeStyle = s.color;
-                ctx.lineWidth = 0.6;
-                const flareLen = s.size * 5;
-                ctx.beginPath(); ctx.moveTo(sx - flareLen, sy); ctx.lineTo(sx + flareLen, sy); ctx.stroke();
-                ctx.beginPath(); ctx.moveTo(sx, sy - flareLen); ctx.lineTo(sx, sy + flareLen); ctx.stroke();
-            }
+            ctx.globalAlpha = s.opacity * twinkle * 0.4;
+            ctx.strokeStyle = s.color;
+            ctx.lineWidth = 0.6;
+            const flareLen = s.size * 5;
+            ctx.beginPath(); ctx.moveTo(sx - flareLen, sy); ctx.lineTo(sx + flareLen, sy); ctx.stroke();
+            ctx.beginPath(); ctx.moveTo(sx, sy - flareLen); ctx.lineTo(sx, sy + flareLen); ctx.stroke();
         });
         ctx.restore();
     }
@@ -542,9 +671,11 @@ document.addEventListener('keydown', function(e) {
             g.addColorStop(0, 'rgba(255,255,255,0.9)'); g.addColorStop(0.3, 'rgba(200,230,255,0.4)'); g.addColorStop(1, 'rgba(200,230,255,0)');
             ctx.strokeStyle = g; ctx.lineWidth = 1.8 + p * 0.6;
             ctx.beginPath(); ctx.moveTo(s.x, s.y); ctx.lineTo(s.x - s.dx * 0.08 * len, s.y - s.dy * 0.08 * len); ctx.stroke();
-            ctx.shadowColor = '#88ccff'; ctx.shadowBlur = 15;
+            ctx.restore();
+            drawGlow(s.x, s.y, 15, '136,204,255', alpha);
+            ctx.save(); ctx.globalAlpha = alpha * 0.55;
             ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.arc(s.x, s.y, 2.2, 0, Math.PI * 2); ctx.fill();
-            ctx.shadowBlur = 0; s.x += s.dx; s.y += s.dy;
+            s.x += s.dx; s.y += s.dy;
             ctx.restore();
         });
     }
@@ -570,30 +701,13 @@ document.addEventListener('keydown', function(e) {
             const sunBoost = Math.max(0, Math.min(0.3, facing * 0.4));
             ctx.fillStyle = `rgba(160, 240, 130, ${sunBoost * 0.06})`;
             ctx.fill();
-            /* Relieve sutil: un par de manchas de sombra/luz internas para romper el color plano */
-            ctx.save();
-            ctx.clip();
-            const relief = ctx.createRadialGradient(
-                cont.points[0] ? project(cont.points[0][0], cont.points[0][1]).x : cx,
-                cont.points[0] ? project(cont.points[0][0], cont.points[0][1]).y : cy,
-                0,
-                cx, cy, R * zoomScale * 0.9
-            );
-            relief.addColorStop(0, `rgba(255,255,255,${0.05 * alpha})`);
-            relief.addColorStop(0.5, `rgba(0,20,10,${0.05 * alpha})`);
-            relief.addColorStop(1, `rgba(0,10,5,${0.09 * alpha})`);
-            ctx.fillStyle = relief; ctx.fill();
-            ctx.restore();
-            ctx.strokeStyle = `rgba(0, 255, 180, ${0.45 * alpha})`;
+            /* Borde luminoso sin shadowBlur (usa doble trazo, mucho más barato en Canvas2D) */
+            ctx.strokeStyle = `rgba(0, 255, 180, ${0.24 * alpha})`;
             ctx.lineWidth = 0.8; ctx.stroke();
-            ctx.strokeStyle = `rgba(0, 200, 255, ${0.10 * alpha})`;
+            ctx.strokeStyle = `rgba(0, 200, 255, ${0.06 * alpha})`;
             ctx.lineWidth = 1.8; ctx.stroke();
-            ctx.save();
-            ctx.shadowColor = 'rgba(0,220,190,0.5)';
-            ctx.shadowBlur = 6 * alpha;
-            ctx.strokeStyle = `rgba(0, 230, 200, ${0.18 * alpha})`;
-            ctx.lineWidth = 0.6; ctx.stroke();
-            ctx.restore();
+            ctx.strokeStyle = `rgba(0, 230, 200, ${0.12 * alpha})`;
+            ctx.lineWidth = 0.5; ctx.stroke();
         });
     }
 
@@ -603,27 +717,27 @@ document.addEventListener('keydown', function(e) {
         drawStars();
         ctx.save();
         const sh = ctx.createRadialGradient(cx+effectiveR*0.18, cy+effectiveR*0.18, effectiveR*0.8, cx+effectiveR*0.18, cy+effectiveR*0.18, effectiveR*1.6);
-        sh.addColorStop(0, 'rgba(0,8,24,0.40)');
+        sh.addColorStop(0, 'rgba(21,69,98,0.20)');
         sh.addColorStop(1, 'rgba(0,0,0,0)');
         ctx.beginPath(); ctx.arc(cx+effectiveR*0.1, cy+effectiveR*0.1, effectiveR*1.08, 0, Math.PI*2);
         ctx.fillStyle = sh; ctx.fill();
         ctx.restore();
         const grd = ctx.createRadialGradient(cx - effectiveR*0.3, cy - effectiveR*0.35, effectiveR*0.02, cx, cy, effectiveR);
-        grd.addColorStop(0, '#2a8fd4');
-        grd.addColorStop(0.18, '#1479b8');
-        grd.addColorStop(0.4, '#0a3d70');
-        grd.addColorStop(0.65, '#051f42');
-        grd.addColorStop(0.85, '#020e24');
-        grd.addColorStop(1, '#010610');
+        grd.addColorStop(0, '#4a96c0');
+        grd.addColorStop(0.18, '#3578a3');
+        grd.addColorStop(0.4, '#28648c');
+        grd.addColorStop(0.65, '#1f5577');
+        grd.addColorStop(0.85, '#1b4562');
+        grd.addColorStop(1, '#153d56');
         ctx.beginPath(); ctx.arc(cx, cy, effectiveR, 0, Math.PI*2); ctx.fillStyle = grd; ctx.fill();
         /* Terminador día/noche: oscurece el lado opuesto a la luz para dar volumen real de esfera */
         ctx.save();
         ctx.beginPath(); ctx.arc(cx, cy, effectiveR, 0, Math.PI*2); ctx.clip();
         const term = ctx.createRadialGradient(cx + effectiveR*0.55, cy + effectiveR*0.6, 0, cx + effectiveR*0.55, cy + effectiveR*0.6, effectiveR*1.35);
         term.addColorStop(0, 'rgba(0,0,0,0)');
-        term.addColorStop(0.55, 'rgba(0,3,12,0.10)');
-        term.addColorStop(0.8, 'rgba(0,2,10,0.38)');
-        term.addColorStop(1, 'rgba(0,1,6,0.62)');
+        term.addColorStop(0.55, 'rgba(15,45,65,0.08)');
+        term.addColorStop(0.8, 'rgba(12,35,55,0.20)');
+        term.addColorStop(1, 'rgba(10,30,50,0.35)');
         ctx.beginPath(); ctx.arc(cx, cy, effectiveR, 0, Math.PI*2); ctx.fillStyle = term; ctx.fill();
         ctx.restore();
         const shimmerAngle = Date.now() * 0.00008;
@@ -635,30 +749,30 @@ document.addEventListener('keydown', function(e) {
         sg.addColorStop(1, 'rgba(0,0,0,0)');
         ctx.beginPath(); ctx.arc(cx, cy, effectiveR, 0, Math.PI*2); ctx.fillStyle = sg; ctx.fill();
         ctx.save(); ctx.beginPath(); ctx.arc(cx, cy, effectiveR, 0, Math.PI*2); ctx.clip();
-        for (let lat = -80; lat <= 80; lat += 12) {
+        for (let lat = -80; lat <= 80; lat += 16) {
             ctx.beginPath(); let first = true;
-            for (let i = 0; i <= 90; i++) {
-                const p = project(-180 + 360*i/90, lat);
+            for (let i = 0; i <= 45; i++) {
+                const p = project(-180 + 360*i/45, lat);
                 if (p.z < 0) { first = true; continue; }
                 if (first) { ctx.moveTo(p.x, p.y); first = false; } else ctx.lineTo(p.x, p.y);
             }
-            ctx.strokeStyle = lat === 0 ? 'rgba(0,200,255,0.25)' : 'rgba(255,255,255,0.025)';
-            ctx.lineWidth = lat === 0 ? 0.8 : 0.3; ctx.stroke();
+            ctx.strokeStyle = 'rgba(255,255,255,0.025)';
+            ctx.lineWidth = 0.3; ctx.stroke();
         }
         drawContinents();
         ctx.restore();
         drawAtmosphere();
         const sunGrd = ctx.createRadialGradient(cx - effectiveR*0.40, cy - effectiveR*0.42, 0, cx - effectiveR*0.06, cy - effectiveR*0.06, effectiveR*0.65);
-        sunGrd.addColorStop(0, 'rgba(255,255,255,0.10)');
-        sunGrd.addColorStop(0.3, 'rgba(255,255,255,0.03)');
+        sunGrd.addColorStop(0, 'rgba(255,255,255,0.05)');
+        sunGrd.addColorStop(0.3, 'rgba(255,255,255,0.015)');
         sunGrd.addColorStop(1, 'rgba(255,255,255,0)');
         ctx.beginPath(); ctx.arc(cx, cy, effectiveR, 0, Math.PI*2); ctx.fillStyle = sunGrd; ctx.fill();
         /* Highlight especular puntual y contenido, tipo esfera pulida (sutil) */
         ctx.save();
         ctx.beginPath(); ctx.arc(cx, cy, effectiveR, 0, Math.PI*2); ctx.clip();
         const spec = ctx.createRadialGradient(cx - effectiveR*0.34, cy - effectiveR*0.38, 0, cx - effectiveR*0.34, cy - effectiveR*0.38, effectiveR*0.16);
-        spec.addColorStop(0, 'rgba(255,255,255,0.14)');
-        spec.addColorStop(0.5, 'rgba(230,245,255,0.04)');
+        spec.addColorStop(0, 'rgba(255,255,255,0.08)');
+        spec.addColorStop(0.5, 'rgba(230,245,255,0.02)');
         spec.addColorStop(1, 'rgba(230,245,255,0)');
         ctx.beginPath(); ctx.arc(cx - effectiveR*0.34, cy - effectiveR*0.38, effectiveR*0.16, 0, Math.PI*2); ctx.fillStyle = spec; ctx.fill();
         ctx.restore();
@@ -684,20 +798,20 @@ document.addEventListener('keydown', function(e) {
         ctx.save();
         const g = ctx.createRadialGradient(cx, cy, effectiveR*0.88, cx, cy, effectiveR*1.22);
         g.addColorStop(0, 'rgba(0,100,200,0)');
-        g.addColorStop(0.2, `rgba(0,${180 + Math.sin(now*0.15)*30},255,${0.10 * pulse})`);
-        g.addColorStop(0.5, `hsla(${hueShift},100%,60%,${0.05 * pulse})`);
-        g.addColorStop(0.8, `hsla(${hueShift + 30},80%,50%,${0.02 * pulse})`);
+        g.addColorStop(0.2, `rgba(0,${180 + Math.sin(now*0.15)*30},255,${0.055 * pulse})`);
+        g.addColorStop(0.5, `hsla(${hueShift},100%,60%,${0.028 * pulse})`);
+        g.addColorStop(0.8, `hsla(${hueShift + 30},80%,50%,${0.012 * pulse})`);
         g.addColorStop(1, 'rgba(0,40,120,0)');
         ctx.beginPath(); ctx.arc(cx, cy, effectiveR*1.22, 0, Math.PI*2); ctx.fillStyle = g; ctx.fill();
         /* Anillo delgado y discreto justo en el borde, para "sellar" el limbo del planeta */
         const rim = ctx.createRadialGradient(cx, cy, effectiveR*0.98, cx, cy, effectiveR*1.03);
         rim.addColorStop(0, 'rgba(120,210,255,0)');
-        rim.addColorStop(0.6, `rgba(140,220,255,${0.14 * pulse})`);
+        rim.addColorStop(0.6, `rgba(140,220,255,${0.08 * pulse})`);
         rim.addColorStop(1, 'rgba(140,220,255,0)');
         ctx.beginPath(); ctx.arc(cx, cy, effectiveR*1.03, 0, Math.PI*2); ctx.fillStyle = rim; ctx.fill();
         const h = ctx.createRadialGradient(cx - effectiveR*0.35, cy - effectiveR*0.40, 0, cx - effectiveR*0.08, cy - effectiveR*0.08, effectiveR*0.85);
-        h.addColorStop(0, `rgba(120,200,255,${0.10 * pulse})`);
-        h.addColorStop(0.5, `rgba(80,180,255,${0.05 * pulse})`);
+        h.addColorStop(0, `rgba(120,200,255,${0.06 * pulse})`);
+        h.addColorStop(0.5, `rgba(80,180,255,${0.03 * pulse})`);
         h.addColorStop(1, 'rgba(80,180,255,0)');
         ctx.beginPath(); ctx.arc(cx, cy, effectiveR*1.02, 0, Math.PI*2); ctx.fillStyle = h; ctx.fill();
         ctx.restore();
@@ -722,6 +836,25 @@ document.addEventListener('keydown', function(e) {
         ctx.restore();
     }
 
+    function drawSatellite() {
+        const effectiveR = R * zoomScale;
+        const a = Date.now() * 0.00022;
+        const ox = effectiveR*1.28*Math.cos(a), oy = effectiveR*0.32*Math.sin(a), oz = effectiveR*1.28*Math.sin(a)*Math.sin(ORBIT_TILT);
+        const ry = oy*Math.cos(tilt) - oz*Math.sin(tilt), rz = oy*Math.sin(tilt) + oz*Math.cos(tilt);
+        if (rz < 0) return;
+        const sx = cx+ox, sy = cy-ry;
+        const pulse = Math.sin(Date.now()*0.004)*0.3+0.7;
+        ctx.save();
+        drawGlow(sx, sy, 16, '160,220,255', 0.45*pulse);
+        ctx.beginPath(); ctx.arc(sx, sy, 2.2, 0, Math.PI*2);
+        ctx.fillStyle = '#dff3ff'; ctx.fill();
+        ctx.beginPath();
+        ctx.moveTo(sx - 6, sy); ctx.lineTo(sx - 3, sy);
+        ctx.moveTo(sx + 3, sy); ctx.lineTo(sx + 6, sy);
+        ctx.strokeStyle = 'rgba(200,235,255,0.8)'; ctx.lineWidth = 1.6; ctx.stroke();
+        ctx.restore();
+    }
+
     function drawClouds() {
         const zf = Math.max(0.4, Math.min(3.0, 2.5 - zoomScale * 0.9));
         clouds.forEach(c => {
@@ -731,19 +864,10 @@ document.addEventListener('keydown', function(e) {
             if (p.z < 0.1) return;
             const effectiveR = R * zoomScale;
             const scale = effectiveR / 200;
-            const sz = c.size * scale;
+            const sz = c.size * scale * 2; // diámetro del sprite
             ctx.save();
             ctx.globalAlpha = Math.min(0.42, c.opacity * zf * 1.6);
-            const g = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, sz);
-            g.addColorStop(0, 'rgba(255,255,255,0.34)');
-            g.addColorStop(0.5, 'rgba(255,255,255,0.14)');
-            g.addColorStop(1, 'rgba(255,255,255,0)');
-            ctx.fillStyle = g; ctx.beginPath(); ctx.arc(p.x, p.y, sz, 0, Math.PI*2); ctx.fill();
-            const ox = Math.cos(c.phase)*sz*0.5, oy = Math.sin(c.phase*0.7)*sz*0.5;
-            const g2 = ctx.createRadialGradient(p.x+ox, p.y+oy, 0, p.x+ox, p.y+oy, sz*0.6);
-            g2.addColorStop(0, 'rgba(255,255,255,0.18)');
-            g2.addColorStop(1, 'rgba(255,255,255,0)');
-            ctx.fillStyle = g2; ctx.beginPath(); ctx.arc(p.x+ox, p.y+oy, sz*0.6, 0, Math.PI*2); ctx.fill();
+            ctx.drawImage(cloudSpriteNear, p.x - sz/2, p.y - sz/2, sz, sz);
             ctx.restore();
         });
         cloudsFar.forEach(c => {
@@ -753,13 +877,10 @@ document.addEventListener('keydown', function(e) {
             if (p.z < 0.15) return;
             const effectiveR = R * zoomScale;
             const scale = effectiveR / 200;
-            const sz = c.size * scale;
+            const sz = c.size * scale * 2;
             ctx.save();
             ctx.globalAlpha = Math.min(0.22, c.opacity * zf);
-            const g = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, sz);
-            g.addColorStop(0, 'rgba(255,255,255,0.20)');
-            g.addColorStop(1, 'rgba(255,255,255,0)');
-            ctx.fillStyle = g; ctx.beginPath(); ctx.arc(p.x, p.y, sz, 0, Math.PI*2); ctx.fill();
+            ctx.drawImage(cloudSpriteFar, p.x - sz/2, p.y - sz/2, sz, sz);
             ctx.restore();
         });
     }
@@ -778,10 +899,8 @@ document.addEventListener('keydown', function(e) {
             const wr = effectiveR * p.r;
             ctx.save();
             ctx.globalAlpha = p.op * Math.max(0, 1 - p.r/p.max);
-            ctx.shadowColor = 'rgba(0,200,240,0.3)'; ctx.shadowBlur = 20;
             ctx.strokeStyle = 'rgba(0,220,255,0.6)'; ctx.lineWidth = 1.4;
             ctx.beginPath(); ctx.arc(hPos.x, hPos.y, wr, 0, Math.PI*2); ctx.stroke();
-            ctx.shadowBlur = 0;
             ctx.strokeStyle = 'rgba(240,160,48,0.4)'; ctx.lineWidth = 0.8;
             ctx.beginPath(); ctx.arc(hPos.x, hPos.y, wr*0.65, 0, Math.PI*2); ctx.stroke();
             ctx.strokeStyle = 'rgba(240,160,48,0.2)'; ctx.lineWidth = 0.5;
@@ -807,23 +926,24 @@ document.addEventListener('keydown', function(e) {
     }
 
     function drawRoutes() {
-        const hub = NODES[0];
         ROUTES.forEach((route, idx) => {
+            const origin = NODES[route.from];
             const dest = NODES[route.to];
             const pts = [];
             for (let i = 0; i <= 60; i++) {
-                const pt = slerp(hub.lon, hub.lat, dest.lon, dest.lat, i/60);
+                const pt = slerp(origin.lon, origin.lat, dest.lon, dest.lat, i/60);
                 const p = project(pt.lon, pt.lat); pts.push(p);
             }
             const pulse = Math.sin(Date.now()*0.0007 + idx*1.5)*0.3+0.5;
             ctx.save();
             ctx.beginPath(); let first = true;
             pts.forEach(p => { if (p.z < 0) { first = true; return; } if (first) { ctx.moveTo(p.x, p.y); first = false; } else ctx.lineTo(p.x, p.y); });
-            ctx.shadowColor = `rgba(0,200,255,${0.15 * pulse})`;
-            ctx.shadowBlur = 18;
-            ctx.strokeStyle = `rgba(0,200,255,${0.07 + pulse*0.05})`;
+            ctx.strokeStyle = `rgba(0,200,255,${0.05 + pulse*0.035})`;
             ctx.lineWidth = 4 + pulse * 2;
-            ctx.stroke(); ctx.shadowBlur = 0;
+            ctx.stroke();
+            ctx.strokeStyle = `rgba(0,200,255,${0.035 + pulse*0.025})`;
+            ctx.lineWidth = 2.5 + pulse * 1.2;
+            ctx.stroke();
             ctx.beginPath(); first = true;
             pts.forEach(p => { if (p.z < 0) { first = true; return; } if (first) { ctx.moveTo(p.x, p.y); first = false; } else ctx.lineTo(p.x, p.y); });
             ctx.strokeStyle = `rgba(0,220,255,${0.35 + pulse*0.2})`;
@@ -890,11 +1010,11 @@ document.addEventListener('keydown', function(e) {
             ctx.beginPath(); ctx.arc(p.x, p.y, r+3.5, 0, Math.PI*2);
             ctx.strokeStyle = isSelected ? 'rgba(240,160,48,0.9)' : (node.hub ? 'rgba(240,160,48,0.6)' : 'rgba(0,200,240,0.6)');
             ctx.lineWidth = isSelected ? 2.0 : 1.0; ctx.stroke();
+            const glowRgb = node.hub ? '240,160,48' : (isSelected ? '240,160,48' : '0,200,240');
+            drawGlow(p.x, p.y, (node.hub ? 20 : (isSelected ? 20 : 10)) * 1.6, glowRgb, nodeAlpha);
             ctx.beginPath(); ctx.arc(p.x, p.y, r, 0, Math.PI*2);
             ctx.fillStyle = color;
-            ctx.shadowColor = color;
-            ctx.shadowBlur = node.hub ? 20 : (isSelected ? 20 : 10);
-            ctx.fill(); ctx.shadowBlur = 0;
+            ctx.fill();
             ctx.beginPath(); ctx.arc(p.x, p.y, r*0.4, 0, Math.PI*2);
             ctx.fillStyle = 'rgba(255,255,255,0.85)'; ctx.fill();
             /* Radar ping: anillo que se expande y se desvanece, en bucle, por nodo */
@@ -922,24 +1042,6 @@ document.addEventListener('keydown', function(e) {
             if (nodeAlpha > 0.25) {
             }
             ctx.restore();
-            if (isSelected) {
-                ctx.save(); ctx.globalAlpha = 1;
-                ctx.font = `600 10px 'Plus Jakarta Sans', sans-serif`;
-                ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-                const gap = r + 12;
-                let lx = p.x, ly = p.y;
-                if (node.labelDir === 'above') ly = p.y - gap;
-                else if (node.labelDir === 'below') ly = p.y + gap;
-                else if (node.labelDir === 'right') lx = p.x + gap + 6;
-                else if (node.labelDir === 'left') lx = p.x - gap - 6;
-                const lw = Math.max(ctx.measureText(node.label).width + 18, 60);
-                ctx.fillStyle = 'rgba(180,70,0,0.92)';
-                roundRect(ctx, lx - lw/2, ly - 9, lw, 18, 4);
-                ctx.fill();
-                ctx.fillStyle = '#fff';
-                ctx.fillText(node.label, lx, ly);
-                ctx.restore();
-            }
         });
     }
 
@@ -962,8 +1064,8 @@ document.addEventListener('keydown', function(e) {
     function drawParticles() {
         particles.forEach(p => {
             const route = ROUTES[p.routeIdx];
-            const from = p.dir === 1 ? 0 : route.to;
-            const to = p.dir === 1 ? route.to : 0;
+            const from = p.dir === 1 ? route.from : route.to;
+            const to = p.dir === 1 ? route.to : route.from;
             const hub = NODES[from], dest = NODES[to];
             const pt = slerp(hub.lon, hub.lat, dest.lon, dest.lat, p.t);
             const pos = project(pt.lon, pt.lat);
@@ -979,40 +1081,63 @@ document.addEventListener('keydown', function(e) {
         const n = nodeData.node;
         const card = document.getElementById('globeInfoCard');
         if (!card) return;
-        document.getElementById('globeInfoTag').textContent = n.hub ? '★ HUB PRINCIPAL' : '⚓ PUERTO';
-        document.getElementById('globeInfoTitle').textContent = n.label.replace(' (HUB)', '');
-        document.getElementById('globeInfoDesc').textContent = n.desc;
-        const imgEl = document.getElementById('globeInfoImg');
-        if (imgEl) {
-            imgEl.alt = '';
-            imgEl.style.transition = 'opacity .18s ease';
-            imgEl.style.opacity = '0';
-            const preloader = new Image();
-            preloader.onload = function() {
-                imgEl.src = n.image;
-                imgEl.style.display = 'block';
-                requestAnimationFrame(function() { imgEl.style.opacity = '1'; });
-            };
-            preloader.onerror = function() {
-                imgEl.style.display = 'none';
-            };
-            preloader.src = n.image;
+
+        const applyContent = function() {
+            document.getElementById('globeInfoTag').textContent = n.hub ? '★ HUB PRINCIPAL' : '⚓ PUERTO';
+            document.getElementById('globeInfoTitle').textContent = n.label.replace(' (HUB)', '');
+            document.getElementById('globeInfoDesc').textContent = n.desc;
+            const imgEl = document.getElementById('globeInfoImg');
+            if (imgEl) {
+                imgEl.alt = '';
+                imgEl.style.opacity = '0';
+                imgEl.style.transform = 'scale(1.06)';
+                const preloader = new Image();
+                preloader.onload = function() {
+                    imgEl.src = n.image;
+                    imgEl.style.display = 'block';
+                    requestAnimationFrame(function() {
+                        imgEl.style.opacity = '1';
+                        imgEl.style.transform = 'scale(1)';
+                    });
+                };
+                preloader.onerror = function() {
+                    imgEl.style.display = 'none';
+                };
+                preloader.src = n.image;
+            }
+            const cardW = 210, cardH = 170;
+            let left = projPos.x + 16, top = projPos.y - 55;
+            if (left + cardW > canvas.width - 6) left = projPos.x - cardW - 16;
+            if (left < 6) left = 6;
+            if (top + cardH > canvas.height - 6) top = canvas.height - cardH - 6;
+            if (top < 6) top = 6;
+            card.style.left = left + 'px'; card.style.top = top + 'px'; card.style.width = cardW + 'px';
+            card.classList.remove('switching');
+            card.classList.add('visible');
+            addRipple(projPos.x, projPos.y);
+        };
+
+        /* Si ya había una tarjeta abierta para OTRO puerto, primero hacemos un mini fade-out
+           ("switching") y luego entramos con el contenido nuevo, para que se sienta como un
+           crossfade en vez de un salto brusco del texto/imagen. */
+        const wasVisible = card.classList.contains('visible');
+        if (wasVisible) {
+            card.classList.add('switching');
+            clearTimeout(card._switchTimer);
+            card._switchTimer = setTimeout(applyContent, 150);
+        } else {
+            applyContent();
         }
-        const cardW = 210, cardH = 170;
-        let left = projPos.x + 16, top = projPos.y - 55;
-        if (left + cardW > canvas.width - 6) left = projPos.x - cardW - 16;
-        if (left < 6) left = 6;
-        if (top + cardH > canvas.height - 6) top = canvas.height - cardH - 6;
-        if (top < 6) top = 6;
-        card.style.left = left + 'px'; card.style.top = top + 'px'; card.style.width = cardW + 'px';
-        card.classList.add('visible');
         rotSpeed = 0.00005; targetRotSpeed = 0.00005;
-        addRipple(projPos.x, projPos.y);
     }
 
     function hideInfoCard() {
         const card = document.getElementById('globeInfoCard');
-        if (card) card.classList.remove('visible');
+        if (card) {
+            clearTimeout(card._switchTimer);
+            card.classList.remove('visible');
+            card.classList.remove('switching');
+        }
         rotSpeed = 0.00035; targetRotSpeed = 0.00035;
         selectedNode = null;
     }
@@ -1022,9 +1147,17 @@ document.addEventListener('keydown', function(e) {
         canvas.width = rect.width; canvas.height = rect.height;
         cx = canvas.width * 0.5; cy = canvas.height * 0.5;
         R = Math.min(canvas.width, canvas.height) * 0.40;
+        bgLayer = null; starLayer = null; // se reconstruyen en el próximo frame con el nuevo tamaño
     }
 
-    function loop() {
+    const FRAME_INTERVAL = 1000 / 45; // cap a ~45fps: fluido mas no compite tanto con el scroll
+    let lastFrameTime = 0;
+    function loop(ts) {
+        if (ts && lastFrameTime && (ts - lastFrameTime) < FRAME_INTERVAL) {
+            if (isRunning) requestAnimationFrame(loop);
+            return;
+        }
+        lastFrameTime = ts || performance.now();
         time = Date.now() * 0.001;
         const zd = targetZoom - zoomScale;
         if (Math.abs(zd) < 0.003) zoomScale = targetZoom;
@@ -1040,6 +1173,7 @@ document.addEventListener('keydown', function(e) {
         }
         drawGlobe();
         drawOrbitRing();
+        drawSatellite();
         drawClouds();
         drawShootingStars();
         drawRoutes();
@@ -1081,6 +1215,7 @@ document.addEventListener('keydown', function(e) {
     canvas.addEventListener('mouseleave', () => { isHovering = false; if (!selectedNode) targetRotSpeed = 0.00035; });
     canvas.addEventListener('click', e => {
         if (didDrag) { didDrag = false; return; }
+        if (canvas._lastTouchEndAt && (Date.now() - canvas._lastTouchEndAt) < 700) return;
         const rect = canvas.getBoundingClientRect(), sx = canvas.width/rect.width, sy = canvas.height/rect.height;
         const cx2 = (e.clientX-rect.left)*sx, cy2 = (e.clientY-rect.top)*sy;
         if (!canvas._nodePositions) return;
@@ -1101,6 +1236,7 @@ document.addEventListener('keydown', function(e) {
         ltx=e.touches[0].clientX; lty=e.touches[0].clientY;
     }, { passive: false });
     canvas.addEventListener('touchend', e => {
+        canvas._lastTouchEndAt = Date.now();
         if (!didDrag && e.changedTouches.length>0) {
             const t=e.changedTouches[0], rect=canvas.getBoundingClientRect(), sx=canvas.width/rect.width, sy=canvas.height/rect.height;
             const tx=(t.clientX-rect.left)*sx, ty=(t.clientY-rect.top)*sy;

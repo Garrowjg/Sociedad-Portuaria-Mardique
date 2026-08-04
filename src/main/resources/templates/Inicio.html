@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="es" xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity6">
+<html lang="es" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity6">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -348,11 +348,11 @@
             <div class="hero-content">
                 <div class="hero-badge"><i class="fas fa-anchor"></i> Puerto Multipropósito · Cartagena, Colombia</div>
                 <h1 class="hero-title">
-                    SOCIEDAD PORTUARIA
+                    <span th:utext="${pageContents != null and pageContents.get('hero-title') != null and !pageContents.get('hero-title').isEmpty()} ? ${pageContents.get('hero-title')} : 'SOCIEDAD PORTUARIA'">SOCIEDAD PORTUARIA</span>
                     <strong><span class="typed-wrap" id="typedText"></span></strong>
                 </h1>
                 <div class="hero-line" id="heroLine"></div>
-                <p class="hero-desc">Un puerto multipropósito privado de uso público con servicios portuarios y de infraestructura de clase mundial.</p>
+                <p class="hero-desc" th:utext="${pageContents != null and pageContents.get('hero-sub') != null and !pageContents.get('hero-sub').isEmpty()} ? ${pageContents.get('hero-sub')} : 'Un puerto multipropósito privado de uso público con servicios portuarios y de infraestructura de clase mundial.'">Un puerto multipropósito privado de uso público con servicios portuarios y de infraestructura de clase mundial.</p>
                 <div class="hero-buttons">
                     <a href="/servicios" class="btn btn-orange">NUESTROS SERVICIOS <i class="fas fa-arrow-right"></i></a>
                     <a href="/empresa" class="btn btn-outline">CONÓCENOS <i class="fas fa-arrow-right"></i></a>
@@ -520,6 +520,6 @@
         <a href="/contacto" class="drawer-contact-btn"><i class="fas fa-phone-alt"></i> CONTÁCTANOS</a>
     </div>
 </nav>
-    <script src="/js/chatbot.js"></script>
+<script src="/js/chatbot.js"></script>
 </body>
 </html>
