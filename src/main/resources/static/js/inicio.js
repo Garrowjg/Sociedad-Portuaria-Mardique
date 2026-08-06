@@ -50,11 +50,6 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     }, { passive: true });
 
-    const hdr = document.getElementById('main-header');
-    window.addEventListener('scroll', () => {
-        if (hdr) hdr.classList.toggle('scrolled', window.scrollY > 60);
-    }, { passive: true });
-
     const heroLine = document.getElementById('heroLine');
     if (heroLine) setTimeout(() => heroLine.classList.add('animate'), 350);
 

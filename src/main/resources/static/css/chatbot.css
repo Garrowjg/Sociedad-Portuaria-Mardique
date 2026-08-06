@@ -17,7 +17,7 @@
 
 .cb-launcher {
     position: fixed; bottom: 28px; right: 28px; z-index: 9999;
-    width: 90px; height: 90px;
+    width: 108px; height: 108px;
     display: flex; align-items: center; justify-content: center;
     filter: drop-shadow(0 8px 24px rgba(13,43,62,.4));
     transition: transform .3s cubic-bezier(.4,0,.2,1), filter .3s ease;
@@ -66,11 +66,11 @@
 
 .cb-unread {
     position: absolute; top: -2px; right: -2px;
-    min-width: 22px; height: 22px; border-radius: 11px;
+    min-width: 26px; height: 26px; border-radius: 13px;
     background: linear-gradient(135deg, var(--cb-orange), var(--cb-orange-deep));
-    color: #fff; font-size: 11px; font-weight: 700;
+    color: #fff; font-size: 12px; font-weight: 700;
     display: flex; align-items: center; justify-content: center;
-    padding: 0 5px;
+    padding: 0 6px;
     box-shadow: 0 2px 8px rgba(240,154,54,.5);
     border: 2.5px solid #fff;
     z-index: 2;
@@ -86,7 +86,7 @@
    ============================================================ */
 
 .cb-modal {
-    position: fixed; bottom: 118px; right: 28px; z-index: 9998;
+    position: fixed; bottom: 150px; right: 28px; z-index: 9998;
     width: 392px; height: 620px; max-height: calc(100vh - 150px);
     background: #eef3f7;
     border-radius: 20px;
@@ -461,8 +461,8 @@
 
 @media (max-width: 480px) {
     .cb-modal {
-        width: calc(100vw - 20px); right: 10px; bottom: 100px;
+        width: calc(100vw - 20px); right: 10px; bottom: 128px;
         height: 72vh; max-height: 72vh;
     }
-    .cb-launcher { bottom: 20px; right: 20px; width: 78px; height: 78px; }
+    .cb-launcher { bottom: 20px; right: 20px; width: 92px; height: 92px; }
 }

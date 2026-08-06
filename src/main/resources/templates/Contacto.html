@@ -37,8 +37,7 @@
         .btn-outline-light { background: transparent; color: #fff; border: 1px solid rgba(255,255,255,0.6); }
         .btn-outline-light:hover { background: #fff; color: var(--primary-blue); transform: translateY(-2px); }
 
-        header { background: var(--primary-dark); padding: 16px 0; position: sticky; top: 0; z-index: 500; box-shadow: 0 2px 20px rgba(0,0,0,0.15); transition: padding 0.3s ease; }
-        header.scrolled { padding: 11px 0; }
+
         .header-content { display: flex; justify-content: space-between; align-items: center; }
         nav { flex: 1; display: flex; justify-content: center; padding-right: 20px; }
         .nav-menu { display: flex; gap: 35px; align-items: center; }
@@ -84,7 +83,7 @@
 
         .page-hero {
             position: relative;
-            height: 420px;
+            height: 540px;
             display: flex;
             align-items: flex-end;
             overflow: hidden;
@@ -163,7 +162,7 @@
             letter-spacing: 0.4px;
         }
         .page-hero-title {
-            font-size: 44px;
+            font-size: 54px;
             font-weight: 300;
             color: #fff;
             letter-spacing: -0.5px;
@@ -193,13 +192,17 @@
             to{opacity:1;transform:none}
         }
 
-        .contact-nav { background: var(--primary-dark); border-bottom: 1px solid rgba(255,255,255,0.06); position: sticky; top: 74px; z-index: 400; box-shadow: 0 4px 20px rgba(0,0,0,0.18); transition: top 0.3s ease; }
-        .contact-nav-inner { display: flex; overflow-x: auto; scrollbar-width: none; }
+        /* ── Segundo nav: mismo diseño que Trámites en Línea ─────────────────── */
+        .contact-nav { background: rgba(27,69,98,0.72); backdrop-filter: blur(20px) saturate(160%); -webkit-backdrop-filter: blur(20px) saturate(160%); position: sticky; top: 0; z-index: 400; border-bottom: 1px solid rgba(255,255,255,0.08); box-shadow: 0 4px 24px rgba(0,0,0,0.25); }
+        .contact-nav.nav-scrolled { background: rgba(27,69,98,0.85); }
+        .contact-nav-inner { display: flex; align-items: center; overflow-x: auto; scrollbar-width: none; }
         .contact-nav-inner::-webkit-scrollbar { display: none; }
-        .cnav-btn { display: flex; align-items: center; gap: 9px; padding: 16px 26px; color: rgba(255,255,255,0.5); font-size: 11.5px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; cursor: pointer; white-space: nowrap; border: none; box-shadow: inset 0 -2px 0 transparent; background: none; transition: color 0.25s, box-shadow 0.25s; flex-shrink: 0; }
+        .cnav-btn { position: relative; display: flex; align-items: center; gap: 9px; padding: 18px 22px; color: rgba(255,255,255,0.5); font-size: 11.5px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; cursor: pointer; white-space: nowrap; border: none; background: none; transition: color 0.25s; flex-shrink: 0; }
         .cnav-btn i { font-size: 14px; }
+        .cnav-btn::after { content: ''; position: absolute; left: 0; right: 0; bottom: 0; height: 3px; border-radius: 3px 3px 0 0; background: linear-gradient(90deg, var(--accent-gold), var(--accent-cyan)); transform: scaleX(0); transform-origin: center; transition: transform 0.3s cubic-bezier(0.4,0,0.2,1); }
         .cnav-btn:hover { color: rgba(255,255,255,0.85); }
-        .cnav-btn.active { color: var(--accent-gold); box-shadow: inset 0 -2px 0 var(--accent-gold); }
+        .cnav-btn.active { color: var(--accent-gold); }
+        .cnav-btn.active::after { transform: scaleX(1); }
 
         .reveal { opacity: 0; transform: translateY(32px); transition: opacity 0.65s cubic-bezier(0.4,0,0.2,1), transform 0.65s cubic-bezier(0.4,0,0.2,1); }
         .reveal.visible { opacity: 1; transform: none; }
@@ -529,7 +532,7 @@
         .btn-pqrs:hover i { transform: translateX(4px); }
 
         .cta-band {
-            background: linear-gradient(135deg, var(--primary-dark) 0%, #0f2c42 100%);
+            background: var(--primary-dark);
             padding: 72px 0; text-align: center; position: relative; overflow: hidden;
         }
         .cta-band::before {
@@ -704,6 +707,7 @@
             header nav, .header-contact-btn { display: none; }
             .mobile-menu-toggle { display: flex; }
             .mobile-nav-drawer { display: flex; }
+            .contact-nav { display: none; }
 
             .page-hero { height: 340px; }
             .page-hero .container { padding-bottom: 32px; }
@@ -718,9 +722,8 @@
             .section-label { font-size: 10px; }
             .container { padding: 0 16px; }
 
-            .contact-nav { top: 56px !important; }
-            .contact-nav-inner { gap: 0; }
-            .cnav-btn { padding: 12px 16px; font-size: 10px; gap: 6px; }
+            .contact-nav-inner { gap: 0; justify-content: space-between; }
+            .cnav-btn { padding: 14px 14px; font-size: 10px; gap: 5px; }
             .cnav-btn i { font-size: 12px; }
 
             .contact-form-box { padding: 28px 20px; }
@@ -795,8 +798,8 @@
             .cc-nombre { font-size: 13px; }
         }
     </style>
-    <style>body { animation: pageBlurIn 0.4s ease-out; } @keyframes pageBlurIn { from { filter: blur(4px); } to { filter: blur(0); } }</style>
     <script src="/js/inicio.js"></script>
+    <script src="/js/panel-nav.js"></script>
     <link rel="stylesheet" href="/css/chatbot.css">
 </head>
 <body>
@@ -805,42 +808,42 @@
 
 <header id="main-header">
     <div class="container header-content">
-            <a href="/inicio" class="logo-box">
-                <img src="/images/Logo.png"
-                     alt="Mardique Logo"
-                     onerror="this.style.display='none'; this.parentElement.innerHTML='<span style=\'color:#fff;font-weight:800;font-size:18px;letter-spacing:-0.5px;\'>SP <span style=\'color:#f09a36;\'>MARDIQUE</span></span>'">
-            </a>
-            <nav>
-                <ul class="nav-menu">
-                    <li><a href="/inicio">INICIO</a></li>
-                    <li><a href="/empresa">EMPRESA</a></li>
-                    <li><a href="/servicios">SERVICIOS</a></li>
-                    <li class="dropdown">
-                        <span class="dropdown-trigger">SERVICIO AL CLIENTE <i class="fas fa-chevron-down"></i></span>
-                        <ul class="dropdown-menu">
-                            <li><a href="/tramites-en-linea">TRÁMITES EN LÍNEA</a></li>
-                            <li><a href="/procedimientos">PROCEDIMIENTOS</a></li>
-                            <li><a href="/tarifas">TARIFAS</a></li>
-                        </ul>
-                    </li>
-                    <li class="active"><a href="/contacto">CONTACTO</a></li>
-                    <li><a href="/galeria">GALERÍA</a></li>
-                    <li class="dropdown">
-                        <span class="dropdown-trigger">ACCESO <i class="fas fa-chevron-down"></i></span>
-                        <ul class="dropdown-menu">
-                            <li><a href="/login">INICIAR SESIÓN</a></li>
-                            <li><a href="/register">REGISTRARSE</a></li>
-                        </ul>
-                    </li>
-                </ul>
-            </nav>
-            <a href="/contacto" class="header-contact-btn">
-                <i class="fa-solid fa-paper-plane"></i> Contáctenos
-            </a>
-            <button class="mobile-menu-toggle" id="mobileToggle" aria-label="Abrir menú">
-                <span></span><span></span><span></span>
-            </button>
-        </div>
+        <a href="/inicio" class="logo-box">
+            <img src="/images/Logo.png"
+                 alt="Mardique Logo"
+                 onerror="this.style.display='none'; this.parentElement.innerHTML='<span style=\'color:#fff;font-weight:800;font-size:18px;letter-spacing:-0.5px;\'>SP <span style=\'color:#f09a36;\'>MARDIQUE</span></span>'">
+        </a>
+        <nav>
+            <ul class="nav-menu">
+                <li><a href="/inicio">INICIO</a></li>
+                <li><a href="/empresa">EMPRESA</a></li>
+                <li><a href="/servicios">SERVICIOS</a></li>
+                <li class="dropdown">
+                    <span class="dropdown-trigger">SERVICIO AL CLIENTE <i class="fas fa-chevron-down"></i></span>
+                    <ul class="dropdown-menu">
+                        <li><a href="/tramites-en-linea">TRÁMITES EN LÍNEA</a></li>
+                        <li><a href="/procedimientos">PROCEDIMIENTOS</a></li>
+                        <li><a href="/tarifas">TARIFAS</a></li>
+                    </ul>
+                </li>
+                <li class="active"><a href="/contacto">CONTACTO</a></li>
+                <li><a href="/galeria">GALERÍA</a></li>
+                <li class="dropdown">
+                    <span class="dropdown-trigger">ACCESO <i class="fas fa-chevron-down"></i></span>
+                    <ul class="dropdown-menu">
+                        <li><a href="/login">INICIAR SESIÓN</a></li>
+                        <li><a href="/register">REGISTRARSE</a></li>
+                    </ul>
+                </li>
+            </ul>
+        </nav>
+        <a href="/contacto" class="header-contact-btn">
+            <i class="fa-solid fa-paper-plane"></i> Contáctenos
+        </a>
+        <button class="mobile-menu-toggle" id="mobileToggle" aria-label="Abrir menú">
+            <span></span><span></span><span></span>
+        </button>
+    </div>
 </header>
 
 <section class="page-hero">
@@ -1158,7 +1161,9 @@
 </section>
 
 <section class="cta-band">
-    <div class="container">
+    <img src="/images/Operar.png" alt="" class="cta-bg-img" style="opacity:0.5;position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;z-index:0;">
+    <div class="cta-overlay" style="position:absolute;top:0;left:0;width:100%;height:100%;background:rgba(24,62,93,0.45);z-index:1;"></div>
+    <div class="container" style="position:relative;z-index:2;">
         <h2 class="reveal">¿Listo para operar con nosotros?</h2>
         <p class="reveal delay-1">Únase a los clientes que confían en Mardique para sus operaciones portuarias y logísticas en el Caribe colombiano.</p>
         <div class="cta-buttons reveal delay-2">
@@ -1222,7 +1227,7 @@
                 <a href="#"><i class="fas fa-shield-halved"></i> Políticas de Seguridad</a>
             </div>
         </div>
-    </footer>
+</footer>
 
 <div class="modal-overlay" id="confirmModal">
     <div class="modal-box" style="max-width:420px;">
@@ -1339,15 +1344,17 @@
 
         const header = document.getElementById('main-header');
         const contactNav = document.querySelector('.contact-nav');
-        function syncNavTop() {
-            contactNav.style.top = header.getBoundingClientRect().height + 'px';
+
+        function syncNav() {
+            const isScrolled = window.scrollY > 60;
+            header.classList.toggle('scrolled', isScrolled);
+            contactNav.classList.toggle('nav-scrolled', isScrolled);
+            const headerH = header.getBoundingClientRect().height;
+            contactNav.style.top = headerH + 'px';
         }
-        syncNavTop();
-        window.addEventListener('scroll', () => {
-            header.classList.toggle('scrolled', window.scrollY > 60);
-            syncNavTop();
-        });
-        window.addEventListener('resize', syncNavTop);
+
+        syncNav();
+        window.addEventListener('scroll', syncNav, { passive: true });
 
         setTimeout(() => document.getElementById('heroLine').classList.add('animate'), 300);
 
@@ -1394,7 +1401,7 @@
         document.getElementById('confirmModal').addEventListener('click', function(e) { if (e.target === this) this.classList.remove('show'); });
 
     });
-    </script>
+</script>
 
 <div class="drawer-overlay" id="drawerOverlay"></div>
 
@@ -1429,6 +1436,6 @@
         <a href="/contacto" class="drawer-contact-btn"><i class="fas fa-phone-alt"></i> CONTÁCTANOS</a>
     </div>
 </nav>
-    <script src="/js/chatbot.js"></script>
+<script src="/js/chatbot.js"></script>
 </body>
 </html>

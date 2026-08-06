@@ -42,8 +42,7 @@
         .btn-outline-light:hover { background: #fff; color: var(--primary-blue); transform: translateY(-2px); }
 
         /* HEADER STICKY */
-        header { background: var(--primary-dark); padding: 16px 0; position: sticky; top: 0; z-index: 500; box-shadow: 0 2px 20px rgba(0,0,0,0.15); transition: padding 0.3s ease; }
-        header.scrolled { padding: 11px 0; }
+        
         .header-content { display: flex; justify-content: space-between; align-items: center; }
         nav { flex: 1; display: flex; justify-content: center; padding-right: 20px; }
         .nav-menu { display: flex; gap: 35px; align-items: center; }
@@ -88,7 +87,7 @@
         .header-contact-btn:hover { background: #c9730e; transform: translateY(-2px); box-shadow: 0 4px 12px rgba(226,135,22,0.3); }
 
         /* HERO PARALLAX */
-        .page-hero { position: relative; height: 420px; display: flex; align-items: flex-end; overflow: hidden; }
+        .page-hero { position: relative; height: 540px; display: flex; align-items: flex-end; overflow: hidden; }
         /* CORRECCIÓN: Se eliminó background-image del CSS para añadirlo inline en el HTML */
         .page-hero-bg { position: absolute; top: -80px; left: 0; width: 100%; height: calc(100% + 80px); background-size: cover; background-position: center; z-index: 1; will-change: transform; }
         .page-hero::before { content: ''; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(27,69,98,0.45) 0%, rgba(27,69,98,0.65) 45%, rgba(27,69,98,0.93) 100%); z-index: 2; }
@@ -101,7 +100,7 @@
         .page-hero-breadcrumb a:hover { color: var(--accent-gold); }
         .page-hero-breadcrumb span { color: rgba(255,255,255,0.35); font-size: 10px; }
         .page-hero-breadcrumb .current { color: rgba(255,255,255,0.9); font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.4px; }
-        .page-hero-title { font-size: 44px; font-weight: 300; color: #fff; letter-spacing: -0.5px; line-height: 1.1; }
+        .page-hero-title { font-size: 54px; font-weight: 300; color: #fff; letter-spacing: -0.5px; line-height: 1.1; }
         .page-hero-title strong { font-weight: 800; color: var(--accent-gold); }
         .page-hero-line { width: 0; height: 3px; margin-top: 14px; background: linear-gradient(90deg, var(--accent-gold), var(--accent-cyan)); border-radius: 2px; transition: width 1s ease 0.4s; }
         .page-hero-line.animate { width: 60px; }
@@ -110,13 +109,6 @@
         @keyframes bounceDown { 0%,100%{transform:translateX(-50%) translateY(0)} 50%{transform:translateX(-50%) translateY(6px)} }
 
         /* NAVEGADOR STICKY - FIX (Hueco visual y borde recortado) */
-        .services-nav { background: var(--primary-dark); position: sticky; top: 58px; z-index: 400; border-bottom: 1px solid rgba(255,255,255,0.06); box-shadow: 0 4px 20px rgba(0,0,0,0.18); }
-        .services-nav-inner { display: flex; overflow-x: auto; scrollbar-width: none; }
-        .services-nav-inner::-webkit-scrollbar { display: none; }
-        .snav-btn { display: flex; align-items: center; gap: 9px; padding: 16px 22px; color: rgba(255,255,255,0.5); font-size: 11.5px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; cursor: pointer; white-space: nowrap; border: none; box-shadow: inset 0 -2px 0 transparent; margin-bottom: 0; background: none; transition: color 0.25s, box-shadow 0.25s; flex-shrink: 0; }
-        .snav-btn i { font-size: 14px; }
-        .snav-btn:hover { color: rgba(255,255,255,0.85); }
-        .snav-btn.active { color: var(--accent-gold); box-shadow: inset 0 -2px 0 var(--accent-gold); }
 
         /* STATS */
         .stats-strip { background: var(--primary-dark); }
@@ -210,7 +202,7 @@
         .sc-card p { font-size: 13.5px; color: #556b82; margin-bottom: 24px; line-height: 1.6; }
 
         /* CTA */
-        .cta-band { background: linear-gradient(135deg, var(--primary-dark) 0%, #0f2c42 100%); padding: 64px 0; text-align: center; position: relative; overflow: hidden; }
+        .cta-band { background: var(--primary-dark); padding: 64px 0; text-align: center; position: relative; overflow: hidden; }
         .cta-band::after { content: ''; position: absolute; bottom: -40px; right: -60px; width: 300px; height: 300px; border-radius: 50%; background: rgba(240,154,54,0.06); pointer-events: none; }
         .cta-band h2 { font-size: 34px; color: white; font-weight: 800; margin-bottom: 12px; }
         .cta-band p { color: rgba(255,255,255,0.7); font-size: 15px; margin-bottom: 32px; }
@@ -391,8 +383,7 @@
             footer { padding: 48px 0 0; }
             .premium-text-box { margin: -30px 10px 0 10px !important; padding: 24px 18px; }
             .stats-inner { grid-template-columns: repeat(2, 1fr); }
-            .services-nav { display: none; }
-        }
+}
         /* Botón "ver instalación" dentro de la tarjeta: oculto en desktop (usa overlay hover), visible en táctil */
         .btn-ver-instalacion { display: none; margin-top: 4px; }
 
@@ -550,8 +541,8 @@
         .img-overlay span { cursor:pointer; }
 
     </style>
-    <style>body { animation: pageBlurIn 0.4s ease-out; } @keyframes pageBlurIn { from { filter: blur(4px); } to { filter: blur(0); } }</style>
     <script src="/js/inicio.js"></script>
+    <script src="/js/panel-nav.js"></script>
     <link rel="stylesheet" href="/css/chatbot.css">
 </head>
 <body>
@@ -605,16 +596,6 @@
         </div>
         <div class="scroll-hint"><i class="fas fa-chevron-down"></i><span>Explorar</span></div>
     </section>
-
-    <nav class="services-nav" id="servicesNav">
-        <div class="container">
-            <div class="services-nav-inner">
-                <button class="snav-btn active" data-target="sec-maritimos" onclick="navTo(this)"><i class="fas fa-anchor"></i> Marítimo y Fluvial</button>
-                <button class="snav-btn" data-target="sec-portuarios" onclick="navTo(this)"><i class="fas fa-boxes"></i> Servicios Portuarios</button>
-                <button class="snav-btn" data-target="sec-marpol" onclick="navTo(this)"><i class="fas fa-leaf"></i> Planta MARPOL</button>
-            </div>
-        </div>
-    </nav>
 
     <div class="stats-strip">
         <div class="container">
@@ -778,7 +759,9 @@
 
 
     <section class="cta-band reveal">
-        <div class="container">
+        <img src="/images/Operar.png" alt="" class="cta-bg-img" style="opacity:0.5;position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;z-index:0;">
+        <div class="cta-overlay" style="position:absolute;top:0;left:0;width:100%;height:100%;background:rgba(24,62,93,0.45);z-index:1;"></div>
+        <div class="container" style="position:relative;z-index:2;">
             <h2>¿Listo para operar con nosotros?</h2>
             <p>Conozca todas las soluciones que Mardique tiene disponibles para su operación.</p>
             <div class="cta-buttons">
@@ -946,22 +929,8 @@
             track.addEventListener('touchstart', e => sx=e.touches[0].clientX, {passive:true});
             track.addEventListener('touchend', e => { const dx=sx-e.changedTouches[0].clientX; if(Math.abs(dx)>40){idx=dx>0?(idx+1)%slides.length:(idx-1+slides.length)%slides.length;go();} });
 
-            /* 9 – NAV ACTIVO POR SCROLL */
-            const secs=['sec-maritimos','sec-portuarios','sec-marpol'];
-            const btns=document.querySelectorAll('.snav-btn'), nav=document.getElementById('servicesNav');
-            window.addEventListener('scroll', () => {
-                const off = 58 + nav.offsetHeight + 10;
-                let cur = secs[0];
-                secs.forEach(id => { const el=document.getElementById(id); if(el && window.scrollY>=el.offsetTop-off) cur=id; });
-                btns.forEach(b => b.classList.toggle('active', b.dataset.target===cur));
-            }, { passive: true });
         });
 
-        function navTo(btn) {
-            const el = document.getElementById(btn.dataset.target); if(!el) return;
-            const n = document.getElementById('servicesNav');
-            window.scrollTo({ top: el.offsetTop - 58 - n.offsetHeight - 8, behavior: 'smooth' });
-        }
 
         /* El carrusel modal (openLightbox, closeCarousel, carouselNav, etc.)
            ahora lo provee /js/inicio.js de forma global, usando SERVICIOS_IMAGE_DATA

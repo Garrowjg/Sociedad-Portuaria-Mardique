@@ -40,8 +40,7 @@
         .btn-outline-light:hover { background: #fff; color: var(--primary-blue); transform: translateY(-2px); }
 
 
-        header { background: var(--primary-dark); padding: 16px 0; position: sticky; top: 0; z-index: 500; box-shadow: 0 2px 20px rgba(0,0,0,0.15); transition: padding 0.3s ease; }
-        header.scrolled { padding: 11px 0; }
+        
         .header-content { display: flex; justify-content: space-between; align-items: center; }
         nav { flex: 1; display: flex; justify-content: center; padding-right: 20px; }
         .nav-menu { display: flex; gap: 35px; align-items: center; }
@@ -86,7 +85,7 @@
         .header-contact-btn:hover { background: #c9730e; transform: translateY(-2px); box-shadow: 0 4px 12px rgba(226,135,22,0.3); }
 
 
-        .page-hero { position: relative; height: 420px; display: flex; align-items: flex-end; overflow: hidden; }
+        .page-hero { position: relative; height: 540px; display: flex; align-items: flex-end; overflow: hidden; }
         .page-hero-bg {
             position: absolute; top: -80px; left: 0; width: 100%; height: calc(100% + 80px);
             background-image: url('https://spmardique.com/wp-content/uploads/2021/12/Editadas_0003_DJI_0098.jpg');
@@ -104,7 +103,7 @@
         .page-hero-breadcrumb a:hover { color: var(--accent-gold); }
         .page-hero-breadcrumb span { color: rgba(255,255,255,0.35); font-size: 10px; }
         .page-hero-breadcrumb .current { color: rgba(255,255,255,0.9); font-size: 12px; font-weight: 600; text-transform: uppercase; }
-        .page-hero-title { font-size: 44px; font-weight: 300; color: #fff; letter-spacing: -0.5px; line-height: 1.1; animation: fadeInUp 0.7s ease 0.1s both; }
+        .page-hero-title { font-size: 54px; font-weight: 300; color: #fff; letter-spacing: -0.5px; line-height: 1.1; animation: fadeInUp 0.7s ease 0.1s both; }
         .page-hero-title strong { font-weight: 800; color: var(--accent-gold); }
         .page-hero-sub { color: rgba(255,255,255,0.75); font-size: 15px; margin-top: 12px; max-width: 520px; line-height: 1.55; animation: fadeInUp 0.7s ease 0.25s both; }
         .page-hero-line { width: 0; height: 3px; margin-top: 16px; background: linear-gradient(90deg, var(--accent-gold), var(--accent-cyan)); border-radius: 2px; transition: width 1s ease 0.4s; }
@@ -221,7 +220,7 @@
         }
 
 
-        .cta-band { background: linear-gradient(135deg, var(--primary-dark) 0%, #0f2c42 100%); padding: 72px 0; text-align: center; position: relative; overflow: hidden; }
+        .cta-band { background: var(--primary-dark); padding: 72px 0; text-align: center; position: relative; overflow: hidden; }
         .cta-band::before { content: ''; position: absolute; inset: 0; pointer-events: none; background-image: linear-gradient(rgba(0,163,224,0.04) 1px,transparent 1px), linear-gradient(90deg,rgba(0,163,224,0.04) 1px,transparent 1px); background-size: 40px 40px; animation: gridShift 20s linear infinite; }
         @keyframes gridShift { from{background-position:0 0} to{background-position:40px 40px} }
         .cta-band .container { position: relative; z-index: 1; }
@@ -383,8 +382,8 @@
             .mobile-nav-drawer { display: flex; }
         }
     </style>
-    <style>body { animation: pageBlurIn 0.4s ease-out; } @keyframes pageBlurIn { from { filter: blur(4px); } to { filter: blur(0); } }</style>
 <script src="/js/inicio.js"></script>
+<script src="/js/panel-nav.js"></script>
     <link rel="stylesheet" href="/css/chatbot.css">
 </head>
 <body>
@@ -956,7 +955,9 @@
 
 
 <section class="cta-band">
-    <div class="container">
+    <img src="/images/Operar.png" alt="" class="cta-bg-img" style="opacity:0.5;position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;z-index:0;">
+    <div class="cta-overlay" style="position:absolute;top:0;left:0;width:100%;height:100%;background:rgba(24,62,93,0.45);z-index:1;"></div>
+    <div class="container" style="position:relative;z-index:2;">
         <h2 class="reveal">¿Le interesa operar con nosotros?</h2>
         <p class="reveal delay-1">Contáctenos y descubra cómo Mardique puede ser su aliado portuario estratégico en el Caribe colombiano.</p>
         <div class="cta-buttons reveal delay-2">

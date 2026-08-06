@@ -812,13 +812,15 @@ public class EditorController {
     @GetMapping("/content/restore/{sectionKey}")
     @ResponseBody
     public Map<String, String> restoreContent(@PathVariable String sectionKey, @RequestParam String page) {
-        PageContent pc = pageContentRepository.findByPageAndSectionKey(page, sectionKey).orElse(null);
-        String original = (pc != null && pc.getOriginalContent() != null && !pc.getOriginalContent().isEmpty())
-                ? pc.getOriginalContent()
-                : defaultContentFor(page, sectionKey);
+        // El contenido "original" siempre es el de la plantilla pública
+        // (DEFAULT_CONTENT), NO el originalContent guardado en BD, que en
+        // versiones anteriores quedó corrupto con placeholders genéricos.
+        String original = defaultContentFor(page, sectionKey);
 
+        PageContent pc = pageContentRepository.findByPageAndSectionKey(page, sectionKey).orElse(null);
         if (pc != null) {
             pc.setContent(original);
+            pc.setOriginalContent(original);
             pageContentRepository.save(pc);
         }
         return Map.of("content", original);

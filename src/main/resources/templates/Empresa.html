@@ -72,8 +72,7 @@
         .btn-dark:hover { background-color: var(--primary-dark); transform: translateY(-2px); box-shadow: 0 5px 15px rgba(40,100,140,0.2); }
 
 
-        header { background-color: var(--primary-dark); padding: 16px 0; position: sticky; top: 0; z-index: 500; box-shadow: 0 2px 20px rgba(0,0,0,0.15); transition: padding 0.3s ease; }
-        header.scrolled { padding: 11px 0; }
+        
         .header-content { display: flex; justify-content: space-between; align-items: center; }
         nav { flex: 1; display: flex; justify-content: center; padding-right: 20px; }
         .nav-menu { display: flex; gap: 35px; align-items: center; }
@@ -129,7 +128,7 @@
         .header-contact-btn:hover { background-color: #c9730e; transform: translateY(-2px); box-shadow: 0 4px 12px rgba(226,135,22,0.3); }
 
         .page-hero {
-            position: relative; height: 400px; display: flex; align-items: flex-end;
+            position: relative; height: 520px; display: flex; align-items: flex-end;
             overflow: hidden;
         }
         .page-hero-bg {
@@ -158,7 +157,7 @@
         .page-hero-breadcrumb span { color: rgba(255,255,255,0.35); font-size: 10px; }
         .page-hero-breadcrumb .current { color: rgba(255,255,255,0.9); font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.4px; }
         .page-hero-title {
-            font-size: 44px; font-weight: 300; color: var(--text-light);
+            font-size: 54px; font-weight: 300; color: var(--text-light);
             letter-spacing: -0.5px; line-height: 1.1;
         }
         .page-hero-title strong { font-weight: 800; color: var(--accent-gold); }
@@ -617,8 +616,8 @@
         }
 
     </style>
-    <style>body { animation: pageBlurIn 0.4s ease-out; } @keyframes pageBlurIn { from { filter: blur(4px); } to { filter: blur(0); } }</style>
 <script src="/js/inicio.js"></script>
+<script src="/js/panel-nav.js"></script>
     <link rel="stylesheet" href="/css/chatbot.css">
 </head>
 <body>
@@ -950,7 +949,9 @@
 
 
 <section class="cta-band reveal">
-    <div class="container">
+    <img src="/images/Operar.png" alt="" class="cta-bg-img" style="opacity:0.5;position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;z-index:0;">
+    <div class="cta-overlay" style="position:absolute;top:0;left:0;width:100%;height:100%;background:rgba(24,62,93,0.45);z-index:1;"></div>
+    <div class="container" style="position:relative;z-index:2;">
         <h2>¿Listo para trabajar con nosotros?</h2>
         <p>Conozca todos los servicios que Mardique tiene disponibles para su operación.</p>
         <div class="cta-buttons">

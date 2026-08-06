@@ -1,3 +1,8 @@
+/* =====================================================================
+   panel-nav.css  —  estilos globales de header y nav (todos los HTML)
+   ===================================================================== */
+
+/* ── Logo box ────────────────────────────────────────────────────────── */
 .logo-box {
     display: flex; align-items: center;
     background: linear-gradient(160deg, #ffffff 0%, #f2f4f7 100%);
@@ -6,7 +11,7 @@
     position: relative;
     overflow: hidden;
     box-shadow: 0 3px 10px rgba(0,0,0,0.16), 0 0 0 1px rgba(255,255,255,0.08);
-    transition: var(--transition);
+    transition: var(--transition, all 0.3s cubic-bezier(0.4,0,0.2,1));
 }
 .logo-box::before {
     content: '';
@@ -22,124 +27,142 @@
     height: 40px; width: auto; object-fit: contain;
     transition: height 0.3s ease; position: relative; z-index: 1;
 }
+
+/* ── Header base — transparente al inicio (efecto hero) ─────────────── */
 header {
-    transition: padding 0.3s ease, box-shadow 0.3s ease;
-}
-header.scrolled {
-    padding: 6px 0 !important;
-    box-shadow: 0 4px 24px rgba(0,0,0,0.25);
-}
-header.scrolled .logo-box { padding: 6px 14px 6px 10px; }
-header.scrolled .logo-box img {
-    height: 32px !important;
-    width: auto;
+    background-color: transparent;
+    padding: 16px 0;
+    position: fixed; top: 0; left: 0; width: 100%; z-index: 500;
+    box-shadow: none;
+    border-bottom: 1px solid transparent;
+    transition: padding          0.45s cubic-bezier(0.4, 0, 0.2, 1),
+    background-color 0.45s cubic-bezier(0.4, 0, 0.2, 1),
+    backdrop-filter  0.45s cubic-bezier(0.4, 0, 0.2, 1),
+    box-shadow       0.45s ease,
+    border-color     0.45s ease;
 }
 
+/* ── Header scrolled — fondo azul + blur ────────────────────────────── */
+header.scrolled {
+    padding: 8px 0;
+    background-color: rgba(27, 69, 98, 0.92);
+    backdrop-filter: blur(10px) saturate(150%);
+    -webkit-backdrop-filter: blur(10px) saturate(150%);
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+    box-shadow: 0 4px 28px rgba(0,0,0,0.3);
+}
+header.scrolled .logo-box { padding: 6px 14px 6px 10px; }
+header.scrolled .logo-box img { height: 32px; width: auto; }
+
+/* Brillo sutil sobre el header al activarse */
+.header-content { position: relative; }
+.header-content::after {
+    content: '';
+    position: absolute; inset: 0;
+    pointer-events: none;
+    background: linear-gradient(120deg,
+    rgba(255,255,255,0.05) 0%,
+    rgba(255,255,255,0)    40%,
+    rgba(255,255,255,0.03) 100%);
+    opacity: 0;
+    transition: opacity 0.5s ease;
+    z-index: 0;
+}
+header.scrolled .header-content::after { opacity: 1; }
+
+/* ── Al activar scrolled solo se usa la transición CSS (sin flash) ──── */
+
+/* ── Hero spacing is controlled per-page (inicio.css, etc.) ──────────── */
+
+/* ── Sin animación de entrada en body (evita destellos) ───────────────── */
 body {
-    animation: pageBlurIn 0.35s ease-out;
     scroll-behavior: smooth;
     -webkit-overflow-scrolling: touch;
 }
-@keyframes pageBlurIn {
-    from { filter: blur(6px); opacity: 0.85; }
-    to   { filter: blur(0);   opacity: 1;    }
+
+/* ── Entrada inmersiva sutil del header al cargar la página ──────────── */
+@keyframes hdrIn {
+    from {
+        opacity: 0;
+        transform: translateY(-12px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
+header .logo-box,
+header .header-contact-btn,
+header .mobile-menu-toggle,
+header .nav-menu > li {
+    animation: hdrIn 0.6s cubic-bezier(.24, 1, .36, 1) both;
+}
+
+header .logo-box                { animation-delay: 0.08s; }
+header .header-contact-btn      { animation-delay: 0.14s; }
+header .mobile-menu-toggle      { animation-delay: 0.16s; }
+header .nav-menu > li:nth-child(1) { animation-delay: 0.16s; }
+header .nav-menu > li:nth-child(2) { animation-delay: 0.22s; }
+header .nav-menu > li:nth-child(3) { animation-delay: 0.28s; }
+header .nav-menu > li:nth-child(4) { animation-delay: 0.34s; }
+header .nav-menu > li:nth-child(5) { animation-delay: 0.40s; }
+header .nav-menu > li:nth-child(6) { animation-delay: 0.46s; }
+header .nav-menu > li:nth-child(7) { animation-delay: 0.52s; }
+
+@media (prefers-reduced-motion: reduce) {
+    header .logo-box,
+    header .header-contact-btn,
+    header .mobile-menu-toggle,
+    header .nav-menu > li {
+        animation: none;
+    }
+}
+
+/* ── Hamburguesa móvil ──────────────────────────────────────────────── */
 .mob-toggle span {
-    transition: transform 0.3s ease, opacity 0.2s !important;
+    transition: transform 0.3s ease, opacity 0.2s;
 }
-.mob-toggle.open span:nth-child(1) {
-    transform: translateY(7px) rotate(45deg);
-}
-.mob-toggle.open span:nth-child(2) {
-    opacity: 0;
-}
-.mob-toggle.open span:nth-child(3) {
-    transform: translateY(-7px) rotate(-45deg);
-}
+.mob-toggle.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+.mob-toggle.open span:nth-child(2) { opacity: 0; }
+.mob-toggle.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
 
+/* ── Botón logout desktop ───────────────────────────────────────────── */
 .btn-logout {
-    display: inline-flex !important;
-    align-items: center !important;
-    gap: 6px !important;
-    padding: 7px 16px !important;
-    border: 1.5px solid rgba(240,154,54,0.35) !important;
-    border-radius: 8px !important;
-    background: rgba(240,154,54,0.08) !important;
-    color: #f09a36 !important;
-    font-size: 11px !important;
-    font-weight: 800 !important;
-    text-transform: uppercase !important;
-    letter-spacing: 0.5px !important;
-    cursor: pointer !important;
-    font-family: inherit !important;
-    text-decoration: none !important;
-    transition: all 0.3s ease !important;
+    display: inline-flex !important; align-items: center !important; gap: 6px !important;
+    padding: 7px 16px !important; border: 1.5px solid rgba(240,154,54,0.35) !important;
+    border-radius: 8px !important; background: rgba(240,154,54,0.08) !important;
+    color: #f09a36 !important; font-size: 11px !important; font-weight: 800 !important;
+    text-transform: uppercase !important; letter-spacing: 0.5px !important;
+    cursor: pointer !important; font-family: inherit !important;
+    text-decoration: none !important; transition: all 0.3s ease !important;
     white-space: nowrap !important;
 }
 .btn-logout:hover {
-    background: #f09a36 !important;
-    color: #0e1a2b !important;
+    background: #f09a36 !important; color: #0e1a2b !important;
     box-shadow: 0 4px 20px rgba(240,154,54,0.35) !important;
     transform: translateY(-1px) !important;
 }
 
+/* ── Botón logout drawer móvil ──────────────────────────────────────── */
 .drawer-logout-btn {
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    gap: 8px !important;
-    margin: 14px 18px 0 !important;
-    padding: 12px 16px !important;
+    display: flex !important; align-items: center !important;
+    justify-content: center !important; gap: 8px !important;
+    margin: 14px 18px 0 !important; padding: 12px 16px !important;
     border: 1.5px solid rgba(240,154,54,0.25) !important;
-    border-radius: 8px !important;
-    background: rgba(240,154,54,0.06) !important;
-    color: #f09a36 !important;
-    font-size: 12px !important;
-    font-weight: 800 !important;
-    text-transform: uppercase !important;
-    letter-spacing: 0.5px !important;
-    text-decoration: none !important;
-    cursor: pointer !important;
-    font-family: inherit !important;
-    width: calc(100% - 36px) !important;
-    transition: all 0.3s ease !important;
-    border-left: 3px solid #f09a36 !important;
+    border-radius: 8px !important; background: rgba(240,154,54,0.06) !important;
+    color: #f09a36 !important; font-size: 12px !important; font-weight: 800 !important;
+    text-transform: uppercase !important; letter-spacing: 0.5px !important;
+    text-decoration: none !important; cursor: pointer !important;
+    font-family: inherit !important; width: calc(100% - 36px) !important;
+    transition: all 0.3s ease !important; border-left: 3px solid #f09a36 !important;
 }
 .drawer-logout-btn:hover {
-    background: #f09a36 !important;
-    color: #0e1a2b !important;
+    background: #f09a36 !important; color: #0e1a2b !important;
     box-shadow: 0 4px 20px rgba(240,154,54,0.3) !important;
 }
 
-header {
-    transition: background-color 0.6s cubic-bezier(0.4, 0, 0.2, 1),
-    backdrop-filter 0.6s cubic-bezier(0.4, 0, 0.2, 1),
-    box-shadow 0.6s ease,
-    padding 0.3s ease;
-}
-.header-content {
-    position: relative;
-}
-.header-content::after {
-    content: '';
-    position: absolute;
-    inset: 0;
-    pointer-events: none;
-    background: linear-gradient(120deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0) 40%, rgba(255,255,255,0.03) 100%);
-    opacity: 0;
-    transition: opacity 0.6s ease;
-    z-index: 0;
-}
-header.scrolled {
-    background-color: rgba(27, 69, 98, 0.93) !important;
-    backdrop-filter: blur(3px) saturate(115%);
-    -webkit-backdrop-filter: blur(3px) saturate(115%);
-    border-bottom: 1px solid rgba(255,255,255,0.05);
-}
-header.scrolled .header-content::after {
-    opacity: 1;
-}
+/* ── Responsivo ─────────────────────────────────────────────────────── */
 @media (max-width: 1200px) {
     .logo-box { padding: 6px 14px 6px 10px; }
     .logo-box img { height: 34px; }
@@ -157,23 +180,14 @@ header.scrolled .header-content::after {
     header.scrolled .logo-box img { height: 22px !important; }
 }
 
+/* ── Botón flotante home ────────────────────────────────────────────── */
 .float-home {
-    position: fixed;
-    bottom: 28px;
-    right: 28px;
-    width: 50px;
-    height: 50px;
-    border-radius: 50%;
-    background: var(--ag, #f09a36);
-    color: #fff;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 20px;
-    box-shadow: 0 4px 16px rgba(240,154,54,0.35);
-    z-index: 999;
-    transition: all 0.3s ease;
-    text-decoration: none;
+    position: fixed; bottom: 28px; right: 28px;
+    width: 50px; height: 50px; border-radius: 50%;
+    background: var(--ag, #f09a36); color: #fff;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 20px; box-shadow: 0 4px 16px rgba(240,154,54,0.35);
+    z-index: 999; transition: all 0.3s ease; text-decoration: none;
 }
 .float-home:hover {
     transform: translateY(-4px);
@@ -181,11 +195,67 @@ header.scrolled .header-content::after {
     color: #fff;
 }
 @media (max-width: 768px) {
-    .float-home {
-        bottom: 18px;
-        right: 18px;
-        width: 44px;
-        height: 44px;
-        font-size: 17px;
-    }
+    .float-home { bottom: 18px; right: 18px; width: 44px; height: 44px; font-size: 17px; }
+}
+
+/* ===== NAV: transparente arriba, blur solo en scroll ===== */
+
+/* Estado inicial (top): completamente transparente */
+header{
+    background: transparent !important;
+    border-bottom: 0 !important;
+    box-shadow: none !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    padding: 18px 0 !important; /* un poco más grande */
+    min-height: 60px;
+}
+
+/* Estado scroll: aparece blur/fondo */
+header.scrolled{
+    background: rgba(22, 64, 93, 0.72) !important;
+    backdrop-filter: blur(16px) saturate(165%) !important;
+    -webkit-backdrop-filter: blur(16px) saturate(165%) !important;
+    border-bottom: 0 !important; /* sin divisor */
+    box-shadow: 0 8px 26px rgba(0,0,0,.24) !important;
+    padding: 12px 0 !important;
+}
+
+/* Evita brillos/capas que generan "línea" */
+.header-content::after{
+    display: none !important;
+}
+header::before,
+header::after{
+    content: none !important;
+    display: none !important;
+}
+
+/* Logo tamaño base uniforme */
+.logo-box{
+    padding: 9px 20px 9px 15px !important;
+}
+.logo-box img{
+    height: 42px !important;
+    width: auto;
+}
+header.scrolled .logo-box{
+    padding: 7px 16px 7px 12px !important;
+}
+header.scrolled .logo-box img{
+    height: 34px !important;
+}
+
+/* Nav links tamaño uniforme */
+.nav-menu li a,
+.nav-menu li.dropdown .dropdown-trigger{
+    font-size: 13px !important;
+    font-weight: 500;
+    white-space: nowrap;
+}
+
+/* Botón contacto tamaño uniforme */
+.header-contact-btn{
+    font-size: 12px !important;
+    padding: 10px 22px !important;
 }
