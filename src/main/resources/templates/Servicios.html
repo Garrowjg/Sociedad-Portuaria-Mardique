@@ -95,13 +95,14 @@
         .hero-particle { position: absolute; border-radius: 50%; background: rgba(240,154,54,0.12); animation: floatParticle linear infinite; }
         @keyframes floatParticle { 0%,100%{transform:translateY(0) scale(1);opacity:.5} 50%{transform:translateY(-28px) scale(1.08);opacity:.2} }
         .page-hero .container { position: relative; z-index: 3; padding-bottom: 52px; }
-        .page-hero-breadcrumb { display: flex; align-items: center; gap: 8px; margin-bottom: 14px; }
+        .page-hero-breadcrumb { display: flex; align-items: center; gap: 8px; margin-bottom: 14px; animation: fadeInUp 0.6s ease both; }
         .page-hero-breadcrumb a { color: rgba(255,255,255,0.6); font-size: 12px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.4px; transition: color 0.2s; }
         .page-hero-breadcrumb a:hover { color: var(--accent-gold); }
         .page-hero-breadcrumb span { color: rgba(255,255,255,0.35); font-size: 10px; }
         .page-hero-breadcrumb .current { color: rgba(255,255,255,0.9); font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.4px; }
-        .page-hero-title { font-size: 54px; font-weight: 300; color: #fff; letter-spacing: -0.5px; line-height: 1.1; }
+        .page-hero-title { font-size: 54px; font-weight: 300; color: #fff; letter-spacing: -0.5px; line-height: 1.1; animation: fadeInUp 0.7s ease 0.1s both; }
         .page-hero-title strong { font-weight: 800; color: var(--accent-gold); }
+        @keyframes fadeInUp { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:none} }
         .page-hero-line { width: 0; height: 3px; margin-top: 14px; background: linear-gradient(90deg, var(--accent-gold), var(--accent-cyan)); border-radius: 2px; transition: width 1s ease 0.4s; }
         .page-hero-line.animate { width: 60px; }
         .scroll-hint { position: absolute; bottom: 18px; left: 50%; transform: translateX(-50%); z-index: 4; display: flex; flex-direction: column; align-items: center; gap: 6px; color: rgba(255,255,255,0.45); font-size: 10px; letter-spacing: 1.5px; text-transform: uppercase; animation: bounceDown 2s ease infinite; }

@@ -151,6 +151,7 @@
         @keyframes bounceDown { 0%,100%{transform:translateX(-50%) translateY(0)} 50%{transform:translateX(-50%) translateY(6px)} }
         .page-hero-breadcrumb {
             display: flex; align-items: center; gap: 8px; margin-bottom: 12px;
+            animation: fadeInUp 0.6s ease both;
         }
         .page-hero-breadcrumb a { color: rgba(255,255,255,0.6); font-size: 12px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.4px; transition: color 0.2s; }
         .page-hero-breadcrumb a:hover { color: var(--accent-gold); }
@@ -159,8 +160,13 @@
         .page-hero-title {
             font-size: 54px; font-weight: 300; color: var(--text-light);
             letter-spacing: -0.5px; line-height: 1.1;
+            animation: fadeInUp 0.7s ease 0.1s both;
         }
         .page-hero-title strong { font-weight: 800; color: var(--accent-gold); }
+        @keyframes fadeInUp {
+            from{opacity:0;transform:translateY(20px)}
+            to{opacity:1;transform:none}
+        }
         .page-hero-line {
             width: 0; height: 3px; margin-top: 14px;
             background: linear-gradient(90deg, var(--accent-gold), var(--accent-cyan));

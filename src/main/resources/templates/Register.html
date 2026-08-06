@@ -29,11 +29,13 @@
         body { font-family: 'Plus Jakarta Sans', sans-serif; background: var(--bg-light); color: var(--text-dark); min-height: 100vh; display: flex; flex-direction: column; }
         .auth-wrapper { flex: 1; display: flex; align-items: center; justify-content: center; padding: 140px 20px 60px; background: linear-gradient(135deg, var(--primary-dark) 0%, #0f2a3a 100%); position: relative; overflow: hidden; }
         .auth-wrapper::before { content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%; background: radial-gradient(ellipse at 30% 20%, rgba(0,163,224,0.06) 0%, transparent 50%), radial-gradient(ellipse at 70% 80%, rgba(240,154,54,0.04) 0%, transparent 50%); pointer-events: none; }
-        .auth-card { background: rgba(255,255,255,0.97); border-radius: 16px; padding: 48px 40px; width: 100%; max-width: 440px; box-shadow: 0 20px 60px rgba(0,0,0,0.3); position: relative; }
-        .auth-card-logo { text-align: center; margin-bottom: 28px; }
+        .auth-card { background: rgba(255,255,255,0.97); border-radius: 16px; padding: 48px 40px; width: 100%; max-width: 440px; box-shadow: 0 20px 60px rgba(0,0,0,0.3); position: relative; animation: fadeInUp 0.7s cubic-bezier(.24,1,.36,1) both; }
+        @keyframes fadeInUp { from{opacity:0;transform:translateY(24px)} to{opacity:1;transform:none} }
+        .auth-card form, .auth-card .m365-section, .auth-card .demo-box, .auth-card .auth-footer { animation: fadeInUp 0.6s ease 0.4s both; }
+        .auth-card-logo { text-align: center; margin-bottom: 28px; animation: fadeInUp 0.6s ease 0.1s both; }
         .auth-card-logo img { height: 42px; }
-        .auth-card h1 { font-size: 22px; font-weight: 700; text-align: center; margin-bottom: 4px; color: var(--primary-dark); }
-        .auth-card .sub { text-align: center; color: var(--text-muted); font-size: 13px; margin-bottom: 28px; }
+        .auth-card h1 { font-size: 22px; font-weight: 700; text-align: center; margin-bottom: 4px; color: var(--primary-dark); animation: fadeInUp 0.6s ease 0.2s both; }
+        .auth-card .sub { text-align: center; color: var(--text-muted); font-size: 13px; margin-bottom: 28px; animation: fadeInUp 0.6s ease 0.3s both; }
         .auth-card .field { margin-bottom: 18px; }
         .auth-card .field label { display: block; font-size: 12px; font-weight: 600; color: var(--text-dark); margin-bottom: 5px; text-transform: uppercase; letter-spacing: 0.4px; }
         .auth-card .field input, .auth-card .field select { width: 100%; padding: 12px 16px; border-radius: var(--radius); border: 1px solid #d0d5dd; background: #fff; color: var(--text-dark); font-size: 14px; font-family: inherit; outline: none; transition: var(--transition); }
