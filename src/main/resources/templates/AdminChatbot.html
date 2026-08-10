@@ -205,6 +205,29 @@
         </div>
     </div>
 
+    <div class="source-group reveal" style="margin-top:16px;">
+        <div class="source-title">
+            <i class="fas fa-star" style="margin-right:8px;color:var(--ag);"></i>
+            Calificaciones de Atención
+            <span class="source-count" th:text="|(${#lists.size(ratings)} calificaciones)|"></span>
+        </div>
+        <div th:if="${#lists.isEmpty(ratings)}" class="chunk-preview" style="padding:8px 0;">
+            No hay calificaciones por el momento.
+        </div>
+        <div th:each="r : ${ratings}" style="padding:12px 0;border-bottom:1px solid var(--bdr);display:flex;align-items:flex-start;gap:14px;">
+            <div style="flex-shrink:0;">
+                <span style="font-size:14px;color:var(--ag);font-weight:700;" th:text="|${r.rating}/5|">5/5</span>
+                <div th:title="|${r.rating} de 5 estrellas|" style="font-size:14px;color:var(--ag);letter-spacing:2px;margin-top:2px;">
+                    <span th:each="star : ${#numbers.sequence(1, r.rating)}">★</span>
+                    <span th:each="empty : ${#numbers.sequence(r.rating + 1, 5)}" style="color:#cbd5e1;">★</span>
+                </div>
+            </div>
+            <div style="flex:1;min-width:0;">
+                <div class="chunk-preview" style="font-size:12.5px;color:#334155;max-height:none;" th:text="${r.comment != null and !r.comment.isEmpty() ? r.comment : 'Sin observación.'}">Comentario del usuario...</div>
+            </div>
+        </div>
+    </div>
+
     <div th:if="${#lists.isEmpty(chunks)}" class="empty-state" style="margin:40px 0;">
         <i class="fas fa-robot"></i>
         <p>No hay informaci&oacute;n en la base de conocimiento. Sube PDFs o agrega texto para empezar.</p>

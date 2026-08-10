@@ -99,10 +99,12 @@
         .nav-menu li.dropdown.active .dropdown-trigger { color: #fff; font-weight: 600; }
         .nav-menu li.dropdown .dropdown-menu {
             position: absolute; top: 100%; left: 0; padding-top: 4px;
-            background: var(--primary-dark); min-width: 210px; border-radius: 10px;
+            background: rgba(27,69,98,0.72); min-width: 210px; border-radius: 10px;
             padding: 6px 0; opacity: 0 !important; visibility: hidden !important;
             box-shadow: 0 12px 40px rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.06);
             z-index: 1000; list-style: none; pointer-events: none;
+            backdrop-filter: blur(20px) saturate(160%);
+            -webkit-backdrop-filter: blur(20px) saturate(160%);
         }
         .nav-menu li.dropdown .dropdown-menu::before {
             content: ''; position: absolute; top: -4px; left: 0; right: 0; height: 4px;

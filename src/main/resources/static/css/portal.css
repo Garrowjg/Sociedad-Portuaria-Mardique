@@ -299,7 +299,23 @@ header.scrolled .logo-box img{height:30px!important;width:auto;}
   .content-grid{grid-template-columns:1fr;gap:16px;}
   .stats-row{grid-template-columns:repeat(2,1fr);}
 }
+@media(max-width:600px){
+  .hdr{padding:10px 16px;gap:10px;}
+  .hdr-right{gap:6px;}
+  .btn-logout{padding:6px 10px;font-size:10px;letter-spacing:.2px;}
+}
 @media(max-width:480px){
   .quick-grid{grid-template-columns:1fr;}
   .stats-row{grid-template-columns:1fr 1fr;}
+  .hdr{padding:9px 12px;gap:8px;}
+  .phero{padding:0 14px;}
+  .phero h1{font-size:24px;}
+  .phero-card{padding:16px;}
+  .modal-box{padding:26px 20px;}
+  .modal-actions{flex-direction:column;}
+  .modal-actions .btn-red,.modal-actions .btn-cancel{width:100%;justify-content:center;}
+  .stat-box{padding:16px 14px;gap:10px;}
+  .stat-num{font-size:20px;}
+  .quick-card{padding:18px 14px;gap:12px;}
+  .form-card{padding:20px 16px;}
 }

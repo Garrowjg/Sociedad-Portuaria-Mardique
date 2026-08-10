@@ -504,7 +504,6 @@
             star.dataset.value = i;
             star.textContent = '★';
             star.title = i + ' estrellas';
-            star.addEventListener('click', function() { submitRating(i); });
             stars.appendChild(star);
         }
         ratingBox.appendChild(stars);
@@ -519,40 +518,59 @@
         const input = commentBox.querySelector('.cb-rating-input');
         const sendCommentBtn = commentBox.querySelector('.cb-rating-send');
 
-        function submitRating(value) {
+        let selectedValue = null;
+        let autoTimer = null;
+
+        function lockRating() {
+            if (autoTimer) { clearTimeout(autoTimer); autoTimer = null; }
+            ratingBox.querySelectorAll('.cb-star').forEach(function(s) {
+                s.disabled = true;
+            });
+        }
+
+        function showThanks(data) {
+            const thanks = document.createElement('div');
+            thanks.className = 'cb-rating-thanks';
+            thanks.textContent = (data && data.message) || '¡Gracias por tu calificación!';
+            ratingBox.appendChild(thanks);
+            sendCommentBtn.remove();
+            input.remove();
+        }
+
+        function submitRating() {
+            if (!selectedValue) return;
+            if (autoTimer) { clearTimeout(autoTimer); autoTimer = null; }
+            lockRating();
+            ratingSent = true;
+            sendCommentBtn.disabled = true;
+
+            fetch('/api/chatbot/rating', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ rating: String(selectedValue), comment: input.value.trim() })
+            })
+                .then(function(r) { return r.json(); })
+                .then(showThanks)
+                .catch(function() { showThanks(null); });
+        }
+
+        function selectRating(value) {
+            selectedValue = value;
             ratingBox.querySelectorAll('.cb-star').forEach(function(s) {
                 s.classList.toggle('active', parseInt(s.dataset.value) <= value);
             });
             input.style.display = '';
             sendCommentBtn.style.display = '';
-
-            fetch('/api/chatbot/rating', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ rating: String(value), comment: input.value.trim() })
-            })
-                .then(function(r) { return r.json(); })
-                .then(function(data) {
-                    const thanks = document.createElement('div');
-                    thanks.className = 'cb-rating-thanks';
-                    thanks.textContent = (data && data.message) || '¡Gracias por tu calificación!';
-                    ratingBox.appendChild(thanks);
-                    sendCommentBtn.remove();
-                    input.remove();
-                })
-                .catch(function() {
-                    const thanks = document.createElement('div');
-                    thanks.className = 'cb-rating-thanks';
-                    thanks.textContent = '¡Gracias por tu calificación!';
-                    ratingBox.appendChild(thanks);
-                    sendCommentBtn.remove();
-                    input.remove();
-                });
+            input.focus();
+            if (autoTimer) { clearTimeout(autoTimer); }
+            autoTimer = setTimeout(submitRating, 10000);
         }
 
-        sendCommentBtn.addEventListener('click', function() {
-            submitRating(parseInt(ratingBox.querySelector('.cb-star.active').dataset.value));
+        ratingBox.querySelectorAll('.cb-star').forEach(function(star) {
+            star.addEventListener('click', function() { selectRating(parseInt(star.dataset.value)); });
         });
+
+        sendCommentBtn.addEventListener('click', submitRating);
 
         messagesEl.appendChild(row);
         scrollBottom();

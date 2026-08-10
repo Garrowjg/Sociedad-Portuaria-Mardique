@@ -46,9 +46,11 @@
         @keyframes fadeSlideDown{from{opacity:0;transform:translateY(-10px);}to{opacity:1;transform:translateY(0);}}
         .upload-area h4{font-size:13px;font-weight:800;color:#16a34a;margin-bottom:14px;display:flex;align-items:center;gap:8px;}
         .gen-form{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:20px;}
+        .doc-gen-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;}
         @media(max-width:768px){
             .card-grid{grid-template-columns:1fr;gap:14px;}
             .gen-form{grid-template-columns:1fr;gap:0;}
+            .doc-gen-row{grid-template-columns:1fr;gap:0;}
             .section-card{padding:20px;}
             .modal-box{margin:16px;padding:20px;}
         }
@@ -231,7 +233,7 @@
                                     <label>Descripción del documento</label>
                                     <textarea name="descripcion" rows="2" placeholder="Ej: Formulario único de inscripción..."></textarea>
                                 </div>
-                                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px;">
+                                <div class="doc-gen-row">
                                     <div class="form-group">
                                         <label>Correo para envío</label>
                                         <input type="email" name="email" placeholder="ej: oficial@spmardique.com">

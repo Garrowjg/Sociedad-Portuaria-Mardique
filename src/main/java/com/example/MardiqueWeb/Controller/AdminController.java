@@ -70,6 +70,9 @@ public class AdminController {
     @Autowired
     private FaqRepository faqRepository;
 
+    @Autowired
+    private ChatbotRatingRepository chatbotRatingRepository;
+
     private static final Set<String> ALLOWED_EXTENSIONS = Set.of("pdf", "png", "jpg", "jpeg", "gif", "webp");
 
     private boolean allowedFile(String filename) {
@@ -434,6 +437,8 @@ public class AdminController {
         model.addAttribute("chunkCount", allChunks.size());
         model.addAttribute("sourceCount", grouped.size());
         model.addAttribute("faqs", faqRepository.findAllByOrderByOrdenAsc());
+        model.addAttribute("ratings", chatbotRatingRepository.findAll(
+            Sort.by(Sort.Direction.DESC, "id")));
         return "AdminChatbot";
     }
 

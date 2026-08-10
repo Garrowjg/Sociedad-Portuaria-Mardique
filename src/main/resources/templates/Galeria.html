@@ -60,10 +60,12 @@
         .nav-menu li.dropdown.active .dropdown-trigger { color: #fff; font-weight: 600; }
         .nav-menu li.dropdown .dropdown-menu {
             position: absolute; top: 100%; left: 0; padding-top: 4px;
-            background: var(--primary-dark); min-width: 210px; border-radius: 10px;
+            background: rgba(27,69,98,0.72); min-width: 210px; border-radius: 10px;
             padding: 6px 0; opacity: 0 !important; visibility: hidden !important;
             box-shadow: 0 12px 40px rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.06);
             z-index: 1000; list-style: none; pointer-events: none;
+            backdrop-filter: blur(20px) saturate(160%);
+            -webkit-backdrop-filter: blur(20px) saturate(160%);
         }
         .nav-menu li.dropdown .dropdown-menu::before {
             content: ''; position: absolute; top: -4px; left: 0; right: 0; height: 4px;
@@ -182,6 +184,20 @@
             text-transform: uppercase; letter-spacing: 0.5px;
             background: rgba(240,154,54,0.85); padding: 3px 10px; border-radius: 3px;
         }
+        .gallery-more-btn {
+            display: none;
+            align-items: center; justify-content: center; gap: 8px;
+            margin: 32px auto 0; padding: 13px 30px;
+            background: var(--primary-blue); color: #fff;
+            border: none; border-radius: 50px;
+            font-size: 12.5px; font-weight: 700; text-transform: uppercase;
+            letter-spacing: 0.5px; cursor: pointer; font-family: inherit;
+            transition: var(--transition); box-shadow: 0 4px 16px rgba(40,100,140,0.25);
+        }
+        .gallery-more-btn:hover { background: var(--primary-dark); transform: translateY(-2px); box-shadow: 0 8px 24px rgba(40,100,140,0.35); }
+        .gallery-more-btn i { transition: transform .3s ease; }
+        .gallery-more-btn.loading i { animation: spinDown 0.8s linear infinite; }
+        @keyframes spinDown { to { transform: rotate(360deg); } }
 
         .lightbox {
             position: fixed; inset: 0; background: rgba(4,14,26,0.97);
@@ -376,6 +392,25 @@
         .footer-bottom-links a:hover { color: #fff; }
         .footer-bottom-links a i { font-size: 11px; }
 
+        @media (max-width: 1024px) {
+            .footer-grid { grid-template-columns: 1fr 1fr; gap: 32px; }
+            .gallery-grid { columns: 3; }
+        }
+        @media (max-width: 768px) {
+            footer { padding: 48px 0 0; }
+            .footer-grid { grid-template-columns: 1fr; gap: 26px; }
+            .footer-bottom-links { justify-content: center; }
+            .gallery-grid { columns: 2; }
+            .stats-inner { grid-template-columns: repeat(2, 1fr); }
+            .stat-cell { padding: 18px 16px; }
+        }
+        @media (max-width: 480px) {
+            .gallery-grid { columns: 1; }
+            .gallery-section { padding: 40px 0 56px; }
+            .page-hero-title { font-size: 34px; }
+            .filter-pills { gap: 6px; }
+            .filter-pill { padding: 7px 12px; font-size: 11px; }
+        }
         @media (max-width: 768px) {
             header nav, .header-contact-btn { display: none; }
             .mobile-menu-toggle { display: flex; }
@@ -939,6 +974,10 @@
             </div>
 
         </div>
+
+        <button type="button" class="gallery-more-btn" id="galleryMoreBtn">
+            <i class="fa-solid fa-chevron-down"></i> <span>Ver más fotos</span>
+        </button>
     </div>
 </section>
 
@@ -1109,25 +1148,57 @@
     }, { threshold: 0.5 });
     counters.forEach(c => counterObs.observe(c));
 
-    // ─── FILTER ───
+    // ─── FILTER + PAGINACIÓN ───
     const pills = document.querySelectorAll('.filter-pill');
-    const items = document.querySelectorAll('.gallery-item');
+    const items = Array.from(document.querySelectorAll('.gallery-item'));
     const countEl = document.getElementById('visibleCount');
+    const moreBtn = document.getElementById('galleryMoreBtn');
+    const PER_PAGE = window.innerWidth <= 768 ? 12 : 18;
+    let currentFilter = 'all';
+    let shownCount = PER_PAGE;
+
+    function isFilterMatch(item, filter) {
+        return filter === 'all' || item.dataset.category === filter;
+    }
+
+    function totalMatches(filter) {
+        return items.filter(i => isFilterMatch(i, filter)).length;
+    }
+
+    function applyGalleryState() {
+        let revealed = 0;
+        items.forEach(item => {
+            const match = isFilterMatch(item, currentFilter);
+            const show = match && revealed < shownCount;
+            item.style.display = show ? 'block' : 'none';
+            if (show) revealed++;
+        });
+        countEl.textContent = totalMatches(currentFilter);
+        const hasMore = totalMatches(currentFilter) > shownCount;
+        moreBtn.style.display = hasMore ? 'flex' : 'none';
+    }
 
     pills.forEach(pill => {
         pill.addEventListener('click', () => {
             pills.forEach(p => p.classList.remove('active'));
             pill.classList.add('active');
-            const filter = pill.dataset.filter;
-            let visible = 0;
-            items.forEach(item => {
-                const show = filter === 'all' || item.dataset.category === filter;
-                item.style.display = show ? 'block' : 'none';
-                if (show) visible++;
-            });
-            countEl.textContent = visible;
+            currentFilter = pill.dataset.filter;
+            shownCount = PER_PAGE;
+            applyGalleryState();
         });
     });
+
+    moreBtn.addEventListener('click', () => {
+        shownCount += PER_PAGE;
+        applyGalleryState();
+        if (totalMatches(currentFilter) <= shownCount) {
+            moreBtn.querySelector('span').textContent = 'Todas las fotos cargadas';
+            moreBtn.classList.add('loading');
+            setTimeout(() => { moreBtn.style.display = 'none'; }, 900);
+        }
+    });
+
+    applyGalleryState();
 
     // ─── LIGHTBOX ───
     const lb = document.getElementById('lightbox');

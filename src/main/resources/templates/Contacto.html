@@ -57,10 +57,12 @@
         .nav-menu li.dropdown.active .dropdown-trigger { color: #fff; font-weight: 600; }
         .nav-menu li.dropdown .dropdown-menu {
             position: absolute; top: 100%; left: 0; padding-top: 4px;
-            background: var(--primary-dark); min-width: 210px; border-radius: 10px;
+            background: rgba(27,69,98,0.72); min-width: 210px; border-radius: 10px;
             padding: 6px 0; opacity: 0 !important; visibility: hidden !important;
             box-shadow: 0 12px 40px rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.06);
             z-index: 1000; list-style: none; pointer-events: none;
+            backdrop-filter: blur(20px) saturate(160%);
+            -webkit-backdrop-filter: blur(20px) saturate(160%);
         }
         .nav-menu li.dropdown .dropdown-menu::before {
             content: ''; position: absolute; top: -4px; left: 0; right: 0; height: 4px;
@@ -193,8 +195,8 @@
         }
 
         /* ── Segundo nav: mismo diseño que Trámites en Línea ─────────────────── */
-        .contact-nav { background: rgba(27,69,98,0.72); backdrop-filter: blur(20px) saturate(160%); -webkit-backdrop-filter: blur(20px) saturate(160%); position: sticky; top: 0; z-index: 400; border-bottom: 1px solid rgba(255,255,255,0.08); box-shadow: 0 4px 24px rgba(0,0,0,0.25); }
-        .contact-nav.nav-scrolled { background: rgba(27,69,98,0.85); }
+        .contact-nav { background: #1b4562; position: sticky; top: 0; z-index: 400; border-bottom: 1px solid rgba(255,255,255,0.08); box-shadow: 0 4px 24px rgba(0,0,0,0.25); transition: background 0.55s cubic-bezier(.4,0,.2,1), backdrop-filter 0.55s cubic-bezier(.4,0,.2,1), box-shadow 0.55s cubic-bezier(.4,0,.2,1); }
+        .contact-nav.nav-scrolled { background: rgba(27,69,98,0.72); backdrop-filter: blur(20px) saturate(160%); -webkit-backdrop-filter: blur(20px) saturate(160%); }
         .contact-nav-inner { display: flex; align-items: center; overflow-x: auto; scrollbar-width: none; }
         .contact-nav-inner::-webkit-scrollbar { display: none; }
         .cnav-btn { position: relative; display: flex; align-items: center; gap: 9px; padding: 18px 22px; color: rgba(255,255,255,0.5); font-size: 11.5px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; cursor: pointer; white-space: nowrap; border: none; background: none; transition: color 0.25s; flex-shrink: 0; }
@@ -1044,7 +1046,7 @@
         <div class="pqrs-layout">
 
             <div>
-                <p class="reveal">Si no encontró respuesta a su inquietud, o tiene alguna queja o reclamo, puede diligenciar el formulario. Atendemos todas las solicitudes con un plazo máximo de respuesta establecido por ley.</p>
+                <p class="reveal" style="color:#556b82;font-size:14px;line-height:1.7;margin-top:18px;margin-bottom:28px;max-width:520px;">Si no encontró respuesta a su inquietud, o tiene alguna queja o reclamo, puede diligenciar el formulario. Atendemos todas las solicitudes con un plazo máximo de respuesta establecido por ley.</p>
 
                 <div class="pqrs-types">
                     <div class="pqrs-type-item reveal delay-1">
@@ -1348,9 +1350,10 @@
         function syncNav() {
             const isScrolled = window.scrollY > 60;
             header.classList.toggle('scrolled', isScrolled);
-            contactNav.classList.toggle('nav-scrolled', isScrolled);
             const headerH = header.getBoundingClientRect().height;
             contactNav.style.top = headerH + 'px';
+            const isJoined = contactNav.getBoundingClientRect().top <= headerH + 1;
+            contactNav.classList.toggle('nav-scrolled', isJoined);
         }
 
         syncNav();
