@@ -135,7 +135,7 @@
         }
         .page-hero-bg {
             position: absolute; top: -80px; left: 0; width: 100%; height: calc(100% + 80px);
-            background-image: url('/images/EquipoMardique.png');
+            background-image: var(--hero-img, url('/images/EquipoMardique.png'));
             background-size: cover; background-position: center 40%;
             z-index: 1; will-change: transform;
         }
@@ -243,7 +243,7 @@
             content: '';
             position: absolute;
             inset: 0;
-            background-image: url('/images/VisionMision.png');
+            background-image: var(--mv-img, url('/images/VisionMision.png'));
             background-size: cover;
             background-position: center;
             background-attachment: scroll; /* scroll en vez de fixed: elimina el bug */
@@ -671,7 +671,7 @@
 <div class="page-wrapper">
 
 <section class="page-hero">
-    <div class="page-hero-bg" id="heroBg"></div>
+    <div class="page-hero-bg" id="heroBg" th:style="|--hero-img: url('${heroImage}');|"></div>
     <div class="hero-particles" id="heroParticles"></div>
     <div class="container">
         <div class="page-hero-breadcrumb">
@@ -727,7 +727,7 @@
             </div>
             <div class="intro-image-panel reveal-right">
                 
-                <img src="/images/OperadorPortuario.png" alt="Puerto Mardique">
+                <img th:src="@{${introImage}}" src="/images/OperadorPortuario.png" alt="Puerto Mardique">
                 <div class="intro-image-badge">
                     <h4>Registro Operador Portuario</h4>
                     <p>Registrado como operador portuario ante la autoridad competente — Mayo 2021</p>
@@ -844,7 +844,7 @@
 </section>
 
 
-<section class="mv-section-wrapper">
+<section class="mv-section-wrapper" th:style="|--mv-img: url('${visionImage}');|">
     <div class="container mv-section-inner">
 
         <div class="mv-section-header reveal">
@@ -957,7 +957,7 @@
 
 
 <section class="cta-band reveal">
-    <img src="/images/Operar.png" alt="" class="cta-bg-img" style="opacity:0.5;position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;z-index:0;">
+    <img th:src="@{${ctaImage}}" src="/images/Operar.png" alt="" class="cta-bg-img" style="opacity:0.5;position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;z-index:0;">
     <div class="cta-overlay" style="position:absolute;top:0;left:0;width:100%;height:100%;background:rgba(24,62,93,0.45);z-index:1;"></div>
     <div class="container" style="position:relative;z-index:2;">
         <h2>¿Listo para trabajar con nosotros?</h2>

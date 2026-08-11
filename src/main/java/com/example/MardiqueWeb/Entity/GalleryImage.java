@@ -14,6 +14,8 @@ public class GalleryImage {
     @Column(columnDefinition = "TEXT")
     private String descripcion;
 
+    private String categoria;
+
     @Column(name = "file_name")
     private String fileName;
 
@@ -33,6 +35,17 @@ public class GalleryImage {
     public void setTitulo(String titulo) { this.titulo = titulo; }
     public String getDescripcion() { return descripcion; }
     public void setDescripcion(String descripcion) { this.descripcion = descripcion; }
+    public String getCategoria() { return categoria; }
+    public void setCategoria(String categoria) { this.categoria = categoria; }
+    public String getCategoriaLabel() {
+        return switch (categoria == null ? "" : categoria) {
+            case "aerea" -> "Vista Aérea";
+            case "operaciones" -> "Operaciones";
+            case "instalaciones" -> "Instalaciones";
+            case "equipos" -> "Equipos";
+            default -> "Galería";
+        };
+    }
     public String getFileName() { return fileName; }
     public void setFileName(String fileName) { this.fileName = fileName; }
     public String getFilePath() { return filePath; }

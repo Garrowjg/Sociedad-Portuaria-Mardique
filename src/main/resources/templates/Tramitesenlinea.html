@@ -90,7 +90,7 @@
 
         /* HERO */
         .page-hero { position: relative; height: 540px; display: flex; align-items: flex-end; overflow: hidden; }
-        .page-hero-bg { position: absolute; top: -80px; left: 0; width: 100%; height: calc(100% + 80px); background-image: url('https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?auto=format&fit=crop&w=1600&q=80'); background-size: cover; background-position: center; z-index: 1; will-change: transform; }
+        .page-hero-bg { position: absolute; top: -80px; left: 0; width: 100%; height: calc(100% + 80px); background-image: var(--hero-img, url('https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?auto=format&fit=crop&w=1600&q=80')); background-size: cover; background-position: center; z-index: 1; will-change: transform; }
         .page-hero::before { content: ''; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(27,69,98,0.45) 0%, rgba(27,69,98,0.65) 45%, rgba(27,69,98,0.93) 100%); z-index: 2; }
         .hero-particles { position: absolute; inset: 0; z-index: 2; overflow: hidden; pointer-events: none; }
         .hero-particle { position: absolute; border-radius: 50%; background: rgba(240,154,54,0.12); animation: floatParticle linear infinite; }
@@ -407,7 +407,7 @@
 <div class="page-wrapper">
 
 <section class="page-hero" id="hero">
-    <div class="page-hero-bg" id="heroBg"></div>
+    <div class="page-hero-bg" id="heroBg" th:style="|--hero-img: url('${heroImage}');|"></div>
     <div class="hero-particles" id="heroParticles"></div>
     <div class="container">
         <div class="page-hero-breadcrumb">

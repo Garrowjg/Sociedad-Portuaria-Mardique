@@ -116,14 +116,31 @@ public class ChatbotService {
             "empleados", "trabajadores", "sostenibilidad", "seguridad industrial", "medio ambiente"
     };
 
+    // Desencadenan el formulario de contacto cuando el usuario pide contactar a alguien,
+    // agendar una cita o quiere el formulario / más información (sin estar preguntando por
+    // un dato concreto). Evita palabras demasiado genéricas ("atencion", "asesoria") para no
+    // disparar el formulario ante preguntas como "¿Cuáles son los horarios de atención?".
     private static final String[] CONTACT_INTENT_KEYWORDS = {
-            "contactar", "contacto", "contactarnos", "comunicarme", "hablar con", "atender",
-            "atencion", "agendar", "cita", "citas", "reunion", "reuniones", "telefono", "telefono de",
-            "numero", "numero de", "numero del", "correo", "correo de", "email", "email de",
-            "gerente", "gerencia", "representante", "asesor", "asesoria", "solicitar informacion",
-            "linea de atencion", "lineas de atencion", "informacion de contacto", "donde los contacto",
-            "como los contacto", "como contacto", "medio de contacto", "atenderme", "contactar al",
-            "hablar con el", "hablar con la", "con quien"
+            // Petición explícita del formulario
+            "formulario", "el formulario", "mandame el formulario", "mandame un formulario",
+            "dame el formulario", "deja el formulario", "dejenme el formulario", "deja un formulario",
+            "quiero el formulario", "necesito el formulario", "puedes enviarme el formulario",
+            // Datos de contacto / hablar con alguien
+            "contactar", "contacto", "contactarnos", "comunicarme", "hablar con", "hablar con el",
+            "hablar con la", "con quien", "atenderme", "contactar al",
+            "linea de atencion", "lineas de atencion", "informacion de contacto",
+            "donde los contacto", "como los contacto", "como contacto", "medio de contacto",
+            "telefono de", "telefono del", "telefono de atencion", "numero de", "numero del",
+            "numero de telefono", "correo de", "correo del", "email de", "email del",
+            "gerente", "gerencia", "representante",
+            // Agendar cita
+            "agendar", "cita", "citas", "reunion", "reuniones",
+            // Solicitud / pedir información puntual
+            "solicitar informacion", "solicitar mas informacion", "pedir informacion",
+            "pedir mas informacion", "quiero mas informacion", "quiero informacion",
+            "necesito mas informacion", "dame mas informacion", "danme mas informacion",
+            "informacion adicional", "mas informacion", "dejar la solicitud", "deja la solicitud",
+            "enviar la solicitud", "dejar una solicitud", "deja tu solicitud"
     };
 
     private static final String[] GREETING_KEYWORDS = {
@@ -138,7 +155,7 @@ public class ChatbotService {
     }
 
     public void askStream(String question, int repeatCount, SseEmitter emitter) {
-        askStream(question, repeatCount, List.of(), emitter, answer -> {});
+        askStream(question, repeatCount, List.of(), emitter, (answer, type) -> null);
     }
 
     /**
@@ -154,18 +171,20 @@ public class ChatbotService {
         if (isGreeting(question)) {
             String context = findRelevantContext(question);
             String answer = callGroq(buildSystemPrompt(context, tier), question, history);
-            return Map.of("answer", answer, "form", false, "blocked", false);
+            return Map.of("answer", answer, "form", false, "blocked", false, "type", "llm");
         }
 
-        // 2. Intención de contacto / pedir datos privados de alguien -> mostrar formulario
-        if (isContactIntent(question)) {
-            return Map.of("answer", CONTACT_REFUSAL_TIERS[tier], "form", true, "blocked", true);
-        }
-
-        // 3. Respuesta exacta de FAQ si existe
+        // 2. Respuesta exacta de FAQ si existe (va antes que la intención de contacto para
+        //    que preguntas como "¿Cuáles son los horarios de atención?" se respondan en vez
+        //    de redirigir al formulario sin motivo)
         Faq faq = findFaqMatch(question);
         if (faq != null) {
-            return Map.of("answer", sanitizeContext(faq.getAnswer()), "form", false, "blocked", false);
+            return Map.of("answer", sanitizeContext(faq.getAnswer()), "form", false, "blocked", false, "type", "faq");
+        }
+
+        // 3. Intención de contacto / pedir el formulario / pedir datos privados -> mostrar formulario
+        if (isContactIntent(question)) {
+            return Map.of("answer", CONTACT_REFUSAL_TIERS[tier], "form", true, "blocked", true, "type", "form");
         }
 
         // 4. Consulta con la base de conocimiento
@@ -176,7 +195,7 @@ public class ChatbotService {
         //    con solo la keyword, lo que generaba falsos "fuera de tema" en preguntas
         //    válidas mal redactadas.
         if (context.isEmpty() && isOffTopic(question)) {
-            return Map.of("answer", OFF_TOPIC_TIERS[tier], "form", false, "blocked", true);
+            return Map.of("answer", OFF_TOPIC_TIERS[tier], "form", false, "blocked", true, "type", "out_of_bounds");
         }
 
         // 6. Siempre se deja responder a la IA (con o sin contexto), pasándole el historial
@@ -184,51 +203,53 @@ public class ChatbotService {
         //    repetir la misma respuesta enlatada ante preguntas parecidas.
         String systemPrompt = buildSystemPrompt(context, tier);
         String answer = callGroq(systemPrompt, question, history);
-        return Map.of("answer", sanitizeContext(answer), "form", false, "blocked", context.isEmpty());
+        return Map.of("answer", sanitizeContext(answer), "form", false, "blocked", context.isEmpty(), "type", context.isEmpty() ? "llm" : "llm_rag");
     }
 
     public void askStream(String question, int repeatCount, List<Map<String, String>> history, SseEmitter emitter) {
-        askStream(question, repeatCount, history, emitter, answer -> {});
+        askStream(question, repeatCount, history, emitter, (answer, type) -> null);
     }
 
     /**
      * @param onComplete se invoca exactamente una vez, al terminar, con el texto final que el
      *                    usuario vio (ya sea el mensaje fijo de saludo/contacto/FAQ/fuera-de-tema,
-     *                    o el texto acumulado del streaming de la IA). Pensado para que el
-     *                    controller pueda persistir el turno completo en base de datos sin tener
-     *                    que reconstruirlo token a token.
+     *                    o el texto acumulado del streaming de la IA) y el tipo de respuesta
+     *                    (faq | form | out_of_bounds | llm_rag | llm). Debe devolver el id del
+     *                    ChatMessage persistido para ese turno (o null), que se envía al cliente
+     *                    en el evento "done" para que pueda registrar el voto up/down.
      */
     public void askStream(String question, int repeatCount, List<Map<String, String>> history, SseEmitter emitter,
-                           java.util.function.Consumer<String> onComplete) {
+                           java.util.function.BiFunction<String, String, Long> onComplete) {
         int tier = Math.min(Math.max(repeatCount, 0), 2);
         try {
             if (isGreeting(question)) {
-                streamGroq(buildSystemPrompt(findRelevantContext(question), tier), question, history, emitter, false, false, onComplete);
-                return;
-            }
-            if (isContactIntent(question)) {
-                String text = CONTACT_REFUSAL_TIERS[tier];
-                sendEvent(emitter, text, true, true, onComplete);
+                streamGroq(buildSystemPrompt(findRelevantContext(question), tier), question, history, emitter, false, false, "llm", onComplete);
                 return;
             }
             Faq faq = findFaqMatch(question);
             if (faq != null) {
                 String text = sanitizeContext(faq.getAnswer());
-                sendEvent(emitter, text, false, false, onComplete);
+                sendEvent(emitter, text, false, false, "faq", onComplete);
+                return;
+            }
+            if (isContactIntent(question)) {
+                String text = CONTACT_REFUSAL_TIERS[tier];
+                sendEvent(emitter, text, true, true, "form", onComplete);
                 return;
             }
             String context = findRelevantContext(question);
             if (context.isEmpty() && isOffTopic(question)) {
                 String text = OFF_TOPIC_TIERS[tier];
-                sendEvent(emitter, text, false, true, onComplete);
+                sendEvent(emitter, text, false, true, "out_of_bounds", onComplete);
                 return;
             }
-            streamGroq(buildSystemPrompt(context, tier), question, history, emitter, false, context.isEmpty(), onComplete);
+            streamGroq(buildSystemPrompt(context, tier), question, history, emitter, false, context.isEmpty(),
+                    context.isEmpty() ? "llm" : "llm_rag", onComplete);
         } catch (Exception e) {
             log.error("Stream error: {}", e.getMessage(), e);
             try {
                 String text = "Lo siento, ocurrió un error al procesar tu consulta.";
-                sendEvent(emitter, text, false, false, onComplete);
+                sendEvent(emitter, text, false, false, "llm", onComplete);
             } catch (Exception ex) {
                 emitter.complete();
             }
@@ -305,10 +326,11 @@ public class ChatbotService {
         if (results.isEmpty()) {
             return "";
         }
-        return results.stream()
+        String context = results.stream()
                 .map(kc -> sanitizeContext(kc.getContent()))
                 .filter(c -> !c.isEmpty())
                 .collect(Collectors.joining("\n\n"));
+        return context.length() > 3000 ? context.substring(0, 3000) : context;
     }
 
     /**
@@ -384,14 +406,22 @@ public class ChatbotService {
                 "indícale que complete el formulario de contacto que aparecerá en el chat y menciona brevemente que " +
                 "un representante del área elegida lo atenderá.\n\n");
 
-        // Agregar FAQs como contexto conocido
+        // Agregar FAQs como contexto conocido (limitado para no disparar el límite de tokens de Groq)
         List<Faq> faqs = faqRepository.findByActivoTrueOrderByOrdenAsc();
         if (!faqs.isEmpty()) {
             sb.append("PREGUNTAS FRECUENTES (respóndelas con estos datos):\n");
-            for (Faq faq : faqs) {
-                sb.append("- P: ").append(faq.getQuestion()).append("\n");
-                sb.append("  R: ").append(faq.getAnswer()).append("\n");
-            }
+        }
+        int faqCount = 0;
+        final int MAX_FAQS = 14;
+        for (Faq faq : faqs) {
+            if (faqCount >= MAX_FAQS || sb.length() > 9000) break;
+            String faqAnswer = faq.getAnswer() == null ? "" : faq.getAnswer();
+            if (faqAnswer.length() > 280) faqAnswer = faqAnswer.substring(0, 280) + "...";
+            sb.append("- P: ").append(faq.getQuestion()).append("\n");
+            sb.append("  R: ").append(faqAnswer).append("\n");
+            faqCount++;
+        }
+        if (!faqs.isEmpty() && faqCount > 0) {
             sb.append("\n");
         }
 
@@ -428,11 +458,12 @@ public class ChatbotService {
         List<Map<String, String>> messages = new java.util.ArrayList<>();
         messages.add(Map.of("role", "system", "content", systemPrompt));
         if (history != null && !history.isEmpty()) {
-            int maxTurns = 12; // últimos ~12 mensajes (6 intercambios) para no saturar el contexto
+            int maxTurns = 8; // últimos ~8 mensajes (4 intercambios) para no saturar el contexto ni el límite de tokens
             int from = Math.max(0, history.size() - maxTurns);
             for (Map<String, String> turn : history.subList(from, history.size())) {
                 String role = turn.getOrDefault("role", "user");
                 String content = turn.getOrDefault("content", "");
+                if (content.length() > 500) content = content.substring(0, 500);
                 if (!content.isBlank()) {
                     messages.add(Map.of("role", role, "content", content));
                 }
@@ -455,7 +486,7 @@ public class ChatbotService {
                         "model", model,
                         "messages", messages,
                         "temperature", 0.65,
-                        "max_tokens", 600
+                        "max_tokens", 400
                 );
 
                 HttpEntity<Map<String, Object>> request = new HttpEntity<>(requestBody, headers);
@@ -482,16 +513,17 @@ public class ChatbotService {
         return "Lo siento, ocurrió un error al procesar tu consulta. Intenta de nuevo más tarde.";
     }
 
-    private void sendEvent(SseEmitter emitter, String text, boolean form, boolean blocked, java.util.function.Consumer<String> onComplete) {
+    private void sendEvent(SseEmitter emitter, String text, boolean form, boolean blocked, String type, java.util.function.BiFunction<String, String, Long> onComplete) {
         try {
             Map<String, Object> payload = new java.util.LinkedHashMap<>();
             payload.put("token", text);
             payload.put("form", form);
             payload.put("blocked", blocked);
+            payload.put("type", type);
             emitter.send(SseEmitter.event().name("message").data(payload));
-            emitter.send(SseEmitter.event().name("done").data(Map.of("done", true)));
+            Long messageId = onComplete.apply(text, type);
+            emitter.send(SseEmitter.event().name("done").data(Map.of("done", true, "type", type, "messageId", messageId)));
             emitter.complete();
-            onComplete.accept(text);
         } catch (Exception e) {
             log.error("SSE send error: {}", e.getMessage());
             emitter.complete();
@@ -499,25 +531,36 @@ public class ChatbotService {
     }
 
     private void streamGroq(String systemPrompt, String userMessage, List<Map<String, String>> history, SseEmitter emitter,
-                             boolean form, boolean blocked, java.util.function.Consumer<String> onComplete) {
+                             boolean form, boolean blocked, String type, java.util.function.BiFunction<String, String, Long> onComplete) {
         try {
-            boolean ok = attemptStream(systemPrompt, userMessage, history, emitter, form, blocked, groqModel, onComplete);
+            boolean ok = attemptStream(systemPrompt, userMessage, history, emitter, form, blocked, groqModel, type, onComplete);
             if (!ok) {
+                // Límite de tasa de Groq (429/413): esperar 2s antes del modelo alternativo
+                // para no martillar la API y dar tiempo a que se liberen tokens por minuto.
+                sleepQuietly(2000);
                 log.warn("Groq stream falló con el modelo principal '{}', reintentando con '{}'", groqModel, groqModelFallback);
-                ok = attemptStream(systemPrompt, userMessage, history, emitter, form, blocked, groqModelFallback, onComplete);
+                ok = attemptStream(systemPrompt, userMessage, history, emitter, form, blocked, groqModelFallback, type, onComplete);
             }
             if (!ok) {
-                String text = "No pude conectarme con el servicio de IA en este momento. Intenta de nuevo.";
-                sendEvent(emitter, text, false, false, onComplete);
+                String text = "No pude conectarme con el servicio de IA en este momento. Por favor intenta de nuevo en unos segundos.";
+                sendEvent(emitter, text, false, false, type, onComplete);
             }
         } catch (Exception e) {
             log.error("Groq stream error: {}", e.getMessage(), e);
             try {
                 String text = "Lo siento, ocurrió un error al procesar tu consulta. Intenta de nuevo más tarde.";
-                sendEvent(emitter, text, false, false, onComplete);
+                sendEvent(emitter, text, false, false, type, onComplete);
             } catch (Exception ex) {
                 emitter.complete();
             }
+        }
+    }
+
+    private void sleepQuietly(long ms) {
+        try {
+            Thread.sleep(ms);
+        } catch (InterruptedException ie) {
+            Thread.currentThread().interrupt();
         }
     }
 
@@ -528,15 +571,15 @@ public class ChatbotService {
      * Errores a mitad de stream se propagan como excepción (no se reintenta).
      */
     private boolean attemptStream(String systemPrompt, String userMessage, List<Map<String, String>> history,
-                                  SseEmitter emitter, boolean form, boolean blocked, String model,
-                                  java.util.function.Consumer<String> onComplete) throws Exception {
+                                  SseEmitter emitter, boolean form, boolean blocked, String model, String type,
+                                  java.util.function.BiFunction<String, String, Long> onComplete) throws Exception {
         ObjectMapper mapper = new ObjectMapper();
         List<Map<String, String>> messages = buildMessages(systemPrompt, userMessage, history);
         String requestBody = mapper.writeValueAsString(Map.of(
                 "model", model,
                 "messages", messages,
                 "temperature", 0.65,
-                "max_tokens", 600,
+                "max_tokens", 400,
                 "stream", true
         ));
 
@@ -576,9 +619,9 @@ public class ChatbotService {
             } catch (Exception ignore) {
             }
         }
-        emitter.send(SseEmitter.event().name("done").data(Map.of("done", true)));
+        Long messageId = onComplete.apply(fullAnswer.toString(), type);
+        emitter.send(SseEmitter.event().name("done").data(Map.of("done", true, "type", type, "messageId", messageId)));
         emitter.complete();
-        onComplete.accept(fullAnswer.toString());
         return true;
     }
 }

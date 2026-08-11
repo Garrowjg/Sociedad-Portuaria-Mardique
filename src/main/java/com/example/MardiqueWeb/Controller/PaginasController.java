@@ -8,6 +8,8 @@ import com.example.MardiqueWeb.Entity.SupportTicket;
 import com.example.MardiqueWeb.Entity.SystemConfig;
 import com.example.MardiqueWeb.Entity.User;
 import com.example.MardiqueWeb.Repository.*;
+import com.example.MardiqueWeb.Service.CarouselService;
+import com.example.MardiqueWeb.Service.PageMediaService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -35,6 +37,12 @@ public class PaginasController {
 
     @Autowired
     private PageContentRepository pageContentRepository;
+
+    @Autowired
+    private CarouselService carouselService;
+
+    @Autowired
+    private PageMediaService pageMediaService;
 
     @Autowired
     private DocumentRepository documentRepository;
@@ -73,6 +81,8 @@ public class PaginasController {
     public String inicio(Authentication auth, Model model) {
         if (auth != null && auth.isAuthenticated()) return "redirect:/sesion-activa";
         model.addAttribute("pageContents", loadPageContents("inicio"));
+        model.addAttribute("carouselJson", carouselService.getCarouselData());
+        model.addAttribute("mediaVideo", pageMediaService.resolvedUrl("inicio", "video"));
         return "Inicio";
     }
 
@@ -80,6 +90,10 @@ public class PaginasController {
     public String empresa(Authentication auth, Model model) {
         if (auth != null && auth.isAuthenticated()) return "redirect:/sesion-activa";
         model.addAttribute("pageContents", loadPageContents("empresa"));
+        model.addAttribute("heroImage", pageMediaService.resolvedUrl("empresa", "hero"));
+        model.addAttribute("visionImage", pageMediaService.resolvedUrl("empresa", "vision"));
+        model.addAttribute("introImage", pageMediaService.resolvedUrl("empresa", "intro"));
+        model.addAttribute("ctaImage", pageMediaService.resolvedUrl("empresa", "cta"));
         return "Empresa";
     }
 
@@ -87,6 +101,8 @@ public class PaginasController {
     public String servicios(Authentication auth, Model model) {
         if (auth != null && auth.isAuthenticated()) return "redirect:/sesion-activa";
         model.addAttribute("pageContents", loadPageContents("servicios"));
+        model.addAttribute("carouselJson", carouselService.getCarouselData());
+        model.addAttribute("heroImage", pageMediaService.resolvedUrl("servicios", "hero"));
         return "Servicios";
     }
 
@@ -95,6 +111,7 @@ public class PaginasController {
         if (auth != null && auth.isAuthenticated()) return "redirect:/sesion-activa";
         model.addAttribute("pageContents", loadPageContents("procedimientos"));
         model.addAttribute("docs", publicDocs(documentRepository.findByTipo("PROCEDIMIENTO")));
+        model.addAttribute("heroImage", pageMediaService.resolvedUrl("procedimientos", "hero"));
         return "Procedimientos";
     }
 
@@ -107,6 +124,7 @@ public class PaginasController {
         model.addAttribute("tarifaIframeUrl", transformIframeUrl(systemConfigRepository.findByConfigKey("TARIFA_IFRAME_URL").map(SystemConfig::getConfigValue).orElse("")));
         model.addAttribute("tarifaPhone", systemConfigRepository.findByConfigKey("TARIFA_PHONE").map(SystemConfig::getConfigValue).orElse("(57) (5) 669 0730"));
         model.addAttribute("tarifaEmail", systemConfigRepository.findByConfigKey("TARIFA_EMAIL").map(SystemConfig::getConfigValue).orElse("info@spmardique.com"));
+        model.addAttribute("heroImage", pageMediaService.resolvedUrl("tarifas", "hero"));
         return "Tarifas";
     }
 
@@ -119,6 +137,7 @@ public class PaginasController {
         cardDocs.values().removeIf(d -> d.getDestinatarios() != null && !d.getDestinatarios().isEmpty());
         model.addAttribute("cardDocs", cardDocs);
         model.addAttribute("reglamentoDoc", documentRepository.findByTipoAndCardKey("TRAMITE", "REGLAMENTO").orElse(null));
+        model.addAttribute("heroImage", pageMediaService.resolvedUrl("tramites", "hero"));
         return "Tramitesenlinea";
     }
 
@@ -127,6 +146,7 @@ public class PaginasController {
         if (auth != null && auth.isAuthenticated()) return "redirect:/sesion-activa";
         model.addAttribute("pageContents", loadPageContents("galeria"));
         model.addAttribute("images", galleryImageRepository.findByActiveTrue());
+        model.addAttribute("heroImage", pageMediaService.resolvedUrl("galeria", "hero"));
         return "Galeria";
     }
 
@@ -135,6 +155,7 @@ public class PaginasController {
         if (auth != null && auth.isAuthenticated()) return "redirect:/sesion-activa";
         model.addAttribute("pageContents", loadPageContents("contacto"));
         model.addAttribute("contacts", contactRepository.findAll());
+        model.addAttribute("heroImage", pageMediaService.resolvedUrl("contacto", "hero"));
         return "Contacto";
     }
 

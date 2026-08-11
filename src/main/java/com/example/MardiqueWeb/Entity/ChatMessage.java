@@ -28,6 +28,14 @@ public class ChatMessage {
     @Column(nullable = false, columnDefinition = "TEXT")
     private String content;
 
+    // Clasificación del turno del asistente: "faq" | "form" | "out_of_bounds" | "llm_rag" | "llm" (null en mensajes de usuario)
+    @Column(length = 32)
+    private String type;
+
+    // Voto del usuario: "up" (útil) | "down" (no útil) | null (sin votar)
+    @Column(length = 8)
+    private String feedback;
+
     @Column(nullable = false)
     private LocalDateTime createdAt = LocalDateTime.now();
 
@@ -38,6 +46,14 @@ public class ChatMessage {
         this.sessionId = sessionId;
         this.role = role;
         this.content = content;
+        this.createdAt = LocalDateTime.now();
+    }
+
+    public ChatMessage(String sessionId, String role, String content, String type) {
+        this.sessionId = sessionId;
+        this.role = role;
+        this.content = content;
+        this.type = type;
         this.createdAt = LocalDateTime.now();
     }
 
@@ -71,6 +87,22 @@ public class ChatMessage {
 
     public void setContent(String content) {
         this.content = content;
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
+    }
+
+    public String getFeedback() {
+        return feedback;
+    }
+
+    public void setFeedback(String feedback) {
+        this.feedback = feedback;
     }
 
     public LocalDateTime getCreatedAt() {

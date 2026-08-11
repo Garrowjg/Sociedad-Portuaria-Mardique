@@ -291,28 +291,101 @@
         return '<div class="cb-avatar"><img src="' + LOGO_SRC + '" alt=""></div>';
     }
 
-    function addBotBubble(text, withChips) {
+    function addBotBubble(text, withChips, animate) {
         const row = document.createElement('div');
         row.className = 'cb-row';
         row.innerHTML = robotAvatarHtml() +
-            '<div class="cb-msg bot"></div>';
-        row.querySelector('.cb-msg').innerHTML = renderMarkdown(text);
+            '<div class="cb-msg-wrap"><div class="cb-msg bot"></div></div>';
+        const msg = row.querySelector('.cb-msg');
+        const html = renderMarkdown(text);
         messagesEl.appendChild(row);
 
-        if (withChips) {
-            const chips = document.createElement('div');
-            chips.className = 'cb-chips';
-            QUICK_ACTIONS.forEach(function(q) {
-                const chip = document.createElement('button');
-                chip.className = 'cb-chip';
-                chip.type = 'button';
-                chip.textContent = q;
-                chip.addEventListener('click', function() { sendMessage(q); });
-                chips.appendChild(chip);
+        if (animate !== false) {
+            // Efecto máquina de escribir: el texto aparece carácter a carácter
+            typeMessage(msg, html, function() {
+                if (withChips) appendQuickChips();
             });
-            messagesEl.appendChild(chips);
+        } else {
+            msg.innerHTML = html;
+            if (withChips) appendQuickChips();
+            scrollBottom();
         }
+    }
+
+    function typeMessage(msg, html, onDone) {
+        msg.innerHTML = html;
+        // Recorre el DOM y agrupa todos los nodos de texto en orden
+        const textNodes = [];
+        const walker = document.createTreeWalker(msg, NodeFilter.SHOW_TEXT, null);
+        let node;
+        while ((node = walker.nextNode())) textNodes.push(node);
+        const fullTexts = textNodes.map(function(n) { return n.nodeValue; });
+        const totalChars = fullTexts.reduce(function(s, t) { return s + t.length; }, 0);
+
+        // Cursor de escritura
+        const caret = document.createElement('span');
+        caret.className = 'cb-caret';
+        msg.appendChild(caret);
+
+        if (totalChars === 0) {
+            caret.classList.add('cb-caret-done');
+            if (onDone) onDone();
+            scrollBottom();
+            return;
+        }
+
+        // Velocidad de tecleo: un carácter a la vez, natural y visible.
+        // El mensaje completo tarda entre ~1.6s y ~4.5s según su largo.
+        const minMs = 1600;
+        const maxMs = 4500;
+        const targetMs = Math.min(maxMs, Math.max(minMs, totalChars * 24));
+        const perCharMs = targetMs / totalChars;
+        let pos = 0;
+
+        (function tick() {
+            if (pos >= totalChars) {
+                for (let i = 0; i < textNodes.length; i++) textNodes[i].nodeValue = fullTexts[i];
+                caret.classList.add('cb-caret-done');
+                if (onDone) onDone();
+                scrollBottom();
+                return;
+            }
+            pos++;
+            let remaining = pos;
+            for (let i = 0; i < textNodes.length; i++) {
+                const len = Math.min(fullTexts[i].length, Math.max(0, remaining));
+                textNodes[i].nodeValue = fullTexts[i].slice(0, len);
+                remaining -= len;
+            }
+            scrollBottom();
+            setTimeout(tick, perCharMs);
+        })();
+    }
+
+    function appendQuickChips() {
+        const chips = document.createElement('div');
+        chips.className = 'cb-chips';
+        QUICK_ACTIONS.forEach(function(q, i) {
+            const chip = document.createElement('button');
+            chip.className = 'cb-chip';
+            chip.type = 'button';
+            chip.textContent = q;
+            chips.appendChild(chip);
+            revealChip(chip, i);
+            chip.addEventListener('click', function() { sendMessage(q); });
+        });
+        messagesEl.appendChild(chips);
         scrollBottom();
+    }
+
+    function revealChip(chip, index) {
+        chip.style.opacity = '0';
+        chip.style.transform = 'translateY(8px)';
+        requestAnimationFrame(function() {
+            chip.style.transition = 'opacity .4s ease ' + (0.15 + index * 0.08) + 's, transform .4s cubic-bezier(.22,1,.36,1) ' + (0.15 + index * 0.08) + 's';
+            chip.style.opacity = '1';
+            chip.style.transform = 'none';
+        });
     }
 
     function addUserBubble(text) {
@@ -342,11 +415,11 @@
         const msgs = loadChat();
         messagesEl.innerHTML = '';
         // Siempre se muestra el saludo + preguntas rápidas, sin duplicarlos
-        addBotBubble(WELCOME, true);
+        addBotBubble(WELCOME, true, false);
         msgs.forEach(function(m) {
             if (m.type === 'bot' && m.text === WELCOME) return;
             if (m.type === 'bot') {
-                addBotBubble(m.text);
+                addBotBubble(m.text, undefined, false);
                 if (m.form) addContactForm(m);
             }
             else addUserBubble(m.text);
@@ -376,6 +449,8 @@
             '<select class="cb-form-input" id="cfArea">' +
             CONTACT_AREAS.map(function(a) { return '<option value="' + a + '">' + a + '</option>'; }).join('') +
             '</select>' +
+            '<label class="cb-form-label">Descripción (opcional)</label>' +
+            '<textarea class="cb-form-input cb-form-textarea" id="cfDescripcion" placeholder="Cuéntanos brevemente de qué trata tu solicitud..." maxlength="500"></textarea>' +
             '<div class="cb-form-actions">' +
             '<button type="button" class="cb-form-btn primary" data-tipo="AGENDAR CITA">Agendar cita</button>' +
             '<button type="button" class="cb-form-btn" data-tipo="AGENDAR REUNIÓN">Agendar reunión</button>' +
@@ -388,7 +463,7 @@
             const statusEl = wrap.querySelector('#cfStatus');
             statusEl.textContent = '✓ ' + (saved.submittedMsg || 'Tu solicitud fue enviada. Un representante te contactará pronto.');
             statusEl.className = 'cb-form-status success';
-            wrap.querySelectorAll('input,select,.cb-form-btn').forEach(function(el) { el.disabled = true; });
+            wrap.querySelectorAll('input,select,textarea,.cb-form-btn').forEach(function(el) { el.disabled = true; });
         }
 
         const send = function(tipo) {
@@ -397,6 +472,7 @@
             const correo = wrap.querySelector('#cfCorreo').value.trim();
             const telefono = wrap.querySelector('#cfTelefono').value.trim();
             const area = wrap.querySelector('#cfArea').value;
+            const descripcion = wrap.querySelector('#cfDescripcion').value.trim();
             const statusEl = wrap.querySelector('#cfStatus');
 
             if (!/^[A-Za-zÀ-ÿñÑ\s'.-]{3,120}$/.test(nombre)) {
@@ -427,14 +503,14 @@
             fetch('/api/chatbot/contact', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ nombre: nombre, cedula: cedula, correo: correo, telefono: telefono, area: area, tipo: tipo })
+                body: JSON.stringify({ nombre: nombre, cedula: cedula, correo: correo, telefono: telefono, area: area, tipo: tipo, descripcion: descripcion })
             })
                 .then(function(r) { return r.json(); })
                 .then(function(data) {
                     if (data && data.ok === 'true') {
                         statusEl.textContent = '✓ ' + data.message;
                         statusEl.className = 'cb-form-status success';
-                        wrap.querySelectorAll('input,select,.cb-form-btn').forEach(function(el) { el.disabled = true; });
+                        wrap.querySelectorAll('input,select,textarea,.cb-form-btn').forEach(function(el) { el.disabled = true; });
                         // Marca el formulario como enviado en el historial para que al reabrir el chat se conserve
                         try {
                             const ms = JSON.parse(sessionStorage.getItem(STORAGE_KEY)) || [];
@@ -562,8 +638,15 @@
             input.style.display = '';
             sendCommentBtn.style.display = '';
             input.focus();
-            if (autoTimer) { clearTimeout(autoTimer); }
-            autoTimer = setTimeout(submitRating, 10000);
+            // El envío automático solo ocurre si el usuario no escribe nada durante un buen rato.
+            // Mientras escribe (evento 'input') se reinicia el temporizador, así no se envía solo
+            // mientras está redactando su comentario.
+            function restartAutoTimer() {
+                if (autoTimer) { clearTimeout(autoTimer); autoTimer = null; }
+                autoTimer = setTimeout(submitRating, 30000);
+            }
+            restartAutoTimer();
+            input.addEventListener('input', restartAutoTimer, { once: false });
         }
 
         ratingBox.querySelectorAll('.cb-star').forEach(function(star) {
@@ -625,16 +708,54 @@
         let wasBlocked = false;
         let botRow = null;
         let botMsg = null;
+        let currMessageId = null;
         let done = false;
 
         function createBotRow() {
             hideTyping();
             const row = document.createElement('div');
             row.className = 'cb-row';
-            row.innerHTML = robotAvatarHtml() + '<div class="cb-msg bot"></div>';
+            row.innerHTML = robotAvatarHtml() + '<div class="cb-msg-wrap"><div class="cb-msg bot"></div></div>';
             messagesEl.appendChild(row);
             botMsg = row.querySelector('.cb-msg');
             botRow = row;
+        }
+
+        function addVoteButtons(messageId) {
+            if (!botRow || !messageId) return;
+            const wrap = botRow.querySelector('.cb-msg-wrap');
+            if (!wrap) return;
+            const existing = wrap.querySelector('.cb-votes');
+            if (existing) existing.remove();
+            const votes = document.createElement('div');
+            votes.className = 'cb-votes';
+            votes.innerHTML =
+                '<button type="button" class="cb-vote up" title="Respuesta útil" aria-label="Respuesta útil">' +
+                '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 10v12"/><path d="M15 5.88 14 10h5.83a2 2 0 0 1 1.92 2.56l-2.33 8A2 2 0 0 1 17.5 22H4a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2h2.76a2 2 0 0 0 1.79-1.11L12 2a3.13 3.13 0 0 1 3 3.88Z"/></svg></button>' +
+                '<button type="button" class="cb-vote down" title="Respuesta no útil" aria-label="Respuesta no útil">' +
+                '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 14V2"/><path d="M9 18.12 10 14H4.17a2 2 0 0 1-1.92-2.56l2.33-8A2 2 0 0 1 6.5 2H20a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2h-2.76a2 2 0 0 0-1.79 1.11L12 22a3.13 3.13 0 0 1-3-3.88Z"/></svg></button>';
+            votes.querySelector('.cb-vote.up').addEventListener('click', function() { sendFeedback(messageId, 'up', votes); });
+            votes.querySelector('.cb-vote.down').addEventListener('click', function() { sendFeedback(messageId, 'down', votes); });
+            wrap.appendChild(votes);
+        }
+
+        function sendFeedback(messageId, value, wrap) {
+            fetch('/api/chatbot/feedback', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ sessionId: sessionId, messageId: messageId, feedback: value })
+            })
+                .then(function(r) { return r.json(); })
+                .then(function(result) {
+                    if (result.ok) {
+                        wrap.querySelectorAll('.cb-vote').forEach(function(btn) {
+                            btn.classList.remove('up', 'down', 'selected');
+                            btn.disabled = true;
+                        });
+                        wrap.querySelector('.cb-vote.' + value).classList.add('selected');
+                    }
+                })
+                .catch(function() {});
         }
 
         function finalize() {
@@ -648,6 +769,7 @@
             } else {
                 addBotBubble('No obtuve una respuesta. Intenta de nuevo en un momento.');
             }
+            addVoteButtons(currMessageId);
             scrollBottom();
             msgs = loadChat();
             const botEntry = { text: answer, type: 'bot' };
@@ -683,6 +805,7 @@
                 if (json.form === true) showForm = true;
                 if (json.blocked === true) wasBlocked = true;
             }
+            if (json.messageId) currMessageId = json.messageId;
             if (json.done === true) finalize();
         }
 
@@ -704,6 +827,7 @@
                     showForm = data.form === true;
                     wasBlocked = data.blocked === true;
                     if (data.sessionId) saveSession(data.sessionId);
+                    if (data.messageId) currMessageId = data.messageId;
                     finalize();
                 })
                 .catch(function(err) {

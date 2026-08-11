@@ -116,6 +116,31 @@ var SERVICIOS_IMAGE_DATA = {
     'PlataformaLogistica.jpg': { title: 'Plataforma Logística', desc: 'Hub regional con bodegas, patios de maniobras y conexiones estratégicas para la distribución eficiente de mercancías a nivel nacional e internacional.' },
 };
 
+/* Si el servidor pasa el JSON de carriles públicos (window.PUB_CAROUSEL_JSON),
+   sus valores reemplazan los mapas estáticos para que los cambios hechos en el
+   editor de galería se reflejen en la página pública. */
+if (window.PUB_CAROUSEL_JSON) {
+    function __applyCarousel(json, key, target) {
+        if (json && json[key]) {
+            var rebuilt = {};
+            Object.keys(json[key]).forEach(function (k) {
+                var it = json[key][k] || {};
+                rebuilt[k] = { title: it.title || '', desc: it.desc || '', url: it.url || '' };
+            });
+            if (Object.keys(rebuilt).length) {
+                /* mantiene el orden original si el set no cambió */
+                var ordered = {};
+                Object.keys(target).forEach(function (k) { if (rebuilt[k]) { ordered[k] = rebuilt[k]; delete rebuilt[k]; } });
+                Object.keys(rebuilt).forEach(function (k) { ordered[k] = rebuilt[k]; });
+                return ordered;
+            }
+        }
+        return target;
+    }
+    if (window.PUB_CAROUSEL_JSON.inicio) IMAGE_DATA = __applyCarousel(window.PUB_CAROUSEL_JSON, 'inicio', IMAGE_DATA);
+    if (window.PUB_CAROUSEL_JSON.servicios) SERVICIOS_IMAGE_DATA = __applyCarousel(window.PUB_CAROUSEL_JSON, 'servicios', SERVICIOS_IMAGE_DATA);
+}
+
 /* ============================================================
    CARRUSEL MODAL — Mardique (reutilizable en cualquier página)
    ============================================================ */
@@ -177,7 +202,7 @@ function _buildCarousel() {
         th.setAttribute('data-idx', i);
         th.onclick = function() { carouselIndex = i; _updateCarousel(true); };
         var img = document.createElement('img');
-        img.src = '/images/' + key;
+        img.src = (CURRENT_IMAGE_DATA[key] && CURRENT_IMAGE_DATA[key].url) || '/images/' + key;
         img.alt = (CURRENT_IMAGE_DATA[key] && CURRENT_IMAGE_DATA[key].title) || '';
         th.appendChild(img);
         thumbsEl.appendChild(th);
@@ -202,14 +227,15 @@ function _updateCarousel(animate) {
     var labelEl = document.getElementById('carouselLabel');
 
     if (imgEl) {
+        var target = (data.url) || '/images/' + src;
         if (animate) {
             imgEl.classList.add('fading');
             setTimeout(function() {
-                imgEl.src = '/images/' + src;
+                imgEl.src = target;
                 imgEl.classList.remove('fading');
             }, 250);
         } else {
-            imgEl.src = '/images/' + src;
+            imgEl.src = target;
         }
     }
     if (titleEl) titleEl.textContent = data.title;

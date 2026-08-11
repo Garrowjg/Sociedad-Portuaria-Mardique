@@ -1,12 +1,16 @@
 package com.example.MardiqueWeb.Controller;
 
 import com.example.MardiqueWeb.Entity.Contact;
+import com.example.MardiqueWeb.Entity.CarouselEntry;
 import com.example.MardiqueWeb.Entity.Document;
 import com.example.MardiqueWeb.Entity.GalleryImage;
 import com.example.MardiqueWeb.Entity.PageContent;
+import com.example.MardiqueWeb.Entity.PageMedia;
 import com.example.MardiqueWeb.Entity.SystemConfig;
 import com.example.MardiqueWeb.Repository.*;
+import com.example.MardiqueWeb.Service.CarouselService;
 import com.example.MardiqueWeb.Service.CloudinaryService;
+import com.example.MardiqueWeb.Service.PageMediaService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
@@ -47,6 +51,18 @@ public class EditorController {
 
     @Autowired
     private CloudinaryService cloudinaryService;
+
+    @Autowired
+    private CarouselService carouselService;
+
+    @Autowired
+    private CarouselEntryRepository carouselEntryRepository;
+
+    @Autowired
+    private PageMediaRepository pageMediaRepository;
+
+    @Autowired
+    private PageMediaService pageMediaService;
 
     private static final Set<String> ALLOWED_EXTENSIONS = Set.of("pdf", "png", "jpg", "jpeg", "gif", "webp", "svg", "doc", "docx", "xls", "xlsx");
     private static final Set<String> ALLOWED_IMAGE_EXTENSIONS = Set.of("png", "jpg", "jpeg", "gif", "webp", "svg");
@@ -717,6 +733,20 @@ public class EditorController {
     public String listGallery(Model model) {
         model.addAttribute("images", galleryImageRepository.findAll());
         model.addAttribute("image", new GalleryImage());
+        model.addAttribute("inicioImages", carouselService.findBySection("inicio"));
+        model.addAttribute("serviciosImages", carouselService.findBySection("servicios"));
+        List<Map<String, Object>> mediaGroups = new ArrayList<>();
+        for (String page : PageMediaService.PAGE_ORDER) {
+            List<PageMedia> items = pageMediaService.forPage(page);
+            if (!items.isEmpty()) {
+                Map<String, Object> group = new LinkedHashMap<>();
+                group.put("page", page);
+                group.put("label", PageMediaService.PAGE_LABELS.getOrDefault(page, page));
+                group.put("items", items);
+                mediaGroups.add(group);
+            }
+        }
+        model.addAttribute("mediaGroups", mediaGroups);
         return "EditorGallery";
     }
 
@@ -759,6 +789,86 @@ public class EditorController {
     public String deleteImage(@PathVariable Long id, RedirectAttributes ra) {
         galleryImageRepository.deleteById(id);
         ra.addFlashAttribute("success", "Imagen eliminada");
+        return "redirect:/editor/gallery";
+    }
+
+
+    @PostMapping("/gallery/public/save")
+    public String savePublicImage(@RequestParam Long id, @RequestParam String titulo,
+                                  @RequestParam String descripcion, RedirectAttributes ra) {
+        CarouselEntry entry = carouselEntryRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("CarouselEntry not found: " + id));
+        entry.setTitulo(titulo != null ? titulo.trim() : "");
+        entry.setDescripcion(descripcion != null ? descripcion.trim() : "");
+        carouselEntryRepository.save(entry);
+        ra.addFlashAttribute("success", "Título y descripción actualizados");
+        return "redirect:/editor/gallery";
+    }
+
+    @PostMapping("/gallery/public/replace")
+    public String replacePublicImage(@RequestParam Long id,
+                                     @RequestParam("file") MultipartFile file,
+                                     RedirectAttributes ra) {
+        if (file.isEmpty()) {
+            ra.addFlashAttribute("error", "Debe seleccionar una imagen");
+            return "redirect:/editor/gallery";
+        }
+        if (!allowedFile(file.getOriginalFilename(), ALLOWED_IMAGE_EXTENSIONS)) {
+            ra.addFlashAttribute("error", "Formato de imagen no permitido (png, jpg, gif, webp, svg)");
+            return "redirect:/editor/gallery";
+        }
+        try {
+            CarouselEntry entry = carouselEntryRepository.findById(id)
+                    .orElseThrow(() -> new RuntimeException("CarouselEntry not found: " + id));
+            String url = cloudinaryService.uploadFile(file);
+            entry.setFilePath(url);
+            carouselEntryRepository.save(entry);
+            ra.addFlashAttribute("success", "Imagen reemplazada correctamente");
+        } catch (IOException e) {
+            ra.addFlashAttribute("error", "Error al reemplazar imagen: " + e.getMessage());
+        }
+        return "redirect:/editor/gallery";
+    }
+
+    @PostMapping("/gallery/public/revert")
+    public String revertPublicImage(@RequestParam Long id, RedirectAttributes ra) {
+        boolean ok = carouselService.resetToDefault(id);
+        if (ok) {
+            ra.addFlashAttribute("success", "Se restauró la imagen y el texto originales");
+        } else {
+            ra.addFlashAttribute("error", "No se pudo revertir: la entrada no existe o no tiene valores por defecto");
+        }
+        return "redirect:/editor/gallery";
+    }
+
+    @PostMapping("/gallery/media/replace")
+    public String replacePageMedia(@RequestParam Long id,
+                                   @RequestParam("file") MultipartFile file,
+                                   RedirectAttributes ra) {
+        if (file.isEmpty()) {
+            ra.addFlashAttribute("error", "Debe seleccionar un archivo");
+            return "redirect:/editor/gallery";
+        }
+        try {
+            PageMedia media = pageMediaRepository.findById(id)
+                    .orElseThrow(() -> new RuntimeException("PageMedia not found: " + id));
+            String url = cloudinaryService.uploadFile(file);
+            media.setFilePath(url);
+            pageMediaRepository.save(media);
+            ra.addFlashAttribute("success", media.isVideo() ? "Video actualizado correctamente" : "Imagen actualizada correctamente");
+        } catch (IOException e) {
+            ra.addFlashAttribute("error", "Error al subir el archivo: " + e.getMessage());
+        }
+        return "redirect:/editor/gallery";
+    }
+
+    @PostMapping("/gallery/media/revert")
+    public String revertPageMedia(@RequestParam Long id, RedirectAttributes ra) {
+        PageMedia media = pageMediaRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("PageMedia not found: " + id));
+        media.setFilePath(null);
+        pageMediaRepository.save(media);
+        ra.addFlashAttribute("success", "Se restauró el archivo original de " + media.getLabel());
         return "redirect:/editor/gallery";
     }
 

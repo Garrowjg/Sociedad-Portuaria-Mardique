@@ -11,6 +11,7 @@ import com.example.MardiqueWeb.Repository.SystemConfigRepository;
 import com.example.MardiqueWeb.Repository.SolicitudRepository;
 import com.example.MardiqueWeb.Repository.UserRepository;
 import com.example.MardiqueWeb.Service.CloudinaryService;
+import com.example.MardiqueWeb.Service.CarouselService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -52,6 +53,9 @@ public class UserController {
     @Autowired
     private CloudinaryService cloudinaryService;
 
+    @Autowired
+    private CarouselService carouselService;
+
     private static final Set<String> ALLOWED_EXTENSIONS = Set.of("pdf", "png", "jpg", "jpeg", "gif", "webp");
 
     private boolean allowedFile(String filename) {
@@ -69,11 +73,13 @@ public class UserController {
         model.addAttribute("processedCount", payments.stream().filter(Payment::isProcessed).count());
         model.addAttribute("solicitudCount", solicitudes.size());
         model.addAttribute("pendingCount", solicitudes.stream().filter(s -> "PENDIENTE".equals(s.getEstado())).count());
+        model.addAttribute("carouselJson", carouselService.getCarouselData());
         return "UserInicio";
     }
 
     @GetMapping("/servicios")
-    public String servicios() {
+    public String servicios(Model model) {
+        model.addAttribute("carouselJson", carouselService.getCarouselData());
         return "UserServicios";
     }
 

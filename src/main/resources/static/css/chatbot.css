@@ -185,8 +185,8 @@
 /* ---------- Messages ---------- */
 
 .cb-messages {
-    flex: 1; overflow-y: auto; padding: 20px 16px 12px;
-    display: flex; flex-direction: column; gap: 12px;
+    flex: 1; overflow-y: auto; padding: 28px 20px 18px;
+    display: flex; flex-direction: column; gap: 22px;
     background:
             radial-gradient(circle at 100% 0%, rgba(0,163,224,.09) 0%, transparent 45%),
             radial-gradient(circle at 0% 100%, rgba(240,154,54,.07) 0%, transparent 40%),
@@ -199,14 +199,17 @@
 .cb-messages::-webkit-scrollbar-thumb:hover { background: #a9bfd0; }
 
 .cb-row {
-    display: flex; align-items: flex-end; gap: 8px;
-    animation: cbMsgIn .3s cubic-bezier(.16,1,.3,1);
+    display: flex; align-items: flex-end; gap: 10px;
+    animation: cbMsgIn .4s cubic-bezier(.22,1,.36,1);
 }
 .cb-row.user { justify-content: flex-end; }
-@keyframes cbMsgIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+.cb-msg-wrap {
+    display: flex; flex-direction: column; gap: 6px; max-width: 88%;
+}
+@keyframes cbMsgIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
 
 .cb-avatar {
-    width: 30px; height: 30px; border-radius: 50%; flex-shrink: 0;
+    width: 34px; height: 34px; border-radius: 50%; flex-shrink: 0;
     background: #fff;
     display: flex; align-items: center; justify-content: center;
     box-shadow: 0 3px 10px rgba(27,69,98,.25), 0 0 0 2px rgba(240,154,54,.2);
@@ -216,8 +219,8 @@
 .cb-avatar img { width: 100%; height: 100%; object-fit: contain; display: block; }
 
 .cb-msg {
-    max-width: 78%; padding: 11px 15px; border-radius: 18px;
-    font-size: 13.5px; line-height: 1.55;
+    max-width: 88%; padding: 16px 20px; border-radius: 20px;
+    font-size: 14.5px; line-height: 1.7;
     word-wrap: break-word;
     letter-spacing: .01em;
 }
@@ -237,6 +240,33 @@
 .cb-msg.bot code {
     background: #f1f5f9; color: #e11d48; font-size: 12px;
     padding: 1px 5px; border-radius: 4px; font-family: 'Courier New', monospace;
+}
+.cb-msg.bot ul, .cb-msg.bot ol {
+    margin: 8px 0; padding-left: 22px;
+}
+.cb-msg.bot li {
+    margin-bottom: 6px; line-height: 1.65;
+}
+.cb-msg.bot li:last-child {
+    margin-bottom: 0;
+}
+.cb-msg.bot p {
+    margin: 0 0 8px;
+}
+.cb-msg.bot p:last-child {
+    margin-bottom: 0;
+}
+
+.cb-caret {
+    display: inline-block; width: 2px; height: 15px;
+    margin-left: 2px; vertical-align: -2px;
+    background: var(--cb-orange);
+    animation: cbCaretBlink .9s steps(1) infinite;
+}
+.cb-caret-done { animation: none; opacity: 0; transition: opacity .3s ease; }
+@keyframes cbCaretBlink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0; }
 }
 
 /* ---------- Typing ---------- */
@@ -261,7 +291,7 @@
 
 /* ---------- Chips ---------- */
 
-.cb-chips { display: flex; flex-direction: column; gap: 7px; margin: 2px 0 6px 38px; }
+.cb-chips { display: flex; flex-direction: column; gap: 9px; margin: 4px 0 8px 40px; }
 .cb-chip {
     display: flex; align-items: center; justify-content: space-between; gap: 8px;
     border: none; background: #fff;
@@ -284,6 +314,23 @@
     box-shadow: 0 6px 14px rgba(0,163,224,.3);
 }
 .cb-chip:hover::after { color: #fff; transform: translateX(3px); }
+
+/* ---------- Vote buttons ---------- */
+
+.cb-votes { display: flex; gap: 6px; margin: 2px 0 0 4px; }
+.cb-vote {
+    display: flex; align-items: center; justify-content: center;
+    width: 28px; height: 28px;
+    border: 1.3px solid rgba(13,43,62,.18); border-radius: 50%;
+    background: #fff; color: #94a3b8; cursor: pointer;
+    transition: all .18s cubic-bezier(.4,0,.2,1);
+}
+.cb-vote:hover { color: #fff; transform: scale(1.08); }
+.cb-vote.up:hover { background: #16a34a; border-color: #16a34a; }
+.cb-vote.down:hover { background: #dc2626; border-color: #dc2626; }
+.cb-vote.selected.up { background: #16a34a; border-color: #16a34a; color: #fff; }
+.cb-vote.selected.down { background: #dc2626; border-color: #dc2626; color: #fff; }
+.cb-vote[disabled] { opacity: .55; cursor: default; transform: none; }
 
 /* ---------- Input ---------- */
 
@@ -398,6 +445,9 @@
 .cb-form-input:focus {
     border-color: var(--cb-cyan); background: #fff;
     box-shadow: 0 0 0 3px rgba(0,163,224,.12);
+}
+.cb-form-textarea {
+    min-height: 64px; resize: vertical; line-height: 1.45;
 }
 .cb-form-actions { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 4px; }
 .cb-form-btn {

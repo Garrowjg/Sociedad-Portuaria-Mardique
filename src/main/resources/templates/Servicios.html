@@ -544,6 +544,9 @@
         .img-overlay span { cursor:pointer; }
 
     </style>
+    <script th:inline="javascript">
+        window.PUB_CAROUSEL_JSON = /*[[${carouselJson}]]*/ null;
+    </script>
     <script src="/js/inicio.js"></script>
     <script src="/js/panel-nav.js"></script>
     <link rel="stylesheet" href="/css/chatbot.css">
@@ -588,7 +591,7 @@
 <div class="page-wrapper">
     <section class="page-hero" id="hero">
         
-        <div class="page-hero-bg" id="heroBg" style="background-image: url('/images/Servicios.png');"></div>
+        <div class="page-hero-bg" id="heroBg" th:style="|background-image: url('${heroImage}');|"></div>
         <div class="hero-particles" id="heroParticles"></div>
         <div class="container">
             <div class="page-hero-breadcrumb">

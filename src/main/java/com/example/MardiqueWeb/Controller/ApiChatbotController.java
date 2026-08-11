@@ -67,10 +67,12 @@ public class ApiChatbotController {
         // misma sesión recuerde de qué se viene hablando.
         chatMessageRepository.save(new ChatMessage(sessionId, "user", question));
         Object answerObj = result.get("answer");
-        chatMessageRepository.save(new ChatMessage(sessionId, "assistant", answerObj != null ? answerObj.toString() : ""));
+        ChatMessage savedBot = chatMessageRepository.save(new ChatMessage(sessionId, "assistant", answerObj != null ? answerObj.toString() : "",
+                String.valueOf(result.getOrDefault("type", "llm"))));
 
         Map<String, Object> response = new LinkedHashMap<>(result);
         response.put("sessionId", sessionId);
+        response.put("messageId", savedBot.getId());
         return response;
     }
 
@@ -92,7 +94,7 @@ public class ApiChatbotController {
         chatMessageRepository.save(new ChatMessage(sessionId, "user", q));
 
         CompletableFuture.runAsync(() -> chatbotService.askStream(q, repeatCount, history, emitter,
-                finalAnswer -> chatMessageRepository.save(new ChatMessage(sessionId, "assistant", finalAnswer))));
+                (finalAnswer, type) -> chatMessageRepository.save(new ChatMessage(sessionId, "assistant", finalAnswer, type)).getId()));
 
         // El frontend debe leer este header (fetch + ReadableStream, no sirve con EventSource nativo
         // porque el endpoint es POST) y guardar el sessionId (sessionStorage) para reenviarlo en cada
@@ -150,12 +152,18 @@ public class ApiChatbotController {
         String telefono = body.getOrDefault("telefono", "").trim();
         String area = body.getOrDefault("area", "").trim();
         String tipo = body.getOrDefault("tipo", "SOLICITAR INFORMACION").trim();
+        String descripcion = body.getOrDefault("descripcion", "").trim();
 
         // Validación de longitud básica para evitar abuso
         if (nombre.length() > 120 || cedula.length() > 20 || correo.length() > 120 || telefono.length() > 20) {
             return ResponseEntity.badRequest().body(Map.of(
                 "ok", "false",
                 "message", "Algunos campos exceden la longitud permitida."));
+        }
+        if (descripcion.length() > 500) {
+            return ResponseEntity.badRequest().body(Map.of(
+                "ok", "false",
+                "message", "La descripción no puede superar los 500 caracteres."));
         }
 
         // Validación de nombre (solo letras, espacios, tildes y caracteres básicos)
@@ -204,7 +212,8 @@ public class ApiChatbotController {
                 "\nCédula: " + cedula + "\nCorreo: " + correo +
                 "\nTeléfono: " + telefono +
                 "\nÁrea: " + (area.isEmpty() ? "No indicada" : area) +
-                "\nTipo: " + tipo);
+                "\nTipo: " + tipo +
+                (descripcion.isEmpty() ? "" : "\nDescripción: " + descripcion));
         ticket.setUsername(nombre);
         ticket.setOrigen("CHATBOT");
         ticket.setStatus("ABIERTO");
@@ -244,5 +253,33 @@ public class ApiChatbotController {
         return ResponseEntity.ok(Map.of(
             "ok", "true",
             "message", "¡Gracias por tu calificación! Nos ayuda a mejorar."));
+    }
+
+    @PostMapping("/feedback")
+    public ResponseEntity<Map<String, Object>> feedback(@RequestBody Map<String, Object> body) {
+        String sessionId = asString(body.get("sessionId"));
+        Object msgIdObj = body.get("messageId");
+        String feedback = asString(body.get("feedback"));
+        if (sessionId == null || sessionId.isBlank() || msgIdObj == null) {
+            return ResponseEntity.badRequest().body(Map.of("ok", "false", "message", "Sesión o mensaje no válido."));
+        }
+        if (!"up".equals(feedback) && !"down".equals(feedback)) {
+            return ResponseEntity.badRequest().body(Map.of("ok", "false", "message", "Votación no válida."));
+        }
+        long messageId;
+        try {
+            messageId = Long.parseLong(msgIdObj.toString());
+        } catch (NumberFormatException e) {
+            return ResponseEntity.badRequest().body(Map.of("ok", "false", "message", "Mensaje no válido."));
+        }
+
+        ChatMessage message = chatMessageRepository.findById(messageId).orElse(null);
+        if (message == null || !sessionId.equals(message.getSessionId()) || !"assistant".equals(message.getRole())) {
+            return ResponseEntity.badRequest().body(Map.of("ok", "false", "message", "Mensaje no encontrado en esta sesión."));
+        }
+
+        message.setFeedback(feedback);
+        chatMessageRepository.save(message);
+        return ResponseEntity.ok(Map.of("ok", "true", "message", "Gracias por tu retroalimentación."));
     }
 }

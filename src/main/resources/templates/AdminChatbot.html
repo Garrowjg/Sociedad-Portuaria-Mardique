@@ -23,9 +23,14 @@
         .source-group{background:var(--sur);border-radius:var(--rl);padding:16px;margin-bottom:16px;border:1.5px solid var(--bdr);}
         .source-title{font-weight:700;font-size:14px;color:var(--pd);margin-bottom:8px;}
         .source-count{font-size:11px;color:var(--mx);}
+        .rating-fill{height:100%;border-radius:6px;background:linear-gradient(90deg,#f09a36,#00a3e0);transition:width .6s cubic-bezier(.4,0,.2,1);}
+        .collapse-body{display:none;}
+        .collapse-body.open{display:block;}
+        .collapse-toggle{background:#eef2f7;border:1px solid var(--bdr);border-radius:var(--r);color:var(--pd);font-weight:600;padding:5px 14px;font-size:12px;cursor:pointer;transition:all .2s;margin-left:8px;float:right;}
+        .collapse-toggle:hover{background:var(--pd);color:#fff;transform:translateY(-1px);}
+        .collapse-toggle .cb-icon{display:inline-block;transition:transform .3s;}
+        .collapse-toggle.open .cb-icon{transform:rotate(180deg);}
         pre{background:#1e293b;color:#e2e8f0;padding:16px;border-radius:var(--r);font-size:12px;overflow-x:auto;margin:0;}
-        .api-box{background:#fffbeb;border:1px solid #fde68a;border-radius:var(--r);padding:16px;margin-top:16px;}
-        .api-box code{background:#1e293b;color:#e2e8f0;padding:8px 12px;border-radius:6px;font-size:12px;display:block;margin-top:8px;}
     </style>
 </head>
 <body>
@@ -144,86 +149,115 @@
                 <div class="stat-lbl">Gestionar el men&uacute; del chat</div>
             </div>
         </div>
-        <div class="stat-box" onclick="document.getElementById('apiInfoModal').classList.add('show')" style="cursor:pointer;">
+        <div class="stat-box" onclick="document.getElementById('chatDashboardModal').classList.add('show')" style="cursor:pointer;">
             <div class="stat-ico" style="background: rgba(139, 92, 246, 0.12); color: #8b5cf6;">
-                <i class="fas fa-code"></i>
+                <i class="fas fa-chart-line"></i>
             </div>
             <div>
-                <div class="stat-num" style="font-size:14px;">API Key</div>
-                <div class="stat-lbl">Ver c&oacute;mo configurar</div>
+                <div class="stat-num" style="font-size:14px;">Dashboard del Chat</div>
+                <div class="stat-lbl">Informe: mensajes, respuestas y tiempo</div>
             </div>
         </div>
+        <form method="post" action="/admin/chatbot/index-pages">
+            <div class="stat-box" style="cursor:pointer;">
+                <div class="stat-ico" style="background: rgba(255, 255, 255, 0.12); color: #0ea5e9;">
+                    <i class="fas fa-globe"></i>
+                </div>
+                <div>
+                    <div class="stat-num" style="font-size:14px;">Indexar p&aacute;ginas del sitio</div>
+                    <div class="stat-lbl">Leer el texto de la web p&uacute;blica</div>
+                </div>
+            </div>
+        </form>
     </div>
 
     <div class="source-group reveal" style="margin-bottom:16px;">
-        <div class="source-title">
+        <div class="source-title" style="display:flex;align-items:center;flex-wrap:wrap;gap:6px;">
             <i class="fas fa-question-circle" style="margin-right:8px;color:var(--ag);"></i>
             Preguntas Frecuentes del Chatbot
             <span class="source-count" th:text="|(${#lists.size(faqs)} preguntas)|"></span>
-            <button type="button" class="btn btn-gold" style="padding:4px 10px;font-size:11px;float:right;" onclick="openFaqModal()">
+            <button type="button" class="btn btn-gold" style="padding:4px 10px;font-size:11px;" onclick="openFaqModal()">
                 <i class="fas fa-plus"></i> Agregar
             </button>
+            <div style="flex:1;"></div>
+            <button type="button" class="collapse-toggle" onclick="toggleCollapse(this)">
+                <i class="fas fa-chevron-down cb-icon"></i> <span class="cb-label">Ver todas</span>
+            </button>
         </div>
-        <div th:if="${#lists.isEmpty(faqs)}" class="chunk-preview" style="padding:8px 0;">
-            No hay preguntas frecuentes. Agrega algunas para el men&uacute; del chat.
-        </div>
-        <div th:each="faq : ${faqs}" style="padding:10px 0;border-bottom:1px solid var(--bdr);">
-            <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
-                <div style="flex:1;min-width:200px;">
-                    <div style="font-size:13px;font-weight:700;color:var(--pd);" th:text="${faq.question}">Pregunta</div>
-                    <div class="chunk-preview" th:text="${faq.answer}">Respuesta...</div>
-                </div>
-                <div style="display:flex;gap:6px;flex-shrink:0;">
-                    <button type="button" class="btn btn-outline" style="padding:4px 10px;font-size:11px;" th:attr="data-id=${faq.id},data-q=${faq.question},data-a=${faq.answer},data-orden=${faq.orden},data-activo=${faq.activo}" onclick="editFaq(this)">
-                        <i class="fas fa-edit"></i> Editar
-                    </button>
-                    <form th:action="@{/admin/chatbot/faq/delete/{id}(id=${faq.id})}" method="post" style="display:inline;">
-                        <button type="submit" class="btn btn-red" style="padding:4px 10px;font-size:11px;" onclick="return confirm('¿Eliminar esta pregunta frecuente?')">
-                            <i class="fas fa-trash"></i>
+        <div class="collapse-body">
+            <div th:if="${#lists.isEmpty(faqs)}" class="chunk-preview" style="padding:8px 0;">
+                No hay preguntas frecuentes. Agrega algunas para el men&uacute; del chat.
+            </div>
+            <div th:each="faq : ${faqs}" style="padding:10px 0;border-bottom:1px solid var(--bdr);">
+                <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+                    <div style="flex:1;min-width:200px;">
+                        <div style="font-size:13px;font-weight:700;color:var(--pd);" th:text="${faq.question}">Pregunta</div>
+                        <div class="chunk-preview" th:text="${faq.answer}">Respuesta...</div>
+                    </div>
+                    <div style="display:flex;gap:6px;flex-shrink:0;">
+                        <button type="button" class="btn btn-outline" style="padding:4px 10px;font-size:11px;" th:attr="data-id=${faq.id},data-q=${faq.question},data-a=${faq.answer},data-orden=${faq.orden},data-activo=${faq.activo}" onclick="editFaq(this)">
+                            <i class="fas fa-edit"></i> Editar
                         </button>
-                    </form>
+                        <form th:action="@{/admin/chatbot/faq/delete/{id}(id=${faq.id})}" method="post" style="display:inline;">
+                            <button type="submit" class="btn btn-red" style="padding:4px 10px;font-size:11px;" onclick="return confirm('¿Eliminar esta pregunta frecuente?')">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </form>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 
     <div th:each="entry : ${groupedChunks}" class="source-group reveal">
-        <div class="source-title">
-            <i th:class="${entry.key.endsWith('.pdf') ? 'fas fa-file-pdf' : 'fas fa-file-alt'}" style="margin-right:8px;"></i>
+        <div class="source-title" style="display:flex;align-items:center;flex-wrap:wrap;gap:6px;">
+            <i th:class="${entry.key.endsWith('.pdf') ? 'fas fa-file-pdf' : 'fas fa-file-alt'}" style="color:var(--ag);"></i>
             <span th:text="${entry.key}">documento.pdf</span>
             <span class="source-count" th:text="|(${#lists.size(entry.value)} fragmentos)|"></span>
-            <form th:action="@{/admin/chatbot/delete}" method="post" style="display:inline;float:right;">
+            <div style="flex:1;"></div>
+            <button type="button" class="collapse-toggle" onclick="toggleCollapse(this)">
+                <i class="fas fa-chevron-down cb-icon"></i> <span class="cb-label">Ver fragmentos</span>
+            </button>
+            <form th:action="@{/admin/chatbot/delete}" method="post" style="display:inline;">
                 <input type="hidden" name="source" th:value="${entry.key}">
                 <button type="submit" class="btn btn-red" style="padding:4px 10px;font-size:11px;" onclick="return confirm('¿Eliminar todos los fragmentos de este documento?')">
                     <i class="fas fa-trash"></i> Eliminar
                 </button>
             </form>
         </div>
-        <div th:each="chunk : ${entry.value}" style="padding:8px 0;border-bottom:1px solid var(--bdr);">
-            <div style="font-size:11px;color:var(--mx);margin-bottom:2px;" th:text="${chunk.section}">Parte 1</div>
-            <div class="chunk-preview" th:text="${chunk.content}">Contenido del fragmento...</div>
+        <div class="collapse-body">
+            <div th:each="chunk : ${entry.value}" style="padding:8px 0;border-bottom:1px solid var(--bdr);">
+                <div style="font-size:11px;color:var(--mx);margin-bottom:2px;" th:text="${chunk.section}">Parte 1</div>
+                <div class="chunk-preview" th:text="${chunk.content}">Contenido del fragmento...</div>
+            </div>
         </div>
     </div>
 
     <div class="source-group reveal" style="margin-top:16px;">
-        <div class="source-title">
-            <i class="fas fa-star" style="margin-right:8px;color:var(--ag);"></i>
+        <div class="source-title" style="display:flex;align-items:center;flex-wrap:wrap;gap:6px;">
+            <i class="fas fa-star" style="color:var(--ag);"></i>
             Calificaciones de Atención
             <span class="source-count" th:text="|(${#lists.size(ratings)} calificaciones)|"></span>
+            <div style="flex:1;"></div>
+            <button type="button" class="collapse-toggle" id="ratingsToggle" onclick="toggleRatings()">
+                <i class="fas fa-chevron-down cb-icon"></i> <span class="cb-label">Ver todas</span>
+            </button>
         </div>
         <div th:if="${#lists.isEmpty(ratings)}" class="chunk-preview" style="padding:8px 0;">
             No hay calificaciones por el momento.
         </div>
-        <div th:each="r : ${ratings}" style="padding:12px 0;border-bottom:1px solid var(--bdr);display:flex;align-items:flex-start;gap:14px;">
-            <div style="flex-shrink:0;">
-                <span style="font-size:14px;color:var(--ag);font-weight:700;" th:text="|${r.rating}/5|">5/5</span>
-                <div th:title="|${r.rating} de 5 estrellas|" style="font-size:14px;color:var(--ag);letter-spacing:2px;margin-top:2px;">
-                    <span th:each="star : ${#numbers.sequence(1, r.rating)}">★</span>
-                    <span th:each="empty : ${#numbers.sequence(r.rating + 1, 5)}" style="color:#cbd5e1;">★</span>
+        <div class="collapse-body" id="ratingsList">
+            <div th:each="r : ${ratings}" th:attr="data-rating-id=${r.id}" style="padding:12px 0;border-bottom:1px solid var(--bdr);display:flex;align-items:flex-start;gap:14px;">
+                <div style="flex-shrink:0;">
+                    <span style="font-size:14px;color:var(--ag);font-weight:700;" th:text="|${r.rating}/5|">5/5</span>
+                    <div th:title="|${r.rating} de 5 estrellas|" style="font-size:14px;color:var(--ag);letter-spacing:2px;margin-top:2px;">
+                        <span th:each="star : ${#numbers.sequence(1, r.rating)}">★</span>
+                        <span th:each="empty : ${#numbers.sequence(r.rating + 1, 5)}" style="color:#cbd5e1;">★</span>
+                    </div>
                 </div>
-            </div>
-            <div style="flex:1;min-width:0;">
-                <div class="chunk-preview" style="font-size:12.5px;color:#334155;max-height:none;" th:text="${r.comment != null and !r.comment.isEmpty() ? r.comment : 'Sin observación.'}">Comentario del usuario...</div>
+                <div style="flex:1;min-width:0;">
+                    <div class="chunk-preview" style="font-size:12.5px;color:#334155;max-height:none;" th:text="${r.comment != null and !r.comment.isEmpty() ? r.comment : 'Sin observación.'}">Comentario del usuario...</div>
+                </div>
             </div>
         </div>
     </div>
@@ -303,18 +337,119 @@
     </div>
 </div>
 
-<div class="modal-overlay" id="apiInfoModal">
-    <div class="modal-box">
-        <h2><i class="fas fa-key"></i> API Key de Groq</h2>
-        <p style="text-align:center;color:var(--mx);font-size:13px;margin-bottom:20px;">El chatbot usa <strong>Groq API</strong> con el modelo <strong>Llama 3.3 70B</strong>. La clave ya est&aacute; configurada.</p>
-        <div class="api-box">
-            <strong>Estado:</strong>
-            <p style="font-size:12px;color:var(--mx);margin:8px 0;">La API key est&aacute; configurada en <code>application.properties</code>. No se requiere configurar variables de entorno.</p>
-            <strong>Modelo:</strong>
-            <code>llama-3.3-70b-versatile</code>
+<div class="modal-overlay" id="chatDashboardModal">
+    <div class="modal-box" style="max-width:780px;max-height:86vh;overflow-y:auto;">
+        <h2><i class="fas fa-chart-line" style="color:#8b5cf6;"></i> Dashboard del Chat</h2>
+        <p style="text-align:center;color:var(--mx);font-size:13px;margin-bottom:20px;">Mensajes enviados, calidad de respuesta, tiempos y valoraciones de los usuarios.</p>
+
+        <div class="dash-stats" style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px;">
+            <div class="dash-stat" style="background:linear-gradient(135deg,#1b4562,#245a80);color:#fff;border-radius:14px;padding:16px;text-align:center;">
+                <i class="fas fa-comment-dots" style="font-size:18px;opacity:.85;"></i>
+                <div style="font-size:26px;font-weight:800;margin-top:6px;" th:text="${chatMessagesCount}">0</div>
+                <div style="font-size:11px;opacity:.75;">Mensajes totales</div>
+                <div style="font-size:10px;opacity:.5;margin-top:4px;"><span th:text="${chatUserMessages}">0</span> usu. · <span th:text="${chatBotMessages}">0</span> bot</div>
+            </div>
+            <div class="dash-stat" style="background:linear-gradient(135deg,#245a80,#1b4562);color:#fff;border-radius:14px;padding:16px;text-align:center;">
+                <i class="fas fa-users" style="font-size:18px;opacity:.85;"></i>
+                <div style="font-size:26px;font-weight:800;margin-top:6px;" th:text="${chatSessions}">0</div>
+                <div style="font-size:11px;opacity:.75;">Conversaciones</div>
+                <div style="font-size:10px;opacity:.5;margin-top:4px;">sesiones &uacute;nicas</div>
+            </div>
+            <div class="dash-stat" style="background:linear-gradient(135deg,#f09a36,#e07c0f);color:#fff;border-radius:14px;padding:16px;text-align:center;">
+                <i class="fas fa-stopwatch" style="font-size:18px;opacity:.85;"></i>
+                <div style="font-size:26px;font-weight:800;margin-top:6px;"><span th:text="${chatAvgResponse}">0</span>s</div>
+                <div style="font-size:11px;opacity:.75;">Tiempo medio</div>
+                <div style="font-size:10px;opacity:.5;margin-top:4px;">m&iacute;n <span th:text="${chatMinResponse}">0</span>s · m&aacute;x <span th:text="${chatMaxResponse}">0</span>s</div>
+            </div>
+            <div class="dash-stat" style="background:linear-gradient(135deg,#00a3e0,#0080b0);color:#fff;border-radius:14px;padding:16px;text-align:center;">
+                <i class="fas fa-star" style="font-size:18px;opacity:.85;"></i>
+                <div style="font-size:26px;font-weight:800;margin-top:6px;"><span th:text="${chatRatingAvg}">0</span>/5</div>
+                <div style="font-size:11px;opacity:.75;">Valoraci&oacute;n media</div>
+                <div style="font-size:10px;opacity:.5;margin-top:4px;"><span th:text="${chatRatingsCount}">0</span> calificaciones</div>
+            </div>
+        </div>
+
+        <div class="dash-cards" style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:12px;">
+            <div style="background:var(--sur);border:1.5px solid var(--bdr);border-radius:14px;padding:16px;">
+                <div style="font-weight:700;font-size:14px;color:var(--pd);margin-bottom:12px;"><i class="fas fa-thumbs-up" style="margin-right:8px;color:#16a34a;"></i> Efectividad de Respuesta</div>
+                <div style="font-size:34px;font-weight:800;color:var(--pd);" th:text="${chatFeedbackTotal > 0 ? chatFeedbackPct : '—'} + (${chatFeedbackTotal > 0} ? '%' : '')">0%</div>
+                <div style="font-size:12px;color:var(--mx);margin:4px 0 10px;">votos del usuario por respuesta (up / down)</div>
+                <div style="font-size:12px;color:#16a34a;margin-bottom:4px;"><i class="fas fa-thumbs-up"></i> <span th:text="|${chatFeedbackUp} útiles|">0</span></div>
+                <div style="font-size:12px;color:#dc2626;"><i class="fas fa-thumbs-down"></i> <span th:text="|${chatFeedbackDown} no útiles|">0</span></div>
+            </div>
+            <div style="background:var(--sur);border:1.5px solid var(--bdr);border-radius:14px;padding:16px;">
+                <div style="font-weight:700;font-size:14px;color:var(--pd);margin-bottom:12px;"><i class="fas fa-inbox" style="margin-right:8px;color:#8b5cf6;"></i> Solicitudes v&iacute;a Chat</div>
+                <div style="font-size:34px;font-weight:800;color:var(--pd);" th:text="${chatContactRequests}">0</div>
+                <div style="font-size:12px;color:var(--mx);margin:4px 0 10px;">solicitudes enviadas desde el formulario del chatbot</div>
+                <div style="font-size:12px;color:#8b5cf6;">Gestionarlas en <strong>Solicitudes</strong></div>
+            </div>
+        </div>
+
+        <div style="background:var(--sur);border:1.5px solid var(--bdr);border-radius:14px;padding:16px;margin-bottom:12px;">
+            <div style="font-weight:700;font-size:14px;color:var(--pd);margin-bottom:12px;"><i class="fas fa-tags" style="margin-right:8px;color:var(--ag);"></i> Desglose de Respuestas</div>
+            <div style="font-size:12px;color:var(--mx);margin-bottom:10px;">para <span th:text="${chatTypeAnswered}">0</span> respuestas emitidas</div>
+            <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
+                <span style="width:110px;font-size:12px;font-weight:600;color:var(--pd);">FAQ</span>
+                <div style="flex:1;height:12px;background:#e2e8f0;border-radius:6px;overflow:hidden;"><div class="rating-fill" th:style="|width: ${chatTypePctFaq}%|" style="width:0;"></div></div>
+                <span style="width:110px;font-size:11px;color:var(--mx);text-align:right;" th:text="|${chatTypeFaq} (${chatTypePctFaq}%)|">0</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
+                <span style="width:110px;font-size:12px;font-weight:600;color:var(--pd);">Base de conocimiento</span>
+                <div style="flex:1;height:12px;background:#e2e8f0;border-radius:6px;overflow:hidden;"><div class="rating-fill" th:style="|width: ${chatTypePctLlmRag}%|" style="width:0;"></div></div>
+                <span style="width:110px;font-size:11px;color:var(--mx);text-align:right;" th:text="|${chatTypeLlmRag} (${chatTypePctLlmRag}%)|">0</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
+                <span style="width:110px;font-size:12px;font-weight:600;color:var(--pd);">IA general</span>
+                <div style="flex:1;height:12px;background:#e2e8f0;border-radius:6px;overflow:hidden;"><div class="rating-fill" th:style="|width: ${chatTypePctLlm}%|" style="width:0;"></div></div>
+                <span style="width:110px;font-size:11px;color:var(--mx);text-align:right;" th:text="|${chatTypeLlm} (${chatTypePctLlm}%)|">0</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
+                <span style="width:110px;font-size:12px;font-weight:600;color:var(--pd);">Fuera de tema</span>
+                <div style="flex:1;height:12px;background:#e2e8f0;border-radius:6px;overflow:hidden;"><div class="rating-fill" th:style="|width: ${chatTypePctOutOfBounds}%|" style="width:0;"></div></div>
+                <span style="width:110px;font-size:11px;color:var(--mx);text-align:right;" th:text="|${chatTypeOutOfBounds} (${chatTypePctOutOfBounds}%)|">0</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:10px;">
+                <span style="width:110px;font-size:12px;font-weight:600;color:var(--pd);">Solicitud contacto</span>
+                <div style="flex:1;height:12px;background:#e2e8f0;border-radius:6px;overflow:hidden;"><div class="rating-fill" th:style="|width: ${chatTypePctForm}%|" style="width:0;"></div></div>
+                <span style="width:110px;font-size:11px;color:var(--mx);text-align:right;" th:text="|${chatTypeForm} (${chatTypePctForm}%)|">0</span>
+            </div>
+        </div>
+
+        <div style="background:var(--sur);border:1.5px solid var(--bdr);border-radius:14px;padding:16px;">
+            <div style="font-weight:700;font-size:14px;color:var(--pd);margin-bottom:12px;"><i class="fas fa-star" style="margin-right:8px;color:var(--ag);"></i> Distribuci&oacute;n de Calificaciones</div>
+            <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
+                <span style="width:28px;font-size:12px;font-weight:700;color:var(--ag);">5★</span>
+                <div style="flex:1;height:12px;background:#e2e8f0;border-radius:6px;overflow:hidden;"><div class="rating-fill" th:style="|width: ${chatRatingPct5}%|" style="width:0;"></div></div>
+                <span style="width:30px;font-size:11px;color:var(--mx);text-align:right;" th:text="|${chatRatingDist5} (${chatRatingPct5}%)|">0</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
+                <span style="width:28px;font-size:12px;font-weight:700;color:var(--ag);">4★</span>
+                <div style="flex:1;height:12px;background:#e2e8f0;border-radius:6px;overflow:hidden;"><div class="rating-fill" th:style="|width: ${chatRatingPct4}%|" style="width:0;"></div></div>
+                <span style="width:30px;font-size:11px;color:var(--mx);text-align:right;" th:text="|${chatRatingDist4} (${chatRatingPct4}%)|">0</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
+                <span style="width:28px;font-size:12px;font-weight:700;color:var(--ag);">3★</span>
+                <div style="flex:1;height:12px;background:#e2e8f0;border-radius:6px;overflow:hidden;"><div class="rating-fill" th:style="|width: ${chatRatingPct3}%|" style="width:0;"></div></div>
+                <span style="width:30px;font-size:11px;color:var(--mx);text-align:right;" th:text="|${chatRatingDist3} (${chatRatingPct3}%)|">0</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
+                <span style="width:28px;font-size:12px;font-weight:700;color:var(--ag);">2★</span>
+                <div style="flex:1;height:12px;background:#e2e8f0;border-radius:6px;overflow:hidden;"><div class="rating-fill" th:style="|width: ${chatRatingPct2}%|" style="width:0;"></div></div>
+                <span style="width:30px;font-size:11px;color:var(--mx);text-align:right;" th:text="|${chatRatingDist2} (${chatRatingPct2}%)|">0</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:10px;">
+                <span style="width:28px;font-size:12px;font-weight:700;color:var(--ag);">1★</span>
+                <div style="flex:1;height:12px;background:#e2e8f0;border-radius:6px;overflow:hidden;"><div class="rating-fill" th:style="|width: ${chatRatingPct1}%|" style="width:0;"></div></div>
+                <span style="width:30px;font-size:11px;color:var(--mx);text-align:right;" th:text="|${chatRatingDist1} (${chatRatingPct1}%)|">0</span>
+            </div>
+        </div>
+
+        <div style="margin-top:14px;font-size:12px;color:var(--mx);text-align:center;background:#f8fafc;border:1px dashed var(--bdr);border-radius:12px;padding:12px;">
+            <i class="fas fa-info-circle" style="margin-right:6px;color:var(--ac);"></i>
+            Los tiempos incluyen el streaming de la respuesta. Los mensajes se registran autom&aacute;ticamente cuando el usuario conversa con el asistente.
         </div>
         <div class="modal-actions">
-            <button type="button" class="btn-cancel" onclick="document.getElementById('apiInfoModal').classList.remove('show')">Cerrar</button>
+            <button type="button" class="btn-cancel" onclick="document.getElementById('chatDashboardModal').classList.remove('show')">Cerrar</button>
         </div>
     </div>
 </div>
@@ -354,17 +489,33 @@
 
 <script>
     const progressBar = document.getElementById('scroll-progress');
-    window.addEventListener('scroll', () => {
-        if (progressBar) progressBar.style.width = (window.scrollY / (document.documentElement.scrollHeight - window.innerHeight) * 100) + '%';
-    }, { passive: true });
     const mainHdr = document.getElementById('main-header');
-    window.addEventListener('scroll', () => { mainHdr.classList.toggle('scrolled', window.scrollY > 60); }, { passive: true });
-    const obs = new IntersectionObserver(entries => { entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); }); }, { threshold: 0.1 });
+    let ticking = false;
+    function onScroll() {
+        if (ticking) return;
+        ticking = true;
+        requestAnimationFrame(() => {
+            ticking = false;
+            if (progressBar) progressBar.style.width = (window.scrollY / (document.documentElement.scrollHeight - window.innerHeight) * 100) + '%';
+            mainHdr.classList.toggle('scrolled', window.scrollY > 60);
+        });
+    }
+    window.addEventListener('scroll', onScroll, { passive: true });
+    const obs = new IntersectionObserver(entries => { entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); }); }, { threshold: 0, rootMargin: '0px 0px 60px 0px' });
     document.querySelectorAll('.reveal').forEach(el => obs.observe(el));
+    function revealInView() {
+        const vh = window.innerHeight;
+        document.querySelectorAll('.reveal:not(.visible)').forEach(el => {
+            const r = el.getBoundingClientRect();
+            if (r.top < vh - 20) el.classList.add('visible');
+        });
+    }
+    window.addEventListener('load', revealInView);
+    revealInView();
     document.getElementById('logoutModal').addEventListener('click', function(e) { if (e.target === this) this.classList.remove('show'); });
     document.getElementById('uploadPdfModal')?.addEventListener('click', function(e) { if (e.target === this) this.classList.remove('show'); });
     document.getElementById('manualTextModal')?.addEventListener('click', function(e) { if (e.target === this) this.classList.remove('show'); });
-    document.getElementById('apiInfoModal')?.addEventListener('click', function(e) { if (e.target === this) this.classList.remove('show'); });
+    document.getElementById('chatDashboardModal')?.addEventListener('click', function(e) { if (e.target === this) this.classList.remove('show'); });
     document.getElementById('faqModal')?.addEventListener('click', function(e) { if (e.target === this) this.classList.remove('show'); });
 
     function openFaqModal() {
@@ -375,6 +526,30 @@
         document.getElementById('faqOrden').value = 0;
         document.getElementById('faqModal').classList.add('show');
     }
+
+    function toggleCollapse(btn) {
+        const group = btn.closest('.source-group');
+        const body = group.querySelector('.collapse-body');
+        body.classList.toggle('open');
+        btn.classList.toggle('open');
+        const label = btn.querySelector('.cb-label');
+        const expanded = body.classList.contains('open');
+        label.textContent = expanded ? 'Ocultar' : 'Ver fragmentos';
+    }
+
+    const ratingsList = document.getElementById('ratingsList');
+    const ratingsToggle = document.getElementById('ratingsToggle');
+    let ratingsShown = 5;
+    function applyRatings() {}
+    function toggleRatings() {
+        if (!ratingsList) return;
+        ratingsList.classList.toggle('open');
+        if (ratingsToggle) {
+            const label = ratingsToggle.querySelector('.cb-label');
+            label.textContent = ratingsList.classList.contains('open') ? 'Ocultar' : 'Ver todas';
+        }
+    }
+    applyRatings();
 
     function editFaq(btn) {
         document.getElementById('faqForm').reset();
@@ -396,6 +571,28 @@
     tog && tog.addEventListener('click', () => drw.classList.contains('open') ? closeDrw() : openDrw());
     cl && cl.addEventListener('click', closeDrw);
     ov && ov.addEventListener('click', closeDrw);
+
+    /* Index pages: show toast and submit */
+    document.querySelector('form[action="/admin/chatbot/index-pages"]').addEventListener('submit', function(e) {
+        e.preventDefault();
+        var btn = this.querySelector('.stat-box');
+        var orig = btn.style.opacity;
+        btn.style.opacity = '0.6';
+        btn.style.pointerEvents = 'none';
+        fetch('/admin/chatbot/index-pages', { method: 'POST', redirect: 'follow' })
+            .then(function() { showToast('Páginas del sitio indexadas correctamente'); })
+            .catch(function() { showToast('Error al indexar páginas del sitio', true); })
+            .finally(function() {
+                setTimeout(function() { window.location.reload(); }, 1200);
+            });
+    });
+    function showToast(msg, isErr) {
+        var t = document.createElement('div');
+        t.textContent = msg;
+        t.style.cssText = 'position:fixed;top:20px;right:20px;z-index:10000;padding:12px 22px;border-radius:10px;font-size:13px;font-weight:600;color:#fff;box-shadow:0 6px 20px rgba(0,0,0,.25);animation:cbMsgIn .3s;transition:opacity .4s;background:' + (isErr ? '#dc2626' : '#16a34a');
+        document.body.appendChild(t);
+        setTimeout(function() { t.style.opacity = '0'; setTimeout(function() { t.remove(); }, 500); }, 2500);
+    }
 </script>
 <script src="/js/panel-nav.js"></script>
 <a href="/admin/dashboard" class="float-home" aria-label="Ir a inicio"><i class="fas fa-home"></i></a>

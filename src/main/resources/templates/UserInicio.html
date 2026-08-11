@@ -292,6 +292,9 @@
     cl  && cl.addEventListener('click', closeDrw);
     ov  && ov.addEventListener('click', closeDrw);
 </script>
+<script th:inline="javascript">
+    window.PUB_CAROUSEL_JSON = /*[[${carouselJson}]]*/ null;
+</script>
 <script src="/js/inicio.js"></script>
 <script src="/js/panel-nav.js"></script>
 <a href="/user/inicio" class="float-home" aria-label="Ir a inicio"><i class="fas fa-home"></i></a>

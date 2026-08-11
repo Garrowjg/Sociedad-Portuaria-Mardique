@@ -90,7 +90,7 @@
         .page-hero { position: relative; height: 540px; display: flex; align-items: flex-end; overflow: hidden; }
         .page-hero-bg {
             position: absolute; top: -80px; left: 0; width: 100%; height: calc(100% + 80px);
-            background-image: url('https://spmardique.com/wp-content/uploads/2021/12/Editadas_0003_DJI_0098.jpg');
+            background-image: var(--hero-img, url('https://spmardique.com/wp-content/uploads/2021/12/Editadas_0003_DJI_0098.jpg'));
             background-size: cover; background-position: center 40%;
             z-index: 1; will-change: background-position;
         }
@@ -205,14 +205,35 @@
             backdrop-filter: blur(10px);
         }
         .lightbox.open { display: flex; }
-        .lightbox-inner { position: relative; max-width: 90vw; max-height: 90vh; display: flex; flex-direction: column; align-items: center; }
+        .lightbox-inner {
+            position: relative; width: min(92vw, 860px); max-height: 92vh;
+            background: #0e1a2b; border-radius: 16px; padding: 18px 18px 22px;
+            display: flex; flex-direction: column; align-items: center;
+            box-shadow: 0 30px 80px rgba(0,0,0,0.6);
+            animation: carouselSlideUp 0.3s cubic-bezier(0.22,0.68,0,1.2);
+            overflow-y: auto;
+        }
+        @keyframes carouselSlideUp { from { transform: translateY(40px) scale(0.97); opacity: 0; } to { transform: none; opacity: 1; } }
+        .lightbox-brand {
+            font-size: 11px; font-weight: 800; letter-spacing: 4px; color: var(--accent-gold);
+            text-transform: uppercase; margin-bottom: 12px; text-align: center;
+        }
+        .lightbox-img-wrap { width: 100%; display: flex; justify-content: center; }
         .lightbox-img {
-            max-width: 85vw; max-height: 78vh;
+            max-width: 100%; max-height: 66vh;
             border-radius: 10px; box-shadow: 0 40px 80px rgba(0,0,0,0.7);
             object-fit: contain; display: block;
             animation: lbIn 0.3s cubic-bezier(0.4,0,0.2,1) both;
         }
         @keyframes lbIn { from{opacity:0;transform:scale(0.93)} to{opacity:1;transform:scale(1)} }
+        .lightbox-title {
+            color: #fff; font-size: 17px; font-weight: 800; margin: 14px 0 4px;
+            text-align: center; line-height: 1.3;
+        }
+        .lightbox-desc {
+            color: #8da8c8; font-size: 13px; line-height: 1.5;
+            margin: 0 0 10px; text-align: center; max-width: 560px;
+        }
         .lightbox-close {
             position: fixed; top: 22px; right: 28px; font-size: 28px;
             color: rgba(255,255,255,0.6); cursor: pointer; transition: color 0.2s;
@@ -231,7 +252,7 @@
         .lightbox-prev { left: 20px; }
         .lightbox-next { right: 20px; }
         .lightbox-counter {
-            margin-top: 16px; font-size: 12px; color: rgba(255,255,255,0.45);
+            font-size: 12px; color: rgba(255,255,255,0.45);
             font-weight: 600; letter-spacing: 1px; text-align: center;
         }
 
@@ -471,7 +492,7 @@
 <div class="page-wrapper">
 
 <section class="page-hero">
-    <div class="page-hero-bg" id="heroBg"></div>
+    <div class="page-hero-bg" id="heroBg" th:style="|--hero-img: url('${heroImage}');|"></div>
     <div class="hero-particles" id="heroParticles"></div>
     <div class="container">
         <div class="page-hero-breadcrumb">
@@ -531,16 +552,13 @@
 <section class="gallery-section">
     <div class="container">
         
-        <div class="gallery-grid" th:if="${not #lists.isEmpty(images)}">
-            <div class="gallery-item" th:each="img : ${images}">
-                <img th:src="@{${img.filePath}}" th:alt="${img.titulo}" loading="lazy">
-                <div class="gallery-item-overlay"><span class="gallery-item-tag" th:text="${img.categoria}">Categoría</span></div>
+        <div class="gallery-grid" id="galleryGrid">
+            <div class="gallery-item" th:each="img : ${images}"
+                 th:attr="data-category=${img.categoria != null and !img.categoria.isEmpty() ? img.categoria : 'aerea'},data-src=${img.filePath},data-title=${img.titulo},data-desc=${img.descripcion}">
+                <img th:src="${img.filePath}" th:alt="${img.titulo}" loading="lazy">
+                <div class="gallery-item-overlay"><span class="gallery-item-tag" th:text="${img.categoriaLabel}">Categoría</span></div>
                 <div class="gallery-item-zoom"><i class="fa-solid fa-magnifying-glass-plus"></i></div>
             </div>
-        </div>
-
-        
-        <div class="gallery-grid" id="galleryGrid" th:if="${#lists.isEmpty(images)}">
 
             
             <div class="gallery-item reveal" data-category="aerea" data-src="https://spmardique.com/wp-content/uploads/2021/12/Editadas_0000_DJI_0108.jpg">
@@ -987,7 +1005,12 @@
     <button class="lightbox-nav lightbox-prev" id="lbPrev"><i class="fa-solid fa-chevron-left"></i></button>
     <button class="lightbox-nav lightbox-next" id="lbNext"><i class="fa-solid fa-chevron-right"></i></button>
     <div class="lightbox-inner">
-        <img src="" alt="" class="lightbox-img" id="lbImg">
+        <div class="lightbox-brand" id="lbBrand">MARDIQUE</div>
+        <div class="lightbox-img-wrap">
+            <img src="" alt="" class="lightbox-img" id="lbImg">
+        </div>
+        <h4 class="lightbox-title" id="lbTitle">Puerto Mardique</h4>
+        <p class="lightbox-desc" id="lbDesc">Fotografía de Sociedad Portuaria Mardique</p>
         <div class="lightbox-counter" id="lbCounter"></div>
     </div>
 </div>
@@ -1204,6 +1227,8 @@
     const lb = document.getElementById('lightbox');
     const lbImg = document.getElementById('lbImg');
     const lbCounter = document.getElementById('lbCounter');
+    const lbTitle = document.getElementById('lbTitle');
+    const lbDesc = document.getElementById('lbDesc');
     let currentIdx = 0;
     let visibleItems = [];
 
@@ -1211,12 +1236,22 @@
         return Array.from(items).filter(i => i.style.display !== 'none');
     }
 
+    function updateLightboxInfo() {
+        const el = visibleItems[currentIdx];
+        if (!el) return;
+        const imgEl = el.querySelector('img');
+        const fallbackTitle = imgEl ? (imgEl.alt || '') : '';
+        lbImg.src = el.dataset.src || '';
+        if (imgEl) lbImg.alt = imgEl.alt || '';
+        lbTitle.textContent = el.dataset.title || fallbackTitle || 'Puerto Mardique';
+        lbDesc.textContent = el.dataset.desc || 'Fotografía de Sociedad Portuaria Mardique';
+        lbCounter.textContent = (currentIdx + 1) + ' / ' + visibleItems.length;
+    }
+
     function openLightbox(idx) {
         visibleItems = getVisible();
         currentIdx = idx;
-        lbImg.src = visibleItems[currentIdx].dataset.src;
-        lbImg.alt = visibleItems[currentIdx].querySelector('img').alt;
-        lbCounter.textContent = `${currentIdx + 1} / ${visibleItems.length}`;
+        updateLightboxInfo();
         lb.classList.add('open');
         document.body.style.overflow = 'hidden';
         // re-trigger animation

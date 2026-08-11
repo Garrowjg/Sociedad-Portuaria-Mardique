@@ -19,7 +19,12 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.transaction.annotation.Transactional;
 import java.io.IOException;
+import java.time.Duration;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -68,10 +73,16 @@ public class AdminController {
     private KnowledgeBaseService knowledgeBaseService;
 
     @Autowired
+    private SiteContentService siteContentService;
+
+    @Autowired
     private FaqRepository faqRepository;
 
     @Autowired
     private ChatbotRatingRepository chatbotRatingRepository;
+
+    @Autowired
+    private ChatMessageRepository chatMessageRepository;
 
     private static final Set<String> ALLOWED_EXTENSIONS = Set.of("pdf", "png", "jpg", "jpeg", "gif", "webp");
 
@@ -431,14 +442,120 @@ public class AdminController {
     public String chatbotAdmin(Model model) {
         List<KnowledgeChunk> allChunks = knowledgeBaseService.findAll();
         Map<String, List<KnowledgeChunk>> grouped = allChunks.stream()
+                .filter(chunk -> chunk.getSource() == null || !chunk.getSource().startsWith("Página: "))
                 .collect(Collectors.groupingBy(KnowledgeChunk::getSource));
-        model.addAttribute("chunks", allChunks);
+        model.addAttribute("chunks", allChunks.stream()
+                .filter(chunk -> chunk.getSource() == null || !chunk.getSource().startsWith("Página: "))
+                .collect(Collectors.toList()));
         model.addAttribute("groupedChunks", grouped);
         model.addAttribute("chunkCount", allChunks.size());
         model.addAttribute("sourceCount", grouped.size());
         model.addAttribute("faqs", faqRepository.findAllByOrderByOrdenAsc());
-        model.addAttribute("ratings", chatbotRatingRepository.findAll(
-            Sort.by(Sort.Direction.DESC, "id")));
+        List<ChatbotRating> ratings = chatbotRatingRepository.findAll(
+            Sort.by(Sort.Direction.DESC, "id"));
+        model.addAttribute("ratings", ratings);
+
+        // ── Dashboard / informe del chatbot ─────────────────────────────────────
+        long totalMessages = chatMessageRepository.count();
+        long userMessages = chatMessageRepository.countByRole("user");
+        long botMessages = chatMessageRepository.countByRole("assistant");
+        long sessions = chatMessageRepository.countDistinctSessions();
+
+        // Tiempo de respuesta: parea cada mensaje "assistant" con el "user" anterior de la misma sesión.
+        // Se recorre solo id/sesión/fecha (sin traer los cuerpos de texto) para no saturar la DB/red.
+        List<Object[]> rows = chatMessageRepository.findAllSessionMessages();
+        List<Long> responseTimesMs = new ArrayList<>();
+        Map<String, LocalDateTime> lastUserBySession = new LinkedHashMap<>();
+        for (Object[] row : rows) {
+            String sid = (String) row[0];
+            String role = (String) row[1];
+            Object tsObj = row[2];
+            LocalDateTime ts = tsObj instanceof LocalDateTime ? (LocalDateTime) tsObj
+                    : tsObj instanceof java.sql.Timestamp ? ((java.sql.Timestamp) tsObj).toLocalDateTime()
+                    : null;
+            if ("user".equals(role)) {
+                lastUserBySession.put(sid, ts);
+            } else if ("assistant".equals(role) && lastUserBySession.containsKey(sid)) {
+                LocalDateTime userAt = lastUserBySession.remove(sid);
+                LocalDateTime botAt = ts;
+                if (userAt != null && botAt != null) {
+                    long ms = Math.max(0, Duration.between(userAt, botAt).toMillis());
+                    responseTimesMs.add(ms);
+                }
+            }
+        }
+
+        // Desglose por tipo de respuesta (faq | form | out_of_bounds | llm_rag | llm)
+        long faqCount = chatMessageRepository.countByType("faq");
+        long formCount = chatMessageRepository.countByType("form");
+        long outOfBoundsCount = chatMessageRepository.countByType("out_of_bounds");
+        long llmRagCount = chatMessageRepository.countByType("llm_rag");
+        long llmCount = chatMessageRepository.countByType("llm");
+
+        // Votos del usuario por respuesta (up = útil, down = no útil)
+        long feedbackUp = chatMessageRepository.countByFeedback("up");
+        long feedbackDown = chatMessageRepository.countByFeedback("down");
+        long feedbackTotal = feedbackUp + feedbackDown;
+
+        double avgResponseMs = responseTimesMs.stream().mapToLong(Long::longValue).average().orElse(0);
+        long minResponseMs = responseTimesMs.stream().mapToLong(Long::longValue).min().orElse(0);
+        long maxResponseMs = responseTimesMs.stream().mapToLong(Long::longValue).max().orElse(0);
+
+        java.util.function.Function<Number, String> fmtTime = ms -> String.format(Locale.ROOT, "%.1f", ms.doubleValue() / 1000.0);
+
+        model.addAttribute("chatMessagesCount", totalMessages);
+        model.addAttribute("chatUserMessages", userMessages);
+        model.addAttribute("chatBotMessages", botMessages);
+        model.addAttribute("chatSessions", sessions);
+        model.addAttribute("chatTotalAnswered", botMessages);
+        model.addAttribute("chatAvgResponse", fmtTime.apply(avgResponseMs));
+        model.addAttribute("chatMinResponse", fmtTime.apply(minResponseMs));
+        model.addAttribute("chatMaxResponse", fmtTime.apply(maxResponseMs));
+
+        model.addAttribute("chatTypeFaq", faqCount);
+        model.addAttribute("chatTypeForm", formCount);
+        model.addAttribute("chatTypeOutOfBounds", outOfBoundsCount);
+        model.addAttribute("chatTypeLlmRag", llmRagCount);
+        model.addAttribute("chatTypeLlm", llmCount);
+        model.addAttribute("chatTypeAnswered", botMessages);
+        java.util.function.Function<Long, Integer> pctOfTypes = n -> botMessages > 0 ? (int) Math.round(n * 100.0 / botMessages) : 0;
+        model.addAttribute("chatTypePctFaq", pctOfTypes.apply(faqCount));
+        model.addAttribute("chatTypePctForm", pctOfTypes.apply(formCount));
+        model.addAttribute("chatTypePctOutOfBounds", pctOfTypes.apply(outOfBoundsCount));
+        model.addAttribute("chatTypePctLlmRag", pctOfTypes.apply(llmRagCount));
+        model.addAttribute("chatTypePctLlm", pctOfTypes.apply(llmCount));
+
+        model.addAttribute("chatFeedbackUp", feedbackUp);
+        model.addAttribute("chatFeedbackDown", feedbackDown);
+        model.addAttribute("chatFeedbackTotal", feedbackTotal);
+        model.addAttribute("chatFeedbackPct", feedbackTotal > 0 ? Math.round(feedbackUp * 100.0 / feedbackTotal) : 0);
+
+        // Distribución de valoraciones (reutiliza la lista ya cargada para la vista)
+        long[] ratingDist = new long[5];
+        for (ChatbotRating r : ratings) {
+            if (r.getRating() >= 1 && r.getRating() <= 5) ratingDist[r.getRating() - 1]++;
+        }
+        long totalRatings = ratings.size();
+        long sumRatings = 0;
+        for (ChatbotRating r : ratings) sumRatings += r.getRating();
+        double avgRating = totalRatings > 0 ? (double) sumRatings / totalRatings : 0;
+        model.addAttribute("chatRatingsCount", totalRatings);
+        model.addAttribute("chatRatingAvg", String.format(Locale.ROOT, "%.1f", avgRating));
+        model.addAttribute("chatRatingDist5", ratingDist[4]);
+        model.addAttribute("chatRatingDist4", ratingDist[3]);
+        model.addAttribute("chatRatingDist3", ratingDist[2]);
+        model.addAttribute("chatRatingDist2", ratingDist[1]);
+        model.addAttribute("chatRatingDist1", ratingDist[0]);
+        java.util.function.Function<Long, Integer> pctOf = n -> totalRatings > 0 ? (int) Math.round(n * 100.0 / totalRatings) : 0;
+        model.addAttribute("chatRatingPct5", pctOf.apply(ratingDist[4]));
+        model.addAttribute("chatRatingPct4", pctOf.apply(ratingDist[3]));
+        model.addAttribute("chatRatingPct3", pctOf.apply(ratingDist[2]));
+        model.addAttribute("chatRatingPct2", pctOf.apply(ratingDist[1]));
+        model.addAttribute("chatRatingPct1", pctOf.apply(ratingDist[0]));
+
+        // Solicitudes enviadas desde el chatbot (formulario de contacto del chat)
+        long chatContactRequests = supportTicketRepository.countByOrigen("CHATBOT");
+        model.addAttribute("chatContactRequests", chatContactRequests);
         return "AdminChatbot";
     }
 
@@ -518,6 +635,17 @@ public class AdminController {
     public String chatbotDelete(@RequestParam String source, RedirectAttributes ra) {
         knowledgeBaseService.deleteBySource(source);
         ra.addFlashAttribute("success", "Documento \"" + source + "\" eliminado de la base de conocimiento");
+        return "redirect:/admin/chatbot";
+    }
+
+    @PostMapping("/chatbot/index-pages")
+    public String chatbotIndexPages(RedirectAttributes ra) {
+        try {
+            int chunks = siteContentService.indexAllPages();
+            ra.addFlashAttribute("success", "Páginas del sitio web indexadas: " + chunks + " fragmentos para el chatbot");
+        } catch (Exception e) {
+            ra.addFlashAttribute("error", "Error al indexar las páginas del sitio: " + e.getMessage());
+        }
         return "redirect:/admin/chatbot";
     }
 
