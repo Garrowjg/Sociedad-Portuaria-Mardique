@@ -585,5 +585,50 @@
     </div>
 </nav>
 <script src="/js/chatbot.js"></script>
+
+    <th:block th:fragment="contactModal">
+        <div class="svc-modal-overlay" id="svcModalOverlay" onclick="if(event.target===this)closeServiceForm()">
+            <div class="svc-modal" role="dialog" aria-modal="true" aria-labelledby="svcFormTitle">
+                <button class="svc-close" onclick="closeServiceForm()" aria-label="Cerrar"><i class="fas fa-times"></i></button>
+                <h3 id="svcFormTitle">Contáctenos</h3>
+                <p class="svc-modal-sub" id="svcFormSub">Complete el formulario y nuestro equipo se pondrá en contacto con usted a la brevedad posible.</p>
+                <span class="svc-service-badge"><i class="fas fa-anchor"></i> <span id="svcFormService">Solicitud General</span></span>
+                <form id="svcForm">
+                    <div class="svc-form-grid">
+                        <div class="svc-form-group full">
+                            <label>Nombre y Apellidos <span style="color:var(--accent-gold)">*</span></label>
+                            <input type="text" name="nombre" required placeholder="Su nombre completo">
+                        </div>
+                        <div class="svc-form-group">
+                            <label>Correo Electrónico <span style="color:var(--accent-gold)">*</span></label>
+                            <input type="email" name="email" required placeholder="correo@ejemplo.com">
+                        </div>
+                        <div class="svc-form-group">
+                            <label>Celular <span style="color:var(--accent-gold)">*</span></label>
+                            <input type="tel" name="telefono" required placeholder="+57 300 000 0000" oninput="formatPhone(this)">
+                        </div>
+                        <div class="svc-form-group full">
+                            <label>Asunto</label>
+                            <select name="asunto" id="svcFormAsunto">
+                                <option>Información de Servicios Portuarios</option>
+                                <option>Cotización de Servicios</option>
+                                <option>Trámites Aduaneros</option>
+                                <option>Zona Franca</option>
+                                <option>Talento Humano</option>
+                                <option>Otro</option>
+                            </select>
+                        </div>
+                        <div class="svc-form-group full">
+                            <label>Mensaje <span style="color:var(--accent-gold)">*</span></label>
+                            <textarea name="mensaje" rows="5" required placeholder="Escriba su consulta o mensaje aquí..."></textarea>
+                        </div>
+                    </div>
+                    <p class="svc-form-note">Los campos marcados con <span>*</span> son obligatorios.</p>
+                    <button type="submit" class="svc-submit">Enviar Solicitud <i class="fa-solid fa-paper-plane"></i></button>
+                    <div class="svc-status" id="svcStatus"><i></i><span></span></div>
+                </form>
+            </div>
+        </div>
+    </th:block>
 </body>
 </html>

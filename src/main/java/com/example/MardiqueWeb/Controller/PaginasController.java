@@ -83,6 +83,7 @@ public class PaginasController {
         model.addAttribute("pageContents", loadPageContents("inicio"));
         model.addAttribute("carouselJson", carouselService.getCarouselData());
         model.addAttribute("mediaVideo", pageMediaService.resolvedUrl("inicio", "video"));
+        model.addAttribute("ctaImage", pageMediaService.resolvedUrl("inicio", "cta"));
         return "Inicio";
     }
 
@@ -103,6 +104,7 @@ public class PaginasController {
         model.addAttribute("pageContents", loadPageContents("servicios"));
         model.addAttribute("carouselJson", carouselService.getCarouselData());
         model.addAttribute("heroImage", pageMediaService.resolvedUrl("servicios", "hero"));
+        model.addAttribute("ctaImage", pageMediaService.resolvedUrl("servicios", "cta"));
         return "Servicios";
     }
 
@@ -112,6 +114,7 @@ public class PaginasController {
         model.addAttribute("pageContents", loadPageContents("procedimientos"));
         model.addAttribute("docs", publicDocs(documentRepository.findByTipo("PROCEDIMIENTO")));
         model.addAttribute("heroImage", pageMediaService.resolvedUrl("procedimientos", "hero"));
+        model.addAttribute("ctaImage", pageMediaService.resolvedUrl("procedimientos", "cta"));
         return "Procedimientos";
     }
 
@@ -125,6 +128,7 @@ public class PaginasController {
         model.addAttribute("tarifaPhone", systemConfigRepository.findByConfigKey("TARIFA_PHONE").map(SystemConfig::getConfigValue).orElse("(57) (5) 669 0730"));
         model.addAttribute("tarifaEmail", systemConfigRepository.findByConfigKey("TARIFA_EMAIL").map(SystemConfig::getConfigValue).orElse("info@spmardique.com"));
         model.addAttribute("heroImage", pageMediaService.resolvedUrl("tarifas", "hero"));
+        model.addAttribute("ctaImage", pageMediaService.resolvedUrl("tarifas", "cta"));
         return "Tarifas";
     }
 
@@ -138,6 +142,7 @@ public class PaginasController {
         model.addAttribute("cardDocs", cardDocs);
         model.addAttribute("reglamentoDoc", documentRepository.findByTipoAndCardKey("TRAMITE", "REGLAMENTO").orElse(null));
         model.addAttribute("heroImage", pageMediaService.resolvedUrl("tramites", "hero"));
+        model.addAttribute("ctaImage", pageMediaService.resolvedUrl("tramites", "cta"));
         return "Tramitesenlinea";
     }
 
@@ -147,6 +152,7 @@ public class PaginasController {
         model.addAttribute("pageContents", loadPageContents("galeria"));
         model.addAttribute("images", galleryImageRepository.findByActiveTrue());
         model.addAttribute("heroImage", pageMediaService.resolvedUrl("galeria", "hero"));
+        model.addAttribute("ctaImage", pageMediaService.resolvedUrl("galeria", "cta"));
         return "Galeria";
     }
 
@@ -156,6 +162,7 @@ public class PaginasController {
         model.addAttribute("pageContents", loadPageContents("contacto"));
         model.addAttribute("contacts", contactRepository.findAll());
         model.addAttribute("heroImage", pageMediaService.resolvedUrl("contacto", "hero"));
+        model.addAttribute("ctaImage", pageMediaService.resolvedUrl("contacto", "cta"));
         return "Contacto";
     }
 

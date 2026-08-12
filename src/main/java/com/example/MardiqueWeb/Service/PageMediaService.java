@@ -24,7 +24,8 @@ public class PageMediaService {
     private static final Map<String, List<MediaSeed>> DEFAULTS = new LinkedHashMap<>();
     static {
         DEFAULTS.put("inicio", List.of(
-                new MediaSeed("video", "Video corporativo (cabecera)", 1, "/videos/VideoCorporativo.mp4", "VIDEO")
+                new MediaSeed("video", "Video corporativo (cabecera)", 1, "/videos/VideoCorporativo.mp4", "VIDEO"),
+                new MediaSeed("cta", "Fondo franja final — Operar", 2, "/images/Operar.png", "IMAGE")
         ));
         DEFAULTS.put("empresa", List.of(
                 new MediaSeed("hero", "Imagen de cabecera — Equipo Mardique", 1, "/images/EquipoMardique.png", "IMAGE"),
@@ -33,22 +34,28 @@ public class PageMediaService {
                 new MediaSeed("cta", "Fondo franja final — Operar", 4, "/images/Operar.png", "IMAGE")
         ));
         DEFAULTS.put("servicios", List.of(
-                new MediaSeed("hero", "Imagen de cabecera", 1, "/images/Servicios.png", "IMAGE")
+                new MediaSeed("hero", "Imagen de cabecera", 1, "/images/Servicios.png", "IMAGE"),
+                new MediaSeed("cta", "Fondo franja final — Operar", 2, "/images/Operar.png", "IMAGE")
         ));
         DEFAULTS.put("galeria", List.of(
-                new MediaSeed("hero", "Imagen de cabecera", 1, "https://spmardique.com/wp-content/uploads/2021/12/Editadas_0003_DJI_0098.jpg", "IMAGE")
+                new MediaSeed("hero", "Imagen de cabecera", 1, "https://spmardique.com/wp-content/uploads/2021/12/Editadas_0003_DJI_0098.jpg", "IMAGE"),
+                new MediaSeed("cta", "Fondo franja final — Operar", 2, "/images/Operar.png", "IMAGE")
         ));
         DEFAULTS.put("contacto", List.of(
-                new MediaSeed("hero", "Imagen de cabecera", 1, "/images/Contacto.png", "IMAGE")
+                new MediaSeed("hero", "Imagen de cabecera", 1, "/images/Contacto.png", "IMAGE"),
+                new MediaSeed("cta", "Fondo franja final — Operar", 2, "/images/Operar.png", "IMAGE")
         ));
         DEFAULTS.put("tarifas", List.of(
-                new MediaSeed("hero", "Imagen de cabecera", 1, "https://images.unsplash.com/photo-1450101499163-c8848c66ca85?auto=format&fit=crop&w=1600&q=80", "IMAGE")
+                new MediaSeed("hero", "Imagen de cabecera", 1, "https://images.unsplash.com/photo-1450101499163-c8848c66ca85?auto=format&fit=crop&w=1600&q=80", "IMAGE"),
+                new MediaSeed("cta", "Fondo franja final — Operar", 2, "/images/Operar.png", "IMAGE")
         ));
         DEFAULTS.put("procedimientos", List.of(
-                new MediaSeed("hero", "Imagen de cabecera", 1, "https://images.unsplash.com/photo-1600880292203-757bb62b4baf?auto=format&fit=crop&w=1600&q=80", "IMAGE")
+                new MediaSeed("hero", "Imagen de cabecera", 1, "https://images.unsplash.com/photo-1600880292203-757bb62b4baf?auto=format&fit=crop&w=1600&q=80", "IMAGE"),
+                new MediaSeed("cta", "Fondo franja final — Operar", 2, "/images/Operar.png", "IMAGE")
         ));
         DEFAULTS.put("tramites", List.of(
-                new MediaSeed("hero", "Imagen de cabecera", 1, "https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?auto=format&fit=crop&w=1600&q=80", "IMAGE")
+                new MediaSeed("hero", "Imagen de cabecera", 1, "https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?auto=format&fit=crop&w=1600&q=80", "IMAGE"),
+                new MediaSeed("cta", "Fondo franja final — Operar", 2, "/images/Operar.png", "IMAGE")
         ));
     }
 
