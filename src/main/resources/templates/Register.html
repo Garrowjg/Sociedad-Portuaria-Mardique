@@ -211,11 +211,12 @@
                 <a href="/login">INICIAR SESI&Oacute;N</a>
                 <a href="/register">REGISTRARSE</a>
             </div>
-            <a href="/contacto" class="drawer-contact-btn"><i class="fas fa-phone-alt"></i> CONT&Aacute;CTANOS</a>
+            <button type="button" class="drawer-contact-btn" onclick="openServiceForm('Contáctenos', 'Otro', 'Solicitud General', 'Complete el formulario y nuestro equipo comercial se pondrá en contacto con usted a la brevedad posible.')" style="border:none;cursor:pointer;background:var(--accent-gold);color:#fff;width:100%;padding:12px;border-radius:6px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;font-size:12px;display:flex;align-items:center;justify-content:center;gap:8px;"><i class="fas fa-phone-alt"></i> CONT&Aacute;CTANOS</button>
         </div>
     </nav>
     <script>window.addEventListener('scroll',()=>{document.getElementById('main-header')?.classList.toggle('scrolled',window.scrollY>60);});</script>
     <script src="/js/chatbot.js"></script>
+    <div th:replace="~{Inicio :: contactModal}"></div>
 </body>
 </html>
 

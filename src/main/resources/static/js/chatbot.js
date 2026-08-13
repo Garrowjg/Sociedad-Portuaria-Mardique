@@ -930,6 +930,7 @@
         hideLauncher();
         restoreHistory();
         inputEl.focus();
+        document.body.style.overflow = 'hidden';
         requestAnimationFrame(function() { headerSceneResize(); });
         nudgeSent = false;
         ratingSent = false;
@@ -942,6 +943,7 @@
         modal.classList.remove('open');
         modal.classList.add('closing');
         showLauncher();
+        document.body.style.overflow = '';
         toggleFaqPanel(false);
         clearIdleTimers();
         modal.addEventListener('animationend', function handler() {

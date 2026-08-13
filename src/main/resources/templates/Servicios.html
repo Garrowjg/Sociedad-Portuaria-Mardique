@@ -543,40 +543,6 @@
         }
         .img-overlay span { cursor:pointer; }
 
-        /* Modal de solicitudes de cotización / información */
-        .svc-modal-overlay{position:fixed;inset:0;background:rgba(10,25,40,0.74);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);z-index:2100;display:flex;align-items:center;justify-content:center;padding:24px;opacity:0;visibility:hidden;transition:opacity .3s ease,visibility .3s ease;}
-        .svc-modal-overlay.show{opacity:1;visibility:visible;}
-        .svc-modal{width:100%;max-width:560px;max-height:92vh;overflow-y:auto;background:linear-gradient(150deg,#12304a,#1b4562);border-radius:14px;padding:34px 32px;position:relative;box-shadow:0 30px 80px rgba(6,20,35,.6);transform:translateY(26px);transition:transform .35s cubic-bezier(.22,1,.36,1);}
-        .svc-modal-overlay.show .svc-modal{transform:translateY(0);}
-        .svc-modal::before{content:'';position:absolute;top:0;left:0;width:100%;height:3px;background:linear-gradient(90deg,var(--accent-gold),var(--accent-cyan));}
-        .svc-close{position:absolute;top:14px;right:16px;background:rgba(255,255,255,.08);border:none;color:#fff;width:34px;height:34px;border-radius:50%;font-size:15px;cursor:pointer;transition:all .2s;}
-        .svc-close:hover{background:var(--accent-gold);transform:rotate(90deg);}
-        .svc-modal h3{font-size:20px;font-weight:800;color:#fff;text-transform:uppercase;margin-bottom:8px;letter-spacing:.3px;}
-        .svc-modal h3::after{content:'';display:block;width:40px;height:3px;background:var(--accent-cyan);margin-top:8px;border-radius:2px;}
-        .svc-modal-sub{font-size:13px;color:rgba(255,255,255,.65);line-height:1.55;margin-top:14px;}
-        .svc-service-badge{display:inline-flex;align-items:center;gap:8px;background:rgba(240,154,54,.14);border:1px solid rgba(240,154,54,.35);color:var(--accent-gold);font-size:11.5px;font-weight:700;letter-spacing:.4px;text-transform:uppercase;padding:6px 12px;border-radius:50px;margin-top:16px;}
-        .svc-form-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:22px;}
-        .svc-form-group{display:flex;flex-direction:column;gap:6px;}
-        .svc-form-group.full{grid-column:1/-1;}
-        .svc-form-group label{font-size:11px;font-weight:700;color:rgba(255,255,255,.75);text-transform:uppercase;letter-spacing:.5px;}
-        .svc-form-group input,.svc-form-group textarea,.svc-form-group select{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.18);color:#fff;padding:12px 14px;border-radius:8px;font-size:13px;font-family:inherit;outline:none;transition:border-color .2s,background .2s,box-shadow .2s;}
-        .svc-form-group input::placeholder,.svc-form-group textarea::placeholder{color:rgba(255,255,255,.35);}
-        .svc-form-group input:focus,.svc-form-group textarea:focus,.svc-form-group select:focus{border-color:var(--accent-cyan);background:rgba(255,255,255,.1);box-shadow:0 0 0 3px rgba(0,163,224,.15);}
-        .svc-form-group select option{background:#12304a;color:#fff;}
-        .svc-form-note{font-size:11px;color:rgba(255,255,255,.45);margin-top:10px;}
-        .svc-form-note span{color:var(--accent-gold);}
-        .svc-submit{display:inline-flex;align-items:center;justify-content:center;gap:8px;width:100%;background:var(--accent-gold);color:#fff;border:none;padding:14px 24px;font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;border-radius:6px;cursor:pointer;margin-top:18px;font-family:inherit;transition:all .25s;}
-        .svc-submit:hover{background:#d6852a;transform:translateY(-2px);box-shadow:0 8px 20px rgba(240,154,54,.4);}
-        .svc-submit:disabled{opacity:.55;cursor:not-allowed;transform:none;box-shadow:none;}
-        .svc-submit:hover i{transform:translateX(4px);}
-        .svc-submit i{transition:transform .25s;}
-        .svc-status{margin-top:14px;padding:10px 16px;border-radius:6px;font-size:13px;font-weight:600;display:none;align-items:center;gap:10px;}
-        .svc-status.show{display:flex;}
-        .svc-status.success{background:rgba(16,185,129,.15);border:1px solid rgba(16,185,129,.3);color:#6ee7b7;}
-        .svc-status.error{background:rgba(239,68,68,.15);border:1px solid rgba(239,68,68,.3);color:#fca5a5;}
-        @media(max-width:600px){.svc-form-grid{grid-template-columns:1fr;}.svc-modal{padding:26px 20px;}.svc-modal h3{font-size:17px;}}
-        @media(max-width:600px){ .svc-modal-overlay{padding:14px;} }
-
     </style>
     <script th:inline="javascript">
         window.PUB_CAROUSEL_JSON = /*[[${carouselJson}]]*/ null;
@@ -614,7 +580,7 @@
                 </li>
             </ul>
         </nav>
-        <a href="/contacto" class="header-contact-btn">CONTÁCTANOS <i class="fas fa-phone-alt"></i></a>
+        <button type="button" onclick="openServiceForm('Contáctenos', 'Otro', 'Solicitud General', 'Complete el formulario y nuestro equipo comercial se pondrá en contacto con usted a la brevedad posible.')" class="header-contact-btn" style="border:none;cursor:pointer;">CONTÁCTANOS <i class="fas fa-phone-alt"></i></button>
         <button class="mobile-menu-toggle" id="mobileToggle" aria-label="Abrir menú">
             <span></span><span></span><span></span>
         </button>
@@ -799,14 +765,14 @@
 
 
     <section class="cta-band reveal">
-        <img src="/images/Operar.png" alt="" class="cta-bg-img" style="opacity:0.5;position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;z-index:0;">
+        <img th:src="@{${ctaImage}}" src="/images/Operar.png" alt="" class="cta-bg-img" style="opacity:0.5;position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;z-index:0;">
         <div class="cta-overlay" style="position:absolute;top:0;left:0;width:100%;height:100%;background:rgba(24,62,93,0.45);z-index:1;"></div>
         <div class="container" style="position:relative;z-index:2;">
             <h2>¿Listo para operar con nosotros?</h2>
             <p>Conozca todas las soluciones que Mardique tiene disponibles para su operación.</p>
             <div class="cta-buttons">
                 <a href="/servicios" class="btn btn-orange">Ver todos los servicios <i class="fas fa-arrow-right"></i></a>
-                <a href="/contacto" class="btn btn-outline-light">Contáctenos <i class="fas fa-phone-alt"></i></a>
+                <button type="button" onclick="openServiceForm('Solicite una Cotización', 'Cotización de Servicios', 'Su operación portuaria', 'Complete el formulario y nuestro equipo comercial se pondrá en contacto con usted para preparar su cotización a la brevedad posible.')" class="btn btn-outline-light">Contáctenos <i class="fas fa-phone-alt"></i></button>
             </div>
         </div>
     </section>
@@ -1035,105 +1001,12 @@
                 <a href="/login">INICIAR SESIÓN</a>
                 <a href="/register">REGISTRARSE</a>
             </div>
-            <a href="/contacto" class="drawer-contact-btn"><i class="fas fa-phone-alt"></i> CONTÁCTANOS</a>
+            <button type="button" class="drawer-contact-btn" onclick="openServiceForm('Contáctenos', 'Otro', 'Solicitud General', 'Complete el formulario y nuestro equipo comercial se pondrá en contacto con usted a la brevedad posible.')" style="border:none;cursor:pointer;"><i class="fas fa-phone-alt"></i> CONTÁCTANOS</button>
         </div>
     </nav>
 
     <script src="/js/chatbot.js"></script>
 
-    <div class="svc-modal-overlay" id="svcModalOverlay" onclick="if(event.target===this)closeServiceForm()">
-        <div class="svc-modal" role="dialog" aria-modal="true" aria-labelledby="svcFormTitle">
-            <button class="svc-close" onclick="closeServiceForm()" aria-label="Cerrar"><i class="fas fa-times"></i></button>
-            <h3 id="svcFormTitle">Solicite una Cotización</h3>
-            <p class="svc-modal-sub" id="svcFormSub">Complete el formulario y nuestro equipo se pondrá en contacto con usted a la brevedad posible.</p>
-            <span class="svc-service-badge"><i class="fas fa-anchor"></i> <span id="svcFormService">Muelle Marítimo</span></span>
-            <form id="svcForm">
-                <div class="svc-form-grid">
-                    <div class="svc-form-group full">
-                        <label>Nombre y Apellidos <span style="color:var(--accent-gold)">*</span></label>
-                        <input type="text" name="nombre" required placeholder="Su nombre completo">
-                    </div>
-                    <div class="svc-form-group">
-                        <label>Correo Electrónico <span style="color:var(--accent-gold)">*</span></label>
-                        <input type="email" name="email" required placeholder="correo@ejemplo.com">
-                    </div>
-                    <div class="svc-form-group">
-                        <label>Celular <span style="color:var(--accent-gold)">*</span></label>
-                        <input type="tel" name="telefono" required placeholder="+57 300 000 0000" oninput="formatPhone(this)">
-                    </div>
-                    <div class="svc-form-group full">
-                        <label>Asunto</label>
-                        <select name="asunto" id="svcFormAsunto">
-                            <option>Información de Servicios Portuarios</option>
-                            <option>Cotización de Servicios</option>
-                            <option>Trámites Aduaneros</option>
-                            <option>Zona Franca</option>
-                            <option>Talento Humano</option>
-                            <option>Otro</option>
-                        </select>
-                    </div>
-                    <div class="svc-form-group full">
-                        <label>Mensaje <span style="color:var(--accent-gold)">*</span></label>
-                        <textarea name="mensaje" rows="5" required placeholder="Escriba su consulta o mensaje aquí..."></textarea>
-                    </div>
-                </div>
-                <p class="svc-form-note">Los campos marcados con <span>*</span> son obligatorios.</p>
-                <button type="submit" class="svc-submit">Enviar Solicitud <i class="fa-solid fa-paper-plane"></i></button>
-                <div class="svc-status" id="svcStatus"><i></i><span></span></div>
-            </form>
-        </div>
-    </div>
-
-    <script>
-        function formatPhone(input) {
-            let v = input.value.replace(/[^\d+]/g, '').slice(0, 16);
-            if (v.startsWith('+57')) v = '+57 ' + v.slice(3).replace(/\D/g, '').replace(/(\d{3})(?=\d)/g, '$1 ');
-            input.value = v;
-        }
-
-        function openServiceForm(title, subject, service, subtitle) {
-            document.getElementById('svcFormTitle').textContent = title;
-            document.getElementById('svcFormService').textContent = service;
-            if (subtitle) document.getElementById('svcFormSub').textContent = subtitle;
-            const sel = document.getElementById('svcFormAsunto');
-            let found = false;
-            for (const opt of sel.options) { if (opt.value === subject) { sel.value = subject; found = true; break; } }
-            if (!found) { const o = document.createElement('option'); o.value = subject; o.textContent = subject; sel.appendChild(o); sel.value = subject; }
-            const st = document.getElementById('svcStatus');
-            st.className = 'svc-status'; st.style.display = 'none';
-            const btn = document.getElementById('svcForm').querySelector('button[type=submit]');
-            btn.disabled = false;
-            document.getElementById('svcForm').reset();
-            document.getElementById('svcModalOverlay').classList.add('show');
-            document.body.style.overflow = 'hidden';
-        }
-
-        function closeServiceForm() {
-            document.getElementById('svcModalOverlay').classList.remove('show');
-            document.body.style.overflow = '';
-        }
-
-        document.addEventListener('DOMContentLoaded', function() {
-            document.getElementById('svcForm').addEventListener('submit', function(e) {
-                e.preventDefault();
-                const form = this;
-                const st = document.getElementById('svcStatus');
-                const iconEl = st.querySelector('i'), textEl = st.querySelector('span');
-                fetch('/contacto/message', { method: 'POST', body: new FormData(form) })
-                    .then(function(res) { if (!res.ok && !res.redirected) return Promise.reject(res.status); })
-                    .then(function() {
-                        iconEl.className = 'fas fa-check-circle';
-                        textEl.textContent = 'Mensaje enviado con éxito. Nos pondremos en contacto con usted pronto.';
-                        st.className = 'svc-status success show';
-                        form.querySelector('button[type=submit]').disabled = true;
-                    })
-                    .catch(function() {
-                        iconEl.className = 'fas fa-exclamation-circle';
-                        textEl.textContent = 'No se pudo enviar la solicitud. Intente nuevamente.';
-                        st.className = 'svc-status error show';
-                    });
-            });
-        });
-    </script>
+    <div th:replace="~{Inicio :: contactModal}"></div>
 </body>
 </html>

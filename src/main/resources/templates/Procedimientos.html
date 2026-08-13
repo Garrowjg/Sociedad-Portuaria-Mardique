@@ -372,7 +372,7 @@
                 </li>
             </ul>
         </nav>
-        <a href="/contacto" class="header-contact-btn">CONTÁCTANOS <i class="fas fa-phone-alt"></i></a>
+        <button type="button" onclick="openServiceForm('Contáctenos', 'Otro', 'Solicitud General', 'Complete el formulario y nuestro equipo comercial se pondrá en contacto con usted a la brevedad posible.')" class="header-contact-btn" style="border:none;cursor:pointer;">CONTÁCTANOS <i class="fas fa-phone-alt"></i></button>
         <button class="mobile-menu-toggle" id="mobileToggle" aria-label="Abrir menú">
             <span></span><span></span><span></span>
         </button>
@@ -521,14 +521,14 @@
 </div>
 
 <section class="cta-band reveal">
-    <img src="/images/Operar.png" alt="" class="cta-bg-img" style="opacity:0.5;position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;z-index:0;">
+    <img th:src="@{${ctaImage}}" src="/images/Operar.png" alt="" class="cta-bg-img" style="opacity:0.5;position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;z-index:0;">
     <div class="cta-overlay" style="position:absolute;top:0;left:0;width:100%;height:100%;background:rgba(24,62,93,0.45);z-index:1;"></div>
     <div class="container" style="position:relative;z-index:2;">
         <h2>¿Listo para operar con Mardique?</h2>
         <p>Descargue los formatos y comience su proceso de registro o solicitud de servicios hoy mismo.</p>
         <div class="cta-buttons">
             <a href="/tramites-en-linea" class="btn btn-orange">Ir a Trámites en Línea <i class="fas fa-arrow-right"></i></a>
-            <a href="/contacto" class="btn btn-outline-light">Contáctenos <i class="fas fa-phone-alt"></i></a>
+            <button type="button" onclick="openServiceForm('Solicite una Cotización', 'Cotización de Servicios', 'Su operación portuaria', 'Complete el formulario y nuestro equipo comercial se pondrá en contacto con usted a la brevedad posible.')" class="btn btn-outline-light" style="border:none;cursor:pointer;">Contáctenos <i class="fas fa-phone-alt"></i></button>
         </div>
     </div>
 </section>
@@ -705,10 +705,11 @@
             <a href="/login">INICIAR SESIÓN</a>
             <a href="/register">REGISTRARSE</a>
         </div>
-        <a href="/contacto" class="drawer-contact-btn"><i class="fas fa-phone-alt"></i> CONTÁCTANOS</a>
+        <button type="button" class="drawer-contact-btn" onclick="openServiceForm('Contáctenos', 'Otro', 'Solicitud General', 'Complete el formulario y nuestro equipo comercial se pondrá en contacto con usted a la brevedad posible.')" style="border:none;cursor:pointer;"><i class="fas fa-phone-alt"></i> CONTÁCTANOS</button>
     </div>
 </nav>
 
+    <div th:replace="~{Inicio :: contactModal}"></div>
     <script src="/js/chatbot.js"></script>
 </body>
 </html>

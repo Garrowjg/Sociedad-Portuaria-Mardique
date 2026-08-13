@@ -660,7 +660,7 @@
                 </li>
             </ul>
         </nav>
-        <a href="/contacto" class="header-contact-btn">CONTÁCTANOS <i class="fas fa-phone-alt"></i></a>
+        <button type="button" onclick="openServiceForm('Contáctenos', 'Otro', 'Solicitud General', 'Complete el formulario y nuestro equipo comercial se pondrá en contacto con usted a la brevedad posible.')" class="header-contact-btn" style="border:none;cursor:pointer;">CONTÁCTANOS <i class="fas fa-phone-alt"></i></button>
         <button class="mobile-menu-toggle" id="mobileToggle" aria-label="Abrir menú">
             <span></span><span></span><span></span>
         </button>
@@ -964,7 +964,7 @@
         <p>Conozca todos los servicios que Mardique tiene disponibles para su operación.</p>
         <div class="cta-buttons">
             <a href="/servicios" class="btn btn-orange">CONOZCA NUESTROS SERVICIOS <i class="fas fa-arrow-right"></i></a>
-            <a href="/contacto" class="btn btn-outline">CONTÁCTENOS <i class="fas fa-phone-alt"></i></a>
+            <button type="button" onclick="openServiceForm('Solicite una Cotización', 'Cotización de Servicios', 'Su operación portuaria', 'Complete el formulario y nuestro equipo comercial se pondrá en contacto con usted a la brevedad posible.')" class="btn btn-outline">CONTÁCTENOS <i class="fas fa-phone-alt"></i></button>
         </div>
     </div>
 </section>
@@ -1172,10 +1172,11 @@
             <a href="/login">INICIAR SESIÓN</a>
             <a href="/register">REGISTRARSE</a>
         </div>
-        <a href="/contacto" class="drawer-contact-btn"><i class="fas fa-phone-alt"></i> CONTÁCTANOS</a>
+        <button type="button" class="drawer-contact-btn" onclick="openServiceForm('Contáctenos', 'Otro', 'Solicitud General', 'Complete el formulario y nuestro equipo comercial se pondrá en contacto con usted a la brevedad posible.')" style="border:none;cursor:pointer;"><i class="fas fa-phone-alt"></i> CONTÁCTANOS</button>
     </div>
 </nav>
 
+    <div th:replace="~{Inicio :: contactModal}"></div>
     <script src="/js/chatbot.js"></script>
 </body>
 </html>

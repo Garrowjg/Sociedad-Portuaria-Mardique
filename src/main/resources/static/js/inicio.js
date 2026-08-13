@@ -1320,3 +1320,105 @@ document.addEventListener('keydown', function(e) {
     window.addEventListener('resize', resize);
     resize();
 })();
+
+function formatPhone(el) {
+    var v = el.value.replace(/\D/g, '').slice(0, 13);
+    if (v.length > 3 && v.length <= 6) v = v.slice(0,3) + ' ' + v.slice(3);
+    else if (v.length > 6 && v.length <= 9) v = v.slice(0,3) + ' ' + v.slice(3,6) + ' ' + v.slice(6);
+    else if (v.length > 9) v = v.slice(0,3) + ' ' + v.slice(3,6) + ' ' + v.slice(6,9) + ' ' + v.slice(9);
+    el.value = v;
+}
+
+function openServiceForm(title, subject, service, subtitle) {
+    var overlay = document.getElementById('svcModalOverlay');
+    if (!overlay) return;
+    document.getElementById('svcFormTitle').textContent = title || 'Contáctenos';
+    var sub = document.getElementById('svcFormSub');
+    sub.textContent = subtitle || 'Complete el formulario y nuestro equipo se pondrá en contacto con usted a la brevedad posible.';
+    var badge = document.getElementById('svcFormService');
+    if (badge) badge.textContent = service || 'Solicitud General';
+    var select = document.getElementById('svcFormAsunto');
+    if (select) {
+        var found = false;
+        for (var i = 0; i < select.options.length; i++) {
+            if (select.options[i].value === subject) select.selectedIndex = i;
+            if (select.options[i].text === subject) { select.selectedIndex = i; found = true; }
+        }
+        if (!found && subject && select.options[select.options.length-1].text !== subject) {
+            var opt = document.createElement('option');
+            opt.value = subject;
+            opt.text = subject;
+            opt.selected = true;
+            select.appendChild(opt);
+        }
+    }
+    var form = document.getElementById('svcForm');
+    if (form) form.reset();
+    var status = document.getElementById('svcStatus');
+    if (status) { status.className = 'svc-status'; status.style.display = 'none'; }
+    overlay.classList.add('show');
+    document.body.style.overflow = 'hidden';
+}
+
+function closeServiceForm() {
+    var overlay = document.getElementById('svcModalOverlay');
+    if (!overlay) return;
+    overlay.classList.remove('show');
+    document.body.style.overflow = '';
+}
+
+function showToast(message) {
+    var existing = document.getElementById('svcToast');
+    if (existing) existing.remove();
+    var toast = document.createElement('div');
+    toast.id = 'svcToast';
+    toast.className = 'svc-toast show';
+    toast.innerHTML = '<i class="fas fa-check-circle"></i><span></span><button class="svc-toast-close" aria-label="Cerrar">&times;</button>';
+    toast.querySelector('span').textContent = message;
+    toast.querySelector('.svc-toast-close').addEventListener('click', function() { closeToast(toast); });
+    document.body.appendChild(toast);
+    setTimeout(function() { closeToast(toast); }, 4500);
+}
+
+function closeToast(toast) {
+    if (!toast) return;
+    toast.classList.remove('show');
+    setTimeout(function() {
+        if (toast.parentNode) toast.parentNode.removeChild(toast);
+    }, 300);
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    var form = document.getElementById('svcForm');
+    if (!form) return;
+    form.addEventListener('submit', function(e) {
+        e.preventDefault();
+        var status = document.getElementById('svcStatus');
+        var btn = form.querySelector('.svc-submit');
+        status.className = 'svc-status show';
+        status.style.display = 'flex';
+        status.querySelector('i').className = 'fas fa-spinner fa-spin';
+        status.querySelector('span').textContent = 'Enviando solicitud...';
+        btn.disabled = true;
+        fetch('/contacto/message', {
+            method: 'POST',
+            body: new FormData(form)
+        }).then(function(res) {
+            if (res.ok) {
+                form.reset();
+                closeServiceForm();
+                showToast('¡Solicitud enviada correctamente! Nuestro equipo lo contactará pronto.', 'success');
+            } else {
+                status.querySelector('i').className = 'fas fa-exclamation-circle';
+                status.className = 'svc-status show error';
+                status.querySelector('span').textContent = 'Ocurrió un error. Intente nuevamente.';
+            }
+        }).catch(function() {
+            status.querySelector('i').className = 'fas fa-exclamation-circle';
+            status.className = 'svc-status show error';
+            status.querySelector('span').textContent = 'Error de conexión. Intente nuevamente.';
+        }).finally(function() {
+            btn.disabled = false;
+        });
+    });
+});

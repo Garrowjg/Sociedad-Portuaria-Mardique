@@ -10,6 +10,7 @@
     border-radius: 12px;
     position: relative;
     overflow: hidden;
+    flex-shrink: 0;
     box-shadow: 0 3px 10px rgba(0,0,0,0.16), 0 0 0 1px rgba(255,255,255,0.08);
     transition: var(--transition, all 0.3s cubic-bezier(0.4,0,0.2,1));
 }
@@ -258,4 +259,52 @@ header.scrolled .logo-box img{
 .header-contact-btn{
     font-size: 12px !important;
     padding: 10px 22px !important;
+}
+
+/* =====================================================================
+   Responsive robusto del header (aplica a TODAS las páginas)
+   El nav con 7 ítems nowrap desborda en tablet/zoom: se colapsa a
+   hamburguesa antes de que aplaste el logo.
+   ===================================================================== */
+@media (max-width: 1200px) {
+    #main-header nav,
+    #main-header .header-contact-btn { display: none !important; }
+    #main-header .mobile-menu-toggle { display: flex !important; }
+
+    #main-header .header-content { gap: 12px; }
+    #main-header .logo-box { flex-shrink: 0 !important; }
+
+    #main-header { padding: 12px 0 !important; }
+    #main-header.scrolled { padding: 9px 0 !important; }
+}
+
+@media (max-width: 768px) {
+    #main-header { padding: 10px 0 !important; }
+    #main-header.scrolled { padding: 7px 0 !important; }
+    #main-header .logo-box { padding: 6px 14px 6px 11px !important; }
+    #main-header .logo-box img { height: 28px !important; }
+    #main-header.scrolled .logo-box { padding: 4px 12px 4px 9px !important; }
+    #main-header.scrolled .logo-box img { height: 24px !important; }
+    #main-header .header-content { padding: 0 14px; }
+}
+
+@media (max-height: 600px) and (orientation: landscape) {
+    #main-header nav,
+    #main-header .header-contact-btn { display: none !important; }
+    #main-header .mobile-menu-toggle { display: flex !important; }
+    #main-header .header-content { gap: 10px; padding: 0 14px; }
+    #main-header { padding: 8px 0 !important; }
+    #main-header.scrolled { padding: 6px 0 !important; }
+    #main-header .logo-box { padding: 5px 12px 5px 9px !important; }
+    #main-header .logo-box img { height: 26px !important; }
+    #main-header.scrolled .logo-box img { height: 22px !important; }
+}
+
+@media (max-width: 480px) {
+    #main-header { padding: 8px 0 !important; }
+    #main-header.scrolled { padding: 6px 0 !important; }
+    #main-header .logo-box { padding: 5px 12px 5px 9px !important; }
+    #main-header .logo-box img { height: 25px !important; }
+    #main-header.scrolled .logo-box { padding: 3px 10px 3px 7px !important; }
+    #main-header.scrolled .logo-box img { height: 22px !important; }
 }

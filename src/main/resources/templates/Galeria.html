@@ -479,9 +479,9 @@
                 </li>
             </ul>
             </nav>
-            <a href="/contacto" class="header-contact-btn">
+            <button type="button" onclick="openServiceForm('Contáctenos', 'Otro', 'Solicitud General', 'Complete el formulario y nuestro equipo comercial se pondrá en contacto con usted a la brevedad posible.')" class="header-contact-btn" style="border:none;cursor:pointer;">
                 <i class="fa-solid fa-paper-plane"></i> Contáctenos
-            </a>
+            </button>
             <button class="mobile-menu-toggle" id="mobileToggle" aria-label="Abrir menú">
                 <span></span><span></span><span></span>
             </button>
@@ -1017,13 +1017,13 @@
 
 
 <section class="cta-band">
-    <img src="/images/Operar.png" alt="" class="cta-bg-img" style="opacity:0.5;position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;z-index:0;">
+    <img th:src="@{${ctaImage}}" src="/images/Operar.png" alt="" class="cta-bg-img" style="opacity:0.5;position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;z-index:0;">
     <div class="cta-overlay" style="position:absolute;top:0;left:0;width:100%;height:100%;background:rgba(24,62,93,0.45);z-index:1;"></div>
     <div class="container" style="position:relative;z-index:2;">
         <h2 class="reveal">¿Le interesa operar con nosotros?</h2>
         <p class="reveal delay-1">Contáctenos y descubra cómo Mardique puede ser su aliado portuario estratégico en el Caribe colombiano.</p>
         <div class="cta-buttons reveal delay-2">
-            <a href="/contacto" class="btn btn-orange">Contáctenos <i class="fa-solid fa-arrow-right"></i></a>
+            <button type="button" onclick="openServiceForm('Solicite una Cotización', 'Cotización de Servicios', 'Su operación portuaria', 'Complete el formulario y nuestro equipo comercial se pondrá en contacto con usted a la brevedad posible.')" class="btn btn-orange" style="border:none;cursor:pointer;">Contáctenos <i class="fa-solid fa-arrow-right"></i></button>
             <a href="/servicios" class="btn btn-outline-light">Ver Servicios <i class="fa-solid fa-anchor"></i></a>
         </div>
     </div>
@@ -1323,10 +1323,11 @@
             <a href="/login">INICIAR SESIÓN</a>
             <a href="/register">REGISTRARSE</a>
         </div>
-        <a href="/contacto" class="drawer-contact-btn"><i class="fas fa-phone-alt"></i> CONTÁCTANOS</a>
+        <button type="button" class="drawer-contact-btn" onclick="openServiceForm('Contáctenos', 'Otro', 'Solicitud General', 'Complete el formulario y nuestro equipo comercial se pondrá en contacto con usted a la brevedad posible.')" style="border:none;cursor:pointer;"><i class="fas fa-phone-alt"></i> CONTÁCTANOS</button>
     </div>
 </nav>
 
+    <div th:replace="~{Inicio :: contactModal}"></div>
     <script src="/js/chatbot.js"></script>
 </body>
 </html>
