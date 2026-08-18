@@ -7,9 +7,11 @@ import com.example.MardiqueWeb.Entity.PageContent;
 import com.example.MardiqueWeb.Entity.SupportTicket;
 import com.example.MardiqueWeb.Entity.SystemConfig;
 import com.example.MardiqueWeb.Entity.User;
+import com.example.MardiqueWeb.Entity.TicketHistorial;
 import com.example.MardiqueWeb.Repository.*;
 import com.example.MardiqueWeb.Service.CarouselService;
 import com.example.MardiqueWeb.Service.PageMediaService;
+import com.example.MardiqueWeb.Service.PqrsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -18,8 +20,10 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -58,6 +62,15 @@ public class PaginasController {
 
     @Autowired
     private SystemConfigRepository systemConfigRepository;
+
+    @Autowired
+    private PqrsService pqrsService;
+
+    @Autowired
+    private TicketHistorialRepository ticketHistorialRepository;
+
+    @Autowired
+    private TicketAdjuntoRepository ticketAdjuntoRepository;
 
     private static final Set<String> VALID_DOC_TYPES = Set.of("CC", "CE", "NIT", "PA", "DE");
     private static final Set<String> VALID_PETITION_TYPES = Set.of("Petici\u00f3n", "Queja", "Reclamo", "Solicitud");
@@ -157,12 +170,26 @@ public class PaginasController {
     }
 
     @GetMapping("/contacto")
-    public String contacto(Authentication auth, Model model) {
+    public String contacto(Authentication auth, Model model,
+                           @RequestParam(required = false) String radicado,
+                           @RequestParam(required = false) String documento) {
         if (auth != null && auth.isAuthenticated()) return "redirect:/sesion-activa";
         model.addAttribute("pageContents", loadPageContents("contacto"));
         model.addAttribute("contacts", contactRepository.findAll());
         model.addAttribute("heroImage", pageMediaService.resolvedUrl("contacto", "hero"));
         model.addAttribute("ctaImage", pageMediaService.resolvedUrl("contacto", "cta"));
+        model.addAttribute("pqrsService", pqrsService);
+        if (radicado != null && !radicado.trim().isEmpty() && documento != null && !documento.trim().isEmpty()) {
+            SupportTicket ticket = supportTicketRepository.findByRadicado(radicado.trim().toUpperCase()).orElse(null);
+            if (ticket != null && ticket.getNumeroDocumento() != null
+                    && ticket.getNumeroDocumento().equalsIgnoreCase(documento.trim())) {
+                model.addAttribute("ticketConsulta", ticket);
+                model.addAttribute("historialConsulta", ticketHistorialRepository.findByTicketIdOrderByFechaAsc(ticket.getId()));
+                model.addAttribute("adjuntosConsulta", ticketAdjuntoRepository.findByTicketIdOrderByFechaAsc(ticket.getId()));
+            } else {
+                model.addAttribute("segError", "No se encontr\u00f3 una PQRS con esos datos. Verifique el radicado y el documento.");
+            }
+        }
         return "Contacto";
     }
 
@@ -171,6 +198,7 @@ public class PaginasController {
                              @RequestParam String nombreCompleto, @RequestParam String email,
                              @RequestParam String telefono, @RequestParam String tipoPeticion,
                              @RequestParam String departamento, @RequestParam String descripcion,
+                             @RequestParam(value = "adjuntos", required = false) MultipartFile[] adjuntos,
                              RedirectAttributes ra) {
         if (!VALID_DOC_TYPES.contains(tipoDocumento)) {
             ra.addFlashAttribute("pqrsError", "Tipo de documento inv\u00e1lido");
@@ -188,6 +216,10 @@ public class PaginasController {
             ra.addFlashAttribute("pqrsError", "Email inv\u00e1lido");
             return "redirect:/contacto#pqrs";
         }
+        if (descripcion == null || descripcion.trim().length() < 10) {
+            ra.addFlashAttribute("pqrsError", "La descripci\u00f3n debe tener al menos 10 caracteres");
+            return "redirect:/contacto#pqrs";
+        }
         SupportTicket ticket = new SupportTicket();
         ticket.setTipoDocumento(sanitize(tipoDocumento));
         ticket.setNumeroDocumento(sanitize(numeroDocumento));
@@ -201,9 +233,42 @@ public class PaginasController {
         ticket.setUsername(sanitize(nombreCompleto));
         ticket.setOrigen("PQRS");
         ticket.setStatus("ABIERTO");
-        supportTicketRepository.save(ticket);
-        ra.addFlashAttribute("pqrsSuccess", "PQRS radicada exitosamente. Recibir\u00e1 confirmaci\u00f3n en su correo.");
+        SupportTicket saved = pqrsService.radicarTicket(ticket);
+        List<MultipartFile> archivos = new ArrayList<>();
+        if (adjuntos != null) {
+            for (MultipartFile f : adjuntos) {
+                if (f != null && !f.isEmpty()) {
+                    archivos.add(f);
+                }
+            }
+        }
+        pqrsService.guardarAdjuntos(saved.getId(), archivos, "SOLICITANTE");
+        ra.addFlashAttribute("pqrsSuccess",
+                "PQRS radicada exitosamente con radicado <strong>" + saved.getRadicado() + "</strong>. "
+                        + "Recibir\u00e1 confirmaci\u00f3n en su correo y puede darle seguimiento en el formulario de consulta.");
         return "redirect:/contacto#pqrs";
+    }
+
+    @PostMapping("/contacto/pqrs/seguimiento")
+    public String consultarPqrs(@RequestParam String radicado,
+                                @RequestParam String numeroDocumento,
+                                RedirectAttributes ra) {
+        if (radicado == null || radicado.trim().isEmpty() || numeroDocumento == null || numeroDocumento.trim().isEmpty()) {
+            ra.addFlashAttribute("segError", "Ingrese el radicado y el n\u00famero de documento");
+            return "redirect:/contacto#seguimiento";
+        }
+        SupportTicket ticket = supportTicketRepository.findByRadicado(radicado.trim().toUpperCase()).orElse(null);
+        if (ticket == null || ticket.getNumeroDocumento() == null || !ticket.getNumeroDocumento().equalsIgnoreCase(numeroDocumento.trim())) {
+            ra.addFlashAttribute("segError", "No se encontr\u00f3 una PQRS con esos datos. Verifique el radicado y el documento.");
+            return "redirect:/contacto#seguimiento";
+        }
+        try {
+            return "redirect:/contacto?radicado=" + java.net.URLEncoder.encode(radicado.trim().toUpperCase(), java.nio.charset.StandardCharsets.UTF_8)
+                    + "&documento=" + java.net.URLEncoder.encode(numeroDocumento.trim(), java.nio.charset.StandardCharsets.UTF_8)
+                    + "#seguimiento";
+        } catch (Exception e) {
+            return "redirect:/contacto#seguimiento";
+        }
     }
 
     @PostMapping("/contacto/message")

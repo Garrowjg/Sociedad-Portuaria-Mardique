@@ -1395,6 +1395,50 @@ document.addEventListener('DOMContentLoaded', function() {
         e.preventDefault();
         var status = document.getElementById('svcStatus');
         var btn = form.querySelector('.svc-submit');
+        var firstError = null;
+
+        form.querySelectorAll('input, textarea, select').forEach(function(input) {
+            if (input.type === 'hidden' || input.type === 'submit') return;
+            var val = (input.value || '').trim();
+            var wrap = input.closest('.svc-form-group');
+            var lbl = wrap ? (wrap.querySelector('label') ? wrap.querySelector('label').textContent.replace('*', '').trim() : input.name) : input.name;
+            var msg = null;
+            if (input.hasAttribute('required') && val === '') {
+                msg = 'El campo ' + lbl + ' es obligatorio.';
+            } else if (val !== '') {
+                if (input.type === 'email' && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val)) {
+                    msg = 'Ingrese una dirección de correo electrónico válida.';
+                } else if (input.name === 'telefono') {
+                    var digits = val.replace(/\D/g, '');
+                    if (digits.length < 10 || digits.length > 13) {
+                        msg = 'Ingrese un número de teléfono válido (mínimo 10 dígitos).';
+                    }
+                } else if (input.name === 'mensaje' && val.length < 10) {
+                    msg = 'El mensaje debe tener al menos 10 caracteres.';
+                }
+            }
+            if (wrap) {
+                wrap.classList.remove('field-error');
+                var err = wrap.querySelector('.field-error-msg');
+                if (err) err.remove();
+            }
+            if (msg) {
+                if (wrap) {
+                    wrap.classList.add('field-error');
+                    var errEl = document.createElement('div');
+                    errEl.className = 'field-error-msg';
+                    errEl.textContent = msg;
+                    wrap.appendChild(errEl);
+                }
+                if (!firstError) firstError = input;
+            }
+        });
+
+        if (firstError) {
+            firstError.focus();
+            firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            return;
+        }
         status.className = 'svc-status show';
         status.style.display = 'flex';
         status.querySelector('i').className = 'fas fa-spinner fa-spin';

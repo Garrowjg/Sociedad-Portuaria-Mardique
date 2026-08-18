@@ -84,6 +84,15 @@ public class AdminController {
     @Autowired
     private ChatMessageRepository chatMessageRepository;
 
+    @Autowired
+    private TicketHistorialRepository ticketHistorialRepository;
+
+    @Autowired
+    private TicketAdjuntoRepository ticketAdjuntoRepository;
+
+    @Autowired
+    private PqrsService pqrsService;
+
     private static final Set<String> ALLOWED_EXTENSIONS = Set.of("pdf", "png", "jpg", "jpeg", "gif", "webp");
 
     private boolean allowedFile(String filename) {
@@ -132,6 +141,28 @@ public class AdminController {
                 solicitudRepository.findByDepartamento(dept).stream()
                     .filter(s -> "PENDIENTE".equals(s.getEstado())).count());
         }
+
+        List<SupportTicket> allTickets = supportTicketRepository.findAll();
+        List<SupportTicket> ticketScope = isFullAdmin
+            ? allTickets
+            : allTickets.stream().filter(t -> dept != null && dept.equals(t.getDepartamento())).toList();
+        List<SupportTicket> abiertos = ticketScope.stream()
+            .filter(t -> "ABIERTO".equals(t.getStatus()) || "EN_PROCESO".equals(t.getStatus()) || "REQUIERE_INFO".equals(t.getStatus()))
+            .toList();
+        long pqrsVencidos = abiertos.stream().filter(t -> t.getFechaLimite() != null && t.getFechaLimite().isBefore(LocalDateTime.now())).count();
+        long pqrsPorVencer = abiertos.stream().filter(t -> t.getFechaLimite() != null && !t.getFechaLimite().isBefore(LocalDateTime.now())
+                && pqrsService.diasRestantesPara(t) <= 2).count();
+        long pqrsEnPlazo = abiertos.stream().filter(t -> t.getFechaLimite() != null && !t.getFechaLimite().isBefore(LocalDateTime.now())
+                && pqrsService.diasRestantesPara(t) > 2).count();
+        long pqrsResueltosHoy = ticketScope.stream()
+            .filter(t -> t.getFechaResuelto() != null && t.getFechaResuelto().toLocalDate().equals(LocalDateTime.now().toLocalDate()))
+            .count();
+        model.addAttribute("pqrsAbiertos", abiertos.size());
+        model.addAttribute("pqrsVencidos", pqrsVencidos);
+        model.addAttribute("pqrsPorVencer", pqrsPorVencer);
+        model.addAttribute("pqrsEnPlazo", pqrsEnPlazo);
+        model.addAttribute("pqrsResueltosHoy", pqrsResueltosHoy);
+        model.addAttribute("pqrsService", pqrsService);
 
         model.addAttribute("recentUsers", isFullAdmin
             ? userRepository.findAll().stream().limit(5).toList()
@@ -238,6 +269,8 @@ public class AdminController {
     public String listSolicitudes(Model model, Authentication auth,
                                    @RequestParam(required = false) String estado,
                                    @RequestParam(required = false) String tipo,
+                                   @RequestParam(required = false) String prioridad,
+                                   @RequestParam(required = false) String asignado,
                                    @RequestParam(required = false) String search) {
         User currentUser = userRepository.findByUsername(auth.getName()).orElse(null);
         boolean isFullAdmin = currentUser == null || currentUser.getDepartamento() == null;
@@ -259,38 +292,173 @@ public class AdminController {
                                            || (s.getTitulo() != null && s.getTitulo().toLowerCase().contains(q)));
         }
         List<SupportTicket> allTickets = supportTicketRepository.findAllByOrderByCreatedAtDesc();
-        var tktStream = allTickets.stream().filter(t -> "PQRS".equals(t.getOrigen()) || "CHATBOT".equals(t.getOrigen()));
-        if (!isFullAdmin) {
-            tktStream = tktStream.filter(t -> dept != null && dept.equals(t.getDepartamento()));
+        List<SupportTicket> pqrsList = new java.util.ArrayList<>();
+        List<SupportTicket> chatbotList = new java.util.ArrayList<>();
+        for (SupportTicket t : allTickets) {
+            if (!isFullAdmin && !(dept != null && dept.equals(t.getDepartamento()))) {
+                continue;
+            }
+            if (!"PQRS".equals(t.getOrigen()) && !"CHATBOT".equals(t.getOrigen())) {
+                continue;
+            }
+            if (estado != null && !estado.isEmpty() && !estado.equals(t.getStatus())) {
+                continue;
+            }
+            if (tipo != null && !tipo.isEmpty() && !tipo.equals(t.getTipoPeticion())) {
+                continue;
+            }
+            if (prioridad != null && !prioridad.isEmpty() && !prioridad.equals(t.getPrioridad())) {
+                continue;
+            }
+            if (asignado != null && !asignado.isEmpty()) {
+                if ("SIN_ASIGNAR".equals(asignado) ? t.getAsignadoA() != null : !asignado.equals(t.getAsignadoA())) {
+                    continue;
+                }
+            }
+            if (search != null && !search.isEmpty()) {
+                String q = search.toLowerCase();
+                boolean match = (t.getNombreCompleto() != null && t.getNombreCompleto().toLowerCase().contains(q))
+                        || (t.getEmail() != null && t.getEmail().toLowerCase().contains(q))
+                        || (t.getRadicado() != null && t.getRadicado().toLowerCase().contains(q))
+                        || (t.getNumeroDocumento() != null && t.getNumeroDocumento().toLowerCase().contains(q));
+                if (!match) {
+                    continue;
+                }
+            }
+            if ("PQRS".equals(t.getOrigen())) {
+                pqrsList.add(t);
+            } else {
+                chatbotList.add(t);
+            }
         }
-        if (estado != null && !estado.isEmpty()) {
-            tktStream = tktStream.filter(t -> estado.equals(t.getStatus()));
-        }
-        if (tipo != null && !tipo.isEmpty()) {
-            tktStream = tktStream.filter(t -> tipo.equals(t.getTipoPeticion()));
-        }
-        if (search != null && !search.isEmpty()) {
-            String q = search.toLowerCase();
-            tktStream = tktStream.filter(t -> (t.getNombreCompleto() != null && t.getNombreCompleto().toLowerCase().contains(q))
-                                            || (t.getEmail() != null && t.getEmail().toLowerCase().contains(q)));
-        }
+
         model.addAttribute("solicitudes", solStream.toList());
-        model.addAttribute("pqrsList", tktStream.toList());
+        model.addAttribute("pqrsList", pqrsList);
+        model.addAttribute("chatbotList", chatbotList);
         model.addAttribute("selEstado", estado);
         model.addAttribute("selTipo", tipo);
+        model.addAttribute("selPrioridad", prioridad);
+        model.addAttribute("selAsignado", asignado);
         model.addAttribute("search", search);
+        model.addAttribute("pqrsService", pqrsService);
+        model.addAttribute("adminAdmins", userRepository.findByRole("ROLE_ADMIN"));
         return "AdminSolicitudes";
     }
 
-    @PostMapping("/solicitudes/responder/{id}")
-    public String responderSolicitud(@PathVariable Long id, @RequestParam String respuesta,
-                                      RedirectAttributes ra) {
-        SupportTicket ticket = supportTicketRepository.findById(id).orElseThrow(() -> new RuntimeException("Ticket no encontrado"));
-        ticket.setRespuesta(respuesta);
-        ticket.setStatus("CERRADO");
+    @GetMapping("/solicitudes/{id}")
+    public String detallePqrs(@PathVariable Long id, Model model, Authentication auth) {
+        SupportTicket ticket = supportTicketRepository.findById(id)
+            .orElseThrow(() -> new RuntimeException("Ticket no encontrado"));
+        User currentUser = userRepository.findByUsername(auth.getName()).orElse(null);
+        boolean isFullAdmin = currentUser == null || currentUser.getDepartamento() == null;
+        if (!isFullAdmin && currentUser != null && !currentUser.getDepartamento().equals(ticket.getDepartamento())) {
+            throw new AccessDeniedException("No tienes permiso para ver este ticket");
+        }
+        model.addAttribute("ticket", ticket);
+        model.addAttribute("historial", ticketHistorialRepository.findByTicketIdOrderByFechaAsc(ticket.getId()));
+        model.addAttribute("adjuntos", ticketAdjuntoRepository.findByTicketIdOrderByFechaAsc(ticket.getId()));
+        model.addAttribute("pqrsService", pqrsService);
+        model.addAttribute("adminAdmins", userRepository.findByRole("ROLE_ADMIN"));
+        model.addAttribute("isFullAdmin", isFullAdmin);
+        return "AdminPqrsDetalle";
+    }
+
+    @PostMapping("/solicitudes/{id}/estado")
+    @Transactional
+    public String cambiarEstadoPqrs(@PathVariable Long id, @RequestParam String estado,
+                                     Authentication auth, RedirectAttributes ra) {
+        SupportTicket ticket = supportTicketRepository.findById(id)
+            .orElseThrow(() -> new RuntimeException("Ticket no encontrado"));
+        String old = ticket.getStatus();
+        ticket.setStatus(estado);
+        if ("RESUELTO".equals(estado) && ticket.getFechaResuelto() == null) {
+            ticket.setFechaResuelto(LocalDateTime.now());
+        }
+        if ("CERRADO".equals(estado) && ticket.getFechaCerrado() == null) {
+            ticket.setFechaCerrado(LocalDateTime.now());
+        }
+        if ("ABIERTO".equals(estado)) {
+            ticket.setFechaResuelto(null);
+            ticket.setFechaCerrado(null);
+        }
         supportTicketRepository.save(ticket);
-        ra.addFlashAttribute("success", "Respuesta enviada al solicitante");
-        return "redirect:/admin/solicitudes";
+        String desc = "Estado cambiado de " + pqrsService.labelEstado(old) + " a " + pqrsService.labelEstado(estado);
+        pqrsService.registrarHistorial(ticket.getId(), "ESTADO", desc, auth.getName());
+        ra.addFlashAttribute("success", "Estado actualizado a: " + pqrsService.labelEstado(estado));
+        return "redirect:/admin/solicitudes/" + id;
+    }
+
+    @PostMapping("/solicitudes/{id}/asignar")
+    @Transactional
+    public String asignarPqrs(@PathVariable Long id, @RequestParam(required = false) String asignadoA,
+                              @RequestParam(required = false) String prioridad,
+                              @RequestParam(required = false) String departamento,
+                              Authentication auth, RedirectAttributes ra) {
+        SupportTicket ticket = supportTicketRepository.findById(id)
+            .orElseThrow(() -> new RuntimeException("Ticket no encontrado"));
+        String oldAsignado = ticket.getAsignadoA();
+        if (asignadoA != null && !asignadoA.isBlank()) {
+            ticket.setAsignadoA(asignadoA);
+        } else {
+            ticket.setAsignadoA(null);
+        }
+        if (prioridad != null && !prioridad.isBlank()) {
+            ticket.setPrioridad(prioridad);
+        }
+        if (departamento != null && !departamento.isBlank()) {
+            ticket.setDepartamento(departamento);
+        }
+        if ("ABIERTO".equals(ticket.getStatus()) || "REQUIERE_INFO".equals(ticket.getStatus())) {
+            ticket.setStatus("EN_PROCESO");
+        }
+        supportTicketRepository.save(ticket);
+        String asignado = ticket.getAsignadoA() != null ? ticket.getAsignadoA() : "sin asignar";
+        String desc = "Ticket asignado. Antes: " + (oldAsignado != null ? oldAsignado : "sin asignar")
+                + ", ahora: " + asignado + ". Prioridad: " + ticket.getPrioridad();
+        pqrsService.registrarHistorial(ticket.getId(), "ASIGNACION", desc, auth.getName());
+        ra.addFlashAttribute("success", "Ticket asignado a " + asignado);
+        return "redirect:/admin/solicitudes/" + id;
+    }
+
+    @PostMapping("/solicitudes/{id}/nota")
+    @Transactional
+    public String notaInternaPqrs(@PathVariable Long id, @RequestParam String nota,
+                                  Authentication auth, RedirectAttributes ra) {
+        SupportTicket ticket = supportTicketRepository.findById(id)
+            .orElseThrow(() -> new RuntimeException("Ticket no encontrado"));
+        if (nota != null && !nota.isBlank()) {
+            pqrsService.registrarHistorial(ticket.getId(), "NOTA_INTERNA", nota.trim(), auth.getName());
+            ra.addFlashAttribute("success", "Nota interna registrada");
+        } else {
+            ra.addFlashAttribute("error", "La nota no puede estar vacía");
+        }
+        return "redirect:/admin/solicitudes/" + id;
+    }
+
+    @PostMapping("/solicitudes/{id}/responder")
+    @Transactional
+    public String responderPqrs(@PathVariable Long id, @RequestParam String respuesta,
+                                @RequestParam(required = false) String cerrar,
+                                Authentication auth, RedirectAttributes ra) {
+        SupportTicket ticket = supportTicketRepository.findById(id)
+            .orElseThrow(() -> new RuntimeException("Ticket no encontrado"));
+        if (respuesta == null || respuesta.isBlank()) {
+            ra.addFlashAttribute("error", "La respuesta no puede estar vacía");
+            return "redirect:/admin/solicitudes/" + id;
+        }
+        ticket.setRespuesta(respuesta.trim());
+        ticket.setStatus("RESUELTO");
+        ticket.setFechaResuelto(LocalDateTime.now());
+        if ("on".equals(cerrar)) {
+            ticket.setStatus("CERRADO");
+            ticket.setFechaCerrado(LocalDateTime.now());
+        }
+        supportTicketRepository.save(ticket);
+        String estadoFinal = "CERRADO".equals(ticket.getStatus()) ? "Cerrado" : "Resuelto";
+        pqrsService.registrarHistorial(ticket.getId(), "RESPUESTA",
+                "Respuesta enviada al solicitante. Ticket marcado como " + estadoFinal + ".", auth.getName());
+        ra.addFlashAttribute("success", "Respuesta enviada. El solicitante puede verla con el radicado " + ticket.getRadicado());
+        return "redirect:/admin/solicitudes/" + id;
     }
 
     @PostMapping("/solicitudes/responder-solicitud/{id}")
@@ -674,7 +842,48 @@ public class AdminController {
 
     @GetMapping("/mensajes")
     public String listMensajes(Model model) {
-        model.addAttribute("mensajes", supportTicketRepository.findByOrigenOrderByCreatedAtDesc("CONTACTO"));
+        List<SupportTicket> mensajes = supportTicketRepository.findByOrigenOrderByCreatedAtDesc("CONTACTO");
+        model.addAttribute("mensajes", mensajes);
+        model.addAttribute("recibidos", mensajes.size());
+        model.addAttribute("respondidos", mensajes.stream().filter(m -> "RESUELTO".equals(m.getStatus())).count());
+        model.addAttribute("pendientes", mensajes.stream()
+                .filter(m -> "ABIERTO".equals(m.getStatus()) || "EN_PROCESO".equals(m.getStatus())).count());
         return "AdminMensajes";
+    }
+
+    @PostMapping("/mensajes/{id}/estado")
+    @Transactional
+    public String cambiarEstadoMensaje(@PathVariable Long id, @RequestParam String estado,
+                                       Authentication auth, RedirectAttributes ra) {
+        SupportTicket ticket = supportTicketRepository.findById(id)
+            .orElseThrow(() -> new RuntimeException("Mensaje no encontrado"));
+        if (!"CONTACTO".equals(ticket.getOrigen())) {
+            throw new RuntimeException("No es un mensaje de contacto");
+        }
+        ticket.setStatus(estado);
+        if ("RESUELTO".equals(estado) && ticket.getFechaResuelto() == null) {
+            ticket.setFechaResuelto(LocalDateTime.now());
+        }
+        if ("ABIERTO".equals(estado)) {
+            ticket.setFechaResuelto(null);
+        }
+        supportTicketRepository.save(ticket);
+        pqrsService.registrarHistorial(ticket.getId(), "ESTADO",
+                "Estado del mensaje cambiado a " + pqrsService.labelEstado(estado), auth.getName());
+        ra.addFlashAttribute("success", "Estado del mensaje actualizado a: " + pqrsService.labelEstado(estado));
+        return "redirect:/admin/mensajes";
+    }
+
+    @PostMapping("/mensajes/{id}/eliminar")
+    @Transactional
+    public String eliminarMensaje(@PathVariable Long id, Authentication auth, RedirectAttributes ra) {
+        SupportTicket ticket = supportTicketRepository.findById(id)
+            .orElseThrow(() -> new RuntimeException("Mensaje no encontrado"));
+        if (!"CONTACTO".equals(ticket.getOrigen())) {
+            throw new RuntimeException("No es un mensaje de contacto");
+        }
+        supportTicketRepository.delete(ticket);
+        ra.addFlashAttribute("success", "Mensaje eliminado correctamente");
+        return "redirect:/admin/mensajes";
     }
 }

@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/png" sizes="32x32" href="/images/Icon32.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="/images/Icon192.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="/images/Icon180.png">
+    <title>Detalle PQRS — Admin Mardique</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/css/panel-nav.css">
+    <link rel="stylesheet" href="/css/inicio.css">
+    <link rel="stylesheet" href="/css/portal.css">
+    <style>
+    .delay-1{transition-delay:.1s}.delay-2{transition-delay:.2s}.delay-3{transition-delay:.3s}.delay-4{transition-delay:.4s}.delay-5{transition-delay:.5s}
+    .msg{padding:14px 18px;border-radius:var(--r);font-size:13px;margin-bottom:24px;display:flex;align-items:center;gap:10px;}
+    .msg-success{background:#f0fdf4;border:1px solid #bbf7d0;color:#16a34a;}
+    .msg-error{background:#fef2f2;border:1px solid #fecaca;color:#dc2626;}
+    .crumb{display:flex;align-items:center;gap:8px;font-size:12.5px;color:var(--mx);margin-bottom:22px;}
+    .crumb a{color:var(--ac);text-decoration:none;font-weight:600;}
+    .crumb a:hover{text-decoration:underline;}
+    .crumb i{font-size:10px;color:#94a3b8;}
+    .det-head{display:flex;flex-wrap:wrap;align-items:center;gap:18px;background:linear-gradient(135deg,var(--pd),#0e2a41);border-radius:var(--rl);padding:26px 30px;color:#fff;margin-bottom:26px;position:relative;overflow:hidden;box-shadow:0 14px 40px rgba(13,42,65,.25);}
+    .det-head::before{content:'';position:absolute;top:0;left:0;width:100%;height:3px;background:linear-gradient(90deg,#f09a36,#00a3e0);}
+    .det-radicado{font-family:'Consolas',monospace;font-size:22px;font-weight:800;letter-spacing:.5px;}
+    .det-radicado small{display:block;font-size:11px;font-weight:600;color:rgba(255,255,255,.55);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px;font-family:'Plus Jakarta Sans',sans-serif;}
+    .det-head .spacer{flex:1;}
+    .sla-badge{display:inline-flex;align-items:center;gap:6px;padding:7px 14px;border-radius:50px;font-size:12px;font-weight:700;white-space:nowrap;}
+    .sla-enplazo{background:rgba(16,185,129,.15);color:#6ee7b7;border:1px solid rgba(16,185,129,.4);}
+    .sla-porvencer{background:rgba(245,158,11,.15);color:#fcd34d;border:1px solid rgba(245,158,11,.4);}
+    .sla-vencido{background:rgba(239,68,68,.15);color:#fca5a5;border:1px solid rgba(239,68,68,.4);}
+    .status-pill{display:inline-flex;align-items:center;gap:6px;padding:7px 16px;border-radius:50px;font-size:12px;font-weight:700;white-space:nowrap;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.18);}
+    .det-layout{display:grid;grid-template-columns:1.4fr 1fr;gap:24px;align-items:start;}
+    @media(max-width:1000px){.det-layout{grid-template-columns:1fr;}}
+    .card{background:var(--sur);border:1.5px solid var(--bdr);border-radius:var(--rl);padding:24px 26px;margin-bottom:24px;}
+    .card-title{display:flex;align-items:center;gap:10px;font-size:14px;font-weight:800;color:var(--pd);text-transform:uppercase;letter-spacing:.4px;margin-bottom:18px;}
+    .card-title i{color:var(--ag);}
+    .card-title::after{content:'';flex:1;height:1px;background:var(--bdr);}
+    .info-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+    .info-item{display:flex;align-items:flex-start;gap:12px;background:#fff;border:1px solid var(--bdr);border-radius:var(--r);padding:12px 14px;}
+    .info-item.full-width{grid-column:1/-1;}
+    .info-icon{width:32px;height:32px;border-radius:9px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:13px;background:rgba(0,163,224,.1);color:var(--ac);}
+    .info-text{display:flex;flex-direction:column;gap:2px;min-width:0;}
+    .info-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--mx);}
+    .info-value{font-size:14px;font-weight:600;color:var(--tx);line-height:1.35;word-break:break-word;}
+    .info-desc{font-size:13px;font-weight:400;color:var(--mx);white-space:pre-wrap;line-height:1.6;max-height:220px;overflow-y:auto;padding-right:4px;}
+    .info-desc::-webkit-scrollbar{width:5px;}
+    .info-desc::-webkit-scrollbar-thumb{background:var(--bdr);border-radius:10px;}
+    .adj-list{display:flex;flex-direction:column;gap:8px;}
+    .adj-item{display:flex;align-items:center;gap:12px;background:#fff;border:1px solid var(--bdr);border-radius:var(--r);padding:10px 14px;font-size:13px;}
+    .adj-item i{color:var(--ac);font-size:15px;}
+    .adj-item a{color:var(--ac);text-decoration:none;font-weight:600;word-break:break-all;}
+    .adj-item a:hover{text-decoration:underline;}
+    .adj-item .adj-meta{margin-left:auto;font-size:11px;color:#94a3b8;white-space:nowrap;}
+    .form-group{margin-bottom:18px;}
+    .form-group label{display:flex;align-items:center;gap:6px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.3px;color:var(--mx);margin-bottom:8px;}
+    .form-group input,.form-group select,.form-group textarea{width:100%;padding:11px 14px;border:1.5px solid var(--bdr);border-radius:var(--r);font-size:13.5px;font-family:inherit;outline:none;transition:var(--tr);background:#fff;}
+    .form-group input:focus,.form-group select:focus,.form-group textarea:focus{border-color:var(--ag);box-shadow:0 0 0 3px rgba(240,154,54,.1);}
+    .form-group textarea{resize:vertical;min-height:90px;}
+    .btn{display:inline-flex;align-items:center;gap:8px;padding:11px 20px;border-radius:var(--r);font-size:13px;font-weight:700;cursor:pointer;border:none;font-family:inherit;transition:var(--tr);text-decoration:none;}
+    .btn:hover{transform:translateY(-1px);}
+    .btn-gold{background:var(--ag);color:#fff;box-shadow:0 6px 16px rgba(240,154,54,.3);}
+    .btn-gold:hover{background:#d6852a;}
+    .btn-cyan{background:var(--ac);color:#fff;}
+    .btn-cyan:hover{background:#0284c7;}
+    .btn-cancel{background:#f1f5f9;color:#475569;border:1px solid var(--bdr);}
+    .btn-cancel:hover{background:#e2e8f0;}
+    .btn-green{background:#059669;color:#fff;}
+    .btn-green:hover{background:#047857;}
+    .btn-purple{background:#7c3aed;color:#fff;}
+    .btn-purple:hover{background:#6d28d9;}
+    .history{display:flex;flex-direction:column;gap:0;}
+    .history-item{display:flex;gap:14px;padding:0 0 18px;position:relative;}
+    .history-item:not(:last-child)::before{content:'';position:absolute;left:15px;top:34px;bottom:0;width:2px;background:var(--bdr);}
+    .history-dot{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:13px;color:#fff;background:var(--ac);box-shadow:0 4px 10px rgba(0,163,224,.25);z-index:1;}
+    .history-dot.nota{background:linear-gradient(135deg,#7c3aed,#6d28d9);box-shadow:0 4px 10px rgba(124,58,237,.25);}
+    .history-dot.estado{background:linear-gradient(135deg,#f09a36,#d97706);box-shadow:0 4px 10px rgba(240,154,54,.25);}
+    .history-dot.respuesta{background:linear-gradient(135deg,#059669,#047857);box-shadow:0 4px 10px rgba(5,150,105,.25);}
+    .history-dot.radicado{background:linear-gradient(135deg,#0ea5e9,#0284c7);box-shadow:0 4px 10px rgba(14,165,233,.25);}
+    .history-body{flex:1;background:#fff;border:1px solid var(--bdr);border-radius:var(--r);padding:12px 16px;}
+    .history-head{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-bottom:6px;}
+    .history-accion{font-size:12px;font-weight:800;color:var(--pd);text-transform:uppercase;letter-spacing:.4px;}
+    .history-fecha{font-size:11px;color:#94a3b8;margin-left:auto;}
+    .history-usuario{font-size:11px;color:var(--ac);font-weight:700;}
+    .history-desc{font-size:13px;color:var(--mx);line-height:1.55;white-space:pre-wrap;}
+    .respuesta-box{background:#f0fdf4;border:1px solid #bbf7d0;border-radius:var(--r);padding:16px 18px;margin-bottom:24px;}
+    .respuesta-box .resp-label{font-size:11px;font-weight:800;color:#059669;text-transform:uppercase;letter-spacing:.5px;display:flex;align-items:center;gap:7px;margin-bottom:8px;}
+    .respuesta-box .resp-text{font-size:13.5px;color:#166534;line-height:1.65;white-space:pre-wrap;}
+    .prio-select{display:inline-flex;align-items:center;gap:6px;padding:6px 14px;border-radius:6px;font-size:12px;font-weight:700;}
+    .prio-alta{background:#fef2f2;color:#dc2626;}
+    .prio-media{background:#fffbeb;color:#d97706;}
+    .prio-baja{background:#eff6ff;color:#2563eb;}
+    .prio-unknown{background:#f1f5f9;color:#64748b;}
+    .phero-badge{animation:fadeInDown .6s ease both}
+    @keyframes fadeInDown{from{opacity:0;transform:translateY(-14px)}to{opacity:1;transform:none}}
+    header{transition:background-color .6s cubic-bezier(.4,0,.2,1),backdrop-filter .6s cubic-bezier(.4,0,.2,1),box-shadow .6s ease,padding .3s ease}
+    header.scrolled{background-color:rgba(27,69,98,.93)!important;backdrop-filter:blur(3px) saturate(115%);-webkit-backdrop-filter:blur(3px) saturate(115%);border-bottom:1px solid rgba(255,255,255,.05)}
+    @media(max-width:768px){
+        .info-grid{grid-template-columns:1fr;}
+        .det-head{padding:20px;flex-direction:column;align-items:flex-start;}
+        .card{padding:18px;}
+    }
+    </style>
+</head>
+<body>
+<div id="scroll-progress"></div>
+<header id="main-header">
+    <div class="hdr header-content">
+        <a href="/admin/dashboard" class="logo-box">
+            <img src="/images/Logo.png" alt="Mardique">
+        </a>
+        <nav>
+            <ul class="nav-menu">
+                <li><a href="/admin/dashboard"><i class="fas fa-chart-pie"></i> Dashboard</a></li>
+                <li th:if="${isFullAdmin}"><a href="/admin/users"><i class="fas fa-users-cog"></i> Usuarios</a></li>
+                <li class="active"><a href="/admin/solicitudes"><i class="fas fa-file-alt"></i> Solicitudes</a></li>
+                <li><a href="/admin/mensajes"><i class="fas fa-envelope"></i> Mensajes</a></li>
+                <li><a href="/admin/payments"><i class="fas fa-credit-card"></i> Pagos</a></li>
+                <li th:if="${isFullAdmin}"><a href="/admin/chatbot" th:classappend="${currentPage == 'chatbot' ? 'active' : ''}"><i class="fas fa-robot"></i> Chatbot</a></li>
+                <li th:if="${isFullAdmin}"><a href="/admin/config"><i class="fas fa-cog"></i> Config</a></li>
+            </ul>
+        </nav>
+        <div class="hdr-right">
+            <span class="hdr-user" th:text="${#authentication.name}">admin</span>
+            <button class="btn-logout" onclick="document.getElementById('logoutModal').classList.add('show')">
+                <i class="fas fa-sign-out-alt"></i> Salir
+            </button>
+        </div>
+        <button class="mobile-menu-toggle" id="mobileToggle" aria-label="Abrir menú">
+            <span></span><span></span><span></span>
+        </button>
+    </div>
+</header>
+
+<div class="phero">
+    <div class="phw-glow"></div>
+    <div class="phero-floaters">
+        <i class="fas fa-file-alt"></i>
+        <i class="fas fa-check-circle"></i>
+        <i class="fas fa-clock"></i>
+        <i class="fas fa-history"></i>
+    </div>
+    <div class="phw-container">
+        <div class="phero-grid">
+            <div class="phero-main">
+                <div class="phero-badge">
+                    <i class="fas fa-ticket-alt"></i>
+                    <span th:if="${ticket.origen == 'CHATBOT'}" th:text="'Detalle — Solicitud vía Chatbot'">Detalle PQRS</span>
+                    <span th:if="${ticket.origen != 'CHATBOT'}" th:text="'Detalle — PQRS'">Detalle PQRS</span>
+                </div>
+                <h1 th:text="${ticket.radicado ?: 'PQRS-????'}">PQRS-2026-0001</h1>
+                <p th:text="${ticket.tipoPeticion ?: 'Solicitud'}">Petición</p>
+                <div class="phero-actions">
+                    <a href="/admin/solicitudes" class="btn btn-gold"><i class="fas fa-arrow-left"></i> Volver a Solicitudes</a>
+                    <a href="/admin/dashboard" class="btn btn-outline-w"><i class="fas fa-chart-pie"></i> Dashboard</a>
+                </div>
+            </div>
+            <div class="phero-card">
+                <div class="phero-card-head">
+                    <span class="phero-card-name"><i class="fas fa-ticket-alt"></i> Solicitud</span>
+                    <span class="phw-status"><i class="fas fa-circle"></i> En línea</span>
+                </div>
+                <div class="phw-stats">
+                    <div class="phw-stat">
+                        <div class="phw-stat-ico"><i class="fas fa-tag"></i></div>
+                        <div><div class="phw-stat-num" th:text="${ticket.status ?: 'ABIERTO'}">ABIERTO</div><div class="phw-stat-lbl">Estado</div></div>
+                    </div>
+                    <div class="phw-stat">
+                        <div class="phw-stat-ico"><i class="fas fa-user-tie"></i></div>
+                        <div><div class="phw-stat-num" th:text="${ticket.asignadoA ?: 'Sin asignar'}">Sin asignar</div><div class="phw-stat-lbl">Asignado a</div></div>
+                    </div>
+                    <div class="phw-stat">
+                        <div class="phw-stat-ico"><i class="fas fa-building"></i></div>
+                        <div><div class="phw-stat-num" th:text="${ticket.departamento ?: '-'}">-</div><div class="phw-stat-lbl">Departamento</div></div>
+                    </div>
+                    <div class="phw-stat">
+                        <div class="phw-stat-ico"><i class="fas fa-flag"></i></div>
+                        <div><div class="phw-stat-num" th:text="${ticket.prioridad ?: '-'}">-</div><div class="phw-stat-lbl">Prioridad</div></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="phw-wave">
+        <svg viewBox="0 0 1440 60" preserveAspectRatio="none"><path d="M0,32 C240,60 480,4 720,20 C960,36 1200,58 1440,28 L1440,60 L0,60 Z" fill="#f0f4f8"/></svg>
+    </div>
+</div>
+
+<div class="body">
+
+    <div th:if="${success}" class="msg msg-success reveal">
+        <i class="fas fa-check-circle"></i> <span th:text="${success}">Acción realizada</span>
+    </div>
+    <div th:if="${error}" class="msg msg-error reveal">
+        <i class="fas fa-exclamation-circle"></i> <span th:text="${error}">Error</span>
+    </div>
+
+    <div class="det-head reveal">
+        <div class="det-head-info">
+            <div style="font-size:17px;font-weight:800;" th:text="${ticket.nombreCompleto ?: ticket.username}">Nombre</div>
+            <div style="font-size:12.5px;color:rgba(255,255,255,.65);display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+                <span th:text="${ticket.tipoPeticion}">Petición</span>
+                <span style="opacity:.5;">·</span>
+                <span th:text="${ticket.radicado ?: 'PQRS-????'}">PQRS-2026-0001</span>
+            </div>
+        </div>
+        <span class="status-pill" th:text="${pqrsService.labelEstado(ticket.status)}">Estado</span>
+        <div class="spacer"></div>
+        <span class="sla-badge"
+              th:classappend="${pqrsService.slaBadgeClass(ticket)}"
+              th:text="${pqrsService.slaBadgeText(ticket)}">Vence en 5 día(s)</span>
+    </div>
+
+    <div class="det-layout">
+        <div>
+
+            <div class="card reveal">
+                <div class="card-title"><i class="fas fa-user-circle"></i> Datos del solicitante</div>
+                <div class="info-grid">
+                    <div class="info-item">
+                        <span class="info-icon"><i class="fas fa-id-card"></i></span>
+                        <span class="info-text"><span class="info-label">Documento</span><span class="info-value" th:text="${ticket.tipoDocumento ?: '-'} + ' ' + ${ticket.numeroDocumento ?: '-'}">CC 123</span></span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-icon"><i class="fas fa-envelope"></i></span>
+                        <span class="info-text"><span class="info-label">Correo</span><span class="info-value" th:text="${ticket.email}">email@ejemplo.com</span></span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-icon"><i class="fas fa-phone"></i></span>
+                        <span class="info-text"><span class="info-label">Teléfono</span><span class="info-value" th:text="${ticket.telefono ?: '-'}">+57 300 000 0000</span></span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-icon"><i class="fas fa-building"></i></span>
+                        <span class="info-text"><span class="info-label">Departamento</span><span class="info-value" th:text="${ticket.departamento ?: '-'}">Comercial</span></span>
+                    </div>
+                    <div class="info-item full-width">
+                        <span class="info-icon"><i class="fas fa-calendar"></i></span>
+                        <span class="info-text"><span class="info-label">Fecha de radicación</span><span class="info-value" th:text="${ticket.createdAt != null ? #temporals.format(ticket.createdAt, 'dd/MM/yyyy HH:mm') : '-'}">01/01/2026 10:00</span></span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card reveal">
+                <div class="card-title">
+                    <i class="fas fa-align-left"></i>
+                    <span th:if="${ticket.origen == 'CHATBOT'}">Solicitud recibida por el chatbot</span>
+                    <span th:if="${ticket.origen != 'CHATBOT'}">Solicitud del ciudadano</span>
+                </div>
+                <div class="info-grid" th:if="${ticket.origen == 'CHATBOT'}" style="margin-bottom:16px;">
+                    <div class="info-item">
+                        <span class="info-icon"><i class="fas fa-calendar-check"></i></span>
+                        <span class="info-text"><span class="info-label">Interés / Tipo</span><span class="info-value" th:text="${ticket.tipoPeticion}">Agendar cita</span></span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-icon"><i class="fas fa-building"></i></span>
+                        <span class="info-text"><span class="info-label">Área / Departamento</span><span class="info-value" th:text="${ticket.departamento ?: '-'}">Comercial</span></span>
+                    </div>
+                </div>
+                <p style="font-size:14px;color:var(--tx);line-height:1.7;white-space:pre-wrap;margin:0;" th:text="${ticket.message}">Descripción detallada de la solicitud.</p>
+            </div>
+
+            <div class="card reveal">
+                <div class="card-title"><i class="fas fa-paperclip"></i> Archivos adjuntos</div>
+                <div class="adj-list" th:if="${!#lists.isEmpty(adjuntos)}">
+                    <div class="adj-item" th:each="a : ${adjuntos}">
+                        <i class="fas fa-file"></i>
+                        <div>
+                            <a th:href="${a.url}" target="_blank" th:text="${a.nombreArchivo}">archivo.pdf</a>
+                            <div style="font-size:11px;color:#94a3b8;" th:text="${a.origen}">SOLICITANTE</div>
+                        </div>
+                        <span class="adj-meta" th:text="${#temporals.format(a.fecha, 'dd/MM/yyyy')}">01/01/2026</span>
+                    </div>
+                </div>
+                <div th:if="${#lists.isEmpty(adjuntos)}" style="color:#94a3b8;font-size:13px;padding:10px 0;display:flex;align-items:center;gap:8px;">
+                    <i class="fas fa-info-circle"></i> Sin archivos adjuntos
+                </div>
+            </div>
+
+            <div class="card reveal" th:if="${ticket.respuesta != null && !ticket.respuesta.isEmpty()}">
+                <div class="card-title"><i class="fas fa-reply"></i> Respuesta enviada</div>
+                <div class="respuesta-box" style="margin:0;">
+                    <div class="resp-label"><i class="fas fa-check-circle"></i> Respuesta oficial</div>
+                    <div class="resp-text" th:text="${ticket.respuesta}">Respuesta</div>
+                </div>
+            </div>
+
+            <div class="card reveal">
+                <div class="card-title"><i class="fas fa-history"></i> Historial de auditoría</div>
+                <div class="history">
+                    <div class="history-item" th:each="h : ${historial}">
+                        <span class="history-dot"
+                              th:classappend="${h.accion == 'NOTA_INTERNA' ? 'nota' : (h.accion == 'ESTADO' ? 'estado' : (h.accion == 'RESPUESTA' ? 'respuesta' : 'radicado'))}">
+                            <i th:classappend="${h.accion == 'NOTA_INTERNA' ? 'fa-sticky-note' : (h.accion == 'ESTADO' ? 'fa-exchange-alt' : (h.accion == 'RESPUESTA' ? 'fa-paper-plane' : 'fa-inbox'))}"></i>
+                        </span>
+                        <div class="history-body">
+                            <div class="history-head">
+                                <span class="history-accion" th:text="${h.accion == 'NOTA_INTERNA' ? 'Nota interna' : (h.accion == 'ESTADO' ? 'Cambio de estado' : (h.accion == 'RESPUESTA' ? 'Respuesta' : (h.accion == 'ASIGNACION' ? 'Asignación' : h.accion)))}">Acción</span>
+                                <span class="history-usuario" th:text="'Por: ' + ${h.usuario}">Por: admin</span>
+                                <span class="history-fecha" th:text="${#temporals.format(h.fecha, 'dd/MM/yyyy HH:mm')}">01/01/2026 10:00</span>
+                            </div>
+                            <div class="history-desc" th:text="${h.descripcion}">Detalle de la acción</div>
+                        </div>
+                    </div>
+                    <div th:if="${#lists.isEmpty(historial)}" style="color:#94a3b8;font-size:13px;padding:10px 0;">
+                        Sin eventos registrados.
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <div>
+
+            <div class="card reveal">
+                <div class="card-title"><i class="fas fa-clipboard-check"></i> Gestión del ticket</div>
+
+                <form method="post" th:action="@{'/admin/solicitudes/' + ${ticket.id} + '/estado'}">
+                    <input type="hidden" name="_csrf" th:value="${_csrf.token}">
+                    <div class="form-group">
+                        <label><i class="fas fa-tag"></i> Cambiar estado</label>
+                        <select name="estado">
+                            <option value="ABIERTO" th:selected="${ticket.status == 'ABIERTO'}">Recibido / Pendiente</option>
+                            <option value="EN_PROCESO" th:selected="${ticket.status == 'EN_PROCESO'}">En revisión / Asignado</option>
+                            <option value="REQUIERE_INFO" th:selected="${ticket.status == 'REQUIERE_INFO'}">Requerimiento de información</option>
+                            <option value="RESUELTO" th:selected="${ticket.status == 'RESUELTO'}">Resuelto / Contestado</option>
+                            <option value="CERRADO" th:selected="${ticket.status == 'CERRADO'}">Cerrado</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-cyan" style="width:100%;justify-content:center;"><i class="fas fa-exchange-alt"></i> Actualizar estado</button>
+                </form>
+
+                <hr style="border:none;border-top:1px solid var(--bdr);margin:22px 0;">
+
+                <form method="post" th:action="@{'/admin/solicitudes/' + ${ticket.id} + '/asignar'}">
+                    <input type="hidden" name="_csrf" th:value="${_csrf.token}">
+                    <div class="form-group">
+                        <label><i class="fas fa-user-check"></i> Asignar a administrador</label>
+                        <select name="asignadoA">
+                            <option value="">Sin asignar</option>
+                            <option th:each="a : ${adminAdmins}" th:value="${a.username}" th:selected="${ticket.asignadoA == a.username}" th:text="${a.nombres + ' ' + a.apellidos + ' (' + a.username + ')'}">Admin</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label><i class="fas fa-building"></i> Departamento / Área</label>
+                        <select name="departamento">
+                            <option value="">Mantener actual</option>
+                            <option value="Comercial" th:selected="${ticket.departamento == 'Comercial'}">Comercial</option>
+                            <option value="Protección" th:selected="${ticket.departamento == 'Protección'}">Protección</option>
+                            <option value="Operaciones" th:selected="${ticket.departamento == 'Operaciones'}">Operaciones</option>
+                            <option value="RRHH" th:selected="${ticket.departamento == 'RRHH'}">RRHH</option>
+                            <option value="Compras" th:selected="${ticket.departamento == 'Compras'}">Compras</option>
+                            <option value="Servicios Generales" th:selected="${ticket.departamento == 'Servicios Generales'}">Servicios Generales</option>
+                            <option value="Facturación" th:selected="${ticket.departamento == 'Facturación'}">Facturación</option>
+                            <option value="IT" th:selected="${ticket.departamento == 'IT'}">IT</option>
+                            <option value="Jurídica" th:selected="${ticket.departamento == 'Jurídica'}">Jurídica</option>
+                            <option value="Gestión Aduanera" th:selected="${ticket.departamento == 'Gestión Aduanera'}">Gestión Aduanera</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label><i class="fas fa-flag"></i> Prioridad</label>
+                        <select name="prioridad">
+                            <option value="ALTA" th:selected="${ticket.prioridad == 'ALTA'}">Alta</option>
+                            <option value="MEDIA" th:selected="${ticket.prioridad == 'MEDIA'}">Media</option>
+                            <option value="BAJA" th:selected="${ticket.prioridad == 'BAJA'}">Baja</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-gold" style="width:100%;justify-content:center;"><i class="fas fa-user-plus"></i> Asignar / Reasignar</button>
+                </form>
+
+                <hr style="border:none;border-top:1px solid var(--bdr);margin:22px 0;">
+
+                <form method="post" th:action="@{'/admin/solicitudes/' + ${ticket.id} + '/nota'}">
+                    <input type="hidden" name="_csrf" th:value="${_csrf.token}">
+                    <div class="form-group">
+                        <label><i class="fas fa-sticky-note"></i> Nota interna (solo visible para el equipo)</label>
+                        <textarea name="nota" rows="3" placeholder="Escriba una nota interna para el equipo..."></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-purple" style="width:100%;justify-content:center;"><i class="fas fa-pen"></i> Guardar nota interna</button>
+                </form>
+
+                <hr style="border:none;border-top:1px solid var(--bdr);margin:22px 0;">
+
+                <form method="post" th:action="@{'/admin/solicitudes/' + ${ticket.id} + '/responder'}">
+                    <input type="hidden" name="_csrf" th:value="${_csrf.token}">
+                    <div class="form-group">
+                        <label><i class="fas fa-paper-plane"></i> Respuesta oficial al solicitante</label>
+                        <textarea name="respuesta" rows="5" placeholder="Redacte la respuesta que el solicitante verá al consultar su radicado..."></textarea>
+                    </div>
+                    <label style="display:flex;align-items:center;gap:8px;font-size:12.5px;color:var(--mx);margin-bottom:14px;cursor:pointer;">
+                        <input type="checkbox" name="cerrar" value="on"> Marcar como cerrado tras enviar
+                    </label>
+                    <button type="submit" class="btn btn-green" style="width:100%;justify-content:center;"><i class="fas fa-paper-plane"></i> Enviar respuesta</button>
+                </form>
+            </div>
+
+            <div class="card reveal">
+                <div class="card-title"><i class="fas fa-info-circle"></i> Información adicional</div>
+                <div class="info-grid">
+                    <div class="info-item">
+                        <span class="info-icon"><i class="fas fa-flag"></i></span>
+                        <span class="info-text"><span class="info-label">Prioridad</span><span class="prio-select" th:classappend="${ticket.prioridad == 'ALTA' ? 'prio-alta' : (ticket.prioridad == 'BAJA' ? 'prio-baja' : (ticket.prioridad == null ? 'prio-unknown' : 'prio-media'))}" th:text="${ticket.prioridad ?: '-'}">MEDIA</span></span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-icon"><i class="fas fa-user-tie"></i></span>
+                        <span class="info-text"><span class="info-label">Asignado a</span><span class="info-value" th:text="${ticket.asignadoA ?: 'Sin asignar'}">admin</span></span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-icon"><i class="fas fa-calendar-check"></i></span>
+                        <span class="info-text"><span class="info-label">Fecha límite (SLA)</span><span class="info-value" th:text="${ticket.fechaLimite != null ? #temporals.format(ticket.fechaLimite, 'dd/MM/yyyy') : '-'}">01/01/2026</span></span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-icon"><i class="fas fa-check-circle"></i></span>
+                        <span class="info-text"><span class="info-label">Resuelto el</span><span class="info-value" th:text="${ticket.fechaResuelto != null ? #temporals.format(ticket.fechaResuelto, 'dd/MM/yyyy HH:mm') : '-'}">-</span></span>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<div class="pfooter">
+    <div class="pfooter-links">
+        <a href="/inicio"><i class="fas fa-globe"></i> Sitio público</a>
+        <span class="pfooter-sep">|</span>
+        <a href="https://spmardique.com/wp-content/uploads/2024/01/REGLAMENTO_DE_CONDICIONES_TECNICO_DE_OPERACION.pdf" target="_blank"><i class="fas fa-file-pdf"></i> Reglamento Operativo</a>
+        <span class="pfooter-sep">|</span>
+        <a href="#"><i class="fas fa-shield-alt"></i> Políticas de Privacidad</a>
+        <span class="pfooter-sep">|</span>
+        <a href="#"><i class="fas fa-shield-halved"></i> Políticas de Seguridad</a>
+    </div>
+    <div class="pfooter-copy">&copy; 2026 Sociedad Portuaria Mardique S.A. Todos los derechos reservados.</div>
+</div>
+
+<div class="modal-overlay" id="logoutModal">
+    <div class="modal-box">
+        <i class="fas fa-sign-out-alt" style="font-size: 46px; color: var(--ag); margin-bottom: 12px; display: block;"></i>
+        <h2>Cerrar Sesión</h2>
+        <p>¿Estás seguro de que deseas cerrar tu sesión?</p>
+        <div class="modal-actions">
+            <button type="button" class="btn-cancel" onclick="document.getElementById('logoutModal').classList.remove('show')">Cancelar</button>
+            <a href="/logout" class="btn btn-red"><i class="fas fa-sign-out-alt"></i> Cerrar Sesión</a>
+        </div>
+    </div>
+</div>
+
+<div class="drawer-overlay" id="drawerOverlay"></div>
+
+<nav class="mobile-nav-drawer" id="mobileDrawer" aria-label="Menú móvil">
+    <div class="drawer-header">
+        <img src="/images/Logo.png" alt="Mardique">
+        <button class="drawer-close" id="drawerClose" aria-label="Cerrar menú">&times;</button>
+    </div>
+    <div class="drawer-nav">
+        <a href="/admin/dashboard"><i class="fas fa-chart-pie"></i> Dashboard</a>
+        <a th:if="${isFullAdmin}" href="/admin/users"><i class="fas fa-users-cog"></i> Usuarios</a>
+        <a href="/admin/solicitudes" class="active"><i class="fas fa-file-alt"></i> Solicitudes</a>
+        <a href="/admin/mensajes"><i class="fas fa-envelope"></i> Mensajes</a>
+        <a href="/admin/payments"><i class="fas fa-credit-card"></i> Pagos</a>
+        <a th:if="${isFullAdmin}" href="/admin/chatbot" th:classappend="${currentPage == 'chatbot' ? 'active' : ''}"><i class="fas fa-robot"></i> Chatbot</a>
+        <a th:if="${isFullAdmin}" href="/admin/config"><i class="fas fa-cog"></i> Config</a>
+        <div class="drawer-divider"></div>
+        <button class="drawer-logout-btn" onclick="closeDrw();document.getElementById('logoutModal').classList.add('show')">
+            <i class="fas fa-sign-out-alt"></i> Cerrar Sesión
+        </button>
+    </div>
+</nav>
+
+<script>
+    const progressBar = document.getElementById('scroll-progress');
+    window.addEventListener('scroll', () => {
+        if (progressBar) progressBar.style.width = (window.scrollY / (document.documentElement.scrollHeight - window.innerHeight) * 100) + '%';
+    }, { passive: true });
+
+    const mainHdr = document.getElementById('main-header');
+    window.addEventListener('scroll', () => {
+        mainHdr.classList.toggle('scrolled', window.scrollY > 60);
+    }, { passive: true });
+
+    const obs = new IntersectionObserver(entries => {
+        entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+    }, { threshold: 0.1 });
+    document.querySelectorAll('.reveal').forEach(el => obs.observe(el));
+
+    document.getElementById('logoutModal').addEventListener('click', function(e) {
+        if (e.target === this) this.classList.remove('show');
+    });
+
+    const tog  = document.getElementById('mobileToggle');
+    const drw  = document.getElementById('mobileDrawer');
+    const ov   = document.getElementById('drawerOverlay');
+    const cl   = document.getElementById('drawerClose');
+
+    function openDrw() {
+        drw.classList.add('open');
+        ov.classList.add('open');
+        tog.classList.add('open');
+        document.body.style.overflow = 'hidden';
+    }
+    function closeDrw() {
+        drw.classList.remove('open');
+        ov.classList.remove('open');
+        tog.classList.remove('open');
+        document.body.style.overflow = '';
+    }
+
+    tog && tog.addEventListener('click', () => drw.classList.contains('open') ? closeDrw() : openDrw());
+    cl  && cl.addEventListener('click', closeDrw);
+    ov  && ov.addEventListener('click', closeDrw);
+</script>
+<script src="/js/panel-nav.js"></script>
+<a href="/admin/dashboard" class="float-home" aria-label="Ir a inicio"><i class="fas fa-home"></i></a>
+</body>
+</html>

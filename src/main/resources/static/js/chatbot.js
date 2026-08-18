@@ -467,32 +467,55 @@
         }
 
         const send = function(tipo) {
-            const nombre = wrap.querySelector('#cfNombre').value.trim();
-            const cedula = wrap.querySelector('#cfCedula').value.trim();
-            const correo = wrap.querySelector('#cfCorreo').value.trim();
-            const telefono = wrap.querySelector('#cfTelefono').value.trim();
-            const area = wrap.querySelector('#cfArea').value;
-            const descripcion = wrap.querySelector('#cfDescripcion').value.trim();
+            const nombre = wrap.querySelector('#cfNombre');
+            const cedula = wrap.querySelector('#cfCedula');
+            const correo = wrap.querySelector('#cfCorreo');
+            const telefono = wrap.querySelector('#cfTelefono');
+            const area = wrap.querySelector('#cfArea');
+            const descripcion = wrap.querySelector('#cfDescripcion');
             const statusEl = wrap.querySelector('#cfStatus');
 
-            if (!/^[A-Za-zÀ-ÿñÑ\s'.-]{3,120}$/.test(nombre)) {
-                statusEl.textContent = 'El nombre solo puede contener letras (mínimo 3).';
-                statusEl.className = 'cb-form-status error';
-                return;
+            var fields = [
+                { el: nombre,  msg: null, required: true },
+                { el: cedula,  msg: null, required: true },
+                { el: correo,  msg: null, required: true },
+                { el: telefono, msg: null, required: true },
+                { el: area,    msg: null, required: true },
+                { el: descripcion, msg: null, required: false }
+            ];
+
+            wrap.querySelectorAll('.cb-form-input').forEach(function(el) { el.classList.remove('cb-form-input-error'); });
+            statusEl.textContent = '';
+            statusEl.className = 'cb-form-status';
+
+            var firstError = null;
+            var nombreVal = nombre.value.trim();
+            var cedulaVal = cedula.value.trim();
+            var correoVal = correo.value.trim();
+            var telefonoVal = telefono.value.trim();
+            var areaVal = area.value;
+
+            if (nombreVal.length === 0) { setErr(nombre, 'El nombre es obligatorio.'); firstError = firstError || nombre; }
+            else if (!/^[A-Za-zÀ-ÿñÑ\s'.-]{3,120}$/.test(nombreVal)) { setErr(nombre, 'El nombre solo puede contener letras (mínimo 3).'); firstError = firstError || nombre; }
+            if (cedulaVal.length === 0) { setErr(cedula, 'La cédula es obligatoria.'); firstError = firstError || cedula; }
+            else if (!/^[0-9]{4,12}$/.test(cedulaVal)) { setErr(cedula, 'La cédula debe contener solo números (4-12 dígitos).'); firstError = firstError || cedula; }
+            if (correoVal.length === 0) { setErr(correo, 'El correo es obligatorio.'); firstError = firstError || correo; }
+            else if (!/^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/.test(correoVal)) { setErr(correo, 'El correo no tiene un formato válido.'); firstError = firstError || correo; }
+            if (telefonoVal.length === 0) { setErr(telefono, 'El teléfono es obligatorio.'); firstError = firstError || telefono; }
+            else if (!/^[0-9+\-\s()]{7,20}$/.test(telefonoVal)) { setErr(telefono, 'El teléfono debe tener 7-20 caracteres (números, +, espacios, paréntesis).'); firstError = firstError || telefono; }
+            if (areaVal.length === 0) { setErr(area, 'Seleccione un área encargada.'); firstError = firstError || area; }
+
+            function setErr(el, msg) {
+                el.classList.add('cb-form-input-error');
+                if (!statusEl.textContent) {
+                    statusEl.textContent = msg;
+                    statusEl.className = 'cb-form-status error';
+                }
             }
-            if (!/^[0-9]{4,12}$/.test(cedula)) {
-                statusEl.textContent = 'La cédula debe contener solo números (4-12 dígitos).';
-                statusEl.className = 'cb-form-status error';
-                return;
-            }
-            if (!/^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/.test(correo)) {
-                statusEl.textContent = 'El correo no tiene un formato válido.';
-                statusEl.className = 'cb-form-status error';
-                return;
-            }
-            if (!/^[0-9+\-\s()]{7,20}$/.test(telefono)) {
-                statusEl.textContent = 'El teléfono debe tener 7-20 caracteres (números, +, espacios, paréntesis).';
-                statusEl.className = 'cb-form-status error';
+
+            if (firstError) {
+                firstError.focus();
+                firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
                 return;
             }
 
@@ -503,7 +526,7 @@
             fetch('/api/chatbot/contact', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ nombre: nombre, cedula: cedula, correo: correo, telefono: telefono, area: area, tipo: tipo, descripcion: descripcion })
+                body: JSON.stringify({ nombre: nombreVal, cedula: cedulaVal, correo: correoVal, telefono: telefonoVal, area: areaVal, tipo: tipo, descripcion: descripcion.value.trim() })
             })
                 .then(function(r) { return r.json(); })
                 .then(function(data) {
@@ -538,6 +561,15 @@
 
         wrap.querySelectorAll('.cb-form-btn').forEach(function(b) {
             b.addEventListener('click', function() { send(b.getAttribute('data-tipo')); });
+        });
+
+        wrap.querySelectorAll('.cb-form-input').forEach(function(el) {
+            el.addEventListener('input', function() {
+                el.classList.remove('cb-form-input-error');
+            });
+            el.addEventListener('change', function() {
+                el.classList.remove('cb-form-input-error');
+            });
         });
 
         return wrap;

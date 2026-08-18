@@ -27,6 +27,26 @@
 
         #scroll-progress { position: fixed; top: 0; left: 0; height: 3px; width: 0%; background: linear-gradient(90deg, var(--accent-gold), var(--accent-cyan)); z-index: 9999; transition: width 0.1s linear; }
 
+        .success-toast { position: fixed; top: 90px; right: 24px; z-index: 99999; display: flex; align-items: center; gap: 14px; background: #fff; border: 1px solid #e2e8f0; border-left: 5px solid #22c55e; border-radius: 12px; padding: 16px 20px; box-shadow: 0 12px 40px rgba(2,6,23,0.18); max-width: 380px; opacity: 0; transform: translateX(120%); transition: opacity 0.45s ease, transform 0.45s ease; }
+        .success-toast.show { opacity: 1; transform: translateX(0); }
+        .success-toast-check { flex-shrink: 0; }
+        .checkmark-svg { width: 46px; height: 46px; display: block; }
+        .checkmark-circle { stroke: #22c55e; stroke-width: 2.5; stroke-dasharray: 151; stroke-dashoffset: 151; }
+        .checkmark-check { stroke: #22c55e; stroke-width: 3.5; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 40; stroke-dashoffset: 40; }
+        .success-toast.animate .checkmark-circle { animation: checkCircle 0.6s cubic-bezier(0.65,0,0.45,1) forwards; }
+        .success-toast.animate .checkmark-check { animation: checkTick 0.35s cubic-bezier(0.65,0,0.45,1) 0.55s forwards; }
+        @keyframes checkCircle { to { stroke-dashoffset: 0; } }
+        @keyframes checkTick { to { stroke-dashoffset: 0; } }
+        .success-toast-text h4 { font-size: 14.5px; font-weight: 800; color: var(--primary-blue); margin: 0 0 3px; }
+        .success-toast-text p { font-size: 12.5px; color: #556b82; margin: 0; line-height: 1.5; }
+        .success-toast-close { background: #f1f5f9; border: none; border-radius: 50%; width: 26px; height: 26px; font-size: 16px; line-height: 1; color: #64748b; cursor: pointer; flex-shrink: 0; }
+        .success-toast-close:hover { background: #e2e8f0; color: #0f172a; }
+        @media (max-width: 560px) { .success-toast { top: 76px; right: 12px; left: 12px; max-width: none; } }
+
+        .field-error input, .field-error select, .field-error textarea { border-color: #ef4444 !important; background: #fef2f2 !important; }
+        .field-error input:focus, .field-error select:focus, .field-error textarea:focus { outline: 2px solid rgba(239,68,68,0.25) !important; border-color: #ef4444 !important; }
+        .field-error-msg { color: #dc2626; font-size: 11.5px; font-weight: 600; margin-top: 5px; display: flex; align-items: center; gap: 5px; }
+
         .btn { display: inline-flex; align-items: center; justify-content: center; padding: 12px 24px; font-size: 12.5px; font-weight: 700; border-radius: 6px; cursor: pointer; transition: var(--transition); text-transform: uppercase; letter-spacing: 0.5px; position: relative; overflow: hidden; z-index: 1; border: none; }
         .btn::after { content: ''; position: absolute; top: 0; left: -100%; width: 50%; height: 100%; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.25), transparent); transform: skewX(-25deg); z-index: -1; }
         .btn:hover::after { left: 150%; transition: 0.55s ease-in-out; }
@@ -945,7 +965,10 @@
                         <h3>Envíenos un Mensaje</h3>
                         <p>Complete el formulario y nuestro equipo se pondrá en contacto con usted a la brevedad posible.</p>
                     </div>
-                    <form action="/contacto/message" method="post">
+                    <div th:if="${mensajeError}" class="pqrs-alert error" style="background:#fef2f2;border:1px solid #fecaca;color:#dc2626;padding:14px 16px;border-radius:8px;font-size:13px;margin-bottom:20px;line-height:1.55;">
+                        <i class="fa-solid fa-circle-exclamation"></i> <span th:text="${mensajeError}">Error</span>
+                    </div>
+                    <form action="/contacto/message" method="post" novalidate>
                         <div class="form-grid">
                             <div class="form-group full">
                                 <label>Nombre y Apellidos <span style="color:var(--accent-gold)">*</span></label>
@@ -1090,11 +1113,14 @@
                     <div class="pqrs-form-header">
                         <h3>Formulario PQRS</h3>
                     </div>
-                    <form action="/contacto/pqrs" method="post">
+                    <div th:if="${pqrsError}" class="pqrs-alert error" style="background:#fef2f2;border:1px solid #fecaca;color:#dc2626;padding:14px 16px;border-radius:8px;font-size:13px;margin-bottom:20px;line-height:1.55;">
+                        <i class="fa-solid fa-circle-exclamation"></i> <span th:text="${pqrsError}">Error</span>
+                    </div>
+                    <form action="/contacto/pqrs" method="post" enctype="multipart/form-data" novalidate>
                         <div class="pqrs-form-grid">
                             <div class="pfield">
                                 <label>Tipo de Documento <span style="color:var(--accent-gold)">*</span></label>
-                                <select name="tipoDocumento">
+                                <select name="tipoDocumento" required>
                                     <option value="" disabled selected>Seleccione</option>
                                     <option value="NIT">NIT</option>
                                     <option value="CC">CC – Cédula de Ciudadanía</option>
@@ -1105,23 +1131,23 @@
                             </div>
                             <div class="pfield">
                                 <label>Número de Documento <span style="color:var(--accent-gold)">*</span></label>
-                                <input type="text" name="numeroDocumento" placeholder="Ej. 123456789">
+                                <input type="text" name="numeroDocumento" placeholder="Ej. 123456789" required>
                             </div>
                             <div class="pfield full">
                                 <label>Nombre o Razón Social <span style="color:var(--accent-gold)">*</span></label>
-                                <input type="text" name="nombreCompleto" placeholder="Nombre completo o empresa">
+                                <input type="text" name="nombreCompleto" placeholder="Nombre completo o empresa" required>
                             </div>
                             <div class="pfield">
                                 <label>Correo de Contacto <span style="color:var(--accent-gold)">*</span></label>
-                                <input type="email" name="email" placeholder="correo@ejemplo.com">
+                                <input type="email" name="email" placeholder="correo@ejemplo.com" required>
                             </div>
                             <div class="pfield">
                                 <label>Teléfono de Contacto <span style="color:var(--accent-gold)">*</span></label>
-                                <input type="tel" name="telefono" placeholder="+57 300 000 0000" oninput="formatPhone(this)">
+                                <input type="tel" name="telefono" placeholder="+57 300 000 0000" oninput="formatPhone(this)" required>
                             </div>
                             <div class="pfield">
                                 <label>Tipo de Petición <span style="color:var(--accent-gold)">*</span></label>
-                                <select name="tipoPeticion">
+                                <select name="tipoPeticion" required>
                                     <option value="" disabled selected>Seleccione</option>
                                     <option>Petición</option>
                                     <option>Queja</option>
@@ -1131,7 +1157,7 @@
                             </div>
                             <div class="pfield">
                                 <label>Departamento <span style="color:var(--accent-gold)">*</span></label>
-                                <select name="departamento">
+                                <select name="departamento" required>
                                     <option value="" disabled selected>Seleccione</option>
                                     <option>Comercial</option>
                                     <option>Protección</option>
@@ -1147,7 +1173,11 @@
                             </div>
                             <div class="pfield full">
                                 <label>Descripción <span style="color:var(--accent-gold)">*</span></label>
-                                <textarea name="descripcion" rows="5" placeholder="Describa detalladamente su solicitud, queja o reclamo..."></textarea>
+                                <textarea name="descripcion" rows="5" placeholder="Describa detalladamente su solicitud, queja o reclamo..." required></textarea>
+                            </div>
+                            <div class="pfield full">
+                                <label>Archivos adjuntos (opcional)</label>
+                                <input type="file" name="adjuntos" multiple accept=".pdf,.png,.jpg,.jpeg,.gif,.webp,.doc,.docx,.xls,.xlsx,.txt">
                             </div>
                         </div>
                         <p class="pqrs-note">Los campos marcados con <span>*</span> son obligatorios. Recibirá confirmación de radicado en su correo.</p>
@@ -1158,6 +1188,116 @@
                 </div>
             </div>
 
+        </div>
+    </div>
+</section>
+
+<section class="section-block" id="seguimiento" style="background:var(--bg-light);">
+    <div class="container">
+        <div class="reveal" style="margin-bottom:40px;">
+            <span class="section-label">Seguimiento</span>
+            <h2 class="section-title">Consulte su <strong style="color:var(--accent-gold)">PQRS</strong></h2>
+            <div class="section-line"></div>
+            <p style="color:#556b82;font-size:14px;line-height:1.7;margin-top:16px;max-width:640px;">Ingrese el radicado que recibió al radicar su solicitud y el número de documento con el que la registró para conocer el estado actual y la respuesta de nuestro equipo.</p>
+        </div>
+
+        <div th:if="${segError}" style="background:#fef2f2;border:1px solid #fecaca;color:#dc2626;padding:14px 16px;border-radius:8px;font-size:13px;margin-bottom:24px;line-height:1.55;">
+            <i class="fa-solid fa-circle-exclamation"></i> <span th:text="${segError}">Error</span>
+        </div>
+
+        <div class="pqrs-layout" style="align-items:start;">
+            <div class="reveal-left">
+                <div class="pqrs-form-box">
+                    <div class="pqrs-form-header">
+                        <h3>Buscar por radicado</h3>
+                    </div>
+                    <form action="/contacto/pqrs/seguimiento" method="post" novalidate>
+                        <div class="pqrs-form-grid">
+                            <div class="pfield full">
+                                <label>Número de Radicado <span style="color:var(--accent-gold)">*</span></label>
+                                <input type="text" name="radicado" placeholder="Ej. PQRS-2026-0001" required th:value="${radicado}">
+                            </div>
+                            <div class="pfield full">
+                                <label>Número de Documento <span style="color:var(--accent-gold)">*</span></label>
+                                <input type="text" name="numeroDocumento" placeholder="Número de documento con el que radicó" required th:value="${documento}">
+                            </div>
+                        </div>
+                        <button type="submit" class="btn-pqrs">
+                            Consultar estado <i class="fa-solid fa-magnifying-glass"></i>
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <div class="reveal-right" th:if="${ticketConsulta != null}">
+                <div class="pqrs-form-box" style="margin-top:0;">
+                    <div class="pqrs-form-header">
+                        <h3 style="font-size:15px;display:flex;align-items:center;gap:10px;">
+                            <i class="fa-solid fa-hashtag" style="color:var(--accent-cyan);"></i>
+                            <span th:text="${ticketConsulta.radicado}">PQRS-2026-0001</span>
+                        </h3>
+                    </div>
+
+                    <div style="display:flex;flex-wrap:wrap;gap:10px;margin-bottom:20px;">
+                        <span style="display:inline-flex;align-items:center;gap:7px;padding:7px 14px;border-radius:50px;font-size:12px;font-weight:700;
+                                     background:#eff6ff;color:#2563eb;border:1px solid #bfdbfe;"
+                              th:text="${pqrsService.labelEstado(ticketConsulta.status)}">Estado</span>
+                        <span style="display:inline-flex;align-items:center;gap:7px;padding:7px 14px;border-radius:50px;font-size:12px;font-weight:700;
+                                     background:#e0f2fe;color:#0284c7;"
+                              th:text="${ticketConsulta.tipoPeticion}">Petición</span>
+                        <span style="display:inline-flex;align-items:center;gap:7px;padding:7px 14px;border-radius:50px;font-size:12px;font-weight:700;
+                                     background:#f0fdf4;color:#059669;border:1px solid #a7f3d0;"
+                              th:text="${pqrsService.slaBadgeText(ticketConsulta)}">Vence en 5 día(s)</span>
+                    </div>
+
+                    <div style="background:#fff;border:1px solid var(--border-color);border-radius:8px;padding:16px 18px;margin-bottom:18px;">
+                        <div style="font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--text-muted);margin-bottom:8px;">Fecha de radicación</div>
+                        <div style="font-size:13.5px;font-weight:600;color:var(--text-dark);"
+                              th:text="${ticketConsulta.createdAt != null ? #temporals.format(ticketConsulta.createdAt, 'dd/MM/yyyy HH:mm') : '-'}">01/01/2026</div>
+                    </div>
+
+                    <div th:if="${ticketConsulta.respuesta != null && !ticketConsulta.respuesta.isEmpty()}"
+                         style="background:#ecfdf5;border:1px solid #a7f3d0;border-radius:8px;padding:16px 18px;margin-bottom:18px;">
+                        <div style="font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:#059669;margin-bottom:8px;display:flex;align-items:center;gap:7px;">
+                            <i class="fa-solid fa-check-circle"></i> Respuesta de nuestra empresa
+                        </div>
+                        <div style="font-size:13.5px;color:#166534;line-height:1.65;white-space:pre-wrap;" th:text="${ticketConsulta.respuesta}">Respuesta</div>
+                    </div>
+
+                    <div th:if="${ticketConsulta.respuesta == null || ticketConsulta.respuesta.isEmpty()}"
+                         style="background:#fffbeb;border:1px solid #fde68a;border-radius:8px;padding:16px 18px;margin-bottom:18px;">
+                        <div style="font-size:12.5px;color:#92400e;line-height:1.55;display:flex;gap:10px;align-items:flex-start;">
+                            <i class="fa-solid fa-clock" style="margin-top:2px;"></i>
+                            <span>Su solicitud se encuentra en proceso de gestión. Será respondida dentro del plazo legal establecido y podrá consultarla nuevamente con este radicado.</span>
+                        </div>
+                    </div>
+
+                    <div style="background:#fff;border:1px solid var(--border-color);border-radius:8px;padding:16px 18px;">
+                        <div style="font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--text-muted);margin-bottom:12px;">
+                            <i class="fa-solid fa-history"></i> Historial de la solicitud
+                        </div>
+                        <div th:if="${!#lists.isEmpty(historialConsulta)}" style="display:flex;flex-direction:column;gap:10px;">
+                            <div th:each="h : ${historialConsulta}" style="display:flex;gap:12px;align-items:flex-start;">
+                                <i class="fa-solid fa-circle-check" style="color:var(--accent-cyan);margin-top:3px;font-size:14px;"></i>
+                                <div>
+                                    <div style="font-size:12px;font-weight:700;color:var(--text-dark);"
+                                          th:text="${h.accion == 'RADICADO' ? 'Radicación recibida' : (h.accion == 'ESTADO' ? 'Actualización de estado' : (h.accion == 'RESPUESTA' ? 'Respuesta enviada' : h.accion))}">Acción</div>
+                                    <div style="font-size:11.5px;color:var(--text-muted);line-height:1.5;" th:text="${h.descripcion}">Detalle</div>
+                                    <div style="font-size:11px;color:#94a3b8;margin-top:3px;" th:text="${#temporals.format(h.fecha, 'dd/MM/yyyy HH:mm')}">fecha</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div th:if="${#lists.isEmpty(historialConsulta)}" style="font-size:12.5px;color:var(--text-muted);">Sin eventos registrados.</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="reveal-right" th:if="${ticketConsulta == null}">
+                <div class="pqrs-guarantee" style="height:100%;align-items:flex-start;">
+                    <i class="fa-solid fa-circle-info"></i>
+                    <p>Al radicar su solicitud recibirá un <strong>número de radicado</strong> (ej. PQRS-2026-0001). Guárdelo junto con el número de documento: con ambos podrá consultar aquí el estado y la respuesta de su PQRS.</p>
+                </div>
+            </div>
         </div>
     </div>
 </section>
@@ -1231,16 +1371,20 @@
         </div>
 </footer>
 
-<div class="modal-overlay" id="confirmModal">
-    <div class="modal-box" style="max-width:420px;">
-        <div class="modal-icon"><i class="fa-solid fa-circle-check" style="color:#22c55e;"></i></div>
-        <h2 id="confirmTitle">¡Enviado!</h2>
-        <p id="confirmText">Su mensaje ha sido recibido correctamente.</p>
-        <div class="modal-actions" style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;">
-            <button type="button" id="btnAceptar" class="btn btn-orange" style="padding:10px 28px;font-size:13px;font-weight:700;border:none;border-radius:6px;background:var(--accent-gold);color:#fff;cursor:pointer;font-family:inherit;">Aceptar</button>
-            <button type="button" id="btnDeshacer" class="btn btn-dark" style="padding:10px 28px;font-size:13px;font-weight:700;border:none;border-radius:6px;background:var(--primary-blue);color:#fff;cursor:pointer;font-family:inherit;">Deshacer</button>
-        </div>
+<div class="success-toast" id="successToast"
+     th:classappend="${pqrsSuccess != null or mensajeSuccess != null} ? 'show' : ''"
+     th:attr="data-tipo=${pqrsSuccess != null ? 'pqrs' : 'mensaje'}">
+    <div class="success-toast-check">
+        <svg viewBox="0 0 52 52" class="checkmark-svg">
+            <circle cx="26" cy="26" r="24" fill="none" class="checkmark-circle"/>
+            <path fill="none" class="checkmark-check" d="M14 27l8 8 16-16"/>
+        </svg>
     </div>
+    <div class="success-toast-text">
+        <h4 th:text="${pqrsSuccess != null ? 'PQRS radicada con éxito' : 'Mensaje enviado con éxito'}">Enviado</h4>
+        <p th:text="${pqrsSuccess != null ? 'Su solicitud fue radicada correctamente y recibirá respuesta en los próximos días hábiles.' : 'Hemos recibido su mensaje. Nuestro equipo se pondrá en contacto con usted.'}">Gracias</p>
+    </div>
+    <button type="button" class="success-toast-close" id="successToastClose" aria-label="Cerrar">&times;</button>
 </div>
 
 <script>
@@ -1258,41 +1402,100 @@
     }
 
     (function() {
-        var activeForm = null;
-        var savedData  = {};
-
-        document.querySelectorAll('form[action="/contacto/message"], form[action="/contacto/pqrs"]').forEach(function(f) {
-            f.addEventListener('submit', function(e) {
-                e.preventDefault();
-                activeForm = e.target;
-                savedData = {};
-                var els = activeForm.elements;
-                for (var i = 0; i < els.length; i++) {
-                    if (els[i].name) savedData[els[i].name] = els[i].value;
-                }
-                var isMsg = activeForm.getAttribute('action') === '/contacto/message';
-                document.getElementById('confirmTitle').textContent = isMsg ? '¡Mensaje enviado!' : '¡PQRS radicada!';
-                document.getElementById('confirmText').textContent = isMsg
-                    ? 'Su mensaje ha sido recibido correctamente.'
-                    : 'Su solicitud ha sido radicada exitosamente.';
-                document.getElementById('confirmModal').classList.add('show');
-            });
-        });
-
-        document.getElementById('btnAceptar').addEventListener('click', function() {
-            document.getElementById('confirmModal').classList.remove('show');
-            if (activeForm) { activeForm.submit(); }
-            activeForm = null; savedData = {};
-        });
-
-        document.getElementById('btnDeshacer').addEventListener('click', function() {
-            document.getElementById('confirmModal').classList.remove('show');
-            if (activeForm) {
-                for (var n in savedData) {
-                    if (activeForm.elements[n]) activeForm.elements[n].value = savedData[n];
-                }
+        function getLabel(input) {
+            var wrap = input.closest('.pfield, .form-group, .field');
+            if (wrap) {
+                var lbl = wrap.querySelector('label');
+                if (lbl) return lbl.textContent.replace('*', '').trim();
             }
-            activeForm = null; savedData = {};
+            return input.name;
+        }
+
+        function showError(input, msg) {
+            var wrap = input.closest('.pfield, .form-group, .field') || input.parentNode;
+            wrap.classList.add('field-error');
+            var err = wrap.querySelector('.field-error-msg');
+            if (!err) {
+                err = document.createElement('div');
+                err.className = 'field-error-msg';
+                wrap.appendChild(err);
+            }
+            err.textContent = msg;
+        }
+
+        function clearError(input) {
+            var wrap = input.closest('.pfield, .form-group, .field');
+            if (wrap) {
+                wrap.classList.remove('field-error');
+                var err = wrap.querySelector('.field-error-msg');
+                if (err) err.remove();
+            }
+        }
+
+        function validarCampo(input) {
+            var val = (input.value || '').trim();
+            var label = getLabel(input);
+            var msg = null;
+            if (input.hasAttribute('required') && val === '') {
+                msg = 'El campo ' + label + ' es obligatorio.';
+            } else if (val !== '') {
+                if (input.type === 'email' && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val)) {
+                    msg = 'Ingrese una dirección de correo electrónico válida.';
+                } else if (input.name === 'telefono') {
+                    var digits = val.replace(/\D/g, '');
+                    if (digits.length < 10 || digits.length > 13) {
+                        msg = 'Ingrese un número de teléfono válido (mínimo 10 dígitos).';
+                    }
+                } else if (input.name === 'numeroDocumento') {
+                    if (val.length < 4) {
+                        msg = 'Ingrese un número de documento válido.';
+                    }
+                } else if (input.name === 'radicado') {
+                    if (!/^PQRS-\d{4}-\d+$/i.test(val)) {
+                        msg = 'El radicado debe tener el formato PQRS-2026-0001.';
+                    }
+                } else if (input.name === 'descripcion') {
+                    if (val.length < 10) {
+                        msg = 'La descripción debe tener al menos 10 caracteres.';
+                    }
+                } else if (input.name === 'mensaje') {
+                    if (val.length < 10) {
+                        msg = 'El mensaje debe tener al menos 10 caracteres.';
+                    }
+                } else if (input.tagName === 'SELECT' && (input.value === '' || input.value === null)) {
+                    msg = 'Seleccione una opción para ' + label + '.';
+                }
+            } else if (input.tagName === 'SELECT' && input.hasAttribute('required')) {
+                msg = 'Seleccione una opción para ' + label + '.';
+            }
+            if (msg) { showError(input, msg); return false; }
+            clearError(input);
+            return true;
+        }
+
+        document.querySelectorAll('form[action="/contacto/message"], form[action="/contacto/pqrs"], form[action="/contacto/pqrs/seguimiento"]').forEach(function(f) {
+            f.addEventListener('submit', function(e) {
+                var firstError = null;
+                f.querySelectorAll('input, textarea, select').forEach(function(input) {
+                    if (input.type === 'hidden' || input.type === 'file' || input.type === 'submit') return;
+                    if (!validarCampo(input) && !firstError) firstError = input;
+                });
+                if (firstError) {
+                    e.preventDefault();
+                    firstError.focus();
+                    firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    return;
+                }
+                var btn = f.querySelector('button[type="submit"]');
+                if (btn) {
+                    btn.disabled = true;
+                    btn.dataset.original = btn.innerHTML;
+                    btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Enviando...';
+                }
+            });
+            f.addEventListener('input', function(e) {
+                if (e.target && e.target.closest) clearError(e.target);
+            });
         });
     })();
 
@@ -1383,7 +1586,7 @@
         }, { threshold: 0.1, rootMargin: '0px 0px -50px 0px' });
         document.querySelectorAll('.reveal, .reveal-left, .reveal-right').forEach(el => revealObserver.observe(el));
 
-        const sections = ['contactenos', 'lineas-de-atencion', 'pqrs'];
+        const sections = ['contactenos', 'lineas-de-atencion', 'pqrs', 'seguimiento'];
         const cnavBtns = document.querySelectorAll('.cnav-btn');
         window.addEventListener('scroll', () => {
             let current = '';
@@ -1401,7 +1604,21 @@
             if (bg) bg.style.transform = `translateY(${window.scrollY * 0.25}px)`;
         });
 
-        document.getElementById('confirmModal').addEventListener('click', function(e) { if (e.target === this) this.classList.remove('show'); });
+        var successToast = document.getElementById('successToast');
+        if (successToast && successToast.classList.contains('show')) {
+            setTimeout(function() { successToast.classList.add('animate'); }, 50);
+            var toastTimer = setTimeout(function() { successToast.classList.remove('show'); }, 6000);
+            document.getElementById('successToastClose').addEventListener('click', function() {
+                clearTimeout(toastTimer);
+                successToast.classList.remove('show');
+            });
+            successToast.addEventListener('click', function(e) {
+                if (e.target === successToast) {
+                    clearTimeout(toastTimer);
+                    successToast.classList.remove('show');
+                }
+            });
+        }
 
     });
 </script>

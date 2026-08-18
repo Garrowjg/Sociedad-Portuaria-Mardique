@@ -9,6 +9,7 @@ import com.example.MardiqueWeb.Repository.ChatbotRatingRepository;
 import com.example.MardiqueWeb.Repository.FaqRepository;
 import com.example.MardiqueWeb.Repository.SupportTicketRepository;
 import com.example.MardiqueWeb.Service.ChatbotService;
+import com.example.MardiqueWeb.Service.PqrsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -40,6 +41,9 @@ public class ApiChatbotController {
 
     @Autowired
     private ChatMessageRepository chatMessageRepository;
+
+    @Autowired
+    private PqrsService pqrsService;
 
     // Máximo de mensajes previos (usuario+asistente) que se recuperan de Postgres por sesión
     private static final int MAX_HISTORY_MESSAGES = 20;
@@ -217,7 +221,7 @@ public class ApiChatbotController {
         ticket.setUsername(nombre);
         ticket.setOrigen("CHATBOT");
         ticket.setStatus("ABIERTO");
-        supportTicketRepository.save(ticket);
+        pqrsService.radicarTicket(ticket);
 
         return ResponseEntity.ok(Map.of(
             "ok", "true",

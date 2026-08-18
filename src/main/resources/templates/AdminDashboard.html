@@ -177,6 +177,42 @@
                 <div class="stat-lbl">Mensajes de contacto</div>
             </div>
         </div>
+        <div class="stat-box">
+            <div class="stat-ico" style="background: rgba(2, 132, 199, 0.12); color: #0284c7;">
+                <i class="fas fa-inbox"></i>
+            </div>
+            <div>
+                <div class="stat-num" th:text="${pqrsAbiertos}">0</div>
+                <div class="stat-lbl">PQRS abiertas</div>
+            </div>
+        </div>
+        <div class="stat-box">
+            <div class="stat-ico" style="background: rgba(245, 158, 11, 0.12); color: #d97706;">
+                <i class="fas fa-hourglass-half"></i>
+            </div>
+            <div>
+                <div class="stat-num" th:text="${pqrsPorVencer}">0</div>
+                <div class="stat-lbl">PQRS por vencer (SLA)</div>
+            </div>
+        </div>
+        <div class="stat-box">
+            <div class="stat-ico" style="background: rgba(220, 38, 38, 0.12); color: #dc2626;">
+                <i class="fas fa-exclamation-triangle"></i>
+            </div>
+            <div>
+                <div class="stat-num" th:text="${pqrsVencidos}">0</div>
+                <div class="stat-lbl">PQRS vencidas</div>
+            </div>
+        </div>
+        <div class="stat-box">
+            <div class="stat-ico" style="background: rgba(5, 150, 105, 0.12); color: #059669;">
+                <i class="fas fa-check-double"></i>
+            </div>
+            <div>
+                <div class="stat-num" th:text="${pqrsResueltosHoy}">0</div>
+                <div class="stat-lbl">Resueltas hoy</div>
+            </div>
+        </div>
     </div>
 
     <div class="sec-lbl reveal"><i class="fas fa-bolt"></i> Acceso rápido</div>

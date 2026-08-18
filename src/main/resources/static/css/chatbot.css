@@ -446,6 +446,8 @@
     border-color: var(--cb-cyan); background: #fff;
     box-shadow: 0 0 0 3px rgba(0,163,224,.12);
 }
+.cb-form-input.cb-form-input-error { border-color: #ef4444 !important; background: #fef2f2 !important; }
+.cb-form-input.cb-form-input-error:focus { box-shadow: 0 0 0 3px rgba(239,68,68,.12) !important; }
 .cb-form-textarea {
     min-height: 64px; resize: vertical; line-height: 1.45;
 }

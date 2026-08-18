@@ -105,6 +105,39 @@
     @keyframes floatIcon{0%,100%{transform:translateY(0) rotate(0deg)}50%{transform:translateY(-18px) rotate(6deg)}}
     header{transition:background-color .6s cubic-bezier(.4,0,.2,1),backdrop-filter .6s cubic-bezier(.4,0,.2,1),box-shadow .6s ease,padding .3s ease}
     header.scrolled{background-color:rgba(27,69,98,.93)!important;backdrop-filter:blur(3px) saturate(115%);-webkit-backdrop-filter:blur(3px) saturate(115%);border-bottom:1px solid rgba(255,255,255,.05)}
+
+    /* Badges PQRS */
+    .radicado-cell{font-family:'JetBrains Mono',Consolas,monospace;font-size:12px;font-weight:700;color:var(--pd);white-space:nowrap;}
+    .radicado-link{color:var(--ac);text-decoration:none;font-weight:600;}
+    .radicado-link:hover{text-decoration:underline;}
+    .sla-badge{display:inline-flex;align-items:center;gap:5px;padding:4px 10px;border-radius:50px;font-size:11px;font-weight:700;white-space:nowrap;}
+    .sla-enplazo{background:#ecfdf5;color:#059669;border:1px solid #a7f3d0;}
+    .sla-porvencer{background:#fffbeb;color:#d97706;border:1px solid #fde68a;}
+    .sla-vencido{background:#fef2f2;color:#dc2626;border:1px solid #fecaca;}
+    .prio-badge{display:inline-flex;align-items:center;gap:5px;padding:4px 10px;border-radius:6px;font-size:11px;font-weight:700;}
+    .prio-alta{background:#fef2f2;color:#dc2626;}
+    .prio-media{background:#fffbeb;color:#d97706;}
+    .prio-baja{background:#eff6ff;color:#2563eb;}
+    .status-pill{display:inline-flex;align-items:center;gap:5px;padding:5px 11px;border-radius:50px;font-size:11px;font-weight:700;white-space:nowrap;}
+    .st-abierto{background:#eff6ff;color:#2563eb;border:1px solid #bfdbfe;}
+    .st-enproceso{background:#fffbeb;color:#d97706;border:1px solid #fde68a;}
+    .st-requiere{background:#f5f3ff;color:#7c3aed;border:1px solid #ddd6fe;}
+    .st-resuelto{background:#ecfdf5;color:#059669;border:1px solid #a7f3d0;}
+    .st-cerrado{background:#f1f5f9;color:#64748b;border:1px solid #e2e8f0;}
+    .btn-ver{display:inline-flex;align-items:center;gap:6px;padding:7px 14px;border-radius:8px;border:none;font-size:12px;font-weight:600;cursor:pointer;transition:all .2s;font-family:inherit;background:var(--pd);color:#fff;text-decoration:none;}
+    .btn-ver:hover{background:var(--ac);transform:translateY(-1px);box-shadow:0 4px 12px rgba(27,69,98,.25);}
+    .btn-ver-chatbot{background:linear-gradient(135deg,#7c3aed,#6d28d9);}
+    .btn-ver-chatbot:hover{background:linear-gradient(135deg,#6d28d9,#5b21b6);box-shadow:0 4px 12px rgba(124,58,237,.3);}
+    .tab-count{display:inline-flex;align-items:center;justify-content:center;min-width:22px;height:22px;padding:0 7px;border-radius:50px;font-size:11px;font-weight:700;background:#eef2f7;color:var(--pd);}
+    .tab-btn.active .tab-count{background:rgba(240,154,54,.15);color:#d97706;}
+    .table-wrap{overflow-x:auto;position:relative;}
+    .table-wrap table{width:100%;}
+    .table-wrap table th,.table-wrap table td{white-space:nowrap;}
+    .table-wrap table th:last-child,.table-wrap table td:last-child{
+        position:sticky;right:0;background:#fff;box-shadow:-6px 0 12px rgba(15,23,42,.06);z-index:1;
+    }
+    .table-wrap table thead th:last-child{background:#f8fafc;}
+    .row-chatbot:hover td:last-child{background:#faf9ff;}
 </style>
 </head>
 <body>
@@ -196,17 +229,20 @@
         <form method="get" th:action="@{/admin/solicitudes}" style="display: contents; width: 100%;">
             <div class="filter-group">
                 <label><i class="fas fa-search"></i> Buscar</label>
-                <input type="text" name="search" th:value="${search}" placeholder="Nombre, usuario o email...">
+                <input type="text" name="search" th:value="${search}" placeholder="Radicado, nombre, email o documento...">
             </div>
             <div class="filter-group">
                 <label><i class="fas fa-tag"></i> Estado</label>
                 <select name="estado">
                     <option value="">Todos los estados</option>
-                    <option value="PENDIENTE" th:selected="${selEstado == 'PENDIENTE'}">Pendiente</option>
-                    <option value="APROBADO" th:selected="${selEstado == 'APROBADO'}">Aprobado</option>
-                    <option value="RECHAZADO" th:selected="${selEstado == 'RECHAZADO'}">Rechazado</option>
-                    <option value="ABIERTO" th:selected="${selEstado == 'ABIERTO'}">Abierto (PQRS)</option>
-                    <option value="CERRADO" th:selected="${selEstado == 'CERRADO'}">Cerrado (PQRS)</option>
+                    <option value="ABIERTO" th:selected="${selEstado == 'ABIERTO'}">Recibido / Pendiente</option>
+                    <option value="EN_PROCESO" th:selected="${selEstado == 'EN_PROCESO'}">En revisión</option>
+                    <option value="REQUIERE_INFO" th:selected="${selEstado == 'REQUIERE_INFO'}">Requerimiento de info</option>
+                    <option value="RESUELTO" th:selected="${selEstado == 'RESUELTO'}">Resuelto</option>
+                    <option value="CERRADO" th:selected="${selEstado == 'CERRADO'}">Cerrado</option>
+                    <option value="PENDIENTE" th:selected="${selEstado == 'PENDIENTE'}">Pendiente (solicitudes)</option>
+                    <option value="APROBADO" th:selected="${selEstado == 'APROBADO'}">Aprobado (solicitudes)</option>
+                    <option value="RECHAZADO" th:selected="${selEstado == 'RECHAZADO'}">Rechazado (solicitudes)</option>
                 </select>
             </div>
             <div class="filter-group">
@@ -222,6 +258,23 @@
                     <option value="OTRO">Otro</option>
                 </select>
             </div>
+            <div class="filter-group">
+                <label><i class="fas fa-flag"></i> Prioridad</label>
+                <select name="prioridad">
+                    <option value="">Todas</option>
+                    <option value="ALTA" th:selected="${selPrioridad == 'ALTA'}">Alta</option>
+                    <option value="MEDIA" th:selected="${selPrioridad == 'MEDIA'}">Media</option>
+                    <option value="BAJA" th:selected="${selPrioridad == 'BAJA'}">Baja</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label><i class="fas fa-user-check"></i> Asignado a</label>
+                <select name="asignado">
+                    <option value="">Todos</option>
+                    <option value="SIN_ASIGNAR" th:selected="${selAsignado == 'SIN_ASIGNAR'}">Sin asignar</option>
+                    <option th:each="a : ${adminAdmins}" th:value="${a.username}" th:selected="${selAsignado == a.username}" th:text="${a.nombres + ' ' + a.apellidos + ' (' + a.username + ')'}">Admin</option>
+                </select>
+            </div>
             <div class="filter-actions">
                 <button type="submit" class="btn btn-cyan"><i class="fas fa-filter"></i> Filtrar</button>
                 <a href="/admin/solicitudes" class="btn btn-cancel"><i class="fas fa-times"></i> Limpiar</a>
@@ -231,80 +284,135 @@
 
     <div class="tabs reveal">
         <button class="tab-btn active" onclick="switchTab('pqrsTab', this)">
-            <i class="fas fa-inbox"></i> PQRS y Chatbot (página pública)
+            <i class="fas fa-inbox"></i> PQRS
+            <span class="tab-count" th:text="${#lists.size(pqrsList)}">0</span>
+        </button>
+        <button class="tab-btn" onclick="switchTab('chatbotTab', this)">
+            <i class="fas fa-robot"></i> Solicitudes vía Chatbot
+            <span class="tab-count" th:text="${#lists.size(chatbotList)}">0</span>
         </button>
         <button class="tab-btn" onclick="switchTab('solicitudesTab', this)">
             <i class="fas fa-file-signature"></i> Solicitudes (usuarios registrados)
+            <span class="tab-count" th:text="${#lists.size(solicitudes)}">0</span>
         </button>
     </div>
 
     <div id="pqrsTab" class="tab-content active reveal">
-        <div class="sec-lbl"><i class="fas fa-inbox"></i> PQRS y solicitudes del chatbot recibidas</div>
+        <div class="sec-lbl"><i class="fas fa-inbox"></i> PQRS recibidas por la página pública</div>
         <div class="table-wrap">
             <table>
                 <thead>
                 <tr>
-                    <th>Nombre</th>
-                    <th>Email</th>
-                    <th>Teléfono</th>
+                    <th>Radicado</th>
+                    <th>Solicitante</th>
                     <th>Tipo</th>
-                    <th>Departamento</th>
-                    <th>Descripción</th>
+                    <th>Prioridad</th>
+                    <th>Fecha</th>
+                    <th>SLA</th>
+                    <th>Estado</th>
+                    <th>Acciones</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="t : ${pqrsList}">
+                    <td class="radicado-cell" th:text="${t.radicado ?: '—'}">PQRS-2026-0001</td>
+                    <td>
+                        <div style="display:flex;align-items:center;gap:8px;">
+                            <span class="origin-icon pqrs"><i class="fas fa-envelope"></i></span>
+                            <div>
+                                <strong th:text="${t.nombreCompleto ?: t.username}">Nombre</strong>
+                                <div style="font-size:11px;color:#94a3b8;" th:text="${t.email}">email@ejemplo.com</div>
+                            </div>
+                        </div>
+                    </td>
+                    <td><span class="type-badge" style="background:#e0f2fe;color:#0284c7;" th:text="${t.tipoPeticion}">Petición</span></td>
+                    <td>
+                        <span class="prio-badge"
+                              th:classappend="${t.prioridad == 'ALTA' ? 'prio-alta' : (t.prioridad == 'BAJA' ? 'prio-baja' : 'prio-media')}"
+                              th:text="${t.prioridad}">MEDIA</span>
+                    </td>
+                    <td style="font-size:12px; color:#94a3b8; white-space:nowrap;">
+                        <span th:if="${t.createdAt != null}" th:text="${#temporals.format(t.createdAt, 'dd/MM/yyyy')}">01/01/2024</span>
+                        <span th:if="${t.createdAt == null}">-</span>
+                    </td>
+                    <td>
+                        <span class="sla-badge"
+                              th:classappend="${pqrsService.slaBadgeClass(t)}"
+                              th:text="${pqrsService.slaBadgeText(t)}">Vence en 5 día(s)</span>
+                    </td>
+                    <td>
+                        <span class="status-pill"
+                              th:classappend="${t.status == 'ABIERTO' ? 'st-abierto' : (t.status == 'EN_PROCESO' ? 'st-enproceso' : (t.status == 'REQUIERE_INFO' ? 'st-requiere' : (t.status == 'RESUELTO' ? 'st-resuelto' : 'st-cerrado')))}"
+                              th:text="${pqrsService.labelEstado(t.status)}">ABIERTO</span>
+                    </td>
+                    <td>
+                        <div class="actions">
+                            <a th:href="'/admin/solicitudes/' + ${t.id}" class="btn-ver"><i class="fas fa-eye"></i> Ver</a>
+                        </div>
+                    </td>
+                </tr>
+                <tr th:if="${#lists.isEmpty(pqrsList)}">
+                    <td colspan="8">
+                        <div class="empty-state">
+                            <i class="fas fa-inbox"></i>
+                            <p>No hay PQRS registradas</p>
+                        </div>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div id="chatbotTab" class="tab-content reveal">
+        <div class="sec-lbl"><i class="fas fa-robot"></i> Solicitudes recibidas a través del chatbot (citas, información, trámites)</div>
+        <div class="table-wrap">
+            <table>
+                <thead>
+                <tr>
+                    <th>Radicado</th>
+                    <th>Solicitante</th>
+                    <th>Interés</th>
+                    <th>Área</th>
                     <th>Fecha</th>
                     <th>Estado</th>
                     <th>Acciones</th>
                 </tr>
                 </thead>
                 <tbody>
-                <tr th:each="t : ${pqrsList}" th:classappend="${t.origen == 'CHATBOT' ? 'row-chatbot' : 'row-pqrs'}">
+                <tr th:each="t : ${chatbotList}" class="row-chatbot">
+                    <td class="radicado-cell" th:text="${t.radicado ?: '—'}">PQRS-2026-0001</td>
                     <td>
                         <div style="display:flex;align-items:center;gap:8px;">
-                            <span th:if="${t.origen == 'CHATBOT'}" class="origin-icon chatbot"><i class="fas fa-robot"></i></span>
-                            <span th:if="${t.origen != 'CHATBOT'}" class="origin-icon pqrs"><i class="fas fa-envelope"></i></span>
-                            <strong th:text="${t.nombreCompleto ?: t.username}">Nombre</strong>
+                            <span class="origin-icon chatbot"><i class="fas fa-robot"></i></span>
+                            <div>
+                                <strong th:text="${t.nombreCompleto ?: t.username}">Nombre</strong>
+                                <div style="font-size:11px;color:#94a3b8;" th:text="${t.email}">email@ejemplo.com</div>
+                            </div>
                         </div>
                     </td>
-                    <td th:text="${t.email}">email@ejemplo.com</td>
-                    <td th:text="${t.telefono ?: '-'}">+57 300 123 4567</td>
-                    <td><span class="type-badge" style="background:#e0f2fe;color:#0284c7;" th:text="${t.tipoPeticion}">Petición</span></td>
-                    <td th:text="${t.departamento}">Comercial</td>
-                    <td style="max-width:180px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; color:#64748b; font-size:12px;" th:text="${t.message}">Descripción</td>
+                    <td><span class="type-badge" style="background:#ede9fe;color:#7c3aed;" th:text="${t.tipoPeticion}">Solicitar información</span></td>
+                    <td style="font-size:12px;color:#64748b;" th:text="${t.departamento ?: 'General'}">Comercial</td>
                     <td style="font-size:12px; color:#94a3b8; white-space:nowrap;">
                         <span th:if="${t.createdAt != null}" th:text="${#temporals.format(t.createdAt, 'dd/MM/yyyy')}">01/01/2024</span>
                         <span th:if="${t.createdAt == null}">-</span>
                     </td>
                     <td>
-                        <span class="status-badge" th:classappend="${t.status == 'ABIERTO' ? 'status-abierto' : 'status-cerrado'}" th:text="${t.status}">ABIERTO</span>
+                        <span class="status-pill"
+                              th:classappend="${t.status == 'ABIERTO' ? 'st-abierto' : (t.status == 'EN_PROCESO' ? 'st-enproceso' : (t.status == 'REQUIERE_INFO' ? 'st-requiere' : (t.status == 'RESUELTO' ? 'st-resuelto' : 'st-cerrado')))}"
+                              th:text="${pqrsService.labelEstado(t.status)}">ABIERTO</span>
                     </td>
                     <td>
                         <div class="actions">
-                            <button th:if="${t.status == 'ABIERTO'}" class="btn-respond"
-                                    th:classappend="${t.origen == 'CHATBOT' ? 'btn-chatbot' : 'btn-pqrs'}"
-                                    th:data-id="${t.id}"
-                                    th:data-origen="${t.origen}"
-                                    th:data-nombre="${t.nombreCompleto ?: t.username}"
-                                    th:data-email="${t.email}"
-                                    th:data-telefono="${t.telefono ?: '-'}"
-                                    th:data-doctype="${t.tipoDocumento ?: '-'}"
-                                    th:data-docnum="${t.numeroDocumento ?: '-'}"
-                                    th:data-tipo="${t.tipoPeticion ?: '-'}"
-                                    th:data-depto="${t.departamento ?: '-'}"
-                                    th:data-desc="${t.message ?: '-'}"
-                                    th:data-fecha="${t.createdAt != null ? #temporals.format(t.createdAt, 'dd/MM/yyyy') : '-'}"
-                                    onclick="openResponderModal(this)">
-                                <i class="fas fa-reply"></i> Responder
-                            </button>
-                            <span th:if="${t.status != 'ABIERTO'}" class="responded-badge">
-                                    <i class="fas fa-check-circle"></i> Respondido
-                                </span>
+                            <a th:href="'/admin/solicitudes/' + ${t.id}" class="btn-ver btn-ver-chatbot"><i class="fas fa-eye"></i> Ver</a>
                         </div>
                     </td>
                 </tr>
-                <tr th:if="${#lists.isEmpty(pqrsList)}">
-                    <td colspan="9">
+                <tr th:if="${#lists.isEmpty(chatbotList)}">
+                    <td colspan="7">
                         <div class="empty-state">
-                            <i class="fas fa-inbox"></i>
-                            <p>No hay PQRS ni solicitudes del chatbot</p>
+                            <i class="fas fa-robot"></i>
+                            <p>No hay solicitudes del chatbot</p>
                         </div>
                     </td>
                 </tr>
@@ -382,68 +490,6 @@
         <a href="#"><i class="fas fa-shield-halved"></i> Políticas de Seguridad</a>
     </div>
     <div class="pfooter-copy">&copy; 2026 Sociedad Portuaria Mardique S.A. Todos los derechos reservados.</div>
-</div>
-
-<div class="modal-overlay" id="responderModal">
-    <div class="modal-box responder-modal">
-        <div class="responder-header" id="responderHeader">
-            <div class="responder-header-content">
-                <span class="responder-icon" id="responderIcon"><i class="fas fa-envelope"></i></span>
-                <div>
-                    <h2 id="responderTitle">Responder PQRS</h2>
-                    <span class="responder-subtitle" id="responderSubtitle">Petición recibida desde la página pública</span>
-                </div>
-            </div>
-            <button class="modal-close-btn" onclick="document.getElementById('responderModal').classList.remove('show')">&times;</button>
-        </div>
-        <div class="responder-body">
-            <div class="info-grid" id="responderInfoGrid">
-                <div class="info-item">
-                    <span class="info-icon"><i class="fas fa-user"></i></span>
-                    <span class="info-text"><span class="info-label">Nombre</span><span class="info-value" id="pqNombre">-</span></span>
-                </div>
-                <div class="info-item">
-                    <span class="info-icon"><i class="fas fa-envelope"></i></span>
-                    <span class="info-text"><span class="info-label">Email</span><span class="info-value" id="pqEmail">-</span></span>
-                </div>
-                <div class="info-item">
-                    <span class="info-icon"><i class="fas fa-phone"></i></span>
-                    <span class="info-text"><span class="info-label">Teléfono</span><span class="info-value" id="pqTelefono">-</span></span>
-                </div>
-                <div class="info-item">
-                    <span class="info-icon"><i class="fas fa-id-card"></i></span>
-                    <span class="info-text"><span class="info-label">Documento</span><span class="info-value" id="pqDoc">-</span></span>
-                </div>
-                <div class="info-item">
-                    <span class="info-icon"><i class="fas fa-tag"></i></span>
-                    <span class="info-text"><span class="info-label">Tipo</span><span class="info-value" id="pqTipo">-</span></span>
-                </div>
-                <div class="info-item">
-                    <span class="info-icon"><i class="fas fa-building"></i></span>
-                    <span class="info-text"><span class="info-label">Departamento</span><span class="info-value" id="pqDepto">-</span></span>
-                </div>
-                <div class="info-item full-width">
-                    <span class="info-icon"><i class="fas fa-calendar"></i></span>
-                    <span class="info-text"><span class="info-label">Fecha</span><span class="info-value" id="pqFecha">-</span></span>
-                </div>
-                <div class="info-item full-width" id="pqDescRow">
-                    <span class="info-icon"><i class="fas fa-align-left"></i></span>
-                    <span class="info-text"><span class="info-label">Descripción</span><span class="info-value info-desc" id="pqDesc">-</span></span>
-                </div>
-            </div>
-            <form method="post" id="responderForm">
-                <input type="hidden" name="_csrf" th:value="${_csrf.token}">
-                <div class="form-group">
-                    <label><i class="fas fa-pen"></i> Respuesta</label>
-                    <textarea name="respuesta" rows="5" required placeholder="Escriba la respuesta que se enviará al correo del solicitante..."></textarea>
-                </div>
-                <div class="modal-actions">
-                    <button type="button" class="btn-cancel" onclick="document.getElementById('responderModal').classList.remove('show')">Cancelar</button>
-                    <button type="submit" class="btn btn-gold"><i class="fas fa-paper-plane"></i> Enviar Respuesta</button>
-                </div>
-            </form>
-        </div>
-    </div>
 </div>
 
 <div class="modal-overlay" id="solicitudResponderModal">
@@ -566,46 +612,6 @@
         btn.classList.add('active');
     }
 
-    function openResponderModal(el) {
-        var id = el.getAttribute('data-id');
-        var origen = el.getAttribute('data-origen') || 'PQRS';
-        var isChatbot = origen === 'CHATBOT';
-        document.getElementById('responderForm').action = '/admin/solicitudes/responder/' + id;
-        var header = document.getElementById('responderHeader');
-        var icon = document.getElementById('responderIcon');
-        var title = document.getElementById('responderTitle');
-        var subtitle = document.getElementById('responderSubtitle');
-        var descRow = document.getElementById('pqDescRow');
-        header.className = 'responder-header ' + (isChatbot ? 'chatbot-mode' : 'pqrs-mode');
-        if (isChatbot) {
-            icon.innerHTML = '<i class="fas fa-robot"></i>';
-            title.textContent = 'Responder Solicitud del Chatbot';
-            subtitle.textContent = 'Solicitud recibida a través del asistente virtual';
-        } else {
-            icon.innerHTML = '<i class="fas fa-envelope"></i>';
-            title.textContent = 'Responder PQRS';
-            subtitle.textContent = 'Petición recibida desde la página pública';
-        }
-        document.getElementById('pqNombre').textContent = el.getAttribute('data-nombre') || '-';
-        document.getElementById('pqEmail').textContent = el.getAttribute('data-email') || '-';
-        document.getElementById('pqTelefono').textContent = el.getAttribute('data-telefono') || '-';
-        document.getElementById('pqDoc').textContent = (el.getAttribute('data-doctype') || '-') + ' ' + (el.getAttribute('data-docnum') || '-');
-        document.getElementById('pqTipo').textContent = el.getAttribute('data-tipo') || '-';
-        document.getElementById('pqDepto').textContent = el.getAttribute('data-depto') || '-';
-        document.getElementById('pqFecha').textContent = el.getAttribute('data-fecha') || '-';
-        var desc = el.getAttribute('data-desc') || '-';
-        if (isChatbot) {
-            var lines = desc.split('\n').filter(function(l){ return l.trim().length > 0; });
-            var clean = lines.filter(function(l){ return !l.startsWith('Solicitud enviada desde el chatbot.'); });
-            descRow.style.display = clean.length > 0 ? '' : 'none';
-            document.getElementById('pqDesc').textContent = clean.join('\n');
-        } else {
-            descRow.style.display = '';
-            document.getElementById('pqDesc').textContent = desc;
-        }
-        document.getElementById('responderModal').classList.add('show');
-    }
-
     function openSolicitudResponder(el) {
         var id = el.getAttribute('data-id');
         var username = el.getAttribute('data-username');
@@ -618,9 +624,6 @@
         document.getElementById('solicitudResponderModal').classList.add('show');
     }
 
-    document.getElementById('responderModal').addEventListener('click', function(e) {
-        if (e.target === this) this.classList.remove('show');
-    });
     document.getElementById('solicitudResponderModal').addEventListener('click', function(e) {
         if (e.target === this) this.classList.remove('show');
     });

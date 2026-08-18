@@ -30,7 +30,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/", "/inicio", "/empresa", "/servicios", "/procedimientos",
                                 "/tarifas", "/tramites-en-linea", "/galeria", "/contacto",
-                                "/contacto/pqrs", "/contacto/message", "/sesion-activa", "/error",
+                                "/contacto/pqrs", "/contacto/pqrs/seguimiento", "/contacto/message", "/sesion-activa", "/error",
                                 "/css/**", "/js/**", "/images/**", "/videos/**", "/uploads/**",
                                 "/login", "/register", "/intranet/**", "/api/chatbot/**",
                                 "/api/intranet/documents/**").permitAll()
@@ -59,6 +59,7 @@ public class SecurityConfig {
                 )
                 .csrf(csrf -> csrf.ignoringRequestMatchers(
                         new AntPathRequestMatcher("/contacto/pqrs"),
+                        new AntPathRequestMatcher("/contacto/pqrs/seguimiento"),
                         new AntPathRequestMatcher("/contacto/message"),
                         new AntPathRequestMatcher("/admin/migrate-encryption"),
                         new AntPathRequestMatcher("/api/chatbot/**"),

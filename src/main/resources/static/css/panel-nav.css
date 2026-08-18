@@ -11,7 +11,7 @@
     position: relative;
     overflow: hidden;
     flex-shrink: 0;
-    box-shadow: 0 3px 10px rgba(0,0,0,0.16), 0 0 0 1px rgba(255,255,255,0.08);
+    box-shadow: 0 3px 10px rgba(0,0,0,0.16), 0 0 0 1px rgba(255,255,255,0.08) !important;
     transition: var(--transition, all 0.3s cubic-bezier(0.4,0,0.2,1));
 }
 .logo-box::before {
@@ -22,7 +22,7 @@
 }
 .logo-box:hover {
     transform: scale(1.03);
-    box-shadow: 0 5px 16px rgba(0,0,0,0.22), 0 0 0 1px rgba(240,154,54,0.16);
+    box-shadow: 0 5px 16px rgba(0,0,0,0.22), 0 0 0 1px rgba(240,154,54,0.16) !important;
 }
 .logo-box img {
     height: 40px; width: auto; object-fit: contain;

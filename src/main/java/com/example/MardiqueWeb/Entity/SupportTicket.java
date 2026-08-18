@@ -31,6 +31,22 @@ public class SupportTicket {
 
     private String status = "ABIERTO";
 
+    @Column(name = "radicado", unique = true)
+    private String radicado;
+
+    private String prioridad = "MEDIA";
+
+    private String asignadoA;
+
+    @Column(name = "fecha_limite")
+    private LocalDateTime fechaLimite;
+
+    @Column(name = "fecha_resuelto")
+    private LocalDateTime fechaResuelto;
+
+    @Column(name = "fecha_cerrado")
+    private LocalDateTime fechaCerrado;
+
     @Column(name = "created_at")
     private LocalDateTime createdAt = LocalDateTime.now();
 
@@ -64,6 +80,18 @@ public class SupportTicket {
     public void setOrigen(String origen) { this.origen = origen; }
     public String getStatus() { return status; }
     public void setStatus(String status) { this.status = status; }
+    public String getRadicado() { return radicado; }
+    public void setRadicado(String radicado) { this.radicado = radicado; }
+    public String getPrioridad() { return prioridad; }
+    public void setPrioridad(String prioridad) { this.prioridad = prioridad; }
+    public String getAsignadoA() { return asignadoA; }
+    public void setAsignadoA(String asignadoA) { this.asignadoA = asignadoA; }
+    public LocalDateTime getFechaLimite() { return fechaLimite; }
+    public void setFechaLimite(LocalDateTime fechaLimite) { this.fechaLimite = fechaLimite; }
+    public LocalDateTime getFechaResuelto() { return fechaResuelto; }
+    public void setFechaResuelto(LocalDateTime fechaResuelto) { this.fechaResuelto = fechaResuelto; }
+    public LocalDateTime getFechaCerrado() { return fechaCerrado; }
+    public void setFechaCerrado(LocalDateTime fechaCerrado) { this.fechaCerrado = fechaCerrado; }
     public LocalDateTime getCreatedAt() { return createdAt; }
     public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
 }
