@@ -22,8 +22,16 @@ public class IntranetDocument {
     private String nombre;
 
     // Nombre con el que se guarda en disco (UUID.ext) para evitar colisiones y path traversal
-    @Column(name = "stored_name", nullable = false)
+    @Column(name = "stored_name")
     private String storedName;
+
+    // true si es una carpeta (no tiene archivo físico); false para archivos
+    @Column(name = "es_carpeta")
+    private boolean esCarpeta = false;
+
+    // Si está dentro de una carpeta, id de la carpeta padre; null = raíz del sector
+    @Column(name = "parent_id")
+    private Long parentId;
 
     // Extensión sin punto, en minúsculas (pdf, docx, png, ...)
     @Column(name = "file_type", nullable = false, length = 32)
@@ -71,6 +79,22 @@ public class IntranetDocument {
 
     public void setStoredName(String storedName) {
         this.storedName = storedName;
+    }
+
+    public boolean isEsCarpeta() {
+        return esCarpeta;
+    }
+
+    public void setEsCarpeta(boolean esCarpeta) {
+        this.esCarpeta = esCarpeta;
+    }
+
+    public Long getParentId() {
+        return parentId;
+    }
+
+    public void setParentId(Long parentId) {
+        this.parentId = parentId;
     }
 
     public String getFileType() {

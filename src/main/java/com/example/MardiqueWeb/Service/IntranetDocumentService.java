@@ -87,6 +87,10 @@ public class IntranetDocumentService {
     }
 
     public IntranetDocument upload(String sector, MultipartFile file, String uploadedBy) throws IOException {
+        return upload(sector, file, uploadedBy, null);
+    }
+
+    public IntranetDocument upload(String sector, MultipartFile file, String uploadedBy, Long parentId) throws IOException {
         String original = file.getOriginalFilename();
         String ext = extension(original);
         if (!ALLOWED_EXTENSIONS.contains(ext)) {
@@ -107,11 +111,57 @@ public class IntranetDocumentService {
         doc.setFileSize(file.getSize());
         doc.setUploadedBy(uploadedBy == null || uploadedBy.isBlank() ? "Equipo Mardique" : uploadedBy.trim());
         doc.setUploadedAt(LocalDateTime.now());
+        doc.setEsCarpeta(false);
+        doc.setParentId(validateParent(parentId));
         return repository.save(doc);
     }
 
+    /** Crea una carpeta vacía en un sector (o dentro de otra carpeta). */
+    public IntranetDocument createFolder(String sector, String nombre, String uploadedBy, Long parentId) {
+        String name = nombre == null ? "" : nombre.trim();
+        if (name.isEmpty()) {
+            throw new IllegalArgumentException("El nombre de la carpeta no puede estar vacío.");
+        }
+        IntranetDocument folder = new IntranetDocument();
+        folder.setSector(sanitizeSector(sector));
+        folder.setNombre(name);
+        folder.setStoredName(null);
+        folder.setFileType("folder");
+        folder.setFileSize(0);
+        folder.setUploadedBy(uploadedBy == null || uploadedBy.isBlank() ? "Equipo Mardique" : uploadedBy.trim());
+        folder.setUploadedAt(LocalDateTime.now());
+        folder.setEsCarpeta(true);
+        folder.setParentId(validateParent(parentId));
+        return repository.save(folder);
+    }
+
+    /** Valida que el parentId (si viene) corresponda a una carpeta existente y del mismo sector. */
+    private Long validateParent(Long parentId) {
+        if (parentId == null) return null;
+        IntranetDocument parent = repository.findById(parentId).orElse(null);
+        if (parent == null || !parent.isEsCarpeta()) {
+            throw new IllegalArgumentException("La carpeta destino no existe.");
+        }
+        return parentId;
+    }
+
+    /** Lista la raíz de un sector (carpetas y archivos sin padre). */
     public List<IntranetDocument> listBySector(String sector) {
-        return repository.findBySectorOrderByUploadedAtDesc(sanitizeSector(sector));
+        return repository.findBySectorAndParentIdIsNullOrderByUploadedAtDesc(sanitizeSector(sector));
+    }
+
+    /** Lista el contenido de una carpeta. */
+    public List<IntranetDocument> listByParent(Long parentId) {
+        return repository.findByParentIdOrderByUploadedAtDesc(parentId);
+    }
+
+    /** Lista todos los documentos de un sector (raíz + contenido de carpetas), para conteos. */
+    public List<IntranetDocument> listAllBySector(String sector) {
+        return repository.findBySector(sanitizeSector(sector));
+    }
+
+    public long countChildren(Long parentId) {
+        return repository.countByParentId(parentId);
     }
 
     public IntranetDocument find(Long id) {
@@ -121,14 +171,24 @@ public class IntranetDocumentService {
     public boolean delete(Long id) throws IOException {
         IntranetDocument doc = repository.findById(id).orElse(null);
         if (doc == null) return false;
-        Path target = uploadDir.resolve(doc.getStoredName()).normalize();
-        if (target.startsWith(uploadDir)) {
-            Files.deleteIfExists(target);
-        }
-        Files.deleteIfExists(uploadDir.resolve(doc.getStoredName() + ".pdf"));
-        repository.deleteById(id);
-        THUMB_CACHE.remove(id);
+        deleteRecursive(doc);
         return true;
+    }
+
+    private void deleteRecursive(IntranetDocument doc) throws IOException {
+        if (doc.isEsCarpeta()) {
+            for (IntranetDocument child : repository.findByParentId(doc.getId())) {
+                deleteRecursive(child);
+            }
+        } else {
+            Path target = uploadDir.resolve(doc.getStoredName()).normalize();
+            if (target.startsWith(uploadDir)) {
+                Files.deleteIfExists(target);
+            }
+            Files.deleteIfExists(uploadDir.resolve(doc.getStoredName() + ".pdf"));
+            THUMB_CACHE.remove(doc.getId());
+        }
+        repository.deleteById(doc.getId());
     }
 
     public byte[] readContent(IntranetDocument doc) throws IOException {
@@ -141,6 +201,51 @@ public class IntranetDocumentService {
 
     public String contentType(String ext) {
         return CONTENT_TYPES.getOrDefault(ext == null ? "" : ext.toLowerCase(), "application/octet-stream");
+    }
+
+    /* ---------- Código QR ---------- */
+
+    /**
+     * Genera una imagen PNG con el código QR que apunta a la URL de descarga del
+     * documento. Si falla la generación, devuelve null.
+     */
+    public byte[] qrPng(IntranetDocument doc, String url) {
+        if (url == null || url.isBlank()) return null;
+        try {
+            Map<com.google.zxing.EncodeHintType, Object> hints = new java.util.HashMap<>();
+            hints.put(com.google.zxing.EncodeHintType.CHARACTER_SET, "UTF-8");
+            hints.put(com.google.zxing.EncodeHintType.MARGIN, 2);
+            com.google.zxing.qrcode.QRCodeWriter writer = new com.google.zxing.qrcode.QRCodeWriter();
+            com.google.zxing.common.BitMatrix matrix = writer.encode(url,
+                    com.google.zxing.BarcodeFormat.QR_CODE, 600, 600, hints);
+            return toPng(matrixToImage(matrix, Color.WHITE, new Color(2, 6, 23)));
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    private static BufferedImage matrixToImage(com.google.zxing.common.BitMatrix matrix,
+                                               Color onColor, Color offColor) {
+        int w = matrix.getWidth();
+        int h = matrix.getHeight();
+        int scale = 4;
+        BufferedImage img = new BufferedImage(w * scale, h * scale, BufferedImage.TYPE_INT_RGB);
+        Graphics2D g = img.createGraphics();
+        try {
+            g.setColor(offColor);
+            g.fillRect(0, 0, img.getWidth(), img.getHeight());
+            g.setColor(onColor);
+            for (int x = 0; x < w; x++) {
+                for (int y = 0; y < h; y++) {
+                    if (matrix.get(x, y)) {
+                        g.fillRect(x * scale, y * scale, scale, scale);
+                    }
+                }
+            }
+        } finally {
+            g.dispose();
+        }
+        return img;
     }
 
     public boolean isPreviewable(IntranetDocument doc) {

@@ -59,7 +59,20 @@ function logoutMsal() {
 }
 
 function isMsalAuthenticated() {
-    return !!sessionStorage.getItem("msalAccount");
+    if (sessionStorage.getItem("msalAccount")) return true;
+    if (MODO_PRUEBA) {
+        sessionStorage.setItem("msalAccount", JSON.stringify({
+            homeAccountId: "dev",
+            environment: "login.microsoftonline.com",
+            tenantId: "f33bed9f-22bd-4350-b7da-66bd88fc6458",
+            username: "dev@mardique.com.co",
+            name: "Usuario"
+        }));
+        sessionStorage.setItem("msalToken", "dev-token-" + Date.now());
+        sessionStorage.setItem("msalTokenExpires", String(Date.now() + 3600000));
+        return true;
+    }
+    return false;
 }
 
 function isMockMode() {

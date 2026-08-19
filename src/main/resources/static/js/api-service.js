@@ -37,36 +37,10 @@ const MOCK_USER = {
 };
 
 const MOCK_DEPARTMENTS = [
-    { id: "rrhh", name: "Recursos Humanos", icon: "fa-users" },
-    { id: "finanzas", name: "Finanzas", icon: "fa-chart-line" },
+    { id: "rrhh", name: "Talento Humano", icon: "fa-users" },
+    { id: "finanzas", name: "Contabilidad", icon: "fa-chart-line" },
     { id: "ti", name: "Tecnología e Informática", icon: "fa-laptop-code" }
 ];
-
-const MOCK_FILES_BY_SECTOR = {
-    "rrhh": [
-        { id: "rh-001", name: "Contrato Laboral Modelo.pdf", size: 245760, file: { mimeType: "application/pdf" }, lastModifiedDateTime: "2026-03-10T14:30:00Z", webUrl: "#", createdBy: { user: { displayName: "Ana Gómez" } } },
-        { id: "rh-002", name: "Reglamento Interno de Trabajo.pdf", size: 512000, file: { mimeType: "application/pdf" }, lastModifiedDateTime: "2026-02-15T10:00:00Z", webUrl: "#", createdBy: { user: { displayName: "Ana Gómez" } } },
-        { id: "rh-003", name: "Formato Evaluación Desempeño.docx", size: 189440, file: { mimeType: "application/vnd.openxmlformats-officedocument.wordprocessingml.document" }, lastModifiedDateTime: "2026-04-01T08:45:00Z", webUrl: "#", createdBy: { user: { displayName: "Pedro Ruiz" } } },
-        { id: "rh-004", name: "Calendario Vacaciones 2026.xlsx", size: 36864, file: { mimeType: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" }, lastModifiedDateTime: "2026-01-05T09:00:00Z", webUrl: "#", createdBy: { user: { displayName: "María López" } } },
-        { id: "rh-005", name: "Política de Bienestar.pdf", size: 102400, file: { mimeType: "application/pdf" }, lastModifiedDateTime: "2026-03-20T11:30:00Z", webUrl: "#", createdBy: { user: { displayName: "Pedro Ruiz" } } },
-        { id: "rh-006", name: "Capacitaciones 2026", folder: { childCount: 3 }, lastModifiedDateTime: "2026-04-10T16:00:00Z", webUrl: "#", createdBy: { user: { displayName: "Ana Gómez" } } }
-    ],
-    "finanzas": [
-        { id: "fn-001", name: "Presupuesto Anual 2026.xlsx", size: 286720, file: { mimeType: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" }, lastModifiedDateTime: "2026-01-02T07:00:00Z", webUrl: "#", createdBy: { user: { displayName: "Laura Jiménez" } } },
-        { id: "fn-002", name: "Informe de Gestión Q1 2026.pdf", size: 1540000, file: { mimeType: "application/pdf" }, lastModifiedDateTime: "2026-04-05T13:00:00Z", webUrl: "#", createdBy: { user: { displayName: "Laura Jiménez" } } },
-        { id: "fn-003", name: "Plantilla Facturación.docx", size: 65536, file: { mimeType: "application/vnd.openxmlformats-officedocument.wordprocessingml.document" }, lastModifiedDateTime: "2026-02-20T10:30:00Z", webUrl: "#", createdBy: { user: { displayName: "Carlos Vega" } } },
-        { id: "fn-004", name: "Comprobantes de Pago", folder: { childCount: 12 }, lastModifiedDateTime: "2026-04-12T09:15:00Z", webUrl: "#", createdBy: { user: { displayName: "Carlos Vega" } } },
-        { id: "fn-005", name: "Informe Tributario 2025.pdf", size: 2100000, file: { mimeType: "application/pdf" }, lastModifiedDateTime: "2026-03-01T08:00:00Z", webUrl: "#", createdBy: { user: { displayName: "Laura Jiménez" } } }
-    ],
-    "ti": [
-        { id: "ti-001", name: "Manual Usuario SAP.pdf", size: 3200000, file: { mimeType: "application/pdf" }, lastModifiedDateTime: "2026-02-01T14:00:00Z", webUrl: "#", createdBy: { user: { displayName: "Carlos Martínez" } } },
-        { id: "ti-002", name: "Política Seguridad Informática.pdf", size: 880000, file: { mimeType: "application/pdf" }, lastModifiedDateTime: "2026-01-15T11:00:00Z", webUrl: "#", createdBy: { user: { displayName: "Carlos Martínez" } } },
-        { id: "ti-003", name: "Inventario de Equipos.xlsx", size: 122880, file: { mimeType: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" }, lastModifiedDateTime: "2026-04-08T16:45:00Z", webUrl: "#", createdBy: { user: { displayName: "Andrés Ramírez" } } },
-        { id: "ti-004", name: "Guía Acceso Remoto.pdf", size: 450560, file: { mimeType: "application/pdf" }, lastModifiedDateTime: "2026-03-25T10:00:00Z", webUrl: "#", createdBy: { user: { displayName: "Andrés Ramírez" } } },
-        { id: "ti-005", name: "Backup de Configuración", folder: { childCount: 20 }, lastModifiedDateTime: "2026-04-12T23:00:00Z", webUrl: "#", createdBy: { user: { displayName: "Carlos Martínez" } } },
-        { id: "ti-006", name: "Solicitudes de Soporte", folder: { childCount: 5 }, lastModifiedDateTime: "2026-04-14T17:30:00Z", webUrl: "#", createdBy: { user: { displayName: "Andrés Ramírez" } } }
-    ]
-};
 
 const MOCK_NEWS = [
     { id: "n1", fields: { Title: "Arribo de buque con 35.000 toneladas de maíz", Description: "El M/V Grain Star atracó esta madrugada en el muelle 4 con 35.000 toneladas de maíz amarillo proveniente de Estados Unidos. La operación de descarga se estima en 48 horas continuas.", Created: "2026-07-12T06:00:00Z" }, coverUrl: "https://picsum.photos/seed/buque/800/450", webUrl: "#" },
@@ -149,55 +123,22 @@ let MOCK_CONVERSATIONS = [
 ];
 
 function getMockDriveRoot() {
-    const allItems = [];
-    MOCK_DEPARTMENTS.forEach(dept => {
-        allItems.push({
-            id: dept.id,
-            name: dept.name,
-            folder: { childCount: MOCK_FILES_BY_SECTOR[dept.id].length },
-            lastModifiedDateTime: "2026-04-14T17:30:00Z",
-            webUrl: "#",
-            createdBy: { user: { displayName: "Admin" } }
-        });
-    });
-    return allItems;
+    // En la vista "Todos", los sectores se muestran como carpetas del drive.
+    return MOCK_DEPARTMENTS.map(dept => ({
+        id: dept.id,
+        name: dept.name,
+        folder: { childCount: 0 },
+        lastModifiedDateTime: "2026-04-14T17:30:00Z",
+        webUrl: "#",
+        createdBy: { user: { displayName: "Admin" } }
+    }));
 }
 
 function getMockDriveItems(folderId) {
-    const subItems = MOCK_SUBFOLDER_ITEMS[folderId];
-    if (subItems) return subItems;
-    const folderKey = MOCK_DEPARTMENTS.find(d => d.id === folderId)?.id;
-    if (folderKey && MOCK_FILES_BY_SECTOR[folderKey]) {
-        return MOCK_FILES_BY_SECTOR[folderKey];
-    }
+    // Ya no hay documentos de ejemplo: el contenido real viene del backend
+    // (/api/intranet/documents) y se combina en la plantilla.
     return [];
 }
-
-const MOCK_SUBFOLDER_ITEMS = {
-    "rh-006": [
-        { id: "rh-006a", name: "Inducción Nuevos Ingresos.pdf", size: 180000, file: { mimeType: "application/pdf" }, lastModifiedDateTime: "2026-03-01T09:00:00Z", webUrl: "#", createdBy: { user: { displayName: "Ana Gómez" } } },
-        { id: "rh-006b", name: "Curso Seguridad en Puertos.docx", size: 220000, file: { mimeType: "application/vnd.openxmlformats-officedocument.wordprocessingml.document" }, lastModifiedDateTime: "2026-03-10T11:00:00Z", webUrl: "#", createdBy: { user: { displayName: "Pedro Ruiz" } } },
-        { id: "rh-006c", name: "Certificados 2026", folder: { childCount: 2 }, lastModifiedDateTime: "2026-04-01T08:00:00Z", webUrl: "#", createdBy: { user: { displayName: "Ana Gómez" } } }
-    ],
-    "rh-006c": [
-        { id: "rh-006c1", name: "Certificado Ana Gómez.pdf", size: 45000, file: { mimeType: "application/pdf" }, lastModifiedDateTime: "2026-04-01T08:00:00Z", webUrl: "#", createdBy: { user: { displayName: "Ana Gómez" } } },
-        { id: "rh-006c2", name: "Certificado Pedro Ruiz.pdf", size: 44000, file: { mimeType: "application/pdf" }, lastModifiedDateTime: "2026-04-01T08:00:00Z", webUrl: "#", createdBy: { user: { displayName: "Pedro Ruiz" } } }
-    ],
-    "fn-004": [
-        { id: "fn-004a", name: "Factura Proveedor A.pdf", size: 95000, file: { mimeType: "application/pdf" }, lastModifiedDateTime: "2026-04-10T14:00:00Z", webUrl: "#", createdBy: { user: { displayName: "Carlos Vega" } } },
-        { id: "fn-004b", name: "Recibo de Pago Nómina Marzo.xlsx", size: 45000, file: { mimeType: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" }, lastModifiedDateTime: "2026-03-28T10:00:00Z", webUrl: "#", createdBy: { user: { displayName: "Laura Jiménez" } } },
-        { id: "fn-004c", name: "Conciliación Bancaria Febrero.xlsx", size: 68000, file: { mimeType: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" }, lastModifiedDateTime: "2026-03-05T12:00:00Z", webUrl: "#", createdBy: { user: { displayName: "Carlos Vega" } } }
-    ],
-    "ti-005": [
-        { id: "ti-005a", name: "Backup Servidor Principal.zip", size: 150000000, file: { mimeType: "application/zip" }, lastModifiedDateTime: "2026-04-12T23:00:00Z", webUrl: "#", createdBy: { user: { displayName: "Carlos Martínez" } } },
-        { id: "ti-005b", name: "Backup Base Datos SAP.zip", size: 80000000, file: { mimeType: "application/zip" }, lastModifiedDateTime: "2026-04-12T23:00:00Z", webUrl: "#", createdBy: { user: { displayName: "Carlos Martínez" } } }
-    ],
-    "ti-006": [
-        { id: "ti-006a", name: "Soporte Incidencia #1024.pdf", size: 120000, file: { mimeType: "application/pdf" }, lastModifiedDateTime: "2026-04-14T16:00:00Z", webUrl: "#", createdBy: { user: { displayName: "Andrés Ramírez" } } },
-        { id: "ti-006b", name: "Formato Solicitud Soporte.docx", size: 35000, file: { mimeType: "application/vnd.openxmlformats-officedocument.wordprocessingml.document" }, lastModifiedDateTime: "2026-04-13T09:30:00Z", webUrl: "#", createdBy: { user: { displayName: "Andrés Ramírez" } } },
-        { id: "ti-006c", name: "Reporte de Incidentes Q1.xlsx", size: 92000, file: { mimeType: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" }, lastModifiedDateTime: "2026-04-01T15:00:00Z", webUrl: "#", createdBy: { user: { displayName: "Carlos Martínez" } } }
-    ]
-};
 
 async function getCurrentUser() {
     const data = await graphFetch("https://graph.microsoft.com/v1.0/me?$select=displayName,mail,jobTitle,department,officeLocation,userPrincipalName");
@@ -398,14 +339,48 @@ async function getIntranetDocs(sector) {
     }
 }
 
-async function uploadIntranetDoc(sector, file, uploader) {
+async function getIntranetFolderItems(parentId) {
+    try {
+        const res = await fetch("/api/intranet/documents?parentId=" + encodeURIComponent(parentId));
+        if (!res.ok) return [];
+        return await res.json();
+    } catch (e) {
+        return [];
+    }
+}
+
+async function getIntranetAllDocs(sector) {
+    try {
+        const url = "/api/intranet/documents?all=true" + (sector ? "&sector=" + encodeURIComponent(sector) : "");
+        const res = await fetch(url);
+        if (!res.ok) return [];
+        return await res.json();
+    } catch (e) {
+        return [];
+    }
+}
+
+async function uploadIntranetDoc(sector, file, uploader, parentId) {
     const fd = new FormData();
     fd.append("sector", sector);
     fd.append("file", file);
     if (uploader) fd.append("uploader", uploader);
+    if (parentId) fd.append("parentId", parentId);
     const res = await fetch("/api/intranet/documents", { method: "POST", body: fd });
     const json = await res.json().catch(() => ({}));
     if (!res.ok) throw new Error(json.message || "No se pudo subir el archivo.");
+    return json;
+}
+
+async function createIntranetFolder(sector, nombre, uploader, parentId) {
+    const fd = new FormData();
+    fd.append("sector", sector);
+    fd.append("nombre", nombre);
+    if (uploader) fd.append("uploader", uploader);
+    if (parentId) fd.append("parentId", parentId);
+    const res = await fetch("/api/intranet/documents/folder", { method: "POST", body: fd });
+    const json = await res.json().catch(() => ({}));
+    if (!res.ok) throw new Error(json.message || "No se pudo crear la carpeta.");
     return json;
 }
 
@@ -425,4 +400,12 @@ function intranetDocContentUrl(id) {
 
 function intranetDocThumbUrl(id) {
     return "/api/intranet/documents/" + id + "/thumbnail";
+}
+
+function intranetDocQrUrl(id) {
+    return "/api/intranet/documents/" + id + "/qr";
+}
+
+function intranetSectorQrUrl(sector) {
+    return "/api/intranet/documents/qr/sector/" + encodeURIComponent(sector);
 }

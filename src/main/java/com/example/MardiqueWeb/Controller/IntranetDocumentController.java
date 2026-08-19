@@ -28,9 +28,10 @@ public class IntranetDocumentController {
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<?> upload(@RequestParam("sector") String sector,
                                     @RequestParam("file") MultipartFile file,
-                                    @RequestParam(value = "uploader", required = false) String uploader) {
+                                    @RequestParam(value = "uploader", required = false) String uploader,
+                                    @RequestParam(value = "parentId", required = false) Long parentId) {
         try {
-            IntranetDocument doc = service.upload(sector, file, uploader);
+            IntranetDocument doc = service.upload(sector, file, uploader, parentId);
             return ResponseEntity.ok(doc);
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(Map.of("ok", "false", "message", e.getMessage()));
@@ -39,8 +40,29 @@ public class IntranetDocumentController {
         }
     }
 
+    @PostMapping("/folder")
+    public ResponseEntity<?> createFolder(@RequestParam("sector") String sector,
+                                          @RequestParam("nombre") String nombre,
+                                          @RequestParam(value = "uploader", required = false) String uploader,
+                                          @RequestParam(value = "parentId", required = false) Long parentId) {
+        try {
+            IntranetDocument folder = service.createFolder(sector, nombre, uploader, parentId);
+            return ResponseEntity.ok(folder);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(Map.of("ok", "false", "message", e.getMessage()));
+        }
+    }
+
     @GetMapping
-    public List<IntranetDocument> list(@RequestParam(value = "sector", required = false) String sector) {
+    public List<IntranetDocument> list(@RequestParam(value = "sector", required = false) String sector,
+                                       @RequestParam(value = "parentId", required = false) Long parentId,
+                                       @RequestParam(value = "all", required = false, defaultValue = "false") boolean all) {
+        if (parentId != null) {
+            return service.listByParent(parentId);
+        }
+        if (all) {
+            return service.listAllBySector(sector);
+        }
         return service.listBySector(sector);
     }
 
@@ -134,6 +156,46 @@ public class IntranetDocumentController {
         } catch (IOException e) {
             return ResponseEntity.notFound().build();
         }
+    }
+
+    @GetMapping("/{id}/qr")
+    public ResponseEntity<byte[]> qr(@PathVariable Long id,
+                                     jakarta.servlet.http.HttpServletRequest request) {
+        IntranetDocument doc = service.find(id);
+        if (doc == null) {
+            return ResponseEntity.notFound().build();
+        }
+        String url = request.getScheme() + "://" + request.getServerName()
+                + (request.getServerPort() != 80 && request.getServerPort() != 443
+                ? ":" + request.getServerPort() : "")
+                + request.getContextPath()
+                + "/api/intranet/documents/" + id + "/content";
+        byte[] png = service.qrPng(doc, url);
+        if (png == null) {
+            return ResponseEntity.internalServerError().build();
+        }
+        return ResponseEntity.ok()
+                .contentType(MediaType.IMAGE_PNG)
+                .header(HttpHeaders.CACHE_CONTROL, "public, max-age=3600")
+                .body(png);
+    }
+
+    @GetMapping("/qr/sector/{sector}")
+    public ResponseEntity<byte[]> sectorQr(@PathVariable String sector,
+                                           jakarta.servlet.http.HttpServletRequest request) {
+        String url = request.getScheme() + "://" + request.getServerName()
+                + (request.getServerPort() != 80 && request.getServerPort() != 443
+                ? ":" + request.getServerPort() : "")
+                + request.getContextPath()
+                + "/intranet/documentos?sector=" + service.sanitizeSector(sector) + "&modo_prueba=true";
+        byte[] png = service.qrPng(null, url);
+        if (png == null) {
+            return ResponseEntity.internalServerError().build();
+        }
+        return ResponseEntity.ok()
+                .contentType(MediaType.IMAGE_PNG)
+                .header(HttpHeaders.CACHE_CONTROL, "public, max-age=3600")
+                .body(png);
     }
 
     @DeleteMapping("/{id}")

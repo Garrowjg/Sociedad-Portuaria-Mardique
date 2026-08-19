@@ -107,6 +107,10 @@
         .doc-modal-body{padding:18px;display:flex;flex-direction:column;gap:12px;}
         .doc-field{font-size:11px;font-weight:700;color:var(--mx);text-transform:uppercase;letter-spacing:.4px;}
         .doc-modal-body select{width:100%;padding:9px 11px;border:1.5px solid var(--bdr);border-radius:8px;font-size:13px;font-family:inherit;background:#fff;outline:none;}
+        .doc-modal-body input[type="text"]{width:100%;padding:9px 11px;border:1.5px solid var(--bdr);border-radius:8px;font-size:13px;font-family:inherit;background:#fff;outline:none;box-sizing:border-box;}
+        .doc-modal-body input[type="text"]:focus{border-color:var(--ag);}
+        .doc-folder-hint{display:flex;align-items:center;gap:6px;font-size:11.5px;color:var(--mx);background:#f8fafc;border:1px solid #eef1f4;border-radius:8px;padding:7px 10px;}
+        .doc-folder-hint i{color:var(--ag);}
         .doc-file-drop{display:flex;flex-direction:column;align-items:center;gap:8px;padding:22px;border:1.5px dashed var(--bdr);border-radius:10px;cursor:pointer;color:var(--mx);font-size:12.5px;text-align:center;background:#fafbfc;transition:.2s;}
         .doc-file-drop:hover,.doc-file-drop.has-file{border-color:var(--ag);color:var(--ag);}
         .doc-file-drop.has-file{font-weight:700;}
@@ -128,10 +132,33 @@
         .doc-thumb-img{width:100%;height:100%;object-fit:cover;display:block;background:#f0f2f5;}
         .doc-trash-btn{background:none;border:none;color:#dc2626;font-size:15px;cursor:pointer;padding:4px;}
         .doc-trash-btn:hover{opacity:.7;}
+        .doc-submit-btn.qr{background:#12304a;color:#fff;}
+        .doc-submit-btn.qr:hover{background:#1b4562;}
+        .doc-submit-btn.secondary{background:#eef1f4;color:#334155;}
+        .doc-submit-btn.secondary:hover{background:#e2e8f0;}
+        .doc-qr-box{width:min(430px,92vw);}
+        .doc-qr-head{display:flex;align-items:center;justify-content:space-between;padding:14px 18px;border-bottom:1px solid #eef1f4;}
+        .doc-qr-title{font-size:14px;font-weight:700;color:var(--pd);display:flex;align-items:center;gap:8px;}
+        .doc-qr-title i{color:#f09a36;}
+        .doc-qr-body{padding:18px;}
+        .doc-qr-print{background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:18px;text-align:center;}
+        .doc-qr-brand{display:flex;align-items:center;justify-content:center;gap:12px;margin-bottom:14px;border-bottom:2px solid #f09a36;padding-bottom:12px;}
+        .doc-qr-brand img{height:44px;object-fit:contain;}
+        .doc-qr-brand-text{text-align:left;}
+        .doc-qr-company{display:block;font-weight:800;font-size:15px;color:#1b4562;letter-spacing:.3px;}
+        .doc-qr-section{display:block;font-size:11px;color:#64748b;text-transform:uppercase;letter-spacing:.6px;margin-top:2px;}
+        .doc-qr-frame{border:2px dashed #f09a36;border-radius:12px;padding:16px;background:#fffaf3;}
+        .doc-qr-frame img{width:100%;max-width:240px;height:auto;object-fit:contain;display:block;margin:0 auto;}
+        .doc-qr-name{font-size:12.5px;font-weight:700;color:#1b4562;margin-top:12px;padding:0 8px;word-break:break-word;line-height:1.4;}
+        .doc-qr-foot{font-size:11px;color:#64748b;margin-top:14px;}
+        .doc-qr-foot i{margin-right:5px;color:#f09a36;}
+        .doc-qr-actions{display:flex;justify-content:flex-end;gap:10px;padding:14px 18px;border-top:1px solid #eef1f4;}
         .doc-tag{display:inline-flex;align-items:center;gap:4px;font-size:10px;font-weight:700;color:#7c3aed;background:#f3e8ff;border:1px solid #e9d5ff;border-radius:50px;padding:2px 8px;}
         .doc-card-del{position:absolute;top:8px;right:8px;width:26px;height:26px;display:none;align-items:center;justify-content:center;border-radius:7px;border:none;background:rgba(220,38,38,.92);color:#fff;font-size:12px;cursor:pointer;z-index:2;box-shadow:0 2px 8px rgba(220,38,38,.35);transition:filter .15s ease;}
         .doc-card-del:hover{filter:brightness(1.15);}
         .doc-card:hover .doc-card-del{display:flex;}
+        .doc-card-qr{display:inline-flex;align-items:center;gap:5px;flex:none;padding:5px 10px;border:none;border-radius:7px;background:#12304a;color:#fff;font-size:11px;font-weight:700;font-family:inherit;cursor:pointer;transition:background .15s ease;}
+        .doc-card-qr:hover{background:#f09a36;}
         .doc-sheet-preview{background:#fff;height:70vh;overflow:auto;padding:14px;box-sizing:border-box;}
         .doc-sheet-table{border-collapse:collapse;font-size:12px;font-family:ui-monospace,Consolas,monospace;width:100%;}
         .doc-sheet-table th,.doc-sheet-table td{border:1px solid #e2e6ea;padding:3px 8px;min-width:84px;max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#333;text-align:left;}
@@ -195,6 +222,7 @@
                     <button class="doc-view-btn active" id="viewGrid" onclick="setView('grid')" title="Vista cuadrícula"><i class="fas fa-th"></i></button>
                     <button class="doc-view-btn" id="viewList" onclick="setView('list')" title="Vista lista"><i class="fas fa-list"></i></button>
                 </div>
+                <button class="doc-upload-btn" onclick="openFolderModal()" title="Crear carpeta en el sector seleccionado"><i class="fas fa-folder-plus"></i> Nueva carpeta</button>
                 <button class="doc-upload-btn" onclick="openUploadModal()" title="Subir documento al sector seleccionado"><i class="fas fa-cloud-upload-alt"></i> Subir</button>
             </div>
             <div class="doc-breadcrumb" id="doc-breadcrumb">
@@ -226,8 +254,27 @@
                 <span id="docUploadName">Selecciona un archivo (PDF, Word, Excel, imagen...)</span>
                 <input type="file" id="docUploadFile" hidden>
             </div>
+            <div class="doc-folder-hint" id="docUploadFolderHint" style="display:none"><i class="fas fa-folder"></i> <span>Se subirá dentro de la carpeta actual</span></div>
             <button class="doc-submit-btn primary" id="docUploadSubmit" onclick="doUpload()"><i class="fas fa-upload"></i> Subir</button>
             <div class="doc-msg" id="docUploadMsg"></div>
+        </div>
+    </div>
+</div>
+
+<div class="doc-modal" id="docFolderModal">
+    <div class="doc-modal-overlay" onclick="closeFolderModal()"></div>
+    <div class="doc-modal-box">
+        <div class="doc-modal-head">
+            <span><i class="fas fa-folder-plus"></i>&nbsp; Nueva carpeta</span>
+            <button class="doc-modal-close" onclick="closeFolderModal()">&times;</button>
+        </div>
+        <div class="doc-modal-body">
+            <label class="doc-field">Sector</label>
+            <select id="docFolderSector"></select>
+            <label class="doc-field">Nombre de la carpeta</label>
+            <input type="text" id="docFolderName" placeholder="Ej: Permisos 2026" maxlength="120">
+            <button class="doc-submit-btn primary" id="docFolderSubmit" onclick="doCreateFolder()"><i class="fas fa-folder-plus"></i> Crear carpeta</button>
+            <div class="doc-msg" id="docFolderMsg"></div>
         </div>
     </div>
 </div>
@@ -239,11 +286,44 @@
             <span id="docPreviewName"></span>
             <div class="doc-preview-actions">
                 <button class="doc-trash-btn" id="docPreviewDelete" title="Eliminar documento" onclick="deleteCurrentDoc()"><i class="fas fa-trash"></i></button>
+                <button class="doc-submit-btn qr" id="docPreviewQr" title="Mostrar código QR" onclick="showQrModal()"><i class="fas fa-qrcode"></i> QR</button>
                 <a class="doc-submit-btn primary" id="docPreviewDownload" target="_blank" rel="noopener"><i class="fas fa-download"></i> Descargar</a>
                 <button class="doc-modal-close" onclick="closePreviewModal()">&times;</button>
             </div>
         </div>
         <div class="doc-preview-body" id="docPreviewBody"></div>
+    </div>
+</div>
+
+<div class="doc-modal" id="docQrModal">
+    <div class="doc-modal-overlay" onclick="closeQrModal()"></div>
+    <div class="doc-modal-box doc-qr-box">
+        <div class="doc-qr-head">
+            <span class="doc-qr-title"><i class="fas fa-qrcode"></i> Código QR del documento</span>
+            <button class="doc-modal-close" onclick="closeQrModal()">&times;</button>
+        </div>
+        <div class="doc-qr-body">
+            <div class="doc-qr-print" id="docQrPrintArea">
+                <div class="doc-qr-brand">
+                    <img src="/images/Logo.png" alt="Mardique">
+                    <div class="doc-qr-brand-text">
+                        <span class="doc-qr-company">Sociedad Portuaria Mardique S.A.</span>
+                        <span class="doc-qr-section" id="docQrSection">Documentos de Talento Humano</span>
+                    </div>
+                </div>
+                <div class="doc-qr-frame">
+                    <img id="docQrImage" alt="Código QR" crossorigin="anonymous">
+                    <div class="doc-qr-name" id="docQrDocName"></div>
+                </div>
+                <div class="doc-qr-foot">
+                    <i class="fas fa-mobile-alt"></i> Escanee con su celular para descargar este documento
+                </div>
+            </div>
+        </div>
+        <div class="doc-qr-actions">
+            <button class="doc-submit-btn primary" onclick="printQr()"><i class="fas fa-print"></i> Imprimir QR</button>
+            <button class="doc-submit-btn secondary" onclick="closeQrModal()">Cerrar</button>
+        </div>
     </div>
 </div>
 
@@ -253,9 +333,8 @@
 <script>
     const SECTORS = [
         { id: "todos", name: "Todos", icon: "fa-folder-open" },
-        { id: "general", name: "General", icon: "fa-folder" },
-        { id: "rrhh", name: "Recursos Humanos", icon: "fa-users" },
-        { id: "finanzas", name: "Finanzas", icon: "fa-chart-line" },
+        { id: "rrhh", name: "Talento Humano", icon: "fa-users" },
+        { id: "finanzas", name: "Contabilidad", icon: "fa-chart-line" },
         { id: "ti", name: "Tecnología e Informática", icon: "fa-laptop-code" }
     ];
 
@@ -268,6 +347,7 @@
     let currentSearchTerm = "";
     let uploadedDocsBySector = {};
     let uploadedCounts = {};
+    let folderChildCounts = {};
     let uploadedLoaded = false;
     let currentUserName = "";
     let currentPreviewId = null;
@@ -295,12 +375,13 @@
             }
         } else {
             try {
-                const [mock, uploaded] = await Promise.all([
-                    getDriveItems(currentSector),
-                    getIntranetDocs(currentSector)
-                ]);
-                const merged = (uploaded || []).map(toDriveItem).concat(mock || []);
-                renderDocGrid(merged);
+                let items;
+                if (currentFolderId) {
+                    items = await getIntranetFolderItems(currentFolderId);
+                } else {
+                    items = await getIntranetDocs(currentSector);
+                }
+                renderDocGrid((items || []).map(toDriveItem));
             } catch (e) {
                 cont.innerHTML = '<div class="doc-empty"><i class="fas fa-exclamation-triangle"></i><span>Error al cargar</span></div>';
             }
@@ -395,9 +476,10 @@
         const dept = MOCK_DEPARTMENTS.find(d => d.id === s.id);
         const icon = dept?.icon || "fa-folder";
         const count = (s.folder?.childCount || 0) + (uploadedCounts[s.id] || 0);
+        const qrBtn = '<button class="doc-card-qr" title="Mostrar código QR de la carpeta" onclick="event.stopPropagation(); showSectorQrModal(\'' + s.id + '\', \'' + escapeHtml(String(s.name || dept?.name || "")) + '\')"><i class="fas fa-qrcode"></i> QR</button>';
         return '<div class="doc-card" data-sector="' + s.id + '">' +
             '<div class="doc-card-header"><span class="doc-file-icon"><i class="fas ' + icon + '" style="color:#f09a36"></i></span>' +
-            '<span class="doc-card-name">' + escapeHtml(s.name || dept?.name || "") + '</span></div>' +
+            '<span class="doc-card-name">' + escapeHtml(s.name || dept?.name || "") + '</span>' + qrBtn + '</div>' +
             '<div class="doc-thumb">' + folderPreviewSVG() + '</div>' +
             '<div class="doc-card-body"><div class="doc-card-meta"><span><i class="far fa-file"></i> ' + count + ' documentos</span></div></div>' +
             '</div>';
@@ -426,7 +508,7 @@
         const iconColor = isFolder ? "#f09a36" : getDocColor(item.name);
         const ext = isFolder ? null : item.name.split(".").pop();
         const meta = isFolder
-            ? '<span><i class="far fa-folder"></i> ' + (item.folder?.childCount || 0) + ' elementos</span>'
+            ? '<span><i class="far fa-folder"></i> ' + (item.folder?.childCount || folderChildCounts[item.id] || 0) + ' elementos</span><span><i class="far fa-calendar-alt"></i> ' + formatDate(item.lastModifiedDateTime) + '</span>'
             : (item.uploaded
                 ? '<span><i class="far fa-user"></i> ' + escapeHtml(item.createdBy?.user?.displayName || "Equipo") + '</span><span><i class="far fa-calendar-alt"></i> ' + formatDate(item.lastModifiedDateTime) + '</span>'
                 : '<span><i class="far fa-hdd"></i> ' + formatFileSize(item.size) + '</span><span><i class="far fa-calendar-alt"></i> ' + formatDate(item.lastModifiedDateTime) + '</span>');
@@ -435,11 +517,11 @@
         else if (item.uploaded) preview = '<img class="doc-thumb-img" src="' + intranetDocThumbUrl(item.realId) + '" alt="' + escapeHtml(item.name) + '" loading="lazy">';
         else preview = docPagePreviewSVG(item.name);
         const delBtn = item.uploaded
-            ? '<button class="doc-card-del" title="Eliminar documento" onclick="event.stopPropagation(); removeDoc(' + item.realId + ')"><i class="fas fa-trash"></i></button>'
+            ? '<button class="doc-card-del" title="Eliminar ' + (isFolder ? 'carpeta' : 'documento') + '" onclick="event.stopPropagation(); removeDoc(' + item.realId + ')"><i class="fas fa-trash"></i></button>'
             : '';
         return '<div class="doc-card" data-doc-id="' + item.id + '" data-is-folder="' + isFolder + '">' +
             '<div class="doc-card-header"><span class="doc-file-icon"><i class="fas ' + icon + '" style="color:' + iconColor + '"></i></span>' +
-            '<span class="doc-card-name">' + escapeHtml(item.name) + '</span>' + (item.uploaded ? '<span class="doc-tag">SUBIDO</span>' : '') + '</div>' +
+            '<span class="doc-card-name">' + escapeHtml(item.name) + '</span>' + (item.uploaded ? '<span class="doc-tag">' + (isFolder ? 'CARPETA' : 'SUBIDO') + '</span>' : '') + '</div>' +
             '<div class="doc-thumb">' + preview + delBtn + (ext ? '<span class="doc-thumb-badge">.' + ext + '</span>' : '') + '</div>' +
             '<div class="doc-card-body"><div class="doc-card-meta">' + meta + '</div></div>' +
             '</div>';
@@ -447,15 +529,15 @@
 
     function openDocItem(id, isFolder){
         if (isFolder) {
-            currentFolderId = id;
             const folder = currentItems.find(i => i.id === id);
-            docBreadcrumbState.push({ id, name: folder ? folder.name : "..." });
+            const realId = folder && folder.realId ? folder.realId : null;
+            currentFolderId = realId;
+            docBreadcrumbState.push({ id: currentFolderId, name: folder ? folder.name : "..." });
             renderBreadcrumb();
             const cont = document.getElementById("documents-container");
             cont.innerHTML = '<div class="intranet-loading"><i class="fas fa-spinner fa-spin"></i><span>Cargando...</span></div>';
-            getDriveItems(id).then(items => {
-                if (!items || !items.length) items = [];
-                renderDocGrid(items);
+            getIntranetFolderItems(currentFolderId).then(items => {
+                renderDocGrid((items || []).map(toDriveItem));
             }).catch(() => {});
         } else {
             const item = currentItems.find(i => i.id === id);
@@ -468,6 +550,18 @@
     }
 
     function toDriveItem(doc){
+        if (doc.esCarpeta) {
+            return {
+                id: "dt-" + doc.id,
+                realId: doc.id,
+                name: doc.nombre,
+                uploaded: true,
+                folder: { childCount: 0 },
+                lastModifiedDateTime: doc.uploadedAt,
+                webUrl: "#",
+                createdBy: { user: { displayName: doc.uploadedBy || "Equipo Mardique" } }
+            };
+        }
         const ext = doc.fileType || ((doc.nombre || "").split(".").pop() || "").toLowerCase();
         return {
             id: "dt-" + doc.id,
@@ -494,6 +588,7 @@
         document.getElementById("docPreviewName").textContent = item.name;
         document.getElementById("docPreviewDownload").href = url;
         document.getElementById("docPreviewDelete").style.display = item.uploaded ? "inline-block" : "none";
+        document.getElementById("docPreviewQr").style.display = item.uploaded ? "inline-block" : "none";
         const body = document.getElementById("docPreviewBody");
         const ext = item.fileType || "";
         if (PREVIEW_IMAGES.indexOf(ext) >= 0) {
@@ -525,6 +620,64 @@
         document.getElementById("docPreviewBody").innerHTML = "";
         currentPreviewId = null;
         document.getElementById("docPreviewModal").classList.remove("open");
+    }
+
+    function showQrModal(){
+        if (!currentPreviewId) return;
+        const img = document.getElementById("docQrImage");
+        img.src = intranetDocQrUrl(currentPreviewId) + "?t=" + Date.now();
+        const nameEl = document.getElementById("docQrDocName");
+        nameEl.textContent = document.getElementById("docPreviewName").textContent || "Documento";
+        document.getElementById("docQrSection").textContent = "Documentos de Talento Humano";
+        document.getElementById("docQrModal").classList.add("open");
+    }
+
+    function showSectorQrModal(sectorId, sectorName){
+        const img = document.getElementById("docQrImage");
+        img.src = intranetSectorQrUrl(sectorId) + "?t=" + Date.now();
+        const nameEl = document.getElementById("docQrDocName");
+        nameEl.textContent = sectorName || sectorId;
+        document.getElementById("docQrSection").textContent = "Carpeta de documentos";
+        document.getElementById("docQrModal").classList.add("open");
+    }
+
+    function closeQrModal(){
+        document.getElementById("docQrModal").classList.remove("open");
+        document.getElementById("docQrImage").src = "";
+    }
+
+    function printQr(){
+        const printArea = document.getElementById("docQrPrintArea");
+        if (!printArea) return;
+        const img = document.getElementById("docQrImage");
+        const clone = printArea.cloneNode(true);
+        const cloneImg = clone.querySelector("#docQrImage");
+        if (cloneImg && img.complete && img.src) cloneImg.src = img.src;
+        const win = window.open("", "_blank", "width=520,height=680");
+        if (!win) return;
+        win.document.write(
+            "<!DOCTYPE html><html><head><meta charset='UTF-8'><title>QR - Mardique</title>" +
+            "<style>" +
+            "body{margin:0;padding:0;font-family:'Segoe UI',Arial,sans-serif;display:flex;align-items:center;justify-content:center;min-height:100vh;background:#f1f5f9;}" +
+            ".doc-qr-print{width:420px;background:#fff;border:2px solid #cbd5e1;border-radius:14px;padding:22px;text-align:center;}" +
+            ".doc-qr-brand{display:flex;align-items:center;justify-content:center;gap:12px;margin-bottom:14px;border-bottom:2px solid #f09a36;padding-bottom:12px;}" +
+            ".doc-qr-brand img{height:44px;object-fit:contain;}" +
+            ".doc-qr-brand-text{text-align:left;}" +
+            ".doc-qr-company{display:block;font-weight:800;font-size:15px;color:#1b4562;letter-spacing:.3px;}" +
+            ".doc-qr-section{display:block;font-size:11px;color:#64748b;text-transform:uppercase;letter-spacing:.6px;margin-top:2px;}" +
+            ".doc-qr-frame{border:2px dashed #f09a36;border-radius:12px;padding:16px;background:#fffaf3;}" +
+            ".doc-qr-frame img{width:240px;height:240px;object-fit:contain;display:block;margin:0 auto;}" +
+            ".doc-qr-name{font-size:12.5px;font-weight:700;color:#1b4562;margin-top:12px;padding:0 8px;word-break:break-word;line-height:1.4;}" +
+            ".doc-qr-foot{font-size:11px;color:#64748b;margin-top:14px;}" +
+            "</style></head><body>"
+        );
+        win.document.write(clone.outerHTML);
+        win.document.write("</body></html>");
+        win.document.close();
+        setTimeout(function(){
+            win.focus();
+            win.print();
+        }, 350);
     }
 
     async function deleteCurrentDoc(){
@@ -560,10 +713,61 @@
         document.getElementById("docUploadMsg").textContent = "";
         document.getElementById("docUploadSubmit").disabled = false;
         document.getElementById("docUploadModal").classList.add("open");
+        const hint = document.getElementById("docUploadFolderHint");
+        if (hint) {
+            hint.style.display = currentFolderId ? "flex" : "none";
+            hint.textContent = currentFolderId ? "Se subirá dentro de la carpeta actual." : "";
+        }
     }
 
     function closeUploadModal(){
         document.getElementById("docUploadModal").classList.remove("open");
+    }
+
+    function openFolderModal(){
+        const activeSector = SECTORS.find(s => s.id === currentSector && s.id !== "todos");
+        document.getElementById("docFolderSector").innerHTML = SECTORS.filter(s => s.id !== "todos").map(s =>
+            '<option value="' + s.id + '"' + (activeSector && activeSector.id === s.id ? ' selected' : '') + '>' + s.name + '</option>'
+        ).join("");
+        document.getElementById("docFolderName").value = "";
+        document.getElementById("docFolderMsg").textContent = "";
+        document.getElementById("docFolderSubmit").disabled = false;
+        document.getElementById("docFolderModal").classList.add("open");
+        document.getElementById("docFolderName").focus();
+    }
+
+    function closeFolderModal(){
+        document.getElementById("docFolderModal").classList.remove("open");
+    }
+
+    async function doCreateFolder(){
+        const nameEl = document.getElementById("docFolderName");
+        const name = (nameEl.value || "").trim();
+        const sector = document.getElementById("docFolderSector").value;
+        const msgEl = document.getElementById("docFolderMsg");
+        const submitBtn = document.getElementById("docFolderSubmit");
+        if (!name) {
+            msgEl.textContent = "Escribe un nombre para la carpeta.";
+            msgEl.className = "doc-msg error";
+            nameEl.focus();
+            return;
+        }
+        submitBtn.disabled = true;
+        msgEl.textContent = "Creando...";
+        msgEl.className = "doc-msg";
+        try {
+            await createIntranetFolder(sector, name, currentUserName, currentFolderId);
+            closeFolderModal();
+            showIntranetToast("Carpeta creada correctamente", "success");
+            await refreshUploadedDocs();
+            renderTabs();
+            renderSummary();
+            loadDocs();
+        } catch (e) {
+            msgEl.textContent = e.message || "No se pudo crear la carpeta.";
+            msgEl.className = "doc-msg error";
+            submitBtn.disabled = false;
+        }
     }
 
     function selectUploadFile(){
@@ -595,7 +799,7 @@
         msgEl.textContent = "Subiendo...";
         msgEl.className = "doc-msg";
         try {
-            const doc = await uploadIntranetDoc(sector, file, currentUserName);
+            const doc = await uploadIntranetDoc(sector, file, currentUserName, currentFolderId || undefined);
             closeUploadModal();
             showIntranetToast("Documento subido correctamente", "success");
             await refreshUploadedDocs();
@@ -614,11 +818,17 @@
         sectors.push("general");
         const list = {};
         const counts = {};
+        const childCounts = {};
         await Promise.all(sectors.map(async sec => {
             try {
-                const docs = await getIntranetDocs(sec);
+                const docs = await getIntranetAllDocs(sec);
                 list[sec] = docs || [];
                 counts[sec] = (docs || []).length;
+                (docs || []).forEach(d => {
+                    if (d.esCarpeta) {
+                        childCounts["dt-" + d.id] = countNestedChildren(d.id, docs || []);
+                    }
+                });
             } catch (e) {
                 list[sec] = [];
                 counts[sec] = 0;
@@ -626,7 +836,19 @@
         }));
         uploadedDocsBySector = list;
         uploadedCounts = counts;
+        folderChildCounts = childCounts;
         uploadedLoaded = true;
+    }
+
+    function countNestedChildren(folderId, allDocs){
+        let total = 0;
+        allDocs.forEach(d => {
+            if (d.parentId && d.parentId === folderId) {
+                total += 1;
+                if (d.esCarpeta) total += countNestedChildren(d.id, allDocs);
+            }
+        });
+        return total;
     }
 
     function renderBreadcrumb(){
@@ -690,7 +912,7 @@
                     currentFolderId = crumb.id;
                     const cont = document.getElementById("documents-container");
                     cont.innerHTML = '<div class="intranet-loading"><i class="fas fa-spinner fa-spin"></i><span>Cargando...</span></div>';
-                    getDriveItems(crumb.id).then(items => renderDocGrid(items)).catch(() => {});
+                    getIntranetFolderItems(currentFolderId).then(items => renderDocGrid((items || []).map(toDriveItem))).catch(() => {});
                 }
             }
         }
@@ -735,8 +957,7 @@
         tabs.innerHTML = SECTORS.map(s => {
             let count = "";
             if (s.id !== "todos") {
-                const files = MOCK_FILES_BY_SECTOR[s.id];
-                count = (files ? files.length : 0) + (uploadedCounts[s.id] || 0);
+                count = uploadedCounts[s.id] || 0;
             }
             return '<button class="doc-sector-tab' + (s.id === currentSector ? ' active' : '') + '" data-id="' + s.id + '" onclick="selectSector(\'' + s.id + '\')">' +
                 '<i class="fas ' + s.icon + '"></i> ' + s.name +
@@ -750,9 +971,9 @@
         if (!el) return;
         let totalFiles = 0, totalFolders = 0;
         SECTORS.filter(s => s.id !== "todos").forEach(s => {
-            const files = MOCK_FILES_BY_SECTOR[s.id] || [];
-            files.forEach(f => { if (f.folder) totalFolders++; else totalFiles++; });
-            totalFiles += uploadedCounts[s.id] || 0;
+            (uploadedDocsBySector[s.id] || []).forEach(d => {
+                if (d.esCarpeta) totalFolders++; else totalFiles++;
+            });
         });
         el.innerHTML = '<div class="doc-summary-item"><i class="fas fa-file"></i> <strong>' + totalFiles + '</strong> Archivos</div>' +
             '<div class="doc-summary-item"><i class="fas fa-folder"></i> <strong>' + totalFolders + '</strong> Carpetas</div>' +
@@ -770,9 +991,14 @@
             const dept = user.department || user.officeLocation || "";
             if (dept) {
                 const deptLower = dept.toLowerCase();
-                const sectorMap = { "tecnología e informática": "ti", "ti": "ti", "recursos humanos": "rrhh", "rrhh": "rrhh", "finanzas": "finanzas" };
+                const sectorMap = { "tecnología e informática": "ti", "ti": "ti", "talento humano": "rrhh", "recursos humanos": "rrhh", "rrhh": "rrhh", "finanzas": "finanzas", "contabilidad": "finanzas" };
                 const matched = Object.entries(sectorMap).find(([key]) => deptLower.includes(key));
                 if (matched) currentSector = matched[1];
+            }
+            const urlParams = new URLSearchParams(window.location.search);
+            const qrSectorParam = urlParams.get("sector") || "[[${qrSector}]]";
+            if (qrSectorParam && qrSectorParam.length > 0 && qrSectorParam !== "[[${qrSector}]]") {
+                currentSector = qrSectorParam;
             }
         }).catch(() => {});
 
@@ -781,6 +1007,7 @@
         await refreshUploadedDocs();
         renderTabs();
         renderSummary();
+        document.querySelectorAll(".doc-sector-tab").forEach(t => t.classList.toggle("active", t.dataset.id === currentSector));
         loadDocs();
 
         document.getElementById("docUploadFile").addEventListener("change", selectUploadFile);
