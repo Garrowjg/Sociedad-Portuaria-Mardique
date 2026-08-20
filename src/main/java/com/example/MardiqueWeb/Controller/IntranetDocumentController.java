@@ -1,6 +1,7 @@
 package com.example.MardiqueWeb.Controller;
 
 import com.example.MardiqueWeb.Entity.IntranetDocument;
+import com.example.MardiqueWeb.Service.IntranetAccessService;
 import com.example.MardiqueWeb.Service.IntranetDocumentService;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -20,9 +21,12 @@ import java.util.Map;
 public class IntranetDocumentController {
 
     private final IntranetDocumentService service;
+    private final IntranetAccessService accessService;
 
-    public IntranetDocumentController(IntranetDocumentService service) {
+    public IntranetDocumentController(IntranetDocumentService service,
+                                      IntranetAccessService accessService) {
         this.service = service;
+        this.accessService = accessService;
     }
 
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
@@ -165,11 +169,13 @@ public class IntranetDocumentController {
         if (doc == null) {
             return ResponseEntity.notFound().build();
         }
+        // El QR abre la página de documentos y previsualiza el documento
+        // (la persona debe dar clic en "Abrir"/"Descargar" para que se registre la vista).
         String url = request.getScheme() + "://" + request.getServerName()
                 + (request.getServerPort() != 80 && request.getServerPort() != 443
                 ? ":" + request.getServerPort() : "")
                 + request.getContextPath()
-                + "/api/intranet/documents/" + id + "/content";
+                + "/intranet/documentos?documento=" + id + "&modo_prueba=true";
         byte[] png = service.qrPng(doc, url);
         if (png == null) {
             return ResponseEntity.internalServerError().build();
@@ -178,6 +184,101 @@ public class IntranetDocumentController {
                 .contentType(MediaType.IMAGE_PNG)
                 .header(HttpHeaders.CACHE_CONTROL, "public, max-age=3600")
                 .body(png);
+    }
+
+    /* ---------- Registro de vistas ---------- */
+
+    @PostMapping("/{id}/view")
+    public ResponseEntity<?> recordView(@PathVariable Long id,
+                                        @RequestBody(required = false) Map<String, String> body) {
+        IntranetDocument doc = service.find(id);
+        if (doc == null) {
+            return ResponseEntity.notFound().build();
+        }
+        String email = body == null ? null : body.get("email");
+        String name = body == null ? null : body.get("name");
+        if (email == null || email.isBlank()) {
+            return ResponseEntity.badRequest().body(Map.of("ok", "false", "message", "Se requiere el correo del usuario."));
+        }
+        accessService.recordView(id, email, name);
+        return ResponseEntity.ok(Map.of("ok", "true"));
+    }
+
+    @GetMapping("/{id}/views")
+    public ResponseEntity<?> documentViews(@PathVariable Long id,
+                                           @RequestParam(value = "email", required = false) String email) {
+        IntranetDocument doc = service.find(id);
+        if (doc == null) {
+            return ResponseEntity.notFound().build();
+        }
+        if (!accessService.canViewViewers(email)) {
+            return ResponseEntity.status(403).body(Map.of("ok", "false", "message", "No tienes permiso para ver esta información."));
+        }
+        Map<String, Object> body = new LinkedHashMap<>();
+        body.put("documentId", doc.getId());
+        body.put("documentName", doc.getNombre());
+        body.put("sector", doc.getSector());
+        body.put("views", accessService.viewsByDocument(id));
+        return ResponseEntity.ok(body);
+    }
+
+    @GetMapping("/views/events")
+    public ResponseEntity<?> viewEvents(@RequestParam(value = "email", required = false) String email) {
+        if (!accessService.isAdmin(email)) {
+            return ResponseEntity.status(403).body(Map.of("ok", "false", "message", "Solo el administrador de la intranet puede ver este registro."));
+        }
+        Map<String, Object> body = new LinkedHashMap<>();
+        body.put("events", accessService.allViewEvents());
+        return ResponseEntity.ok(body);
+    }
+
+    /* ---------- Panel de administración de la intranet ---------- */
+
+    @GetMapping("/views/access")
+    public ResponseEntity<?> accessStatus(@RequestParam(value = "email", required = false) String email) {
+        Map<String, Object> body = new LinkedHashMap<>();
+        body.put("isAdmin", accessService.isAdmin(email));
+        body.put("canViewViewers", accessService.canViewViewers(email));
+        body.put("testMode", accessService.isTestMode());
+        return ResponseEntity.ok(body);
+    }
+
+    @GetMapping("/views/stats")
+    public ResponseEntity<?> viewStats(@RequestParam(value = "email", required = false) String email) {
+        if (!accessService.isAdmin(email)) {
+            return ResponseEntity.status(403).body(Map.of("ok", "false", "message", "Solo el administrador de la intranet puede ver esta información."));
+        }
+        Map<String, Object> body = new LinkedHashMap<>();
+        body.put("totalDocuments", accessService.totalDocuments());
+        body.put("totalViews", accessService.totalViews());
+        body.put("adminEmails", accessService.listByRole("ADMIN"));
+        body.put("viewerEmails", accessService.listByRole("VIEWER"));
+        body.put("testMode", accessService.isTestMode());
+        return ResponseEntity.ok(body);
+    }
+
+    @PostMapping("/views/grant")
+    public ResponseEntity<?> grant(@RequestParam("email") String email,
+                                   @RequestParam("role") String role,
+                                   @RequestParam(value = "adminEmail", required = false) String adminEmail) {
+        if (!accessService.isAdmin(adminEmail)) {
+            return ResponseEntity.status(403).body(Map.of("ok", "false", "message", "Solo el administrador puede otorgar permisos."));
+        }
+        if (!"ADMIN".equals(role) && !"VIEWER".equals(role)) {
+            return ResponseEntity.badRequest().body(Map.of("ok", "false", "message", "Rol no válido."));
+        }
+        accessService.grantRole(email, role);
+        return ResponseEntity.ok(Map.of("ok", "true"));
+    }
+
+    @DeleteMapping("/views/revoke")
+    public ResponseEntity<?> revoke(@RequestParam("email") String email,
+                                    @RequestParam(value = "adminEmail", required = false) String adminEmail) {
+        if (!accessService.isAdmin(adminEmail)) {
+            return ResponseEntity.status(403).body(Map.of("ok", "false", "message", "Solo el administrador puede quitar permisos."));
+        }
+        accessService.revokeRole(email);
+        return ResponseEntity.ok(Map.of("ok", "true"));
     }
 
     @GetMapping("/qr/sector/{sector}")

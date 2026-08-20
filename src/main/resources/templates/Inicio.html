@@ -7,11 +7,15 @@
     <link rel="icon" type="image/png" sizes="192x192" href="/images/Icon192.png">
     <link rel="apple-touch-icon" sizes="180x180" href="/images/Icon180.png">
     <title>Sociedad Portuaria Mardique</title>
+    <style>html,body{margin:0;padding:0;background:#0a1628;}</style>
+    <link rel="stylesheet" href="/css/inicio.css">
+    <link rel="stylesheet" href="/css/portal.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="/css/inicio.css">
+    <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"></noscript>
+    <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"></noscript>
     <link rel="stylesheet" href="/css/panel-nav.css">
     <style>
         .header-auth { display:flex;align-items:center;gap:8px;margin-left:12px; }
@@ -25,7 +29,7 @@
 <body>
 <div id="scroll-progress"></div>
 
-<div class="carousel-overlay" id="carouselOverlay" onclick="handleCarouselOverlayClick(event)">
+<div class="carousel-overlay" id="carouselOverlay" style="display:none" onclick="handleCarouselOverlayClick(event)">
     <div class="carousel-modal" id="carouselModal">
 
         <button class="carousel-close" onclick="closeCarousel()" aria-label="Cerrar">

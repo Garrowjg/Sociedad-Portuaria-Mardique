@@ -269,10 +269,13 @@ header.scrolled .logo-box img{
 @media (max-width: 1200px) {
     #main-header nav,
     #main-header .header-contact-btn { display: none !important; }
-    #main-header .mobile-menu-toggle { display: flex !important; }
+    #main-header .mobile-menu-toggle { display: flex !important; margin-left: auto; }
 
     #main-header .header-content { gap: 12px; }
     #main-header .logo-box { flex-shrink: 0 !important; }
+
+    /* En móvil el botón "Salir" y el usuario solo viven en el drawer */
+    #main-header .hdr-right { display: none !important; }
 
     #main-header { padding: 12px 0 !important; }
     #main-header.scrolled { padding: 9px 0 !important; }

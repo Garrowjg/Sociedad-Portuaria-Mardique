@@ -31,6 +31,7 @@ header.scrolled .logo-box img{height:30px!important;width:auto;}
   display:none;flex-direction:column;justify-content:center;align-items:center;gap:5px;
   width:40px;height:40px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);
   border-radius:8px;cursor:pointer;transition:background .2s;flex-shrink:0;padding:0;
+  margin-left:auto;
 }
 .mobile-menu-toggle:hover{background:rgba(255,255,255,.1);}
 .mobile-menu-toggle span{

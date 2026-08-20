@@ -43,14 +43,14 @@ const MOCK_DEPARTMENTS = [
 ];
 
 const MOCK_NEWS = [
-    { id: "n1", fields: { Title: "Arribo de buque con 35.000 toneladas de maíz", Description: "El M/V Grain Star atracó esta madrugada en el muelle 4 con 35.000 toneladas de maíz amarillo proveniente de Estados Unidos. La operación de descarga se estima en 48 horas continuas.", Created: "2026-07-12T06:00:00Z" }, coverUrl: "https://picsum.photos/seed/buque/800/450", webUrl: "#" },
-    { id: "n2", fields: { Title: "Semana Ambiental 2026 — Un éxito rotundo", Description: "Del 23 al 29 de junio celebramos la Semana Ambiental con jornadas de reforestación, limpieza de muelles y charlas sobre sostenibilidad. Participaron más de 120 colaboradores.", Created: "2026-06-30T10:00:00Z" }, coverUrl: "https://picsum.photos/seed/ambiente/800/450", webUrl: "#" },
-    { id: "n3", fields: { Title: "Nuevo sistema de Gestión Documental", Description: "Informamos a todos los colaboradores que hemos implementado un nuevo sistema de gestión documental integrado con SharePoint. Pronto recibirán capacitación sobre su uso.", Created: "2026-07-10T08:00:00Z" }, coverUrl: "https://picsum.photos/seed/documentos/800/450", webUrl: "#" },
-    { id: "n4", fields: { Title: "Llegada de grúa móvil Liebherr LHM 550", Description: "La nueva grúa móvil Liebherr LHM 550 llegó al puerto para reforzar la capacidad operativa de descarga de graneles. Tiene un alcance de 54 metros y capacidad de 124 toneladas.", Created: "2026-07-05T14:00:00Z" }, coverUrl: "https://picsum.photos/seed/grua/800/450", webUrl: "#" },
-    { id: "n5", fields: { Title: "Jornada de Vacunación Empresarial", Description: "La próxima semana se realizará la jornada de vacunación contra la influenza en las instalaciones de la bodega. Inscríbanse con RRHH.", Created: "2026-07-08T10:30:00Z" }, coverUrl: "https://picsum.photos/seed/vacuna/800/450", webUrl: "#" },
-    { id: "n6", fields: { Title: "Exportación de contenedores con productos petroquímicos", Description: "Zona Franca de Mardique despachó 120 contenedores con productos petroquímicos con destino a Brasil. La operación generó 80 empleos directos durante la carga.", Created: "2026-07-02T09:00:00Z" }, coverUrl: "https://picsum.photos/seed/contenedores/800/450", webUrl: "#" },
-    { id: "n7", fields: { Title: "Capacitación en primeros auxilios para brigadistas", Description: "15 colaboradores de las brigadas de emergencia recibieron certificación en primeros auxilios básicos y RCP, dictada por la Defensa Civil.", Created: "2026-06-25T15:00:00Z" }, coverUrl: "https://picsum.photos/seed/brigada/800/450", webUrl: "#" },
-    { id: "n8", fields: { Title: "Actualización de la Política de Teletrabajo", Description: "Se ha publicado la nueva versión de la política de teletrabajo. Todos los empleados deben leerla y firmar el acuse de recibo antes del 30 de julio.", Created: "2026-07-01T09:00:00Z" }, coverUrl: "https://picsum.photos/seed/teletrabajo/800/450", webUrl: "#" }
+    { id: "n1", fields: { Title: "Arribo de buque con 35.000 toneladas de maíz", Description: "El M/V Grain Star atracó esta madrugada en el muelle 4 con 35.000 toneladas de maíz amarillo proveniente de Estados Unidos. La operación de descarga se estima en 48 horas continuas.", Created: "2026-07-12T06:00:00Z" }, coverUrl: "/api/placeholder/buque/800/450", webUrl: "#" },
+    { id: "n2", fields: { Title: "Semana Ambiental 2026 — Un éxito rotundo", Description: "Del 23 al 29 de junio celebramos la Semana Ambiental con jornadas de reforestación, limpieza de muelles y charlas sobre sostenibilidad. Participaron más de 120 colaboradores.", Created: "2026-06-30T10:00:00Z" }, coverUrl: "/api/placeholder/ambiente/800/450", webUrl: "#" },
+    { id: "n3", fields: { Title: "Nuevo sistema de Gestión Documental", Description: "Informamos a todos los colaboradores que hemos implementado un nuevo sistema de gestión documental integrado con SharePoint. Pronto recibirán capacitación sobre su uso.", Created: "2026-07-10T08:00:00Z" }, coverUrl: "/api/placeholder/documentos/800/450", webUrl: "#" },
+    { id: "n4", fields: { Title: "Llegada de grúa móvil Liebherr LHM 550", Description: "La nueva grúa móvil Liebherr LHM 550 llegó al puerto para reforzar la capacidad operativa de descarga de graneles. Tiene un alcance de 54 metros y capacidad de 124 toneladas.", Created: "2026-07-05T14:00:00Z" }, coverUrl: "/api/placeholder/grua/800/450", webUrl: "#" },
+    { id: "n5", fields: { Title: "Jornada de Vacunación Empresarial", Description: "La próxima semana se realizará la jornada de vacunación contra la influenza en las instalaciones de la bodega. Inscríbanse con RRHH.", Created: "2026-07-08T10:30:00Z" }, coverUrl: "/api/placeholder/vacuna/800/450", webUrl: "#" },
+    { id: "n6", fields: { Title: "Exportación de contenedores con productos petroquímicos", Description: "Zona Franca de Mardique despachó 120 contenedores con productos petroquímicos con destino a Brasil. La operación generó 80 empleos directos durante la carga.", Created: "2026-07-02T09:00:00Z" }, coverUrl: "/api/placeholder/contenedores/800/450", webUrl: "#" },
+    { id: "n7", fields: { Title: "Capacitación en primeros auxilios para brigadistas", Description: "15 colaboradores de las brigadas de emergencia recibieron certificación en primeros auxilios básicos y RCP, dictada por la Defensa Civil.", Created: "2026-06-25T15:00:00Z" }, coverUrl: "/api/placeholder/brigada/800/450", webUrl: "#" },
+    { id: "n8", fields: { Title: "Actualización de la Política de Teletrabajo", Description: "Se ha publicado la nueva versión de la política de teletrabajo. Todos los empleados deben leerla y firmar el acuse de recibo antes del 30 de julio.", Created: "2026-07-01T09:00:00Z" }, coverUrl: "/api/placeholder/teletrabajo/800/450", webUrl: "#" }
 ];
 
 let MOCK_LEAVE_REQUESTS = [
@@ -67,17 +67,17 @@ const MOCK_GALLERY_ALBUMS = [
         folder: { childCount: 8 },
         lastModifiedDateTime: "2026-07-20T18:00:00Z",
         webUrl: "#",
-        coverUrl: "https://picsum.photos/id/1015/600/400",
+        coverUrl: "/api/placeholder/id-1015/600/400",
         createdBy: { user: { displayName: "Carlos Martínez" } },
         items: [
-            { id: "ind-01", name: "izamiento_bandera.jpg", size: 512000, file: { mimeType: "image/jpeg" }, image: {}, webUrl: "https://picsum.photos/id/1015/1200/800", lastModifiedDateTime: "2026-07-20T10:30:00Z" },
-            { id: "ind-02", name: "acto_central.jpg", size: 384000, file: { mimeType: "image/jpeg" }, image: {}, webUrl: "https://picsum.photos/id/1016/1200/800", lastModifiedDateTime: "2026-07-20T11:00:00Z" },
-            { id: "ind-03", name: "personal_muelle.jpg", size: 620000, file: { mimeType: "image/jpeg" }, image: {}, webUrl: "https://picsum.photos/id/1018/1200/800", lastModifiedDateTime: "2026-07-20T11:30:00Z" },
-            { id: "ind-04", name: "discurso_gerencia.jpg", size: 445000, file: { mimeType: "image/jpeg" }, image: {}, webUrl: "https://picsum.photos/id/1020/1200/800", lastModifiedDateTime: "2026-07-20T12:00:00Z" },
-            { id: "ind-05", name: "integracion_empleados.jpg", size: 512000, file: { mimeType: "image/jpeg" }, image: {}, webUrl: "https://picsum.photos/id/1024/1200/800", lastModifiedDateTime: "2026-07-20T14:00:00Z" },
-            { id: "ind-06", name: "show_cultural.jpg", size: 398000, file: { mimeType: "image/jpeg" }, image: {}, webUrl: "https://picsum.photos/id/1025/1200/800", lastModifiedDateTime: "2026-07-20T15:30:00Z" },
-            { id: "ind-07", name: "cierre_evento.jpg", size: 356000, file: { mimeType: "image/jpeg" }, image: {}, webUrl: "https://picsum.photos/id/1035/1200/800", lastModifiedDateTime: "2026-07-20T17:00:00Z" },
-            { id: "ind-08", name: "foto_grupal.jpg", size: 780000, file: { mimeType: "image/jpeg" }, image: {}, webUrl: "https://picsum.photos/id/1039/1200/800", lastModifiedDateTime: "2026-07-20T18:00:00Z" }
+            { id: "ind-01", name: "izamiento_bandera.jpg", size: 512000, file: { mimeType: "image/jpeg" }, image: {}, webUrl: "/api/placeholder/id-1015/1200/800", lastModifiedDateTime: "2026-07-20T10:30:00Z" },
+            { id: "ind-02", name: "acto_central.jpg", size: 384000, file: { mimeType: "image/jpeg" }, image: {}, webUrl: "/api/placeholder/id-1016/1200/800", lastModifiedDateTime: "2026-07-20T11:00:00Z" },
+            { id: "ind-03", name: "personal_muelle.jpg", size: 620000, file: { mimeType: "image/jpeg" }, image: {}, webUrl: "/api/placeholder/id-1018/1200/800", lastModifiedDateTime: "2026-07-20T11:30:00Z" },
+            { id: "ind-04", name: "discurso_gerencia.jpg", size: 445000, file: { mimeType: "image/jpeg" }, image: {}, webUrl: "/api/placeholder/id-1020/1200/800", lastModifiedDateTime: "2026-07-20T12:00:00Z" },
+            { id: "ind-05", name: "integracion_empleados.jpg", size: 512000, file: { mimeType: "image/jpeg" }, image: {}, webUrl: "/api/placeholder/id-1024/1200/800", lastModifiedDateTime: "2026-07-20T14:00:00Z" },
+            { id: "ind-06", name: "show_cultural.jpg", size: 398000, file: { mimeType: "image/jpeg" }, image: {}, webUrl: "/api/placeholder/id-1025/1200/800", lastModifiedDateTime: "2026-07-20T15:30:00Z" },
+            { id: "ind-07", name: "cierre_evento.jpg", size: 356000, file: { mimeType: "image/jpeg" }, image: {}, webUrl: "/api/placeholder/id-1035/1200/800", lastModifiedDateTime: "2026-07-20T17:00:00Z" },
+            { id: "ind-08", name: "foto_grupal.jpg", size: 780000, file: { mimeType: "image/jpeg" }, image: {}, webUrl: "/api/placeholder/id-1039/1200/800", lastModifiedDateTime: "2026-07-20T18:00:00Z" }
         ]
     },
     {
@@ -88,15 +88,15 @@ const MOCK_GALLERY_ALBUMS = [
         folder: { childCount: 6 },
         lastModifiedDateTime: "2026-07-10T17:00:00Z",
         webUrl: "#",
-        coverUrl: "https://picsum.photos/id/1076/600/400",
+        coverUrl: "/api/placeholder/id-1076/600/400",
         createdBy: { user: { displayName: "Andrés Ramírez" } },
         items: [
-            { id: "inc-01", name: "teoria_prevencion.jpg", size: 420000, file: { mimeType: "image/jpeg" }, image: {}, webUrl: "https://picsum.photos/id/1076/1200/800", lastModifiedDateTime: "2026-07-10T08:30:00Z" },
-            { id: "inc-02", name: "demostracion_extintor.jpg", size: 510000, file: { mimeType: "image/jpeg" }, image: {}, webUrl: "https://picsum.photos/id/1077/1200/800", lastModifiedDateTime: "2026-07-10T10:00:00Z" },
-            { id: "inc-03", name: "practica_dirigida.jpg", size: 485000, file: { mimeType: "image/jpeg" }, image: {}, webUrl: "https://picsum.photos/id/1084/1200/800", lastModifiedDateTime: "2026-07-10T11:00:00Z" },
-            { id: "inc-04", name: "brigada_seguridad.jpg", size: 490000, file: { mimeType: "image/jpeg" }, image: {}, webUrl: "https://picsum.photos/id/1027/1200/800", lastModifiedDateTime: "2026-07-10T12:00:00Z" },
-            { id: "inc-05", name: "maniobra_manguera.jpg", size: 530000, file: { mimeType: "image/jpeg" }, image: {}, webUrl: "https://picsum.photos/id/1068/1200/800", lastModifiedDateTime: "2026-07-10T14:00:00Z" },
-            { id: "inc-06", name: "certificacion_personal.jpg", size: 410000, file: { mimeType: "image/jpeg" }, image: {}, webUrl: "https://picsum.photos/id/1070/1200/800", lastModifiedDateTime: "2026-07-10T16:30:00Z" }
+            { id: "inc-01", name: "teoria_prevencion.jpg", size: 420000, file: { mimeType: "image/jpeg" }, image: {}, webUrl: "/api/placeholder/id-1076/1200/800", lastModifiedDateTime: "2026-07-10T08:30:00Z" },
+            { id: "inc-02", name: "demostracion_extintor.jpg", size: 510000, file: { mimeType: "image/jpeg" }, image: {}, webUrl: "/api/placeholder/id-1077/1200/800", lastModifiedDateTime: "2026-07-10T10:00:00Z" },
+            { id: "inc-03", name: "practica_dirigida.jpg", size: 485000, file: { mimeType: "image/jpeg" }, image: {}, webUrl: "/api/placeholder/id-1084/1200/800", lastModifiedDateTime: "2026-07-10T11:00:00Z" },
+            { id: "inc-04", name: "brigada_seguridad.jpg", size: 490000, file: { mimeType: "image/jpeg" }, image: {}, webUrl: "/api/placeholder/id-1027/1200/800", lastModifiedDateTime: "2026-07-10T12:00:00Z" },
+            { id: "inc-05", name: "maniobra_manguera.jpg", size: 530000, file: { mimeType: "image/jpeg" }, image: {}, webUrl: "/api/placeholder/id-1068/1200/800", lastModifiedDateTime: "2026-07-10T14:00:00Z" },
+            { id: "inc-06", name: "certificacion_personal.jpg", size: 410000, file: { mimeType: "image/jpeg" }, image: {}, webUrl: "/api/placeholder/id-1070/1200/800", lastModifiedDateTime: "2026-07-10T16:30:00Z" }
         ]
     }
 ];
@@ -108,9 +108,9 @@ let MOCK_SUPPORT_TICKETS = [
 
 const MOCK_AREAS_REAL_LIST = {
     "value": [
-        { "id": "1", "fields": { "Title": "Sistemas", "Sitio": "", "Contactos": "Ramiro Rodelo del Valle - Coordinador de Tecnologia de Informacion\nJohnnier Gomez - Aprendiz TI\nAdelino Aragon - Tecnico de Sistemas\nOmar Caicedo Martinez - Analista TI", "Informe": "<iframe title=\"Dashboard\" width=\"600\" height=\"373.5\" src=\"https://app.powerbi.com/view?r=eyJrIjoiYTc1OTUxYTMtY2E0NS00MWI1LTlkN2MtZDllMDBjMzZiNmRmIiwidCI6ImYzM2JlZDlmLTIyYmQtNDM1MC1iN2RhLTY2YmQ4OGZjNjQ1OCIsImMiOjR9\" frameborder=\"0\" allowFullScreen=\"true\"></iframe>", "cover": "https://img.freepik.com/free-photo/server-room_53876-97067.jpg", "descripcion_larga": "Encargada de la infraestructura tecnológica, soporte a usuarios, administración de sistemas ERP y seguridad informática." } },
-        { "id": "2", "fields": { "Title": "Contabilidad", "Sitio": "", "Contactos": "Carlos Molina Lozano - Coordinador Contable\nYordanis Chavez - Analista Contable\nSebastián Vasquez - Analista Contable\nYuliana Ramirez - Aprendiz Contable", "Informe": "", "cover": "https://img.freepik.com/free-photo/accountants-working-late-office_1098-18496.jpg", "descripcion_larga": "Gestión de cuentas por pagar y cobrar, conciliaciones bancarias, elaboración de estados financieros y reportes fiscales." } },
-        { "id": "3", "fields": { "Title": "Talento Humano", "Sitio": "", "Contactos": "Adriana Meola - Coordinadora Talento Humano\nDuván Simancas - Analista Talento Humano\nValentina Ospino - Aprendiz Talento Humano", "Informe": "", "cover": "https://img.freepik.com/free-photo/group-people-working-out-business-meeting_1303-15780.jpg", "descripcion_larga": "Administración del personal, nómina, bienestar laboral, seguridad y salud en el trabajo, y desarrollo organizacional." } }
+        { "id": "1", "fields": { "Title": "Sistemas", "Sitio": "", "Contactos": "Ramiro Rodelo del Valle - Coordinador de Tecnologia de Informacion\nJohnnier Gomez - Aprendiz TI\nAdelino Aragon - Tecnico de Sistemas\nOmar Caicedo Martinez - Analista TI", "Informe": "<iframe title=\"Dashboard\" width=\"600\" height=\"373.5\" src=\"https://app.powerbi.com/view?r=eyJrIjoiYTc1OTUxYTMtY2E0NS00MWI1LTlkN2MtZDllMDBjMzZiNmRmIiwidCI6ImYzM2JlZDlmLTIyYmQtNDM1MC1iN2RhLTY2YmQ4OGZjNjQ1OCIsImMiOjR9\" frameborder=\"0\" allowFullScreen=\"true\"></iframe>", "cover": "/api/placeholder/server-room_53876-97067", "descripcion_larga": "Encargada de la infraestructura tecnológica, soporte a usuarios, administración de sistemas ERP y seguridad informática." } },
+        { "id": "2", "fields": { "Title": "Contabilidad", "Sitio": "", "Contactos": "Carlos Molina Lozano - Coordinador Contable\nYordanis Chavez - Analista Contable\nSebastián Vasquez - Analista Contable\nYuliana Ramirez - Aprendiz Contable", "Informe": "", "cover": "/api/placeholder/accountants-working-late-office_1098-18496", "descripcion_larga": "Gestión de cuentas por pagar y cobrar, conciliaciones bancarias, elaboración de estados financieros y reportes fiscales." } },
+        { "id": "3", "fields": { "Title": "Talento Humano", "Sitio": "", "Contactos": "Adriana Meola - Coordinadora Talento Humano\nDuván Simancas - Analista Talento Humano\nValentina Ospino - Aprendiz Talento Humano", "Informe": "", "cover": "/api/placeholder/group-people-working-out-business-meeting_1303-15780", "descripcion_larga": "Administración del personal, nómina, bienestar laboral, seguridad y salud en el trabajo, y desarrollo organizacional." } }
     ]
 };
 
@@ -408,4 +408,82 @@ function intranetDocQrUrl(id) {
 
 function intranetSectorQrUrl(sector) {
     return "/api/intranet/documents/qr/sector/" + encodeURIComponent(sector);
+}
+
+/* ---------- Intranet: registro de vistas y acceso ---------- */
+
+async function recordIntranetDocView(documentId, email, name) {
+    try {
+        const res = await fetch("/api/intranet/documents/" + documentId + "/view", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ email: email || "", name: name || "" })
+        });
+        return res.ok;
+    } catch (e) {
+        return false;
+    }
+}
+
+async function getIntranetDocViews(documentId, email) {
+    try {
+        const res = await fetch("/api/intranet/documents/" + documentId + "/views?email=" + encodeURIComponent(email || ""));
+        if (!res.ok) return null;
+        return await res.json();
+    } catch (e) {
+        return null;
+    }
+}
+
+async function getIntranetAccessStatus(email) {
+    try {
+        const res = await fetch("/api/intranet/documents/views/access?email=" + encodeURIComponent(email || ""));
+        if (!res.ok) return null;
+        return await res.json();
+    } catch (e) {
+        return null;
+    }
+}
+
+async function getIntranetViewStats(email) {
+    try {
+        const res = await fetch("/api/intranet/documents/views/stats?email=" + encodeURIComponent(email || ""));
+        if (!res.ok) return null;
+        return await res.json();
+    } catch (e) {
+        return null;
+    }
+}
+
+async function getIntranetViewEvents(email) {
+    try {
+        const res = await fetch("/api/intranet/documents/views/events?email=" + encodeURIComponent(email || ""));
+        if (!res.ok) return null;
+        return await res.json();
+    } catch (e) {
+        return null;
+    }
+}
+
+async function grantIntranetRole(email, role, adminEmail) {
+    try {
+        const res = await fetch("/api/intranet/documents/views/grant?email=" + encodeURIComponent(email)
+            + "&role=" + encodeURIComponent(role)
+            + "&adminEmail=" + encodeURIComponent(adminEmail || ""), { method: "POST" });
+        const json = await res.json().catch(() => ({}));
+        return json.ok === true;
+    } catch (e) {
+        return false;
+    }
+}
+
+async function revokeIntranetRole(email, adminEmail) {
+    try {
+        const res = await fetch("/api/intranet/documents/views/revoke?email=" + encodeURIComponent(email)
+            + "&adminEmail=" + encodeURIComponent(adminEmail || ""), { method: "DELETE" });
+        const json = await res.json().catch(() => ({}));
+        return json.ok === true;
+    } catch (e) {
+        return false;
+    }
 }

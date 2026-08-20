@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -71,6 +72,7 @@ public class SiteContentService {
      * Indexa (reemplaza) el texto de todas las páginas públicas en la base de conocimiento.
      * Devuelve el número total de fragmentos generados.
      */
+    @Transactional
     public int indexAllPages() {
         Map<String, String> pages = extractAllPages();
         int total = 0;

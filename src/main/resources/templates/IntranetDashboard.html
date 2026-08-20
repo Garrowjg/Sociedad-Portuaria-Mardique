@@ -8,8 +8,10 @@
     <link rel="apple-touch-icon" sizes="180x180" href="/images/Icon180.png">
     <title>Dashboard — Intranet Mardique</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"></noscript>
+    <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"></noscript>
     <link rel="stylesheet" href="/css/panel-nav.css">
     <link rel="stylesheet" href="/css/inicio.css">
     <link rel="stylesheet" href="/css/portal.css">
@@ -57,7 +59,7 @@
 
 <div id="intranet-toast" class="intranet-toast"></div>
 
-<div th:replace="IntranetNav :: nav(current='dashboard')"></div>
+<div th:replace="~{IntranetNav :: nav(current='dashboard')}"></div>
 
 <div class="phero" style="position:relative;overflow:hidden;background:linear-gradient(135deg,#1b4562,#0f2a3a);padding:56px 20px 70px;">
     <div class="phw-glow"></div>
@@ -188,12 +190,10 @@ document.addEventListener("DOMContentLoaded", function() {
 
     getDriveRoot().then(items => {
         let total = 0;
-        items.forEach(item => {
-            if (item.folder && MOCK_FILES_BY_SECTOR && MOCK_FILES_BY_SECTOR[item.id]) {
-                total += MOCK_FILES_BY_SECTOR[item.id].length;
-            }
-        });
-        document.getElementById("stat-docs").textContent = total || "0";
+        const sectorIds = (items || []).map(i => i.id);
+        Promise.all(sectorIds.map(id => getIntranetAllDocs(id).then(docs => total += (docs || []).length).catch(() => {})))
+            .then(() => document.getElementById("stat-docs").textContent = total || "0")
+            .catch(() => document.getElementById("stat-docs").textContent = "0");
     }).catch(() => document.getElementById("stat-docs").textContent = "0");
 
     getNewsPosts().then(posts => {

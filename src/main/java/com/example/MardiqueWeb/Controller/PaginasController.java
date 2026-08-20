@@ -12,6 +12,7 @@ import com.example.MardiqueWeb.Repository.*;
 import com.example.MardiqueWeb.Service.CarouselService;
 import com.example.MardiqueWeb.Service.PageMediaService;
 import com.example.MardiqueWeb.Service.PqrsService;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -297,14 +298,16 @@ public class PaginasController {
     }
 
     @GetMapping("/login")
-    public String login(Authentication auth) {
+    public String login(Authentication auth, HttpServletRequest request) {
         if (auth != null && auth.isAuthenticated()) return "redirect:/dashboard";
+        request.getSession(true);
         return "Login";
     }
 
     @GetMapping("/register")
-    public String register(Authentication auth, Model model) {
+    public String register(Authentication auth, Model model, HttpServletRequest request) {
         if (auth != null && auth.isAuthenticated()) return "redirect:/dashboard";
+        request.getSession(true);
         model.addAttribute("tipo", "PERSONA");
         return "Register";
     }

@@ -25,9 +25,11 @@ public class IntranetDocument {
     @Column(name = "stored_name")
     private String storedName;
 
-    // true si es una carpeta (no tiene archivo físico); false para archivos
+    // true si es una carpeta (no tiene archivo físico); false para archivos.
+    // Se usa Boolean (no boolean) porque filas creadas antes de agregar la columna
+    // pueden tener NULL en la base de datos y hay que tolerarlo al leerlas.
     @Column(name = "es_carpeta")
-    private boolean esCarpeta = false;
+    private Boolean esCarpeta = false;
 
     // Si está dentro de una carpeta, id de la carpeta padre; null = raíz del sector
     @Column(name = "parent_id")
@@ -82,10 +84,10 @@ public class IntranetDocument {
     }
 
     public boolean isEsCarpeta() {
-        return esCarpeta;
+        return esCarpeta != null && esCarpeta;
     }
 
-    public void setEsCarpeta(boolean esCarpeta) {
+    public void setEsCarpeta(Boolean esCarpeta) {
         this.esCarpeta = esCarpeta;
     }
 

@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/png" sizes="32x32" href="/images/Icon32.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="/images/Icon192.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="/images/Icon180.png">
+    <title>Panel de Control — Intranet Mardique</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"></noscript>
+    <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"></noscript>
+    <link rel="stylesheet" href="/css/panel-nav.css">
+    <link rel="stylesheet" href="/css/inicio.css">
+    <link rel="stylesheet" href="/css/portal.css">
+    <script src="https://alcdn.msauth.net/browser/2.38.0/js/msal-browser.min.js"></script>
+    <style>
+        .intranet-loading { text-align: center; padding: 48px; color: var(--mx); }
+        .intranet-loading i { font-size: 28px; margin-bottom: 10px; display: block; }
+        .intranet-loading span { font-size: 14px; }
+        .intranet-toast { display: none; position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); padding: 12px 24px; border-radius: var(--r); font-size: 13px; font-weight: 600; z-index: 9999; box-shadow: 0 8px 32px rgba(0,0,0,.15); max-width: 90%; text-align: center; }
+        .intranet-toast.success { background: #16a34a; color: #fff; }
+        .intranet-toast.error { background: #dc2626; color: #fff; }
+        .mock-mode-badge { display: inline-flex; align-items: center; gap: 5px; padding: 4px 14px; border-radius: 50px; font-size: 11px; font-weight: 700; background: #fef3c7; color: #92400e; border: 1px solid #f59e0b; margin-left: 10px; }
+        .user-greeting{font-size:15px;color:rgba(255,255,255,.75);margin-top:4px;}
+        .user-badge{display:inline-block;padding:3px 12px;border-radius:50px;font-size:11px;font-weight:700;background:rgba(240,154,54,.14);color:var(--ag);border:1px solid rgba(240,154,54,.3);margin-top:8px;}
+        @keyframes fadeInDown{from{opacity:0;transform:translateY(-24px)}to{opacity:1;transform:translateY(0)}}
+        @keyframes fadeInUp{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:translateY(0)}}
+        .phero-badge{animation:fadeInDown .6s ease both}
+        .phero-main h1{animation:fadeInUp .7s ease .1s both}
+        .phero-main p{animation:fadeInUp .7s ease .25s both}
+        .phero-floaters{position:absolute;inset:0;overflow:hidden;pointer-events:none;z-index:0}
+        .phero-floaters i{position:absolute;font-size:24px;color:rgba(240,154,54,.08)}
+        .phw-glow{position:absolute;top:-30%;left:50%;transform:translateX(-50%);width:600px;height:600px;background:radial-gradient(circle,rgba(240,154,54,.12) 0%,transparent 70%);pointer-events:none;z-index:0}
+        .phw-wave{position:absolute;bottom:0;left:0;width:100%;overflow:hidden;line-height:0;z-index:0}
+        .phw-wave svg{display:block;width:100%;height:auto}
+        body{background:#f3f4f6!important;}
+        .intranet-shell{max-width:1320px;margin:0 auto;padding:0 24px 90px;display:flex;flex-direction:column;gap:22px;}
+        .intranet-main{flex:1;min-width:0;}
+        body .tab-content{background:#fff;border:1px solid var(--bdr);border-radius:16px;padding:30px 32px;box-shadow:0 4px 22px rgba(15,42,58,.06);}
+        @media(max-width:700px){ body .tab-content{padding:20px 16px;} }
+        .admin-badge-mode{display:inline-flex;align-items:center;gap:7px;padding:7px 14px;border-radius:50px;font-size:11.5px;font-weight:800;background:#fef3c7;color:#92400e;border:1px solid #f59e0b;margin-bottom:18px;}
+        .admin-badge-mode i{font-size:12px;}
+        .admin-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:14px;margin-bottom:26px;}
+        .admin-stat{background:linear-gradient(160deg,#fff,#f8fafc);border:1px solid #e2e8f0;border-radius:14px;padding:18px 20px;display:flex;align-items:center;gap:14px;box-shadow:0 2px 10px rgba(15,42,58,.05);}
+        .admin-stat-icon{width:46px;height:46px;flex:none;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:19px;color:#fff;background:linear-gradient(135deg,#1b4562,#26597e);}
+        .admin-stat-icon.orange{background:linear-gradient(135deg,#f09a36,#d67e1a);}
+        .admin-stat-icon.green{background:linear-gradient(135deg,#16a34a,#15803d);}
+        .admin-stat-icon.purple{background:linear-gradient(135deg,#7c3aed,#6d28d9);}
+        .admin-stat-val{font-size:24px;font-weight:800;color:#0f2a3a;line-height:1.1;}
+        .admin-stat-lbl{font-size:11.5px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:.4px;margin-top:2px;}
+        .admin-sec{margin-bottom:30px;}
+        .admin-sec-title{display:flex;align-items:center;gap:10px;font-size:16px;font-weight:800;color:var(--pd);margin-bottom:8px;}
+        .admin-sec-title i{color:var(--ag);}
+        .admin-sec-desc{font-size:12.5px;color:var(--mx);margin-bottom:16px;line-height:1.6;}
+        .admin-form-row{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px;}
+        .admin-form-row input[type="email"]{flex:1;min-width:220px;padding:10px 12px;border:1.5px solid var(--bdr);border-radius:8px;font-size:13px;font-family:inherit;outline:none;box-sizing:border-box;}
+        .admin-form-row input[type="email"]:focus{border-color:var(--ag);}
+        .admin-btn{display:inline-flex;align-items:center;gap:7px;padding:9px 16px;border-radius:8px;font-size:12.5px;font-weight:800;font-family:inherit;border:none;cursor:pointer;transition:filter .2s;background:var(--pd);color:#fff;}
+        .admin-btn:hover{filter:brightness(1.12);}
+        .admin-btn.green{background:#16a34a;}
+        .admin-btn.red{background:#dc2626;}
+        .admin-btn.small{padding:6px 11px;font-size:11.5px;}
+        .admin-list{display:flex;flex-direction:column;gap:8px;}
+        .admin-list-item{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 14px;border:1px solid #eef1f4;border-radius:10px;background:#fafbfc;flex-wrap:wrap;}
+        .admin-list-item .adm-email{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:700;color:#1b4562;}
+        .admin-list-item .adm-email i{color:var(--ag);}
+        .admin-list-item .adm-role{font-size:10.5px;font-weight:800;text-transform:uppercase;letter-spacing:.4px;padding:3px 10px;border-radius:50px;background:#eef2ff;color:#4338ca;}
+        .admin-list-empty{font-size:12.5px;color:#94a3b8;font-style:italic;padding:10px 2px;}
+        .admin-events-table{width:100%;border-collapse:collapse;font-size:12.5px;}
+        .admin-events-table th{text-align:left;padding:9px 10px;background:#f1f5f9;color:var(--mx);font-weight:700;font-size:11px;text-transform:uppercase;letter-spacing:.3px;position:sticky;top:0;}
+        .admin-events-table td{padding:9px 10px;border-bottom:1px solid #eef1f4;color:#334155;}
+        .admin-events-table tr:hover td{background:#fafbfc;}
+        .admin-events-wrap{max-height:420px;overflow:auto;border:1px solid #eef1f4;border-radius:10px;}
+        .adm-sector{display:inline-flex;align-items:center;gap:5px;font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.3px;padding:2px 9px;border-radius:50px;background:#eef1f4;color:#475569;}
+        .adm-email-cell{font-weight:700;color:#1b4562;}
+    </style>
+</head>
+<body>
+
+<div id="intranet-toast" class="intranet-toast"></div>
+
+<div th:replace="~{IntranetNav :: nav(current='documentos')}"></div>
+
+<div class="phero">
+    <div class="phw-glow"></div>
+    <div class="phero-floaters">
+        <i class="fas fa-cog"></i>
+        <i class="fas fa-eye"></i>
+        <i class="fas fa-users-cog"></i>
+        <i class="fas fa-chart-line"></i>
+    </div>
+    <div class="phw-container">
+        <div class="phero-grid">
+            <div class="phero-main">
+                <div class="phero-badge"><i class="fas fa-shield-halved"></i> Panel de Control de la Intranet</div>
+                <h1>Administración</h1>
+                <p>Gestión de accesos, registro de vistas de documentos y control del repositorio documental</p>
+            </div>
+        </div>
+    </div>
+    <div class="phw-wave">
+        <svg viewBox="0 0 1440 60" preserveAspectRatio="none"><path d="M0,32 C240,60 480,4 720,20 C960,36 1200,58 1440,28 L1440,60 L0,60 Z" fill="#f0f4f8"/></svg>
+    </div>
+</div>
+
+<div class="intranet-shell">
+    <div class="intranet-main">
+        <div class="tab-content reveal">
+            <div id="adminContent">
+                <div class="intranet-loading"><i class="fas fa-spinner fa-spin"></i><span>Cargando panel de administración...</span></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="pfooter">
+    &copy; 2026 Sociedad Portuaria Mardique S.A. Intranet Corporativa &mdash; Todos los derechos reservados.
+</div>
+
+<script src="/js/msal-config.js"></script>
+<script src="/js/api-service.js"></script>
+<script src="/js/intranet.js"></script>
+<script>
+    let adminEmail = "";
+    let adminName = "";
+
+    function esc(s) { return String(s == null ? "" : s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"); }
+
+    function fmtDT(s) {
+        if (!s) return "-";
+        const d = new Date(s);
+        if (isNaN(d.getTime())) return s;
+        return d.toLocaleDateString("es-CO", { year: "numeric", month: "short", day: "numeric" }) +
+            " · " + d.toLocaleTimeString("es-CO", { hour: "2-digit", minute: "2-digit" });
+    }
+
+    async function loadAdmin(){
+        const cont = document.getElementById("adminContent");
+        const status = await getIntranetAccessStatus(adminEmail);
+        const forceOpen = (typeof IS_PRODUCTION !== "undefined" && IS_PRODUCTION === false) || isMockMode();
+        if ((!status || !status.isAdmin) && !forceOpen) {
+            cont.innerHTML = '<div class="intranet-loading"><i class="fas fa-shield-halved"></i><span>Solo el administrador de la intranet puede acceder a este panel.</span></div>';
+            return;
+        }
+        const stats = await getIntranetViewStats(adminEmail);
+        if (!stats) {
+            if (forceOpen) {
+                renderAdmin(cont, {
+                    totalDocuments: 0,
+                    totalViews: 0,
+                    adminEmails: [],
+                    viewerEmails: [],
+                    testMode: true
+                }, [], []);
+                return;
+            }
+            cont.innerHTML = '<div class="intranet-loading"><i class="fas fa-exclamation-triangle"></i><span>Error al cargar la información.</span></div>';
+            return;
+        }
+        const admins = stats.adminEmails || [];
+        const viewers = stats.viewerEmails || [];
+        renderAdmin(cont, stats, admins, viewers);
+    }
+
+    function renderAdmin(cont, stats, admins, viewers){
+        let html = '';
+        if (stats.testMode) {
+            html += '<div class="admin-badge-mode"><i class="fas fa-flask"></i> Modo de pruebas: los permisos están abiertos para demostrar la funcionalidad. En producción se validará cada cuenta.</div>';
+        }
+        html += '<div class="admin-grid">' +
+            '<div class="admin-stat"><div class="admin-stat-icon"><i class="fas fa-folder-open"></i></div><div><div class="admin-stat-val">' + (stats.totalDocuments || 0) + '</div><div class="admin-stat-lbl">Documentos</div></div></div>' +
+            '<div class="admin-stat"><div class="admin-stat-icon orange"><i class="fas fa-eye"></i></div><div><div class="admin-stat-val">' + (stats.totalViews || 0) + '</div><div class="admin-stat-lbl">Vistas registradas</div></div></div>' +
+            '<div class="admin-stat"><div class="admin-stat-icon green"><i class="fas fa-user-tie"></i></div><div><div class="admin-stat-val">' + admins.length + '</div><div class="admin-stat-lbl">Administradores</div></div></div>' +
+            '<div class="admin-stat"><div class="admin-stat-icon purple"><i class="fas fa-users"></i></div><div><div class="admin-stat-val">' + viewers.length + '</div><div class="admin-stat-lbl">Cuentas con acceso</div></div></div>' +
+            '</div>';
+
+        // Sección: habilitar cuentas para ver quiénes han visto el documento
+        html += '<div class="admin-sec">' +
+            '<div class="admin-sec-title"><i class="fas fa-user-plus"></i> Habilitar cuentas para ver "Quiénes han visto el documento"</div>' +
+            '<div class="admin-sec-desc">Agrega el correo de un colaborador para que pueda ver, en la sección de Documentos, el botón que muestra quiénes han visto cada documento (correo, veces, primera y última vez).</div>' +
+            '<div class="admin-form-row">' +
+            '<input type="email" id="viewerEmailInput" placeholder="correo@spmardique.co">' +
+            '<button class="admin-btn green" onclick="addViewer()"><i class="fas fa-plus"></i> Habilitar cuenta</button>' +
+            '</div>' +
+            '<div class="admin-list" id="viewerList">' + renderRoleList(viewers, "VIEWER") + '</div>' +
+            '</div>';
+
+        // Sección: administradores
+        html += '<div class="admin-sec">' +
+            '<div class="admin-sec-title"><i class="fas fa-user-cog"></i> Administradores de la intranet</div>' +
+            '<div class="admin-sec-desc">Estas cuentas tienen control absoluto: acceden a este panel y siempre pueden ver quiénes han visto los documentos. El administrador principal es el coordinador de sistemas.</div>' +
+            '<div class="admin-form-row">' +
+            '<input type="email" id="adminEmailInput" placeholder="correo@spmardique.co">' +
+            '<button class="admin-btn" onclick="addAdmin()"><i class="fas fa-plus"></i> Agregar administrador</button>' +
+            '</div>' +
+            '<div class="admin-list" id="adminList">' + renderRoleList(admins, "ADMIN") + '</div>' +
+            '</div>';
+
+        // Sección: registro de accesos a documentos
+        html += '<div class="admin-sec">' +
+            '<div class="admin-sec-title"><i class="fas fa-history"></i> Registro de accesos a documentos</div>' +
+            '<div class="admin-sec-desc">Cada vez que un colaborador abre un documento desde la intranet se registra su correo, el documento y la fecha y hora exacta.</div>' +
+            '<div class="admin-events-wrap" id="eventsWrap"></div>' +
+            '</div>';
+
+        cont.innerHTML = html;
+        loadEvents();
+    }
+
+    function renderRoleList(users, role){
+        if (!users || !users.length) return '<div class="admin-list-empty">No hay cuentas registradas con este rol.</div>';
+        return users.map(u => {
+            const email = u.email || u;
+            const createdAt = u.createdAt ? ' · ' + formatDate(u.createdAt) : '';
+            return '<div class="admin-list-item">' +
+                '<div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;"><span class="adm-email"><i class="fas fa-envelope"></i> ' + esc(email) + '</span>' +
+                '<span class="adm-role">' + role + '</span></div>' +
+                '<button class="admin-btn red small" onclick="removeRole(\'' + esc(email) + '\')"><i class="fas fa-trash"></i> Quitar</button>' +
+                '</div>';
+        }).join("");
+    }
+
+    async function addViewer(){
+        const input = document.getElementById("viewerEmailInput");
+        const email = (input.value || "").trim();
+        if (!email) { showIntranetToast("Escribe un correo para habilitar", "error"); return; }
+        const ok = await grantIntranetRole(email, "VIEWER", adminEmail);
+        if (ok) {
+            showIntranetToast("Cuenta habilitada correctamente", "success");
+            loadAdmin();
+        } else {
+            showIntranetToast("No se pudo habilitar la cuenta", "error");
+        }
+    }
+
+    async function addAdmin(){
+        const input = document.getElementById("adminEmailInput");
+        const email = (input.value || "").trim();
+        if (!email) { showIntranetToast("Escribe un correo para agregar", "error"); return; }
+        const ok = await grantIntranetRole(email, "ADMIN", adminEmail);
+        if (ok) {
+            showIntranetToast("Administrador agregado correctamente", "success");
+            loadAdmin();
+        } else {
+            showIntranetToast("No se pudo agregar el administrador", "error");
+        }
+    }
+
+    async function removeRole(email){
+        if (!confirm("¿Quitar el acceso de " + email + "?")) return;
+        const ok = await revokeIntranetRole(email, adminEmail);
+        if (ok) {
+            showIntranetToast("Acceso actualizado", "success");
+            loadAdmin();
+        } else {
+            showIntranetToast("No se pudo actualizar", "error");
+        }
+    }
+
+    async function loadEvents(){
+        const wrap = document.getElementById("eventsWrap");
+        if (!wrap) return;
+        wrap.innerHTML = '<div class="intranet-loading"><i class="fas fa-spinner fa-spin"></i><span>Cargando registro...</span></div>';
+        const data = await getIntranetViewEvents(adminEmail);
+        if (!data || !data.events) {
+            wrap.innerHTML = '<div class="admin-list-empty">No se pudo cargar el registro.</div>';
+            return;
+        }
+        const events = data.events || [];
+        if (!events.length) {
+            wrap.innerHTML = '<div class="admin-list-empty">Aún no hay vistas registradas. Cuando alguien abra un documento desde la intranet, aquí aparecerá su acceso.</div>';
+            return;
+        }
+        const rows = events.map(e => '<tr>' +
+            '<td class="adm-email-cell"><i class="fas fa-envelope"></i> ' + esc(e.email) + '</td>' +
+            '<td>' + esc(e.name || "-") + '</td>' +
+            '<td>' + esc(e.documentName || "-") + '</td>' +
+            '<td><span class="adm-sector">' + esc(e.sector || "general") + '</span></td>' +
+            '<td>' + fmtDT(e.viewedAt) + '</td>' +
+            '</tr>').join("");
+        wrap.innerHTML = '<table class="admin-events-table">' +
+            '<thead><tr><th>Correo</th><th>Nombre</th><th>Documento</th><th>Sector</th><th>Fecha y hora</th></tr></thead>' +
+            '<tbody>' + rows + '</tbody></table>';
+    }
+
+    document.addEventListener("DOMContentLoaded", async function() {
+        if (!isMsalAuthenticated()) { window.location.href = "/login"; return; }
+        if (isMockMode()) { const mb = document.getElementById("mockBadge"); if (mb) mb.style.display = "inline-flex"; }
+        try {
+            const user = await getCurrentUser();
+            adminName = user.displayName || user.userPrincipalName || "";
+            adminEmail = user.mail || user.userPrincipalName || "";
+            document.getElementById("userDisplay").textContent = adminName;
+        } catch (e) {}
+        await loadAdmin();
+        const revealObs = new IntersectionObserver(entries => {
+            entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+        }, { threshold: 0.1 });
+        document.querySelectorAll('.reveal').forEach(el => revealObs.observe(el));
+    });
+</script>
+</body>
+</html>

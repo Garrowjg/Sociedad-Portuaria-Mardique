@@ -56,4 +56,9 @@ public class IntranetController {
     public String informes() {
         return "IntranetInformes";
     }
+
+    @GetMapping("/admin")
+    public String admin() {
+        return "IntranetAdmin";
+    }
 }
