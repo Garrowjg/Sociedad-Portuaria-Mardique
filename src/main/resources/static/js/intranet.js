@@ -122,7 +122,9 @@ function formatFileSize(bytes) {
 
 function formatDate(dateStr) {
     if (!dateStr) return "-";
-    const d = new Date(dateStr);
+    var iso = dateStr;
+    if (/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}/.test(iso) && !/[Zz+\-]\d{2}:?\d{2}$/.test(iso)) iso += "Z";
+    const d = new Date(iso);
     return d.toLocaleDateString("es-CO", { year: "numeric", month: "short", day: "numeric" });
 }
 

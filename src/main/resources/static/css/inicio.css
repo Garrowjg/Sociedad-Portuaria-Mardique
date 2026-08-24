@@ -95,19 +95,10 @@ nav { flex: 1; display: flex; justify-content: center; padding-right: 20px; min-
 .nav-menu li.active a, .nav-menu li a:hover { color: #fff; font-weight: 600; }
 .nav-menu li.active a::after, .nav-menu li a:hover::after { width: 100%; }
 .nav-menu li a i { margin-left: 4px; font-size: 10px; vertical-align: middle; }
-.header-contact-btn {
-    background-color: var(--accent-gold); color: #fff; padding: 10px 22px;
-    border-radius: 4px; font-size: 12px; font-weight: 700; text-transform: uppercase;
-    letter-spacing: 0.5px; transition: var(--transition);
-    display: flex; align-items: center; gap: 8px; white-space: nowrap;
-}
-.header-contact-btn:hover { background-color: #c9730e; transform: translateY(-2px); box-shadow: 0 4px 12px rgba(226,135,22,0.3); }
-
 @media (max-width: 1200px) {
     .nav-menu { gap: clamp(14px, 2.5vw, 24px); }
     .nav-menu li a { font-size: 11px; letter-spacing: 0.2px; }
     .nav-menu li.dropdown .dropdown-trigger { font-size: 11px; letter-spacing: 0.2px; }
-    .header-contact-btn { padding: 7px 14px; font-size: 10.5px; gap: 6px; }
     .logo-box { padding: 6px 14px 6px 10px; }
     .logo-box img { height: 34px; }
     header { padding: 13px 0; }
@@ -712,7 +703,6 @@ footer::before {
     .nav-menu { gap: 12px; }
     .nav-menu li a { font-size: 10px; letter-spacing: 0; }
     .nav-menu li.dropdown .dropdown-trigger { font-size: 10px; letter-spacing: 0; }
-    .header-contact-btn { padding: 5px 10px; font-size: 9.5px; gap: 4px; }
     .logo-box { padding: 5px 12px 5px 8px; }
     .logo-box img { height: 32px; }
     header { padding: 10px 0; }
@@ -910,7 +900,7 @@ footer::before {
 
 @media (max-width: 768px) {
 
-    header nav, .header-contact-btn { display: none; }
+    header nav, .header-pse-btn { display: none; }
     .mobile-menu-toggle { display: flex; }
     .header-content { padding: 0 16px; gap: 10px; }
     .container { padding: 0 16px; }

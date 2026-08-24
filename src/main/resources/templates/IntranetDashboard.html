@@ -61,7 +61,7 @@
 
 <div th:replace="~{IntranetNav :: nav(current='dashboard')}"></div>
 
-<div class="phero" style="position:relative;overflow:hidden;background:linear-gradient(135deg,#1b4562,#0f2a3a);padding:56px 20px 70px;">
+<div class="phero" style="position:relative;overflow:hidden;background:linear-gradient(135deg,#1b4562,#0f2a3a);padding:64px 20px 80px;">
     <div class="phw-glow"></div>
     <div class="phero-floaters">
         <i class="fas fa-building"></i>
@@ -86,9 +86,6 @@
                 <a href="/intranet/documentos" style="display:inline-flex;align-items:center;gap:6px;padding:10px 22px;border-radius:50px;font-size:13px;font-weight:700;background:linear-gradient(135deg,#f09a36,#d67e1a);color:#fff;text-decoration:none;transition:all .3s ease;">
                     <i class="fas fa-folder-open"></i> Documentos
                 </a>
-                <a href="/intranet/noticias" style="display:inline-flex;align-items:center;gap:6px;padding:10px 22px;border-radius:50px;font-size:13px;font-weight:700;border:2px solid rgba(255,255,255,.2);color:#fff;text-decoration:none;transition:all .3s ease;">
-                    <i class="fas fa-newspaper"></i> Noticias
-                </a>
                 <a href="/intranet/galeria" style="display:inline-flex;align-items:center;gap:6px;padding:10px 22px;border-radius:50px;font-size:13px;font-weight:700;border:2px solid rgba(255,255,255,.2);color:#fff;text-decoration:none;transition:all .3s ease;">
                     <i class="fas fa-images"></i> Galería
                 </a>
@@ -101,7 +98,6 @@
             <div style="font-size:12px;font-weight:700;color:rgba(255,255,255,.5);text-transform:uppercase;letter-spacing:.4px;margin-bottom:14px;">Resumen</div>
             <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
                 <div><div class="stat-num" id="stat-docs" style="font-size:22px;font-weight:800;color:#f09a36;">0</div><div style="font-size:11px;color:rgba(255,255,255,.5);">Documentos</div></div>
-                <div><div class="stat-num" id="stat-news" style="font-size:22px;font-weight:800;color:#00a3e0;">0</div><div style="font-size:11px;color:rgba(255,255,255,.5);">Noticias</div></div>
                 <div><div class="stat-num" id="stat-leaves" style="font-size:22px;font-weight:800;color:#16a34a;">0</div><div style="font-size:11px;color:rgba(255,255,255,.5);">Solicitudes</div></div>
                 <div style="grid-column:1/3;"><div id="stat-user" style="font-size:12px;font-weight:700;color:rgba(255,255,255,.75);line-height:1.3;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">-</div><div style="font-size:11px;color:rgba(255,255,255,.4);margin-top:2px;">Departamento</div></div>
             </div>
@@ -125,10 +121,6 @@
                 <a href="/intranet/documentos" class="quick-card">
                     <div class="qico g"><i class="fas fa-folder-open"></i></div>
                     <div><h3>Documentos</h3><p>Repositorio documental por sector</p></div>
-                </a>
-                <a href="/intranet/noticias" class="quick-card">
-                    <div class="qico c"><i class="fas fa-newspaper"></i></div>
-                    <div><h3>Noticias</h3><p>Novedades y anuncios corporativos</p></div>
                 </a>
                 <a href="/intranet/areas" class="quick-card">
                     <div class="qico p"><i class="fas fa-layer-group"></i></div>
@@ -195,10 +187,6 @@ document.addEventListener("DOMContentLoaded", function() {
             .then(() => document.getElementById("stat-docs").textContent = total || "0")
             .catch(() => document.getElementById("stat-docs").textContent = "0");
     }).catch(() => document.getElementById("stat-docs").textContent = "0");
-
-    getNewsPosts().then(posts => {
-        document.getElementById("stat-news").textContent = (posts && posts.length) || "0";
-    }).catch(() => {});
 
     getLeaveRequests().then(items => {
         document.getElementById("stat-leaves").textContent = (items && items.length) || "0";

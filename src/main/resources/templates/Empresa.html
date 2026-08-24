@@ -124,12 +124,6 @@
         .nav-menu li.dropdown .dropdown-menu li a:hover {
             color: #fff; background: rgba(255,255,255,0.04); padding-left: 26px;
         }
-        .header-contact-btn {
-            background-color: var(--accent-gold); color: var(--text-light); padding: 10px 22px;
-            border-radius: 4px; font-size: 12px; font-weight: 700; text-transform: uppercase;
-            letter-spacing: 0.5px; transition: var(--transition); display: flex; align-items: center; gap: 8px; white-space: nowrap;
-        }
-        .header-contact-btn:hover { background-color: #c9730e; transform: translateY(-2px); box-shadow: 0 4px 12px rgba(226,135,22,0.3); }
 
         .page-hero {
             position: relative; height: 520px; display: flex; align-items: flex-end;
@@ -607,7 +601,7 @@
         @media (max-width: 768px) {
             .nav-menu { display: none; }
             nav { display: none; }
-            .header-contact-btn { display: none; }
+            .header-pse-btn { display: none; }
             .mobile-menu-toggle { display: flex; }
             .mobile-nav-drawer { display: flex; }
             .page-hero-title { font-size: 30px; }
@@ -662,7 +656,7 @@
                 </li>
             </ul>
         </nav>
-        <button type="button" onclick="openServiceForm('Contáctenos', 'Otro', 'Solicitud General', 'Complete el formulario y nuestro equipo comercial se pondrá en contacto con usted a la brevedad posible.')" class="header-contact-btn" style="border:none;cursor:pointer;">CONTÁCTANOS <i class="fas fa-phone-alt"></i></button>
+        <a href="#" class="header-pse-btn"><img src="/images/pse.png" alt="PSE"></a>
         <button class="mobile-menu-toggle" id="mobileToggle" aria-label="Abrir menú">
             <span></span><span></span><span></span>
         </button>

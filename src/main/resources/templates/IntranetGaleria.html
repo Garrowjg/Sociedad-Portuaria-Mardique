@@ -13,10 +13,19 @@
     <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" onload="this.onload=null;this.rel='stylesheet'">
     <noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"></noscript>
     <link rel="stylesheet" href="/css/panel-nav.css">
-    <link rel="stylesheet" href="/css/inicio.css">
-    <link rel="stylesheet" href="/css/portal.css">
     <script src="https://alcdn.msauth.net/browser/2.38.0/js/msal-browser.min.js"></script>
     <style>
+        :root{--pd:#1b4562;--pb:#28648c;--ag:#f09a36;--ac:#00a3e0;--bg:#f0f4f8;--sur:#fff;--bdr:#e2e8f2;--tx:#1e293b;--mx:#64748b;}
+        *{box-sizing:border-box;}
+        body{margin:0;padding:0;font-family:'Plus Jakarta Sans',system-ui,sans-serif;background:var(--bg);color:var(--tx);}
+        .phero{background:linear-gradient(155deg,#0d2438 0%,var(--pd) 55%,#0d2438 100%);padding:0 32px;position:relative;overflow:hidden;}
+        .phw-glow{position:absolute;border-radius:50%;filter:blur(90px);pointer-events:none;opacity:.35;width:520px;height:520px;background:radial-gradient(circle,rgba(0,163,224,.32),transparent 70%);top:-180px;right:-140px;}
+        .phw-container{position:relative;z-index:1;max-width:1200px;margin:0 auto;padding:92px 0 52px;}
+        .phero-grid{display:grid;grid-template-columns:1.15fr .85fr;gap:56px;align-items:center;}
+        .phero h1{font-size:36px;font-weight:800;color:#fff;line-height:1.18;margin-bottom:14px;letter-spacing:-.5px;}
+        .phero p{font-size:15px;color:rgba(255,255,255,.62);margin-bottom:28px;max-width:420px;line-height:1.65;}
+        .phw-wave{position:relative;z-index:1;line-height:0;margin:44px -32px 0;}
+        .phw-wave svg{display:block;width:100%;height:56px;}
         @keyframes fadeInDown{from{opacity:0;transform:translateY(-24px)}to{opacity:1;transform:translateY(0)}}
         @keyframes fadeInUp{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:translateY(0)}}
         @keyframes floatIcon{0%,100%{transform:translateY(0)}25%{transform:translateY(-12px)}75%{transform:translateY(-8px)}}
@@ -36,7 +45,8 @@
         body .section-header h2{display:flex;align-items:center;gap:10px;font-size:19px;font-weight:800;color:var(--pd);margin:0;letter-spacing:-.2px;}
         body .section-header h2 i{color:var(--ag);font-size:17px;width:34px;height:34px;flex-shrink:0;display:inline-flex;align-items:center;justify-content:center;background:rgba(240,154,54,.12);border-radius:9px;}
         body .section-header p{margin-top:6px!important;}
-        body .tab-content{background:#fff;border:1px solid var(--bdr);border-radius:16px;padding:34px 36px;box-shadow:0 4px 22px rgba(15,42,58,.06);}
+        body .tab-content{background:#fff;border:1px solid var(--bdr);border-radius:16px;padding:34px 36px;box-shadow:0 4px 22px rgba(15,42,58,.06);opacity:0;transform:translateY(20px);transition:all .55s cubic-bezier(.22,1,.36,1);}
+        body .tab-content.visible{opacity:1;transform:translateY(0);}
         @media(max-width:700px){ body .tab-content{padding:22px 18px;} }
         .btn-add-post{display:inline-flex;align-items:center;gap:8px;padding:10px 22px;border:none;border-radius:50px;font-size:13px;font-weight:700;font-family:inherit;background:linear-gradient(135deg,var(--ag),#d67e1a);color:#fff;cursor:pointer;transition:all .25s ease;box-shadow:0 4px 14px rgba(240,154,54,.25);}
         .btn-add-post:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(240,154,54,.35);}
@@ -95,6 +105,8 @@
         .gal-preview-modal{display:none;position:fixed;inset:0;z-index:11000;background:rgba(0,0,0,.92);align-items:center;justify-content:center;padding:20px;cursor:pointer;}
         .gal-preview-modal.active{display:flex;}
         .gal-preview-modal img{max-width:95%;max-height:90vh;object-fit:contain;border-radius:6px;box-shadow:0 8px 40px rgba(0,0,0,.4);cursor:default;}
+        .pfooter{text-align:center;padding:22px 28px;border-top:1px solid var(--bdr);color:var(--mx);font-size:12px;margin-top:auto;background:var(--bg);position:relative;}
+        .pfooter::before{content:'';position:absolute;top:0;left:15%;width:70%;height:2px;background:linear-gradient(90deg,transparent,var(--ag),transparent);opacity:.35;}
     </style>
 </head>
 <body>
@@ -105,7 +117,7 @@
 
 <div class="gal-modal-overlay" id="galPostModal">
     <div class="gal-modal">
-        <h2><i class="fas fa-image"></i> Nueva Publicación</h2>
+        <h2><i class="fas fa-calendar-plus"></i> Nuevo Evento</h2>
         <div class="field">
             <label>Título</label>
             <input type="text" id="gal-form-title" placeholder="Título de la publicación" maxlength="200">
@@ -212,121 +224,130 @@ function submitGalPost(){
     const title = document.getElementById("gal-form-title").value.trim();
     const desc = document.getElementById("gal-form-desc").value.trim();
     if (!title) { showIntranetToast("Escribe un título para la publicación", "error"); return; }
-    if (galPendingFiles.length === 0) { showIntranetToast("Agrega al menos una foto", "error"); return; }
     const btn = document.getElementById("gal-form-submit");
     btn.disabled = true;
     btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Publicando...';
-    Promise.all(galPendingFiles.map(f => new Promise(resolve => {
-        const r = new FileReader();
-        r.onload = e => resolve({ name: f.name, data: e.target.result });
-        r.readAsDataURL(f);
-    }))).then(photos => {
+    const photosPromise = galPendingFiles.length > 0
+        ? Promise.all(galPendingFiles.map(f => new Promise(resolve => {
+            const r = new FileReader();
+            r.onload = e => resolve(e.target.result);
+            r.readAsDataURL(f);
+          })))
+        : Promise.resolve([]);
+    photosPromise.then(photos => {
         const name = document.getElementById("userName")?.textContent || "Empleado";
-        const post = {
-            id: "gal-" + Date.now(),
-            author: name,
-            time: new Date().toISOString(),
+        const data = {
             title: title,
-            desc: desc,
-            photos: photos.map(p => p.data),
-            likes: 0,
-            liked: false
+            description: desc,
+            authorName: name,
+            authorEmail: typeof currentUserEmail !== "undefined" ? currentUserEmail : "",
+            photosJson: JSON.stringify(photos)
         };
-        const posts = JSON.parse(localStorage.getItem("mardique_galeria") || "[]");
-        posts.unshift(post);
-        localStorage.setItem("mardique_galeria", JSON.stringify(posts));
-        closeGalModal();
-        renderGalFeed();
-        showIntranetToast("Publicación creada correctamente", "success");
+        return createGalleryEvent(data);
+    }).then(result => {
+        if (result) {
+            closeGalModal();
+            renderGalFeed();
+            showIntranetToast("Publicación creada correctamente", "success");
+        } else {
+            showIntranetToast("Error al crear la publicación", "error");
+        }
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fas fa-paper-plane"></i> Publicar';
+    }).catch(() => {
+        showIntranetToast("Error al crear la publicación", "error");
         btn.disabled = false;
         btn.innerHTML = '<i class="fas fa-paper-plane"></i> Publicar';
     });
 }
 
+let galLikedEvents = JSON.parse(localStorage.getItem("mardique_gal_likes") || "[]");
+
 function renderGalFeed(){
     const feed = document.getElementById("gal-feed");
     if (!feed) return;
-    const posts = JSON.parse(localStorage.getItem("mardique_galeria") || "[]");
-    if (!posts.length) {
-        feed.innerHTML = '<div class="empty-state"><i class="fas fa-images"></i><h3>No hay publicaciones aún</h3><p>Sé el primero en compartir una foto con el equipo</p></div>';
-        return;
-    }
-    feed.innerHTML = posts.map((post, pidx) => {
-        const initials = (post.author || "E").split(" ").filter(Boolean).slice(0,2).map(w=>w[0]).join("").toUpperCase();
-        const timeStr = formatTimeAgo(post.time);
-        const hasMultiple = post.photos.length > 1;
-        return '<div class="gal-post">' +
-            '<div class="gal-post-head">' +
-                '<div class="gal-post-avatar">' + initials + '</div>' +
-                '<div class="gal-post-head-info"><strong>' + escapeHtml(post.author) + '</strong><span>' + timeStr + '</span></div>' +
-            '</div>' +
-            (post.title ? '<div class="gal-post-title">' + escapeHtml(post.title) + '</div>' : '') +
-            (post.desc ? '<div class="gal-post-desc">' + escapeHtml(post.desc) + '</div>' : '') +
-            '<div class="gal-carousel">' +
-                '<div class="gal-carousel-inner" id="c-inner-' + pidx + '">' +
-                    post.photos.map(p => '<img src="' + p + '" alt="" onclick="openGalPreview(\'' + p + '\')">').join("") +
+    getGalleryEvents().then(posts => {
+        if (!posts || !posts.length) {
+            feed.innerHTML = '<div class="empty-state"><i class="fas fa-images"></i><h3>No hay publicaciones aún</h3><p>Sé el primero en compartir una foto con el equipo</p></div>';
+            return;
+        }
+        feed.innerHTML = posts.map(post => {
+            const initials = (post.authorName || "E").split(" ").filter(Boolean).slice(0,2).map(w=>w[0]).join("").toUpperCase();
+            const timeStr = formatTimeAgo(post.createdAt);
+            let photos = [];
+            try { photos = JSON.parse(post.photosJson || "[]"); } catch(e) { photos = []; }
+            const hasMultiple = photos.length > 1;
+            const liked = galLikedEvents.includes(post.id);
+            return '<div class="gal-post">' +
+                '<div class="gal-post-head">' +
+                    '<div class="gal-post-avatar">' + initials + '</div>' +
+                    '<div class="gal-post-head-info"><strong>' + escapeHtml(post.authorName || "Empleado") + '</strong><span>' + timeStr + '</span></div>' +
                 '</div>' +
-                (hasMultiple ? '<button class="gal-carousel-btn gal-carousel-prev" onclick="galMove(' + pidx + ',-1)"><i class="fas fa-chevron-left"></i></button><button class="gal-carousel-btn gal-carousel-next" onclick="galMove(' + pidx + ',1)"><i class="fas fa-chevron-right"></i></button>' : '') +
-            '</div>' +
-            (hasMultiple ? '<div class="gal-carousel-dots" id="c-dots-' + pidx + '">' + post.photos.map((_, di) => '<button class="gal-carousel-dot' + (di === 0 ? ' active' : '') + '" onclick="galGoTo(' + pidx + ',' + di + ')"></button>').join("") + '</div>' : '') +
-            '<div class="gal-post-actions">' +
-                '<button class="' + (post.liked ? 'liked' : '') + '" onclick="galToggleLike(' + pidx + ')"><i class="' + (post.liked ? 'fas' : 'far') + ' fa-thumbs-up"></i> ' + (post.likes || 0) + ' Me gusta</button>' +
-                '<button onclick="galDeletePost(' + pidx + ')"><i class="fas fa-trash-can"></i> Eliminar</button>' +
-            '</div>' +
-        '</div>';
-    }).join("");
-    document.querySelectorAll(".gal-carousel").forEach(c => {
-        c.querySelectorAll("img").forEach(img => {
-            img.addEventListener("load", function(){ this.style.background = "none"; });
+                (post.title ? '<div class="gal-post-title">' + escapeHtml(post.title) + '</div>' : '') +
+                (post.description ? '<div class="gal-post-desc">' + escapeHtml(post.description) + '</div>' : '') +
+                (photos.length ? '<div class="gal-carousel">' +
+                    '<div class="gal-carousel-inner" id="c-inner-' + post.id + '">' +
+                        photos.map(p => '<img src="' + p + '" alt="" loading="lazy">').join("") +
+                    '</div>' +
+                    (hasMultiple ? '<button class="gal-carousel-btn gal-carousel-prev" onclick="galMove(' + post.id + ',-1)"><i class="fas fa-chevron-left"></i></button><button class="gal-carousel-btn gal-carousel-next" onclick="galMove(' + post.id + ',1)"><i class="fas fa-chevron-right"></i></button>' : '') +
+                '</div>' : '') +
+                (hasMultiple ? '<div class="gal-carousel-dots" id="c-dots-' + post.id + '">' + photos.map((_, di) => '<button class="gal-carousel-dot' + (di === 0 ? ' active' : '') + '" onclick="galGoTo(' + post.id + ',' + di + ')"></button>').join("") + '</div>' : '') +
+                '<div class="gal-post-actions">' +
+                    '<button class="' + (liked ? 'liked' : '') + '" onclick="galToggleLike(' + post.id + ')"><i class="' + (liked ? 'fas' : 'far') + ' fa-thumbs-up"></i> ' + (post.likes || 0) + ' Me gusta</button>' +
+                    '<button onclick="galDeletePost(' + post.id + ')"><i class="fas fa-trash-can"></i> Eliminar</button>' +
+                '</div>' +
+            '</div>';
+        }).join("");
+        document.querySelectorAll(".gal-carousel").forEach(c => {
+            c.querySelectorAll("img").forEach(img => {
+                img.addEventListener("load", function(){ this.style.background = "none"; });
+            });
         });
     });
 }
 
-function galMove(pidx, dir){
-    const inner = document.getElementById("c-inner-" + pidx);
+function galMove(id, dir){
+    const inner = document.getElementById("c-inner-" + id);
     if (!inner) return;
-    const posts = JSON.parse(localStorage.getItem("mardique_galeria") || "[]");
-    const post = posts[pidx];
-    if (!post) return;
-    const total = post.photos.length;
+    const total = inner.querySelectorAll("img").length;
     let current = parseInt(inner.dataset.current || "0");
     current = (current + dir + total) % total;
     inner.dataset.current = current;
     inner.style.transform = "translateX(-" + (current * 100) + "%)";
-    const dots = document.getElementById("c-dots-" + pidx);
+    const dots = document.getElementById("c-dots-" + id);
     if (dots) {
         dots.querySelectorAll(".gal-carousel-dot").forEach((d, i) => d.classList.toggle("active", i === current));
     }
 }
 
-function galGoTo(pidx, idx){
-    const inner = document.getElementById("c-inner-" + pidx);
+function galGoTo(id, idx){
+    const inner = document.getElementById("c-inner-" + id);
     if (!inner) return;
     inner.dataset.current = idx;
     inner.style.transform = "translateX(-" + (idx * 100) + "%)";
-    const dots = document.getElementById("c-dots-" + pidx);
+    const dots = document.getElementById("c-dots-" + id);
     if (dots) {
         dots.querySelectorAll(".gal-carousel-dot").forEach((d, i) => d.classList.toggle("active", i === idx));
     }
 }
 
-function galToggleLike(pidx){
-    const posts = JSON.parse(localStorage.getItem("mardique_galeria") || "[]");
-    const post = posts[pidx];
-    if (!post) return;
-    post.liked = !post.liked;
-    post.likes = post.liked ? (post.likes || 0) + 1 : Math.max(0, (post.likes || 0) - 1);
-    localStorage.setItem("mardique_galeria", JSON.stringify(posts));
-    renderGalFeed();
+function galToggleLike(id){
+    const liked = galLikedEvents.includes(id);
+    if (!liked) {
+        galLikedEvents.push(id);
+        localStorage.setItem("mardique_gal_likes", JSON.stringify(galLikedEvents));
+        likeGalleryEvent(id).then(() => renderGalFeed());
+    }
 }
 
-function galDeletePost(pidx){
+function galDeletePost(id){
     if (!confirm("¿Eliminar esta publicación?")) return;
-    const posts = JSON.parse(localStorage.getItem("mardique_galeria") || "[]");
-    posts.splice(pidx, 1);
-    localStorage.setItem("mardique_galeria", JSON.stringify(posts));
-    renderGalFeed();
-    showIntranetToast("Publicación eliminada", "success");
+    deleteGalleryEvent(id).then(ok => {
+        if (ok) {
+            renderGalFeed();
+            showIntranetToast("Publicación eliminada", "success");
+        }
+    });
 }
 
 function openGalPreview(src){
@@ -341,9 +362,10 @@ function closeGalPreview(){
     document.body.style.overflow = "";
 }
 
+function _parseISO(d){ if(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}/.test(d)&&!/[Zz+\-]\d{2}:?\d{2}$/.test(d)) d+="Z"; return new Date(d); }
 function formatTimeAgo(dateStr){
     if (!dateStr) return "";
-    const diff = Date.now() - new Date(dateStr).getTime();
+    const diff = Date.now() - _parseISO(dateStr).getTime();
     const mins = Math.floor(diff / 60000);
     if (mins < 1) return "justo ahora";
     if (mins < 60) return "hace " + mins + " min";
@@ -351,7 +373,7 @@ function formatTimeAgo(dateStr){
     if (hrs < 24) return "hace " + hrs + " h";
     const days = Math.floor(hrs / 24);
     if (days < 7) return "hace " + days + " d";
-    return new Date(dateStr).toLocaleDateString("es-CO", { year:"numeric", month:"short", day:"numeric" });
+    return _parseISO(dateStr).toLocaleDateString("es-CO", { year:"numeric", month:"short", day:"numeric" });
 }
 
 document.addEventListener("DOMContentLoaded", function() {

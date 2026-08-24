@@ -33,7 +33,9 @@ public class SecurityConfig {
                                 "/contacto/pqrs", "/contacto/pqrs/seguimiento", "/contacto/message", "/sesion-activa", "/error",
                                 "/css/**", "/js/**", "/images/**", "/videos/**", "/uploads/**",
                                 "/login", "/register", "/intranet/**", "/api/chatbot/**",
-                                "/api/intranet/documents/**").permitAll()
+                                "/api/intranet/documents/**", "/api/intranet/gallery/**",
+                                "/api/intranet/calendar/**", "/api/intranet/conversations/**",
+                                "/api/intranet/areas/**").permitAll()
                         .requestMatchers("/admin/**").hasRole("ADMIN")
                         .requestMatchers("/editor/**").hasRole("EDITOR")
                         .requestMatchers("/user/**").hasRole("USER")
@@ -63,7 +65,11 @@ public class SecurityConfig {
                         new AntPathRequestMatcher("/contacto/message"),
                         new AntPathRequestMatcher("/admin/migrate-encryption"),
                         new AntPathRequestMatcher("/api/chatbot/**"),
-                        new AntPathRequestMatcher("/api/intranet/documents/**")))
+                        new AntPathRequestMatcher("/api/intranet/documents/**"),
+                        new AntPathRequestMatcher("/api/intranet/gallery/**"),
+                        new AntPathRequestMatcher("/api/intranet/calendar/**"),
+                        new AntPathRequestMatcher("/api/intranet/conversations/**"),
+                        new AntPathRequestMatcher("/api/intranet/areas/**")))
                 .headers(headers -> headers
                         .xssProtection(xss -> xss.headerValue(XXssProtectionHeaderWriter.HeaderValue.ENABLED_MODE_BLOCK))
                         .contentSecurityPolicy(csp -> csp.policyDirectives(

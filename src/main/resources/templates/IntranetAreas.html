@@ -94,6 +94,81 @@
 
 <div id="intranet-toast" class="intranet-toast"></div>
 
+<div class="contact-modal-overlay" id="contactModal" onclick="if(event.target===this)closeContactModal()">
+    <div class="pcm-card">
+
+        <!-- HEADER AZUL — logo + empresa -->
+        <div class="pcm-top">
+            <div class="pcm-top-bar"></div>
+            <!-- Círculos decorativos de fondo -->
+            <div class="pcm-deco pcm-deco-1"></div>
+            <div class="pcm-deco pcm-deco-2"></div>
+            <div class="pcm-top-inner">
+                <div class="pcm-logo"><img src="/images/Logo.png" alt="Mardique"></div>
+                <div class="pcm-company">
+                    <strong>Sociedad Portuaria<br>Mardique S.A.</strong>
+                    <span>INTRANET CORPORATIVA</span>
+                </div>
+            </div>
+            <!-- Foto centrada en la parte baja del header -->
+            <div class="pcm-photo-wrap">
+                <div class="pcm-photo-ring">
+                    <div class="pcm-photo-inner">
+                        <img id="pcmPhoto" src="/images/Logo.png" alt="">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- CUERPO BLANCO -->
+        <div class="pcm-body">
+            <h3 class="pcm-name" id="pcmName"></h3>
+            <p class="pcm-cargo" id="pcmCargo"></p>
+
+            <div class="pcm-divider"></div>
+
+            <div class="pcm-fields">
+                <div class="pcm-field">
+                    <div class="pcm-field-icon pcm-farea"><i class="fas fa-building"></i></div>
+                    <div class="pcm-field-text">
+                        <span class="pcm-fl">Área</span>
+                        <span class="pcm-fv" id="pcmArea"></span>
+                    </div>
+                </div>
+                <div class="pcm-field">
+                    <div class="pcm-field-icon pcm-femail"><i class="fas fa-envelope"></i></div>
+                    <div class="pcm-field-text">
+                        <span class="pcm-fl">Correo Corporativo</span>
+                        <span class="pcm-fv" id="pcmEmail"></span>
+                    </div>
+                </div>
+                <div class="pcm-field">
+                    <div class="pcm-field-icon pcm-fphone"><i class="fas fa-mobile-alt"></i></div>
+                    <div class="pcm-field-text">
+                        <span class="pcm-fl">Número Corporativo</span>
+                        <span class="pcm-fv" id="pcmPhone"></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- NAV CAROUSEL -->
+        <div class="pcm-nav" id="pcmNav" style="display:none;">
+            <button class="pcm-nav-btn" id="pcmPrev" onclick="pcmNavigate(-1)"><i class="fas fa-chevron-left"></i></button>
+            <div class="pcm-nav-dots" id="pcmDots"></div>
+            <button class="pcm-nav-btn" id="pcmNext" onclick="pcmNavigate(1)"><i class="fas fa-chevron-right"></i></button>
+        </div>
+
+        <!-- FOOTER -->
+        <div class="pcm-footer">
+            <span><i class="fas fa-anchor"></i> SOCIEDAD PORTUARIA MARDIQUE S.A.</span>
+            <span>DIRECTORIO CORPORATIVO</span>
+        </div>
+
+        <button class="pcm-close" onclick="closeContactModal()"><i class="fas fa-times"></i></button>
+    </div>
+</div>
+
 <div th:replace="~{IntranetNav :: nav(current='areas')}"></div>
 
 <div class="phero">
@@ -123,6 +198,14 @@
         <div class="tab-content reveal">
             <div class="areas-views">
                 <div class="areas-view active" id="areas-list-view">
+                    <div class="areas-search">
+                        <div class="areas-search-box">
+                            <i class="fas fa-search"></i>
+                            <input type="text" id="areasSearchInput" placeholder="Buscar áreas, personas, cargos..." oninput="filterAreas(this.value)">
+                            <button class="areas-search-clear" id="areasSearchClear" onclick="document.getElementById('areasSearchInput').value='';filterAreas('');" style="display:none;"><i class="fas fa-times"></i></button>
+                        </div>
+                        <span class="areas-search-count" id="areasSearchCount"></span>
+                    </div>
                     <div class="areas-grid" id="areas-container"></div>
                 </div>
                 <div class="areas-view" id="areas-detail-view">
@@ -161,12 +244,252 @@
 </div>
 
 <style>
-.area-link-item{display:flex;align-items:center;gap:8px;font-size:12.5px;color:var(--ac);word-break:break-all;text-decoration:none;padding:10px 14px;border-radius:10px;border:1px solid #eef1f4;transition:all .2s;}
-.area-link-item i{color:var(--mx);font-size:12px;flex-shrink:0;}
-.area-link-item:hover{border-color:var(--ag);background:rgba(240,154,54,.04);color:var(--ag);}
-.area-link-item:hover i{color:var(--ag);}
-.area-actividad{font-size:12px;color:var(--mx);padding:6px 0;display:flex;align-items:center;gap:8px;}
-.area-actividad i{color:var(--ag);font-size:10px;width:14px;flex-shrink:0;}
+    .area-link-item{display:flex;align-items:center;gap:8px;font-size:12.5px;color:var(--ac);word-break:break-all;text-decoration:none;padding:10px 14px;border-radius:10px;border:1px solid #eef1f4;transition:all .2s;}
+    .area-link-item i{color:var(--mx);font-size:12px;flex-shrink:0;}
+    .area-link-item:hover{border-color:var(--ag);background:rgba(240,154,54,.04);color:var(--ag);}
+    .area-link-item:hover i{color:var(--ag);}
+    .area-actividad{font-size:12px;color:var(--mx);padding:6px 0;display:flex;align-items:center;gap:8px;}
+    .area-actividad i{color:var(--ag);font-size:10px;width:14px;flex-shrink:0;}
+
+    /* ══════════════════════════════════════════════════════════════
+       MODAL CONTACTO — rediseño completo
+       ══════════════════════════════════════════════════════════════ */
+
+    /* — Overlay — */
+    .contact-modal-overlay{
+        position:fixed;inset:0;
+        background:rgba(6,18,30,.72);
+        backdrop-filter:blur(12px);
+        -webkit-backdrop-filter:blur(12px);
+        z-index:9998;
+        display:flex;align-items:center;justify-content:center;
+        padding:16px;
+        opacity:0;pointer-events:none;
+        transition:opacity .3s ease;
+    }
+    .contact-modal-overlay.open{opacity:1;pointer-events:auto;}
+
+    /* — Card — */
+    .pcm-card{
+        width:480px;max-width:100%;
+        border-radius:24px;
+        overflow:hidden;
+        box-shadow:0 2px 4px rgba(0,0,0,.04),0 8px 24px rgba(6,18,30,.18),0 32px 80px rgba(6,18,30,.45);
+        transform:translateY(36px) scale(.93);
+        transition:transform .42s cubic-bezier(.22,1,.36,1);
+        position:relative;
+        background:#fff;
+        display:flex;flex-direction:column;
+    }
+    .contact-modal-overlay.open .pcm-card{transform:translateY(0) scale(1);}
+
+    /* — Botón cerrar — */
+    .pcm-close{
+        position:absolute;top:16px;right:16px;
+        width:36px;height:36px;
+        border-radius:50%;border:none;
+        background:rgba(255,255,255,.14);
+        backdrop-filter:blur(8px);
+        cursor:pointer;
+        display:flex;align-items:center;justify-content:center;
+        font-size:14px;color:#fff;
+        transition:background .2s, transform .3s;
+        z-index:30;
+    }
+    .pcm-close:hover{background:rgba(255,255,255,.26);transform:rotate(90deg);}
+
+    /* ════ HEADER ════════════════════════════════════════════════════ */
+    .pcm-top{
+        background:linear-gradient(150deg,#081e2e 0%,#0f2f48 40%,#163d5c 75%,#1c4e72 100%);
+        padding:0;
+        position:relative;
+        flex-shrink:0;
+        overflow:hidden;
+    }
+    .pcm-top-bar{
+        position:absolute;top:0;left:0;right:0;height:5px;
+        background:linear-gradient(90deg,#c96b10,#f09a36,#fbbf24,#f09a36,#c96b10);
+        z-index:2;
+    }
+    .pcm-deco{position:absolute;border-radius:50%;pointer-events:none;}
+    .pcm-deco-1{
+        width:260px;height:260px;top:-90px;right:-70px;
+        background:radial-gradient(circle,rgba(240,154,54,.13) 0%,transparent 68%);
+    }
+    .pcm-deco-2{
+        width:160px;height:160px;bottom:-50px;left:-30px;
+        background:radial-gradient(circle,rgba(255,255,255,.06) 0%,transparent 70%);
+    }
+    .pcm-top-inner{
+        display:flex;align-items:center;gap:16px;
+        padding:26px 24px 22px;
+        position:relative;z-index:2;
+    }
+    .pcm-logo{
+        width:84px;height:54px;
+        background:#fff;border-radius:12px;
+        display:flex;align-items:center;justify-content:center;
+        overflow:hidden;flex-shrink:0;padding:7px;
+        box-shadow:0 4px 18px rgba(0,0,0,.28);
+    }
+    .pcm-logo img{width:100%;height:100%;object-fit:contain;}
+    .pcm-company strong{
+        color:#fff;font-size:16px;font-weight:800;
+        line-height:1.3;display:block;
+        text-shadow:0 1px 4px rgba(0,0,0,.2);
+    }
+    .pcm-company span{
+        color:rgba(255,255,255,.42);
+        font-size:9.5px;font-weight:700;
+        letter-spacing:1px;text-transform:uppercase;
+        margin-top:4px;display:block;
+    }
+    /* Zona de la foto — separada con su propio padding */
+    .pcm-photo-wrap{
+        display:flex;justify-content:center;
+        padding:0 24px 40px;
+        position:relative;z-index:2;
+    }
+    .pcm-photo-ring{
+        width:130px;height:130px;
+        border-radius:50%;padding:5px;
+        background:linear-gradient(135deg,#c96b10,#f09a36,#fbbf24,#f09a36,#c96b10);
+        box-shadow:0 0 0 4px rgba(255,255,255,.16),0 16px 48px rgba(240,154,54,.38),0 4px 16px rgba(0,0,0,.22);
+        flex-shrink:0;
+    }
+    .pcm-photo-inner{
+        width:100%;height:100%;border-radius:50%;
+        overflow:hidden;background:#c8d4e0;
+        display:flex;align-items:center;justify-content:center;
+    }
+    .pcm-photo-inner img{width:100%;height:100%;object-fit:contain;}
+    .pcm-photo-inner img.pcm-photo-real{object-fit:cover;}
+
+    /* ════ BODY ══════════════════════════════════════════════════════ */
+    .pcm-body{
+        margin-top:-65px;  /* sube el body para que la foto lo atraviese */
+        padding:0 28px 28px;
+        display:flex;flex-direction:column;align-items:center;
+        background:#fff;
+        flex:1;
+    }
+    /* Espacio reservado para la foto (65px de margin-top + algo de aire) */
+    .pcm-body::before{content:'';display:block;height:74px;}
+
+    /* Nombre */
+    .pcm-name{
+        font-size:23px;font-weight:800;
+        color:#0a1e2e;text-align:center;
+        margin:0 0 7px;
+        letter-spacing:-.35px;line-height:1.2;
+    }
+    /* Cargo — naranja para que destaque */
+    .pcm-cargo{
+        font-size:11px;font-weight:700;
+        color:#e8872a;
+        text-align:center;margin:0 0 20px;
+        text-transform:uppercase;letter-spacing:.7px;line-height:1.4;
+    }
+    /* Separador */
+    .pcm-divider{
+        width:100%;height:1px;
+        background:linear-gradient(90deg,transparent,#dde4ec 20%,#dde4ec 80%,transparent);
+        margin-bottom:20px;
+    }
+
+    /* ════ CAMPOS ════════════════════════════════════════════════════ */
+    .pcm-fields{width:100%;display:flex;flex-direction:column;gap:12px;}
+    .pcm-field{
+        display:flex;align-items:center;gap:16px;
+        padding:14px 18px;
+        background:#f5f7fa;
+        border:1.5px solid #e2e8f0;
+        border-radius:16px;
+        transition:border-color .22s,background .22s,transform .15s,box-shadow .22s;
+        cursor:default;
+    }
+    .pcm-field:hover{
+        border-color:rgba(240,154,54,.5);
+        background:#fffef9;
+        transform:translateX(4px);
+        box-shadow:0 6px 20px rgba(240,154,54,.1);
+    }
+    .pcm-field-icon{
+        width:48px;height:48px;border-radius:14px;
+        display:flex;align-items:center;justify-content:center;
+        font-size:18px;flex-shrink:0;color:#fff;
+        box-shadow:0 4px 14px rgba(0,0,0,.18);
+    }
+    .pcm-farea { background:linear-gradient(135deg,#f09a36,#d4760e); }
+    .pcm-femail{ background:linear-gradient(135deg,#0f2f48,#1c4e72); }
+    .pcm-fphone{ background:linear-gradient(135deg,#f09a36,#b85e00); }
+
+    .pcm-field-text{display:flex;flex-direction:column;min-width:0;flex:1;}
+    .pcm-fl{
+        font-size:9.5px;font-weight:800;
+        text-transform:uppercase;letter-spacing:.8px;
+        color:#6d8aa0;  /* azul-gris con contraste suficiente */
+        margin-bottom:4px;
+    }
+    .pcm-fv{
+        font-size:14.5px;font-weight:700;
+        color:#0a1e2e;word-break:break-word;line-height:1.35;
+    }
+    .pcm-fv a{color:#0a1e2e;text-decoration:none;}
+    .pcm-fv a:hover{color:#f09a36;}
+    .pcm-fv .no-data{color:#aabbc8;font-style:italic;font-weight:500;font-size:13px;}
+
+    /* ════ FOOTER ════════════════════════════════════════════════════ */
+    .pcm-footer{
+        display:flex;justify-content:space-between;align-items:center;
+        padding:14px 28px;
+        background:linear-gradient(90deg,#eef1f6,#e8ecf3);
+        border-top:1px solid #d8e0ea;
+        font-size:9px;font-weight:800;
+        color:#6d8090;
+        text-transform:uppercase;letter-spacing:.5px;
+        flex-shrink:0;
+    }
+    .pcm-footer i{font-size:9px;color:#f09a36;margin-right:5px;}
+
+    /* ════ CAROUSEL NAV ═══════════════════════════════════════════════ */
+    .pcm-nav{display:flex;align-items:center;justify-content:center;gap:8px;padding:0 28px 18px;}
+    .pcm-nav-btn{
+        width:36px;height:36px;border-radius:50%;border:1.5px solid #e2e8f0;
+        background:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;
+        font-size:13px;color:#6d8aa0;transition:all .2s;flex-shrink:0;
+    }
+    .pcm-nav-btn:hover:not(:disabled){border-color:#f09a36;color:#f09a36;background:#fffef9;transform:scale(1.1);}
+    .pcm-nav-btn:disabled{opacity:.3;cursor:default;}
+    .pcm-nav-dots{display:flex;gap:6px;align-items:center;}
+    .pcm-nav-dot{
+        width:8px;height:8px;border-radius:50%;background:#dde4ec;
+        transition:all .25s;cursor:pointer;border:none;padding:0;
+    }
+    .pcm-nav-dot.active{background:#f09a36;width:22px;border-radius:4px;}
+    .pcm-nav-label{font-size:10px;font-weight:700;color:#9aa8b8;text-transform:uppercase;letter-spacing:.4px;}
+
+    /* ════ SEARCH ════════════════════════════════════════════════════ */
+    .areas-search{display:flex;align-items:center;gap:12px;margin-bottom:20px;}
+    .areas-search-box{
+        flex:1;display:flex;align-items:center;gap:10px;
+        padding:10px 18px;background:#f5f7fa;border:1.5px solid #e2e8f0;
+        border-radius:14px;transition:border-color .2s,box-shadow .2s;
+    }
+    .areas-search-box:focus-within{border-color:rgba(240,154,54,.5);box-shadow:0 0 0 3px rgba(240,154,54,.1);background:#fff;}
+    .areas-search-box i{font-size:14px;color:#9aa8b8;flex-shrink:0;}
+    .areas-search-box input{
+        flex:1;border:none;background:none;outline:none;
+        font-size:13.5px;font-weight:600;color:#0a1e2e;font-family:inherit;
+    }
+    .areas-search-box input::placeholder{color:#b0bec5;font-weight:500;}
+    .areas-search-clear{
+        width:24px;height:24px;border-radius:50%;border:none;
+        background:#e2e8f0;cursor:pointer;display:flex;align-items:center;justify-content:center;
+        font-size:10px;color:#6d8aa0;transition:all .2s;flex-shrink:0;padding:0;
+    }
+    .areas-search-clear:hover{background:#f09a36;color:#fff;}
+    .areas-search-count{font-size:11px;font-weight:700;color:#9aa8b8;white-space:nowrap;}
 
 </style>
 
@@ -174,44 +497,76 @@
 <script src="/js/api-service.js"></script>
 <script src="/js/intranet.js"></script>
 <script>
-let loadedAreas = [];
+    let loadedAreas = [];
+    let pcmCurrentContacts = [];
+    let pcmCurrentIndex = 0;
+    let pcmCurrentAreaName = '';
 
-const DEFAULT_LINKS = [
-    { texto: "mardique360.spmardique.com", url: "https://mardique360.spmardique.com" },
-    { texto: "mardique.up.railway.app", url: "https://mardique.up.railway.app" },
-    { texto: "helpdesk.agmdesarrollos.com", url: "https://helpdesk.agmdesarrollos.com" }
-];
+    const DEFAULT_LINKS = [
+        { texto: "mardique360.spmardique.com", url: "https://mardique360.spmardique.com" },
+        { texto: "mardique.up.railway.app", url: "https://mardique.up.railway.app" },
+        { texto: "helpdesk.agmdesarrollos.com", url: "https://helpdesk.agmdesarrollos.com" }
+    ];
 
-function initials(name){
-    return name.split(" ").filter(Boolean).slice(0,2).map(w => w[0]).join("").toUpperCase();
-}
-
-function parseContactos(text){
-    if (!text) return [];
-    return text.split("\n").filter(Boolean).map(line => {
-        const parts = line.split(" - ");
-        return { nombre: parts[0]?.trim() || line, cargo: parts[1]?.trim() || "" };
-    });
-}
-
-function escJs(s){ return String(s == null ? '' : s).replace(/\\/g,"\\\\").replace(/'/g,"\\'").replace(/"/g,"&quot;").replace(/</g,"&lt;"); }
-function safeUrl(u){ if(!u) return ''; var s=String(u).trim(); if(/^https?:\/\//i.test(s) || s.charAt(0)==='/') return s; return ''; }
-
-function renderAreas(areas){
-    const cont = document.getElementById("areas-container");
-    if (!cont) return;
-    if (!areas || !areas.length) {
-        cont.innerHTML = '<div class="empty-state"><i class="fas fa-layer-group"></i><span>No hay áreas disponibles</span></div>';
-        return;
+    function initials(name){
+        return name.split(" ").filter(Boolean).slice(0,2).map(w => w[0]).join("").toUpperCase();
     }
-    loadedAreas = areas;
-    cont.innerHTML = areas.map(a => {
-        const contactos = parseContactos(a.Contactos);
-        const coverSrc = safeUrl(a.cover);
-        return `
+
+    function parseContactos(text){
+        if (!text) return [];
+        try {
+            const parsed = JSON.parse(text);
+            if (Array.isArray(parsed)) return parsed;
+        } catch(e) {}
+        return text.split("\n").filter(Boolean).map(line => {
+            const parts = line.split(" - ");
+            return { nombre: parts[0]?.trim() || line, cargo: parts[1]?.trim() || "", email: "", telefono: "" };
+        });
+    }
+
+    function escJs(s){ return String(s == null ? '' : s).replace(/\\/g,"\\\\").replace(/'/g,"\\'").replace(/"/g,"&quot;").replace(/</g,"&lt;"); }
+    function safeUrl(u){ if(!u) return ''; var s=String(u).trim(); if(/^https?:\/\//i.test(s) || s.charAt(0)==='/') return s; return ''; }
+    function escapeHtml(s){ return String(s == null ? '' : s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"); }
+
+    /* ════ SEARCH ═══════════════════════════════════════════════════ */
+    function filterAreas(query){
+        const q = (query || '').trim().toLowerCase();
+        const clearBtn = document.getElementById('areasSearchClear');
+        const countEl = document.getElementById('areasSearchCount');
+        if (clearBtn) clearBtn.style.display = q ? 'flex' : 'none';
+        if (!q) {
+            renderAreas(loadedAreas);
+            if (countEl) countEl.textContent = '';
+            return;
+        }
+        const filtered = loadedAreas.filter(a => {
+            const areaName = (a.Title || '').toLowerCase();
+            const areaDesc = (a.descripcion_larga || '').toLowerCase();
+            if (areaName.includes(q) || areaDesc.includes(q)) return true;
+            const contactos = parseContactos(a.Contactos);
+            return contactos.some(c =>
+                (c.nombre || '').toLowerCase().includes(q) ||
+                (c.cargo || '').toLowerCase().includes(q)
+            );
+        });
+        renderAreas(filtered);
+        if (countEl) countEl.textContent = filtered.length + ' resultado' + (filtered.length !== 1 ? 's' : '');
+    }
+
+    function renderAreas(areas){
+        const cont = document.getElementById("areas-container");
+        if (!cont) return;
+        if (!areas || !areas.length) {
+            cont.innerHTML = '<div class="empty-state"><i class="fas fa-search"></i><span>No se encontraron resultados</span></div>';
+            return;
+        }
+        cont.innerHTML = areas.map(a => {
+            const contactos = parseContactos(a.Contactos);
+            const coverSrc = safeUrl(a.cover);
+            return `
         <div class="area-card" onclick="openAreaDetail('${escJs(a.id)}')">
             <div class="area-card-banner">
-                ${coverSrc ? '<img src="' + coverSrc + '" alt="" loading="lazy">' : '<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#1b4562,#26597e);font-size:40px;color:rgba(255,255,255,.15);"><i class="fas fa-building"></i></div>'}
+                ${coverSrc ? '<img src="' + coverSrc + '" alt="" loading="lazy" onerror="this.style.display=\'none\';this.nextElementSibling.style.display=\'flex\'"><div style="display:none;width:100%;height:100%;align-items:center;justify-content:center;background:linear-gradient(135deg,#1b4562,#26597e);font-size:40px;color:rgba(255,255,255,.15);"><i class="fas fa-building"></i></div>' : '<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#1b4562,#26597e);font-size:40px;color:rgba(255,255,255,.15);"><i class="fas fa-building"></i></div>'}
             </div>
             <div class="area-card-body">
                 <h3>${escapeHtml(a.Title)}</h3>
@@ -219,29 +574,30 @@ function renderAreas(areas){
                 <div class="area-card-count"><i class="fas fa-users"></i> ${contactos.length} contactos</div>
             </div>
         </div>`;
-    }).join("");
-}
-
-function openAreaDetail(id){
-    const area = loadedAreas.find(a => a.id === id);
-    if (!area) return;
-    document.getElementById("areas-list-view").classList.remove("active");
-    document.getElementById("areas-detail-view").classList.add("active");
-    const imgEl = document.getElementById("area-detail-img");
-    if (area.cover) {
-        imgEl.src = area.cover;
-        imgEl.style.display = "block";
-        imgEl.alt = area.Title;
-    } else {
-        imgEl.style.display = "none";
+        }).join("");
     }
-    document.getElementById("area-detail-title").textContent = area.Title;
-    document.getElementById("area-detail-desc").textContent = area.descripcion_larga || "";
 
-    const contactos = parseContactos(area.Contactos);
+    function openAreaDetail(id){
+        const area = loadedAreas.find(a => a.id === id);
+        if (!area) return;
+        document.getElementById("areas-list-view").classList.remove("active");
+        document.getElementById("areas-detail-view").classList.add("active");
+        const imgEl = document.getElementById("area-detail-img");
+        if (area.cover) {
+            imgEl.src = area.cover;
+            imgEl.style.display = "block";
+            imgEl.alt = area.Title;
+            imgEl.onerror = function(){ this.style.display='none'; };
+        } else {
+            imgEl.style.display = "none";
+        }
+        document.getElementById("area-detail-title").textContent = area.Title;
+        document.getElementById("area-detail-desc").textContent = area.descripcion_larga || "";
 
-    const sitioUrl = safeUrl(area.Sitio && area.Sitio !== "..." ? area.Sitio : "");
-    document.getElementById("area-detail-site").innerHTML = `
+        const contactos = parseContactos(area.Contactos);
+
+        const sitioUrl = safeUrl(area.Sitio && area.Sitio !== "..." ? area.Sitio : "");
+        document.getElementById("area-detail-site").innerHTML = `
     <div class="area-site-card">
         <div class="area-site-card-top"><i class="fas fa-link"></i> Sitio del área</div>
         <div class="area-site-card-body">
@@ -254,59 +610,131 @@ function openAreaDetail(id){
         </div>
     </div>`;
 
-    document.getElementById("area-detail-contacts").innerHTML = contactos.map(p => `
-    <div class="area-contact">
+        document.getElementById("area-detail-contacts").innerHTML = contactos.map((p, idx) => `
+    <div class="area-contact" onclick="openContactFromArea('${escJs(area.id)}',${idx})">
         <div class="area-contact-avatar">${initials(p.nombre)}</div>
         <div class="area-contact-info">
             <strong>${escapeHtml(p.nombre)}</strong>
             <span>${escapeHtml(p.cargo)}</span>
         </div>
+        <i class="fas fa-chevron-right" style="margin-left:auto;font-size:11px;color:var(--mx);"></i>
     </div>
     `).join("") || '<div style="color:var(--mx);font-size:12px;">Sin contactos registrados</div>';
 
-    document.getElementById("area-detail-links").innerHTML = DEFAULT_LINKS.map(l => `
+        document.getElementById("area-detail-links").innerHTML = DEFAULT_LINKS.map(l => `
     <a href="${l.url}" target="_blank" rel="noopener" class="area-link-item"><i class="fas fa-globe"></i> ${escapeHtml(l.texto)}</a>
     `).join("");
+    }
 
-}
+    /* ════ CAROUSEL CONTACT MODAL ══════════════════════════════════ */
+    function openContactFromArea(areaId, contactIdx){
+        const area = loadedAreas.find(a => a.id === areaId);
+        if (!area) return;
+        pcmCurrentContacts = parseContactos(area.Contactos);
+        pcmCurrentIndex = contactIdx;
+        pcmCurrentAreaName = area.Title;
+        renderContactModal(pcmCurrentContacts[contactIdx], area.Title);
+    }
 
-function closeAreaDetail(){
-    document.getElementById("areas-detail-view").classList.remove("active");
-    document.getElementById("areas-list-view").classList.add("active");
-}
+    function renderContactModal(p, areaName){
+        const modal = document.getElementById("contactModal");
+        document.getElementById("pcmName").textContent = p.nombre;
+        document.getElementById("pcmCargo").textContent = p.cargo || 'Sin cargo';
+        document.getElementById("pcmArea").textContent = areaName || 'Sin área';
 
-function loadAreas(){
-    const cont = document.getElementById("areas-container");
-    if (!cont) return;
-    cont.innerHTML = '<div class="intranet-loading"><i class="fas fa-spinner fa-spin"></i><span>Cargando áreas...</span></div>';
-    getAreas().then(areas => {
-        renderAreas(areas);
-    }).catch(err => {
-        cont.innerHTML = '<div class="empty-state error"><i class="fas fa-exclamation-triangle"></i><p>Error al cargar: ' + err.message + '</p></div>';
+        const photoEl = document.getElementById("pcmPhoto");
+        if (p.foto && p.foto !== '/images/Logo.png') {
+            photoEl.src = p.foto;
+            photoEl.className = 'pcm-photo-real';
+            photoEl.onerror = function(){ this.src = '/images/Logo.png'; this.className = ''; };
+        } else {
+            photoEl.src = '/images/Logo.png';
+            photoEl.className = '';
+        }
+
+        const emailEl = document.getElementById("pcmEmail");
+        emailEl.innerHTML = p.email ? '<a href="mailto:' + p.email + '">' + p.email + '</a>' : '<span class="no-data">No registrado</span>';
+
+        const phoneEl = document.getElementById("pcmPhone");
+        phoneEl.innerHTML = p.telefono ? '<a href="tel:' + p.telefono.replace(/\s/g,'') + '">' + p.telefono + '</a>' : '<span class="no-data">No registrado</span>';
+
+        const nav = document.getElementById("pcmNav");
+        if (pcmCurrentContacts.length > 1) {
+            nav.style.display = 'flex';
+            document.getElementById("pcmPrev").disabled = pcmCurrentIndex === 0;
+            document.getElementById("pcmNext").disabled = pcmCurrentIndex === pcmCurrentContacts.length - 1;
+            document.getElementById("pcmDots").innerHTML = pcmCurrentContacts.map((_, i) =>
+                '<button class="pcm-nav-dot' + (i === pcmCurrentIndex ? ' active' : '') + '" onclick="pcmGoTo(' + i + ')"></button>'
+            ).join('');
+        } else {
+            nav.style.display = 'none';
+        }
+
+        modal.classList.add("open");
+    }
+
+    function pcmNavigate(dir){
+        const next = pcmCurrentIndex + dir;
+        if (next < 0 || next >= pcmCurrentContacts.length) return;
+        pcmCurrentIndex = next;
+        renderContactModal(pcmCurrentContacts[next], pcmCurrentAreaName);
+    }
+
+    function pcmGoTo(idx){
+        if (idx < 0 || idx >= pcmCurrentContacts.length) return;
+        pcmCurrentIndex = idx;
+        renderContactModal(pcmCurrentContacts[idx], pcmCurrentAreaName);
+    }
+
+    function openContactModal(nombre, cargo, email, telefono, area, foto){
+        pcmCurrentContacts = [{nombre:nombre, cargo:cargo, email:email, telefono:telefono, foto:foto}];
+        pcmCurrentIndex = 0;
+        pcmCurrentAreaName = area || '';
+        renderContactModal(pcmCurrentContacts[0], area);
+    }
+
+    function closeContactModal(){
+        document.getElementById("contactModal").classList.remove("open");
+    }
+
+    function closeAreaDetail(){
+        document.getElementById("areas-detail-view").classList.remove("active");
+        document.getElementById("areas-list-view").classList.add("active");
+    }
+
+    function loadAreas(){
+        const cont = document.getElementById("areas-container");
+        if (!cont) return;
+        cont.innerHTML = '<div class="intranet-loading"><i class="fas fa-spinner fa-spin"></i><span>Cargando áreas...</span></div>';
+        getAreas().then(areas => {
+            loadedAreas = areas;
+            renderAreas(areas);
+        }).catch(err => {
+            cont.innerHTML = '<div class="empty-state error"><i class="fas fa-exclamation-triangle"></i><p>Error al cargar: ' + err.message + '</p></div>';
+        });
+    }
+
+    document.addEventListener("DOMContentLoaded", function() {
+        if (!isMsalAuthenticated()) { window.location.href = "/login"; return; }
+        if (isMockMode()) { const mb = document.getElementById("mockBadge"); if (mb) mb.style.display = "inline-flex"; }
+
+        getCurrentUser().then(user => {
+            const name = user.displayName || user.userPrincipalName || "Empleado";
+            document.getElementById("userDisplay").textContent = name;
+            const userNameEl = document.getElementById("userName"); if (userNameEl) userNameEl.textContent = name;
+            if (user.jobTitle) document.getElementById("userBadge").textContent = user.jobTitle;
+        }).catch(() => {});
+
+        loadAreas();
+
+        const hdr = document.getElementById('intranet-header');
+        window.addEventListener('scroll', () => hdr?.classList.toggle('scrolled', window.scrollY > 60), { passive: true });
+
+        const revealObs = new IntersectionObserver(entries => {
+            entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+        }, { threshold: 0.1 });
+        document.querySelectorAll('.reveal').forEach(el => revealObs.observe(el));
     });
-}
-
-document.addEventListener("DOMContentLoaded", function() {
-    if (!isMsalAuthenticated()) { window.location.href = "/login"; return; }
-    if (isMockMode()) { const mb = document.getElementById("mockBadge"); if (mb) mb.style.display = "inline-flex"; }
-
-    getCurrentUser().then(user => {
-        const name = user.displayName || user.userPrincipalName || "Empleado";
-        document.getElementById("userDisplay").textContent = name;
-        const userNameEl = document.getElementById("userName"); if (userNameEl) userNameEl.textContent = name;
-        if (user.jobTitle) document.getElementById("userBadge").textContent = user.jobTitle;
-    }).catch(() => {});
-
-    loadAreas();
-
-    const hdr = document.getElementById('intranet-header');
-    window.addEventListener('scroll', () => hdr?.classList.toggle('scrolled', window.scrollY > 60), { passive: true });
-
-    const revealObs = new IntersectionObserver(entries => {
-        entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
-    }, { threshold: 0.1 });
-    document.querySelectorAll('.reveal').forEach(el => revealObs.observe(el));
-});
 </script>
 </body>
 </html>

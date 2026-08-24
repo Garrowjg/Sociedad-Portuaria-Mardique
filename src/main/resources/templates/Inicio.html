@@ -18,6 +18,19 @@
     <noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"></noscript>
     <link rel="stylesheet" href="/css/panel-nav.css">
     <style>
+        #main-header { padding: 16px 0 !important; }
+        #main-header.scrolled { padding: 10px 0 !important; }
+        nav { padding-right: 20px; min-width: 0; }
+        .nav-menu { gap: 35px; flex-wrap: nowrap; }
+        .nav-menu li a { font-size: 12.5px; font-weight: 500; padding: 8px 0; letter-spacing: 0.5px; }
+        .nav-menu li a i { margin-left: 4px; font-size: 10px; }
+        .nav-menu li.dropdown .dropdown-trigger { font-size: 12.5px; font-weight: 500; padding: 8px 0; letter-spacing: 0.5px; color: rgba(255,255,255,0.75); }
+        .nav-menu li.dropdown .dropdown-trigger i { margin-left: 4px; font-size: 10px; }
+        @media (max-width: 1200px) {
+            .nav-menu { gap: clamp(14px, 2.5vw, 24px); }
+            .nav-menu li a { font-size: 11px; letter-spacing: 0.2px; }
+            .nav-menu li.dropdown .dropdown-trigger { font-size: 11px; letter-spacing: 0.2px; }
+        }
         .header-auth { display:flex;align-items:center;gap:8px;margin-left:12px; }
         .header-auth-btn { display:flex;align-items:center;gap:6px;padding:6px 12px;border-radius:6px;font-size:11px;font-weight:700;color:#8899b4;text-decoration:none;transition:0.2s;letter-spacing:0.3px; }
         .header-auth-btn:hover { color:#f0a030;background:rgba(240,160,48,0.08); }
@@ -328,7 +341,7 @@
                 </li>
             </ul>
         </nav>
-        <button type="button" onclick="openServiceForm('Contáctenos', 'Otro', 'Solicitud General', 'Complete el formulario y nuestro equipo comercial se pondrá en contacto con usted a la brevedad posible.')" class="header-contact-btn" style="border:none;cursor:pointer;">CONTÁCTANOS <i class="fas fa-phone-alt"></i></button>
+        <a href="#" class="header-pse-btn"><img src="/images/pse.png" alt="PSE"></a>
         <button class="mobile-menu-toggle" id="mobileToggle" aria-label="Abrir menú">
             <span></span><span></span><span></span>
         </button>

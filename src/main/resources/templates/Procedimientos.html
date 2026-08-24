@@ -84,8 +84,6 @@
         .nav-menu li.dropdown .dropdown-menu li a:hover {
             color: #fff; background: rgba(255,255,255,0.04); padding-left: 26px;
         }
-        .header-contact-btn { background: var(--accent-gold); color: #fff; padding: 10px 22px; border-radius: 4px; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; transition: var(--transition); display: flex; align-items: center; gap: 8px; white-space: nowrap; }
-        .header-contact-btn:hover { background: #c9730e; transform: translateY(-2px); box-shadow: 0 4px 12px rgba(226,135,22,0.3); }
 
         .page-hero { position: relative; height: 540px; display: flex; align-items: flex-end; overflow: hidden; }
         .page-hero-bg { position: absolute; top: -80px; left: 0; width: 100%; height: calc(100% + 80px); background-image: var(--hero-img, url('https://images.unsplash.com/photo-1600880292203-757bb62b4baf?auto=format&fit=crop&w=1600&q=80')); background-size: cover; background-position: center; z-index: 1; will-change: transform; }
@@ -336,7 +334,7 @@
         .footer-bottom-links a i { font-size: 11px; }
 
         @media (max-width: 1024px) { .sc-grid { grid-template-columns: repeat(2, 1fr); } .proc-hero-block { flex-direction: column; } .reglamento-card { flex-direction: column; text-align: center; } .footer-grid { grid-template-columns: 1fr 1fr; } }
-        @media (max-width: 768px) { .nav-menu, nav, .header-contact-btn { display: none; } .mobile-menu-toggle { display: flex; } .mobile-nav-drawer { display: flex; } .page-hero-title { font-size: 32px; } .sc-grid, .footer-grid { grid-template-columns: 1fr; } .footer-grid > div:nth-child(3) > div { flex-direction: column; gap: 20px; } .footer-bottom { flex-direction: column; gap: 10px; text-align: center; } .footer-bottom-links { justify-content: center; } .sc-subnav { display: none; } }
+        @media (max-width: 768px) { .nav-menu, nav, .header-pse-btn { display: none; } .mobile-menu-toggle { display: flex; } .mobile-nav-drawer { display: flex; } .page-hero-title { font-size: 32px; } .sc-grid, .footer-grid { grid-template-columns: 1fr; } .footer-grid > div:nth-child(3) > div { flex-direction: column; gap: 20px; } .footer-bottom { flex-direction: column; gap: 10px; text-align: center; } .footer-bottom-links { justify-content: center; } .sc-subnav { display: none; } }
 
     </style>
 <script src="/js/inicio.js"></script>
@@ -374,7 +372,7 @@
                 </li>
             </ul>
         </nav>
-        <button type="button" onclick="openServiceForm('Contáctenos', 'Otro', 'Solicitud General', 'Complete el formulario y nuestro equipo comercial se pondrá en contacto con usted a la brevedad posible.')" class="header-contact-btn" style="border:none;cursor:pointer;">CONTÁCTANOS <i class="fas fa-phone-alt"></i></button>
+        <a href="#" class="header-pse-btn"><img src="/images/pse.png" alt="PSE"></a>
         <button class="mobile-menu-toggle" id="mobileToggle" aria-label="Abrir menú">
             <span></span><span></span><span></span>
         </button>

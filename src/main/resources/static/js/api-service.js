@@ -487,3 +487,180 @@ async function revokeIntranetRole(email, adminEmail) {
         return false;
     }
 }
+
+/* ── Galería de eventos intranet ─────────────────────────── */
+async function getGalleryEvents() {
+    try {
+        const res = await fetch("/api/intranet/gallery");
+        return await res.json();
+    } catch (e) {
+        return [];
+    }
+}
+
+async function createGalleryEvent(data) {
+    try {
+        const res = await fetch("/api/intranet/gallery", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(data)
+        });
+        return await res.json();
+    } catch (e) {
+        return null;
+    }
+}
+
+async function likeGalleryEvent(id) {
+    try {
+        const res = await fetch("/api/intranet/gallery/" + id + "/like", { method: "POST" });
+        return await res.json();
+    } catch (e) {
+        return null;
+    }
+}
+
+async function deleteGalleryEvent(id) {
+    try {
+        const res = await fetch("/api/intranet/gallery/" + id, { method: "DELETE" });
+        const json = await res.json().catch(() => ({}));
+        return json.ok === true;
+    } catch (e) {
+        return false;
+    }
+}
+
+/* ── Calendario intranet ──────────────────────────── */
+async function getCalendarEvents() {
+    try {
+        const res = await fetch("/api/intranet/calendar");
+        return await res.json();
+    } catch (e) {
+        return [];
+    }
+}
+
+async function createCalendarEvent(data) {
+    try {
+        const res = await fetch("/api/intranet/calendar", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(data)
+        });
+        return await res.json();
+    } catch (e) {
+        return null;
+    }
+}
+
+async function updateCalendarEvent(id, data) {
+    try {
+        const res = await fetch("/api/intranet/calendar/" + id, {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(data)
+        });
+        return await res.json();
+    } catch (e) {
+        return null;
+    }
+}
+
+async function deleteCalendarEvent(id) {
+    try {
+        const res = await fetch("/api/intranet/calendar/" + id, { method: "DELETE" });
+        const json = await res.json().catch(() => ({}));
+        return json.ok === true;
+    } catch (e) {
+        return false;
+    }
+}
+
+/* ── Conversaciones / Foro intranet ────────────────── */
+async function getConversations() {
+    try {
+        const res = await fetch("/api/intranet/conversations");
+        return await res.json();
+    } catch (e) {
+        return [];
+    }
+}
+
+async function submitConversation(data) {
+    try {
+        const res = await fetch("/api/intranet/conversations", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(data)
+        });
+        return await res.json();
+    } catch (e) {
+        return null;
+    }
+}
+
+async function likeConversation(id) {
+    try {
+        const res = await fetch("/api/intranet/conversations/" + id + "/like", { method: "POST" });
+        return await res.json();
+    } catch (e) {
+        return null;
+    }
+}
+
+async function deleteConversation(id) {
+    try {
+        const res = await fetch("/api/intranet/conversations/" + id, { method: "DELETE" });
+        const json = await res.json().catch(() => ({}));
+        return json.ok === true;
+    } catch (e) {
+        return false;
+    }
+}
+
+/* ── Áreas intranet ───────────────────────────────── */
+async function getAreas() {
+    try {
+        const res = await fetch("/api/intranet/areas");
+        const data = await res.json();
+        return data.map(a => ({
+            id: String(a.id),
+            Title: a.nombre,
+            nombre: a.nombre,
+            descripcion: a.descripcion,
+            descripcion_larga: a.descripcion,
+            Contactos: a.contactos,
+            cover: a.cover,
+            Sitio: a.sitio,
+            informe: a.informe
+        }));
+    } catch (e) {
+        return [];
+    }
+}
+
+async function createArea(data) {
+    try {
+        const res = await fetch("/api/intranet/areas", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(data)
+        });
+        return await res.json();
+    } catch (e) {
+        return null;
+    }
+}
+
+async function updateArea(id, data) {
+    try {
+        const res = await fetch("/api/intranet/areas/" + id, {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(data)
+        });
+        return await res.json();
+    } catch (e) {
+        return null;
+    }
+}
