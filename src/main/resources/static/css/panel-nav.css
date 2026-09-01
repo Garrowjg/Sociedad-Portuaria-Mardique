@@ -30,7 +30,7 @@
 }
 
 /* ── Header base — transparente al inicio (efecto hero) ─────────────── */
-header {
+#main-header {
     background-color: transparent;
     padding: 16px 0;
     position: fixed; top: 0; left: 0; width: 100%; z-index: 500;
@@ -44,7 +44,7 @@ header {
 }
 
 /* ── Header scrolled — fondo azul + blur ────────────────────────────── */
-header.scrolled {
+#main-header.scrolled {
     padding: 8px 0;
     background-color: rgba(27, 69, 98, 0.92);
     backdrop-filter: blur(10px) saturate(150%);
@@ -52,8 +52,8 @@ header.scrolled {
     border-bottom: 1px solid rgba(255,255,255,0.08);
     box-shadow: 0 4px 28px rgba(0,0,0,0.3);
 }
-header.scrolled .logo-box { padding: 6px 14px 6px 10px; }
-header.scrolled .logo-box img { height: 32px; width: auto; }
+#main-header.scrolled .logo-box { padding: 6px 14px 6px 10px; }
+#main-header.scrolled .logo-box img { height: 32px; width: auto; }
 
 /* Brillo sutil sobre el header al activarse */
 .header-content { position: relative; }
@@ -69,7 +69,7 @@ header.scrolled .logo-box img { height: 32px; width: auto; }
     transition: opacity 0.5s ease;
     z-index: 0;
 }
-header.scrolled .header-content::after { opacity: 1; }
+#main-header.scrolled .header-content::after { opacity: 1; }
 
 /* ── Al activar scrolled solo se usa la transición CSS (sin flash) ──── */
 
@@ -93,29 +93,29 @@ body {
     }
 }
 
-header .logo-box,
-header .header-pse-btn,
-header .mobile-menu-toggle,
-header .nav-menu > li {
+#main-header .logo-box,
+#main-header .header-pse-btn,
+#main-header .mobile-menu-toggle,
+#main-header .nav-menu > li {
     animation: hdrIn 0.6s cubic-bezier(.24, 1, .36, 1) both;
 }
 
-header .logo-box                { animation-delay: 0.08s; }
-header .header-pse-btn          { animation-delay: 0.14s; }
-header .mobile-menu-toggle      { animation-delay: 0.16s; }
-header .nav-menu > li:nth-child(1) { animation-delay: 0.16s; }
-header .nav-menu > li:nth-child(2) { animation-delay: 0.22s; }
-header .nav-menu > li:nth-child(3) { animation-delay: 0.28s; }
-header .nav-menu > li:nth-child(4) { animation-delay: 0.34s; }
-header .nav-menu > li:nth-child(5) { animation-delay: 0.40s; }
-header .nav-menu > li:nth-child(6) { animation-delay: 0.46s; }
-header .nav-menu > li:nth-child(7) { animation-delay: 0.52s; }
+#main-header .logo-box                { animation-delay: 0.08s; }
+#main-header .header-pse-btn          { animation-delay: 0.14s; }
+#main-header .mobile-menu-toggle      { animation-delay: 0.16s; }
+#main-header .nav-menu > li:nth-child(1) { animation-delay: 0.16s; }
+#main-header .nav-menu > li:nth-child(2) { animation-delay: 0.22s; }
+#main-header .nav-menu > li:nth-child(3) { animation-delay: 0.28s; }
+#main-header .nav-menu > li:nth-child(4) { animation-delay: 0.34s; }
+#main-header .nav-menu > li:nth-child(5) { animation-delay: 0.40s; }
+#main-header .nav-menu > li:nth-child(6) { animation-delay: 0.46s; }
+#main-header .nav-menu > li:nth-child(7) { animation-delay: 0.52s; }
 
 @media (prefers-reduced-motion: reduce) {
-    header .logo-box,
-    header .header-pse-btn,
-    header .mobile-menu-toggle,
-    header .nav-menu > li {
+    #main-header .logo-box,
+    #main-header .header-pse-btn,
+    #main-header .mobile-menu-toggle,
+    #main-header .nav-menu > li {
         animation: none;
     }
 }
@@ -171,14 +171,14 @@ header .nav-menu > li:nth-child(7) { animation-delay: 0.52s; }
 @media (max-width: 768px) {
     .logo-box { padding: 6px 14px 6px 11px; border-radius: 10px; }
     .logo-box img { height: 28px; }
-    header.scrolled .logo-box { padding: 4px 12px 4px 9px; }
-    header.scrolled .logo-box img { height: 24px !important; }
+    #main-header.scrolled .logo-box { padding: 4px 12px 4px 9px; }
+    #main-header.scrolled .logo-box img { height: 24px !important; }
 }
 @media (max-width: 480px) {
     .logo-box { padding: 5px 12px 5px 9px; }
     .logo-box img { height: 25px; }
-    header.scrolled .logo-box { padding: 3px 10px 3px 7px; }
-    header.scrolled .logo-box img { height: 22px !important; }
+    #main-header.scrolled .logo-box { padding: 3px 10px 3px 7px; }
+    #main-header.scrolled .logo-box img { height: 22px !important; }
 }
 
 /* ── Botón flotante home ────────────────────────────────────────────── */
@@ -202,7 +202,7 @@ header .nav-menu > li:nth-child(7) { animation-delay: 0.52s; }
 /* ===== NAV: transparente arriba, blur solo en scroll ===== */
 
 /* Estado inicial (top): completamente transparente */
-header{
+#main-header{
     background: transparent !important;
     border-bottom: 0 !important;
     box-shadow: none !important;
@@ -213,7 +213,7 @@ header{
 }
 
 /* Estado scroll: aparece blur/fondo */
-header.scrolled{
+#main-header.scrolled{
     background: rgba(22, 64, 93, 0.72) !important;
     backdrop-filter: blur(16px) saturate(165%) !important;
     -webkit-backdrop-filter: blur(16px) saturate(165%) !important;
@@ -223,11 +223,11 @@ header.scrolled{
 }
 
 /* Evita brillos/capas que generan "línea" */
-.header-content::after{
+#main-header .header-content::after{
     display: none !important;
 }
-header::before,
-header::after{
+#main-header::before,
+#main-header::after{
     content: none !important;
     display: none !important;
 }
@@ -240,10 +240,10 @@ header::after{
     height: 42px !important;
     width: auto;
 }
-header.scrolled .logo-box{
+#main-header.scrolled .logo-box{
     padding: 7px 16px 7px 12px !important;
 }
-header.scrolled .logo-box img{
+#main-header.scrolled .logo-box img{
     height: 34px !important;
 }
 
@@ -297,25 +297,25 @@ header.scrolled .logo-box img{
 }
 
 /* Scrolled desktop */
-header.scrolled .header-pse-btn img {
+#main-header.scrolled .header-pse-btn img {
     height: 44px !important;
 }
 
 /* Tablet */
 @media (max-width: 1200px) {
     .header-pse-btn img { height: 46px !important; }
-    header.scrolled .header-pse-btn img { height: 38px !important; }
+    #main-header.scrolled .header-pse-btn img { height: 38px !important; }
 }
 
 /* Móvil */
 @media (max-width: 768px) {
     .header-pse-btn img { height: 48px !important; }
-    header.scrolled .header-pse-btn img { height: 38px !important; }
+    #main-header.scrolled .header-pse-btn img { height: 38px !important; }
 }
 
 @media (max-width: 480px) {
     .header-pse-btn img { height: 44px !important; }
-    header.scrolled .header-pse-btn img { height: 32px !important; }
+    #main-header.scrolled .header-pse-btn img { height: 32px !important; }
 }
 
 /* =====================================================================

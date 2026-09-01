@@ -74,7 +74,7 @@
         .area-contact { display: flex; align-items: center; gap: 10px; margin-bottom: 4px; cursor: pointer; }
         .area-contact:hover .area-contact-avatar { transform: scale(1.06); }
         .area-contact-avatar { transition: transform .2s ease; }
-        .area-contact-avatar { width: 36px; height: 36px; border-radius: 50%; background: linear-gradient(135deg, var(--pd), var(--pb)); color: #fff; font-size: 13px; font-weight: 800; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+        .area-contact-avatar { width: 36px; height: 36px; border-radius: 50%; background: linear-gradient(135deg, var(--pd), var(--pb)); color: #fff; font-size: 13px; font-weight: 800; display: flex; align-items: center; justify-content: center; flex-shrink: 0; overflow: hidden; }
         .area-contact-info strong { display: block; font-size: 12.5px; color: var(--tx); font-weight: 700; }
         .area-contact-info span { font-size: 11px; color: var(--mx); }
         @media(max-width: 900px){ .area-detail-grid{ grid-template-columns: 1fr; gap: 24px; } .area-hero-img{ width: 100%; } }
@@ -610,16 +610,21 @@
         </div>
     </div>`;
 
-        document.getElementById("area-detail-contacts").innerHTML = contactos.map((p, idx) => `
+        document.getElementById("area-detail-contacts").innerHTML = contactos.map((p, idx) => {
+    const hasPhoto = p.foto && p.foto !== '/images/Logo.png';
+    const avatarContent = hasPhoto
+        ? '<img src="' + p.foto + '" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:50%;" onerror="this.style.display=\'none\';this.parentNode.innerHTML=\'' + initials(p.nombre).replace(/'/g, "\\'") + '\'">'
+        : initials(p.nombre);
+    return `
     <div class="area-contact" onclick="openContactFromArea('${escJs(area.id)}',${idx})">
-        <div class="area-contact-avatar">${initials(p.nombre)}</div>
+        <div class="area-contact-avatar">${avatarContent}</div>
         <div class="area-contact-info">
             <strong>${escapeHtml(p.nombre)}</strong>
             <span>${escapeHtml(p.cargo)}</span>
         </div>
         <i class="fas fa-chevron-right" style="margin-left:auto;font-size:11px;color:var(--mx);"></i>
-    </div>
-    `).join("") || '<div style="color:var(--mx);font-size:12px;">Sin contactos registrados</div>';
+    </div>`;
+}).join("") || '<div style="color:var(--mx);font-size:12px;">Sin contactos registrados</div>';
 
         document.getElementById("area-detail-links").innerHTML = DEFAULT_LINKS.map(l => `
     <a href="${l.url}" target="_blank" rel="noopener" class="area-link-item"><i class="fas fa-globe"></i> ${escapeHtml(l.texto)}</a>
@@ -726,9 +731,6 @@
         }).catch(() => {});
 
         loadAreas();
-
-        const hdr = document.getElementById('intranet-header');
-        window.addEventListener('scroll', () => hdr?.classList.toggle('scrolled', window.scrollY > 60), { passive: true });
 
         const revealObs = new IntersectionObserver(entries => {
             entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });

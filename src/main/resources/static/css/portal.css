@@ -290,8 +290,12 @@ header.scrolled .logo-box img{height:30px!important;width:auto;}
   .mobile-menu-toggle{display:flex;}
   .hdr-user{display:none;}
   .hdr-right{display:none!important;}
-  .phw-container{padding:36px 16px 40px;}
-  .phero h1{font-size:26px;}
+  .phw-container{padding:36px 16px 40px;text-align:center;}
+  .phero h1{font-size:26px;text-align:center;}
+  .phero p{text-align:center;margin-left:auto;margin-right:auto;}
+  .phero-badge{margin:0 auto 20px;}
+  .phero-grid{grid-template-columns:1fr !important;gap:24px !important;}
+  .phero-main{display:flex;flex-direction:column;align-items:center;}
   .phero-actions{flex-direction:column;align-items:stretch;gap:10px;max-width:320px;}
   .phero-actions .btn{justify-content:center;}
   .phw-stat{padding:14px;}

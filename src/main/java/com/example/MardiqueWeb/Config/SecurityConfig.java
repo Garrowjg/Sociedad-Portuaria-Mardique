@@ -35,7 +35,9 @@ public class SecurityConfig {
                                 "/login", "/register", "/intranet/**", "/api/chatbot/**",
                                 "/api/intranet/documents/**", "/api/intranet/gallery/**",
                                 "/api/intranet/calendar/**", "/api/intranet/conversations/**",
-                                "/api/intranet/areas/**").permitAll()
+                                "/api/intranet/areas/**", "/api/intranet/hr/**",
+                                "/api/intranet/upload", "/api/intranet/upload/**",
+                                "/api/intranet/solicitudes-hr/**").permitAll()
                         .requestMatchers("/admin/**").hasRole("ADMIN")
                         .requestMatchers("/editor/**").hasRole("EDITOR")
                         .requestMatchers("/user/**").hasRole("USER")
@@ -69,7 +71,10 @@ public class SecurityConfig {
                         new AntPathRequestMatcher("/api/intranet/gallery/**"),
                         new AntPathRequestMatcher("/api/intranet/calendar/**"),
                         new AntPathRequestMatcher("/api/intranet/conversations/**"),
-                        new AntPathRequestMatcher("/api/intranet/areas/**")))
+                        new AntPathRequestMatcher("/api/intranet/areas/**"),
+                        new AntPathRequestMatcher("/api/intranet/hr/**"),
+                        new AntPathRequestMatcher("/api/intranet/upload/**"),
+                        new AntPathRequestMatcher("/api/intranet/solicitudes-hr/**")))
                 .headers(headers -> headers
                         .xssProtection(xss -> xss.headerValue(XXssProtectionHeaderWriter.HeaderValue.ENABLED_MODE_BLOCK))
                         .contentSecurityPolicy(csp -> csp.policyDirectives(

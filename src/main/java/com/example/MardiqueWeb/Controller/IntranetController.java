@@ -34,7 +34,7 @@ public class IntranetController {
 
     @GetMapping("/galeria")
     public String galeria() {
-        return "IntranetGaleria";
+        return "redirect:/intranet/conversaciones";
     }
 
     @GetMapping("/calendario")
@@ -60,5 +60,15 @@ public class IntranetController {
     @GetMapping("/admin")
     public String admin() {
         return "IntranetAdmin";
+    }
+
+    @GetMapping("/autoservicio-th")
+    public String autoservicioTh() {
+        return "IntranetAutoservicioTH";
+    }
+
+    @GetMapping("/gerencia")
+    public String gerencia() {
+        return "IntranetGerencia";
     }
 }

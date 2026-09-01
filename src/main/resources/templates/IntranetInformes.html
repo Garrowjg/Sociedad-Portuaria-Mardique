@@ -343,9 +343,6 @@ document.addEventListener("DOMContentLoaded", function() {
 
     loadReportAreas();
 
-    const hdr = document.getElementById('intranet-header');
-    window.addEventListener('scroll', () => hdr?.classList.toggle('scrolled', window.scrollY > 60), { passive: true });
-
     const revealObs = new IntersectionObserver(entries => {
         entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
     }, { threshold: 0.1 });

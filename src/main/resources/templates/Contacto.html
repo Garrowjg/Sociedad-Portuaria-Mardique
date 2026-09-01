@@ -725,99 +725,196 @@
             .pqrs-layout { grid-template-columns: 1fr; gap: 36px; }
             .footer-grid { grid-template-columns: 1fr 1fr; }
         }
+        /* ── TABLET ──────────────────────────────────────────────────────── */
         @media (max-width: 768px) {
-            header nav, .header-pse-btn { display: none; }
-            .mobile-menu-toggle { display: flex; }
-            .mobile-nav-drawer { display: flex; }
-            .contact-nav { display: none; }
+            #main-header nav, #main-header .header-pse-btn { display: none !important; }
+            #main-header .mobile-menu-toggle { display: flex !important; }
 
-            .page-hero { height: 340px; }
-            .page-hero .container { padding-bottom: 32px; }
-            .page-hero-title { font-size: 28px; }
-            .page-hero-sub { font-size: 13px; max-width: 100%; }
+            /* Hero */
+            .page-hero {
+                height: auto;
+                min-height: 380px;
+                align-items: flex-end;
+            }
+            .page-hero-bg { background-position: center top; }
+            .page-hero-bg::before {
+                background: linear-gradient(
+                        160deg,
+                        rgba(10,30,50,0.88) 0%,
+                        rgba(27,69,98,0.80) 50%,
+                        rgba(10,30,50,0.92) 100%
+                ) !important;
+            }
+            .page-hero::before {
+                background: linear-gradient(
+                        180deg,
+                        rgba(10,30,50,0.15) 0%,
+                        rgba(27,69,98,0.55) 60%,
+                        rgba(10,30,50,0.95) 100%
+                ) !important;
+            }
+            .page-hero .container { padding-top: 80px; padding-bottom: 40px; }
+            .page-hero-breadcrumb { margin-bottom: 10px; }
             .page-hero-breadcrumb a,
-            .page-hero-breadcrumb .current { font-size: 10px; }
+            .page-hero-breadcrumb .current { font-size: 11px; }
+            .page-hero-title {
+                font-size: 32px;
+                font-weight: 300;
+                line-height: 1.15;
+                word-break: break-word;
+            }
+            .page-hero-title strong { display: inline; font-weight: 800; }
+            .page-hero-sub {
+                font-size: 13px;
+                max-width: 100%;
+                margin-top: 10px;
+                line-height: 1.55;
+                color: rgba(255,255,255,0.8);
+            }
+            .page-hero-line { margin-top: 14px; }
             .scroll-hint { display: none; }
+            .hero-particles { display: none; }
 
+            /* Sub-nav de secciones */
+            .contact-nav { position: sticky; top: 0; z-index: 400; }
+            .contact-nav .container { padding: 0 12px; }
+            .contact-nav-inner {
+                display: flex;
+                gap: 0;
+                justify-content: stretch;
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+                scrollbar-width: none;
+            }
+            .contact-nav-inner::-webkit-scrollbar { display: none; }
+            .cnav-btn {
+                flex: 1;
+                flex-shrink: 0;
+                padding: 13px 8px;
+                font-size: 10.5px;
+                gap: 5px;
+                white-space: nowrap;
+                justify-content: center;
+                min-width: 0;
+            }
+            .cnav-btn i { font-size: 13px; }
+
+            /* Secciones generales */
             .section-block { padding: 44px 0; }
-            .section-title { font-size: 22px; }
-            .section-label { font-size: 10px; }
+            .section-title { font-size: 22px; line-height: 1.25; }
+            .section-label { font-size: 11px; }
             .container { padding: 0 16px; }
 
-            .contact-nav-inner { gap: 0; justify-content: space-between; }
-            .cnav-btn { padding: 14px 14px; font-size: 10px; gap: 5px; }
-            .cnav-btn i { font-size: 12px; }
-
-            .contact-form-box { padding: 28px 20px; }
-            .form-grid { grid-template-columns: 1fr; }
-            .form-header h3 { font-size: 17px; }
-            .form-group input,
-            .form-group textarea,
-            .form-group select { font-size: 12.5px; padding: 10px 12px; }
-            .btn-submit { width: 100%; justify-content: center; padding: 13px 24px; font-size: 12px; }
-
-            .cinfo-card { padding: 16px 18px; gap: 14px; }
-            .cinfo-icon { width: 40px; height: 40px; font-size: 15px; }
+            /* Contacto – info + formulario */
+            .contact-layout { grid-template-columns: 1fr; gap: 28px; }
+            .contact-info-cards { gap: 12px; }
+            .cinfo-card { padding: 15px 16px; gap: 14px; }
+            .cinfo-icon { width: 42px; height: 42px; font-size: 16px; border-radius: 10px; }
             .cinfo-text h4 { font-size: 12px; }
             .cinfo-text p { font-size: 12.5px; }
 
-            .contact-map-wrap { height: 200px; margin-top: 16px; }
+            .contact-form-box { padding: 26px 18px; border-radius: 10px; }
+            .form-grid { grid-template-columns: 1fr; gap: 12px; }
+            .form-header { margin-bottom: 18px; }
+            .form-header h3 { font-size: 16px; }
+            .form-group input,
+            .form-group textarea,
+            .form-group select { font-size: 13px; padding: 11px 12px; }
+            .btn-submit { width: 100%; justify-content: center; padding: 13px 24px; font-size: 12.5px; }
+
+            .contact-map-wrap { height: 200px; margin-top: 16px; border-radius: 10px; }
             .map-overlay-badge { font-size: 10px; padding: 6px 10px; bottom: 10px; left: 10px; }
 
-            .contacts-grid { grid-template-columns: 1fr; gap: 16px; max-width: 480px; }
-            .contact-card .cc-body { padding: 18px 18px 16px; }
-            .cc-cargo { font-size: 16px; }
-            .cc-nombre { font-size: 14px; }
-            .cc-avatar { width: 40px; height: 40px; font-size: 17px; }
-            .cc-contact-row { font-size: 12.5px; }
+            /* Líneas de atención */
+            .section-header-flex { flex-direction: column; align-items: flex-start; gap: 10px; margin-bottom: 22px; }
+            .contacts-grid { grid-template-columns: 1fr; gap: 14px; max-width: 100%; }
+            .contact-card { border-radius: 14px; }
+            .contact-card .cc-body { padding: 18px 16px 16px; }
+            .cc-cargo { font-size: 14px; }
+            .cc-nombre { font-size: 12.5px; }
+            .cc-avatar { width: 44px; height: 44px; font-size: 18px; border-radius: 12px; }
+            .cc-contact-row { font-size: 12px; padding: 4px 6px; }
+            .cc-contact-row a { font-size: 12px; }
 
+            /* PQRS */
             .pqrs-layout { gap: 28px; }
-            .pqrs-form-box { padding: 28px 20px; }
-            .pqrs-form-grid { grid-template-columns: 1fr; }
-            .pqrs-form-header h3 { font-size: 16px; }
-            .pfield input,
-            .pfield select,
-            .pfield textarea { font-size: 12.5px; padding: 10px 12px; }
-            .btn-pqrs { width: 100%; justify-content: center; padding: 13px 24px; font-size: 12px; }
-            .pqrs-type-item { padding: 11px 14px; }
+            .pqrs-info p { font-size: 13px; margin-bottom: 14px; }
+            .pqrs-type-item { padding: 12px 14px; gap: 10px; }
+            .pqrs-type-item i { font-size: 16px; }
             .pqrs-type-item div h5 { font-size: 12px; }
             .pqrs-type-item div p { font-size: 11px; }
-            .pqrs-guarantee { flex-direction: column; text-align: center; padding: 16px; }
-            .pqrs-guarantee i { font-size: 20px; }
+            .pqrs-guarantee { flex-direction: row; align-items: flex-start; text-align: left; padding: 16px 18px; gap: 12px; }
+            .pqrs-guarantee i { font-size: 20px; margin-top: 2px; }
+            .pqrs-guarantee p { font-size: 12px; }
+            .pqrs-form-box { padding: 24px 16px; border-radius: 10px; }
+            .pqrs-form-header { margin-bottom: 18px; }
+            .pqrs-form-header h3 { font-size: 15px; }
+            .pqrs-form-grid { grid-template-columns: 1fr; gap: 12px; }
+            .pfield input,
+            .pfield select,
+            .pfield textarea { font-size: 13px; padding: 11px 12px; }
+            .btn-pqrs { width: 100%; justify-content: center; padding: 13px 24px; font-size: 12.5px; }
 
+            /* QR PQRS */
+            #pqrs-qr-section { padding: 18px !important; }
+            #pqrs-qr-section > div { flex-direction: row; align-items: center; gap: 14px; }
+            #pqrs-qr-wrap { padding: 10px !important; border-radius: 10px !important; }
+            #pqrs-qr-img { width: 84px !important; height: 84px !important; }
+
+            /* CTA band */
             .cta-band { padding: 44px 0; }
             .cta-band h2 { font-size: 22px; }
             .cta-band p { font-size: 13px; margin-bottom: 24px; }
-            .cta-buttons { flex-direction: column; gap: 10px; }
-            .cta-buttons .btn { width: 100%; justify-content: center; padding: 13px 20px; font-size: 11.5px; }
+            .cta-buttons { flex-direction: column; gap: 10px; align-items: center; }
+            .cta-buttons .btn { width: 100%; max-width: 340px; justify-content: center; padding: 13px 20px; font-size: 12.5px; }
 
-            footer { padding: 48px 0 0; }
+            /* Footer */
+            footer { padding: 40px 0 0; }
             .footer-grid { grid-template-columns: 1fr; gap: 28px; }
             .footer-logo { justify-content: center; }
             .social-icons { justify-content: center; }
-            .footer-grid > div:nth-child(3) > div { flex-direction: column; gap: 20px; }
+            .footer-contact-info li { justify-content: center; }
+            .certs-container { justify-content: center; flex-wrap: wrap; }
             .footer-bottom { flex-direction: column; gap: 10px; text-align: center; }
             .footer-bottom-links { justify-content: center; }
-            .footer-contact-info li { justify-content: center; }
-            .certs-container { justify-content: center; }
 
-            #contactenos { scroll-margin-top: 100px; }
-            #lineas-de-atencion { scroll-margin-top: 100px; }
-            #pqrs { scroll-margin-top: 100px; }
+            /* Scroll margin para sticky nav */
+            #contactenos { scroll-margin-top: 54px; }
+            #lineas-de-atencion { scroll-margin-top: 54px; }
+            #pqrs { scroll-margin-top: 54px; }
         }
+
+        /* ── MÓVIL PEQUEÑO ───────────────────────────────────────────────── */
         @media (max-width: 480px) {
-            .page-hero { height: 280px; }
-            .page-hero-title { font-size: 22px; }
-            .contact-form-box { padding: 22px 14px; border-radius: 8px; }
-            .pqrs-form-box { padding: 22px 14px; border-radius: 8px; }
-            .contact-map-wrap { height: 160px; border-radius: 8px; }
-            .header-content .logo-box img { height: 34px; }
-            .section-block { padding: 32px 0; }
-            .cnav-btn { padding: 10px 12px; font-size: 9px; }
+            .page-hero { min-height: 340px; }
+            .page-hero .container { padding-top: 72px; padding-bottom: 32px; }
+            .page-hero-title { font-size: 26px; }
+            .page-hero-sub { font-size: 12.5px; line-height: 1.5; }
+
+            .container { padding: 0 14px; }
+            .section-block { padding: 36px 0; }
+            .section-title { font-size: 20px; }
+
+            /* Sub-nav: íconos solos en pantallas muy chicas */
+            .cnav-btn { padding: 12px 6px; font-size: 10px; }
+            .cnav-btn span { display: none; }  /* ocultar texto si hay, dejar icono */
+
+            .contact-form-box { padding: 20px 14px; }
+            .pqrs-form-box { padding: 20px 14px; }
+            .contact-map-wrap { height: 170px; }
+
             .contact-card .cc-body { padding: 16px 14px 14px; }
-            .cc-avatar { width: 36px; height: 36px; font-size: 15px; }
-            .cc-cargo { font-size: 15px; }
-            .cc-nombre { font-size: 13px; }
+            .cc-avatar { width: 40px; height: 40px; font-size: 16px; }
+            .cc-cargo { font-size: 13.5px; }
+            .cc-nombre { font-size: 12px; }
+
+            .pqrs-guarantee { flex-direction: column; text-align: center; align-items: center; }
+            .pqrs-layout { gap: 22px; }
+            .pqrs-type-item { padding: 10px 12px; }
+
+            #pqrs-qr-section > div { flex-direction: column; align-items: center; text-align: center; }
+
+            .cta-band h2 { font-size: 19px; }
         }
     </style>
     <script src="/js/inicio.js"></script>
@@ -1104,10 +1201,22 @@
                     <i class="fa-solid fa-circle-check"></i>
                     <p>Todas las PQRS recibidas son <strong>procesadas en un plazo no mayor a 15 días hábiles</strong> y recibirá confirmación de radicado en su correo de contacto.</p>
                 </div>
+
+                <div class="reveal" style="margin-top:24px;padding:24px;background:linear-gradient(135deg,#f8fafc,#f1f5f9);border:1px solid #e2e8f2;border-radius:14px;" id="pqrs-qr-section">
+                    <div style="display:flex;align-items:center;gap:16px;">
+                        <div style="flex-shrink:0;background:#fff;padding:12px;border-radius:12px;box-shadow:0 2px 10px rgba(0,0,0,.06);" id="pqrs-qr-wrap">
+                            <img id="pqrs-qr-img" src="" alt="QR Buzón PQRS" style="width:110px;height:110px;display:block;">
+                        </div>
+                        <div>
+                            <div style="font-size:15px;font-weight:800;color:var(--primary-dark);margin-bottom:4px;"><i class="fa-solid fa-qrcode" style="color:var(--accent-gold);margin-right:6px;"></i>Buzón de PQRS</div>
+                            <p style="font-size:12.5px;color:#556b82;line-height:1.6;margin:0;">Escanee el código QR para acceder directamente al formulario de PQRS. Ideal para el buzón físico de la empresa.</p>
+                        </div>
+                    </div>
+                </div>
             </div>
 
             <div class="reveal-right">
-                <div class="pqrs-form-box">
+                <div class="pqrs-form-box" id="pqrs-form-area">
                     <div class="pqrs-form-header">
                         <h3>Formulario PQRS</h3>
                     </div>
@@ -1251,7 +1360,7 @@
                     <div style="background:#fff;border:1px solid var(--border-color);border-radius:8px;padding:16px 18px;margin-bottom:18px;">
                         <div style="font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--text-muted);margin-bottom:8px;">Fecha de radicación</div>
                         <div style="font-size:13.5px;font-weight:600;color:var(--text-dark);"
-                              th:text="${ticketConsulta.createdAt != null ? #temporals.format(ticketConsulta.createdAt, 'dd/MM/yyyy HH:mm') : '-'}">01/01/2026</div>
+                             th:text="${ticketConsulta.createdAt != null ? #temporals.format(ticketConsulta.createdAt, 'dd/MM/yyyy HH:mm') : '-'}">01/01/2026</div>
                     </div>
 
                     <div th:if="${ticketConsulta.respuesta != null && !ticketConsulta.respuesta.isEmpty()}"
@@ -1279,7 +1388,7 @@
                                 <i class="fa-solid fa-circle-check" style="color:var(--accent-cyan);margin-top:3px;font-size:14px;"></i>
                                 <div>
                                     <div style="font-size:12px;font-weight:700;color:var(--text-dark);"
-                                          th:text="${h.accion == 'RADICADO' ? 'Radicación recibida' : (h.accion == 'ESTADO' ? 'Actualización de estado' : (h.accion == 'RESPUESTA' ? 'Respuesta enviada' : h.accion))}">Acción</div>
+                                         th:text="${h.accion == 'RADICADO' ? 'Radicación recibida' : (h.accion == 'ESTADO' ? 'Actualización de estado' : (h.accion == 'RESPUESTA' ? 'Respuesta enviada' : h.accion))}">Acción</div>
                                     <div style="font-size:11.5px;color:var(--text-muted);line-height:1.5;" th:text="${h.descripcion}">Detalle</div>
                                     <div style="font-size:11px;color:#94a3b8;margin-top:3px;" th:text="${#temporals.format(h.fecha, 'dd/MM/yyyy HH:mm')}">fecha</div>
                                 </div>
@@ -1359,15 +1468,15 @@
                 </div>
             </div>
         </div>
-<div class="footer-bottom">
-                <span>&copy; 2026 Sociedad Portuaria Mardique S.A. Todos los derechos reservados.</span>
-                <div class="footer-bottom-links">
-                    <a href="https://spmardique.com/wp-content/uploads/2024/01/REGLAMENTO_DE_CONDICIONES_TECNICO_DE_OPERACION.pdf" target="_blank"><i class="fas fa-file-pdf"></i> Reglamento Operativo</a>
-                    <a href="#"><i class="fas fa-shield-alt"></i> Políticas de Privacidad</a>
-                    <a href="#"><i class="fas fa-shield-halved"></i> Políticas de Seguridad</a>
-                </div>
+        <div class="footer-bottom">
+            <span>&copy; 2026 Sociedad Portuaria Mardique S.A. Todos los derechos reservados.</span>
+            <div class="footer-bottom-links">
+                <a href="https://spmardique.com/wp-content/uploads/2024/01/REGLAMENTO_DE_CONDICIONES_TECNICO_DE_OPERACION.pdf" target="_blank"><i class="fas fa-file-pdf"></i> Reglamento Operativo</a>
+                <a href="#"><i class="fas fa-shield-alt"></i> Políticas de Privacidad</a>
+                <a href="#"><i class="fas fa-shield-halved"></i> Políticas de Seguridad</a>
             </div>
         </div>
+    </div>
 </footer>
 
 <div class="success-toast" id="successToast"
@@ -1652,11 +1761,28 @@
             <a href="/login">INICIAR SESIÓN</a>
             <a href="/register">REGISTRARSE</a>
         </div>
-<button type="button" class="drawer-contact-btn" onclick="openServiceForm('Contáctenos', 'Otro', 'Solicitud General', 'Complete el formulario y nuestro equipo comercial se pondrá en contacto con usted a la brevedad posible.')" style="border:none;cursor:pointer;"><i class="fas fa-phone-alt"></i> CONTÁCTANOS</button>
+        <button type="button" class="drawer-contact-btn" onclick="openServiceForm('Contáctenos', 'Otro', 'Solicitud General', 'Complete el formulario y nuestro equipo comercial se pondrá en contacto con usted a la brevedad posible.')" style="border:none;cursor:pointer;"><i class="fas fa-phone-alt"></i> CONTÁCTANOS</button>
     </div>
 </nav>
 
 <div th:replace="~{Inicio :: contactModal}"></div>
 <script src="/js/chatbot.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded',function(){
+        var url=window.location.origin+'/contacto#pqrs';
+        var qr=document.getElementById('pqrs-qr-img');
+        if(qr) qr.src='https://api.qrserver.com/v1/create-qr-code/?size=240x240&data='+encodeURIComponent(url)+'&margin=8&color=1b4562&bgcolor=ffffff';
+
+        if(window.location.hash==='#pqrs'){
+            setTimeout(function(){
+                var pqrsEl=document.getElementById('pqrs');
+                if(pqrsEl){
+                    var pqrsY=pqrsEl.getBoundingClientRect().top+window.pageYOffset;
+                    window.scrollTo({top:pqrsY,behavior:'smooth'});
+                }
+            },400);
+        }
+    });
+</script>
 </body>
 </html>

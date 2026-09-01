@@ -17,74 +17,130 @@
     <link rel="stylesheet" href="/css/portal.css">
     <script src="https://alcdn.msauth.net/browser/2.38.0/js/msal-browser.min.js"></script>
     <style>
-        .intranet-loading { text-align: center; padding: 48px; color: var(--mx); }
-        .intranet-loading i { font-size: 28px; margin-bottom: 10px; display: block; }
-        .intranet-loading span { font-size: 14px; }
-        .intranet-toast { display: none; position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); padding: 12px 24px; border-radius: var(--r); font-size: 13px; font-weight: 600; z-index: 9999; box-shadow: 0 8px 32px rgba(0,0,0,.15); max-width: 90%; text-align: center; }
-        .intranet-toast.success { background: #16a34a; color: #fff; }
-        .intranet-toast.error { background: #dc2626; color: #fff; }
-        .mock-mode-badge { display: inline-flex; align-items: center; gap: 5px; padding: 4px 14px; border-radius: 50px; font-size: 11px; font-weight: 700; background: #fef3c7; color: #92400e; border: 1px solid #f59e0b; margin-left: 10px; }
-        .user-greeting{font-size:15px;color:rgba(255,255,255,.75);margin-top:4px;}
-        .user-badge{display:inline-block;padding:3px 12px;border-radius:50px;font-size:11px;font-weight:700;background:rgba(240,154,54,.14);color:var(--ag);border:1px solid rgba(240,154,54,.3);margin-top:8px;}
+        body{background:#f3f4f6!important;}
+        .intranet-shell{max-width:1200px;margin:0 auto;padding:0 24px 60px;display:flex;flex-direction:column;gap:22px;}
+        .intranet-main{flex:1;min-width:0;}
+        body .tab-content{background:#fff;border:1px solid var(--bdr);border-radius:16px;padding:30px 32px;box-shadow:0 4px 22px rgba(15,42,58,.06);}
+        @media(max-width:768px){
+            body .tab-content{padding:18px 14px;}
+            .phero{padding:60px 16px 0 !important;}
+            .phw-container{padding:0 !important;}
+            .phero-badge{font-size:10px !important;margin-bottom:10px !important;}
+            .phero h1{font-size:22px !important;margin-bottom:6px !important;}
+            .phero p{font-size:12px !important;}
+            .phero-card{display:none !important;}
+            .intranet-shell{padding:0 14px 40px !important;gap:16px !important;}
+            .adm-grid{grid-template-columns:1fr !important;gap:10px !important;}
+            .adm-stat{padding:14px 16px !important;gap:12px !important;}
+            .adm-stat-val{font-size:20px !important;}
+            .adm-stat-icon{width:40px !important;height:40px !important;font-size:16px !important;}
+            .adm-tabs{gap:2px !important;overflow-x:auto !important;flex-wrap:nowrap !important;padding-bottom:10px !important;}
+            .adm-tab{padding:8px 12px !important;font-size:11px !important;white-space:nowrap;flex-shrink:0;}
+            .adm-sec-title{font-size:14px !important;}
+            .adm-card{padding:14px !important;}
+            .adm-card-header{flex-direction:column !important;align-items:flex-start !important;gap:8px !important;}
+        }
         @keyframes fadeInDown{from{opacity:0;transform:translateY(-24px)}to{opacity:1;transform:translateY(0)}}
         @keyframes fadeInUp{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:translateY(0)}}
+        @keyframes floatIcon{0%,100%{transform:translateY(0)}25%{transform:translateY(-12px)}75%{transform:translateY(-8px)}}
         .phero-badge{animation:fadeInDown .6s ease both}
         .phero-main h1{animation:fadeInUp .7s ease .1s both}
         .phero-main p{animation:fadeInUp .7s ease .25s both}
         .phero-floaters{position:absolute;inset:0;overflow:hidden;pointer-events:none;z-index:0}
         .phero-floaters i{position:absolute;font-size:24px;color:rgba(240,154,54,.08)}
         .phw-glow{position:absolute;top:-30%;left:50%;transform:translateX(-50%);width:600px;height:600px;background:radial-gradient(circle,rgba(240,154,54,.12) 0%,transparent 70%);pointer-events:none;z-index:0}
-        .phw-wave{position:absolute;bottom:0;left:0;width:100%;overflow:hidden;line-height:0;z-index:0}
-        .phw-wave svg{display:block;width:100%;height:auto}
-        body{background:#f3f4f6!important;}
-        .intranet-shell{max-width:1320px;margin:0 auto;padding:0 24px 90px;display:flex;flex-direction:column;gap:22px;}
-        .intranet-main{flex:1;min-width:0;}
-        body .tab-content{background:#fff;border:1px solid var(--bdr);border-radius:16px;padding:30px 32px;box-shadow:0 4px 22px rgba(15,42,58,.06);}
-        @media(max-width:700px){ body .tab-content{padding:20px 16px;} }
-        .admin-badge-mode{display:inline-flex;align-items:center;gap:7px;padding:7px 14px;border-radius:50px;font-size:11.5px;font-weight:800;background:#fef3c7;color:#92400e;border:1px solid #f59e0b;margin-bottom:18px;}
-        .admin-badge-mode i{font-size:12px;}
-        .admin-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:14px;margin-bottom:26px;}
-        .admin-stat{background:linear-gradient(160deg,#fff,#f8fafc);border:1px solid #e2e8f0;border-radius:14px;padding:18px 20px;display:flex;align-items:center;gap:14px;box-shadow:0 2px 10px rgba(15,42,58,.05);}
-        .admin-stat-icon{width:46px;height:46px;flex:none;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:19px;color:#fff;background:linear-gradient(135deg,#1b4562,#26597e);}
-        .admin-stat-icon.orange{background:linear-gradient(135deg,#f09a36,#d67e1a);}
-        .admin-stat-icon.green{background:linear-gradient(135deg,#16a34a,#15803d);}
-        .admin-stat-icon.purple{background:linear-gradient(135deg,#7c3aed,#6d28d9);}
-        .admin-stat-val{font-size:24px;font-weight:800;color:#0f2a3a;line-height:1.1;}
-        .admin-stat-lbl{font-size:11.5px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:.4px;margin-top:2px;}
-        .admin-sec{margin-bottom:30px;}
-        .admin-sec-title{display:flex;align-items:center;gap:10px;font-size:16px;font-weight:800;color:var(--pd);margin-bottom:8px;}
-        .admin-sec-title i{color:var(--ag);}
-        .admin-sec-desc{font-size:12.5px;color:var(--mx);margin-bottom:16px;line-height:1.6;}
-        .admin-form-row{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px;}
-        .admin-form-row input[type="email"]{flex:1;min-width:220px;padding:10px 12px;border:1.5px solid var(--bdr);border-radius:8px;font-size:13px;font-family:inherit;outline:none;box-sizing:border-box;}
-        .admin-form-row input[type="email"]:focus{border-color:var(--ag);}
-        .admin-btn{display:inline-flex;align-items:center;gap:7px;padding:9px 16px;border-radius:8px;font-size:12.5px;font-weight:800;font-family:inherit;border:none;cursor:pointer;transition:filter .2s;background:var(--pd);color:#fff;}
-        .admin-btn:hover{filter:brightness(1.12);}
-        .admin-btn.green{background:#16a34a;}
-        .admin-btn.red{background:#dc2626;}
-        .admin-btn.small{padding:6px 11px;font-size:11.5px;}
-        .admin-list{display:flex;flex-direction:column;gap:8px;}
-        .admin-list-item{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 14px;border:1px solid #eef1f4;border-radius:10px;background:#fafbfc;flex-wrap:wrap;}
-        .admin-list-item .adm-email{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:700;color:#1b4562;}
-        .admin-list-item .adm-email i{color:var(--ag);}
-        .admin-list-item .adm-role{font-size:10.5px;font-weight:800;text-transform:uppercase;letter-spacing:.4px;padding:3px 10px;border-radius:50px;background:#eef2ff;color:#4338ca;}
-        .admin-list-empty{font-size:12.5px;color:#94a3b8;font-style:italic;padding:10px 2px;}
-        .admin-events-table{width:100%;border-collapse:collapse;font-size:12.5px;}
-        .admin-events-table th{text-align:left;padding:9px 10px;background:#f1f5f9;color:var(--mx);font-weight:700;font-size:11px;text-transform:uppercase;letter-spacing:.3px;position:sticky;top:0;}
-        .admin-events-table td{padding:9px 10px;border-bottom:1px solid #eef1f4;color:#334155;}
-        .admin-events-table tr:hover td{background:#fafbfc;}
-        .admin-events-wrap{max-height:420px;overflow:auto;border:1px solid #eef1f4;border-radius:10px;}
+        .phw-wave{position:relative;z-index:1;line-height:0;margin:44px -32px 0;}
+        .phw-wave svg{display:block;width:100%;height:56px;}
+        @media(max-width:768px){ .header-user-name{display:none;} }
+
+        .adm-tabs{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:24px;border-bottom:2px solid #eef1f4;padding-bottom:12px;}
+        .adm-tab{display:inline-flex;align-items:center;gap:6px;padding:9px 18px;border-radius:10px;font-size:12.5px;font-weight:700;border:none;cursor:pointer;font-family:inherit;background:transparent;color:var(--mx);transition:all .2s;}
+        .adm-tab:hover{background:rgba(27,69,98,.04);color:var(--pd);}
+        .adm-tab.active{background:linear-gradient(135deg,var(--pd),#0d2438);color:#fff;box-shadow:0 2px 10px rgba(27,69,98,.25);}
+        .adm-tab i{font-size:12px;}
+        .adm-panel{display:none;}
+        .adm-panel.active{display:block;animation:fadeInUp .35s ease;}
+
+        .adm-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px;margin-bottom:28px;}
+        .adm-stat{background:linear-gradient(160deg,#fff,#f8fafc);border:1px solid #e2e8f0;border-radius:14px;padding:18px 20px;display:flex;align-items:center;gap:14px;}
+        .adm-stat-icon{width:46px;height:46px;flex:none;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:19px;color:#fff;}
+        .adm-stat-val{font-size:24px;font-weight:800;color:#0f2a3a;line-height:1.1;}
+        .adm-stat-lbl{font-size:11.5px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:.4px;margin-top:2px;}
+
+        .adm-sec{margin-bottom:28px;}
+        .adm-sec-title{display:flex;align-items:center;gap:10px;font-size:16px;font-weight:800;color:var(--pd);margin-bottom:6px;}
+        .adm-sec-title i{color:var(--ag);}
+        .adm-sec-desc{font-size:12.5px;color:var(--mx);margin-bottom:16px;line-height:1.6;}
+
+        .adm-card{background:#fafbfc;border:1px solid #eef1f4;border-radius:12px;padding:16px;margin-bottom:10px;transition:all .2s;}
+        .adm-card:hover{border-color:var(--ag);box-shadow:0 4px 16px rgba(0,0,0,.04);}
+        .adm-card-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;}
+        .adm-card-name{font-size:14px;font-weight:700;color:var(--pd);}
+        .adm-card-meta{font-size:11.5px;color:var(--mx);margin-top:2px;}
+
+        .adm-field{margin-bottom:12px;}
+        .adm-field label{display:block;font-size:11.5px;font-weight:700;color:var(--pd);margin-bottom:4px;text-transform:uppercase;letter-spacing:.3px;}
+        .adm-field input,.adm-field textarea,.adm-field select{width:100%;padding:9px 12px;border:1.5px solid #e2e8f0;border-radius:8px;font-size:13px;font-family:inherit;color:var(--tx);background:#fff;transition:border-color .2s;}
+        .adm-field input:focus,.adm-field textarea:focus,.adm-field select:focus{outline:none;border-color:var(--ag);box-shadow:0 0 0 3px rgba(240,154,54,.08);}
+        .adm-field textarea{resize:vertical;min-height:60px;line-height:1.5;}
+
+        .adm-btn{display:inline-flex;align-items:center;gap:6px;padding:9px 16px;border-radius:8px;font-size:12.5px;font-weight:800;font-family:inherit;border:none;cursor:pointer;transition:all .2s;}
+        .adm-btn:hover{filter:brightness(1.1);transform:translateY(-1px);}
+        .adm-btn.primary{background:var(--pd);color:#fff;}
+        .adm-btn.green{background:#16a34a;color:#fff;}
+        .adm-btn.red{background:#dc2626;color:#fff;}
+        .adm-btn.orange{background:var(--ag);color:#fff;}
+        .adm-btn.small{padding:6px 11px;font-size:11.5px;}
+
+        .adm-empty{text-align:center;padding:32px;color:var(--mx);font-size:13px;}
+        .adm-empty i{font-size:24px;margin-bottom:8px;opacity:.4;display:block;}
+
+        #pageLoader{position:fixed;inset:0;z-index:99999;background:linear-gradient(155deg,#0d2438 0%,#1b4562 55%,#0d2438 100%);display:flex;flex-direction:column;align-items:center;justify-content:center;transition:opacity .5s ease;}
+        #pageLoader.hidden{opacity:0;pointer-events:none;}
+        #pageLoader .loader-icon{width:64px;height:64px;border-radius:50%;background:rgba(240,154,54,.12);border:3px solid rgba(240,154,54,.3);display:flex;align-items:center;justify-content:center;margin-bottom:20px;animation:loaderPulse 1.5s ease-in-out infinite;}
+        #pageLoader .loader-icon i{font-size:26px;color:var(--ag);}
+        #pageLoader .loader-text{font-size:15px;font-weight:700;color:#fff;margin-bottom:6px;letter-spacing:-.2px;}
+        #pageLoader .loader-sub{font-size:12px;color:rgba(255,255,255,.5);}
+        #pageLoader .loader-bar{width:180px;height:3px;background:rgba(255,255,255,.12);border-radius:4px;margin-top:18px;overflow:hidden;}
+        #pageLoader .loader-bar-fill{height:100%;width:40%;background:linear-gradient(90deg,var(--ag),#f09a36);border-radius:4px;animation:loaderBar 1.2s ease-in-out infinite;}
+        @keyframes loaderPulse{0%,100%{transform:scale(1);opacity:1;}50%{transform:scale(1.08);opacity:.8;}}
+        @keyframes loaderBar{0%{transform:translateX(-100%);}50%{transform:translateX(200%);}100%{transform:translateX(-100%);}}
+
+        .adm-list{display:flex;flex-direction:column;gap:8px;}
+        .adm-list-item{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 14px;border:1px solid #eef1f4;border-radius:10px;background:#fafbfc;flex-wrap:wrap;}
+        .adm-list-item .adm-email{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:700;color:#1b4562;}
+        .adm-list-item .adm-email i{color:var(--ag);}
+        .adm-role{font-size:10.5px;font-weight:800;text-transform:uppercase;letter-spacing:.4px;padding:3px 10px;border-radius:50px;background:#eef2ff;color:#4338ca;}
+
+        .adm-form-row{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px;}
+        .adm-form-row input{flex:1;min-width:200px;padding:10px 12px;border:1.5px solid var(--bdr);border-radius:8px;font-size:13px;font-family:inherit;outline:none;box-sizing:border-box;}
+        .adm-form-row input:focus{border-color:var(--ag);}
+
+        .adm-events-wrap{max-height:420px;overflow:auto;border:1px solid #eef1f4;border-radius:10px;}
+        .adm-events-table{width:100%;border-collapse:collapse;font-size:12.5px;}
+        .adm-events-table th{text-align:left;padding:9px 10px;background:#f1f5f9;color:var(--mx);font-weight:700;font-size:11px;text-transform:uppercase;letter-spacing:.3px;position:sticky;top:0;}
+        .adm-events-table td{padding:9px 10px;border-bottom:1px solid #eef1f4;color:#334155;}
+        .adm-events-table tr:hover td{background:#fafbfc;}
         .adm-sector{display:inline-flex;align-items:center;gap:5px;font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.3px;padding:2px 9px;border-radius:50px;background:#eef1f4;color:#475569;}
-        .adm-email-cell{font-weight:700;color:#1b4562;}
+
+        .adm-contact-tag{display:inline-flex;align-items:center;gap:4px;padding:4px 10px;border-radius:6px;background:#f1f5f9;font-size:11.5px;font-weight:600;color:var(--pd);margin:2px;}
+        .adm-contact-tag i{font-size:10px;color:var(--ag);}
     </style>
 </head>
 <body>
 
+<div id="pageLoader">
+    <div class="loader-icon"><i class="fas fa-shield-halved"></i></div>
+    <div class="loader-text">Cargando Panel de Control</div>
+    <div class="loader-sub">Preparando información...</div>
+    <div class="loader-bar"><div class="loader-bar-fill"></div></div>
+</div>
+
 <div id="intranet-toast" class="intranet-toast"></div>
 
-<div th:replace="~{IntranetNav :: nav(current='documentos')}"></div>
+<div th:replace="~{IntranetNav :: nav(current='admin')}"></div>
 
-<div class="phero">
+<div class="phero" style="position:relative;overflow:hidden;background:linear-gradient(135deg,#1b4562,#0d2438);padding:56px 20px 0;">
     <div class="phw-glow"></div>
     <div class="phero-floaters">
         <i class="fas fa-cog"></i>
@@ -92,26 +148,40 @@
         <i class="fas fa-users-cog"></i>
         <i class="fas fa-chart-line"></i>
     </div>
-    <div class="phw-container">
-        <div class="phero-grid">
-            <div class="phero-main">
-                <div class="phero-badge"><i class="fas fa-shield-halved"></i> Panel de Control de la Intranet</div>
-                <h1>Administración</h1>
-                <p>Gestión de accesos, registro de vistas de documentos y control del repositorio documental</p>
-            </div>
+    <div class="phw-container" style="position:relative;z-index:1;max-width:1200px;margin:0 auto;">
+        <div class="phero-badge" style="display:inline-flex;align-items:center;gap:6px;padding:6px 16px;border-radius:50px;font-size:12px;font-weight:700;background:rgba(240,154,54,.14);color:#f09a36;border:1px solid rgba(240,154,54,.3);margin-bottom:14px;animation:fadeInDown .6s ease;">
+            <i class="fas fa-shield-halved"></i> Panel de Control
         </div>
+        <h1 style="font-size:30px;font-weight:800;color:#fff;margin:0 0 8px;animation:fadeInUp .7s ease .1s both;">Administración General</h1>
+        <p style="font-size:14px;color:rgba(255,255,255,.55);margin:0;animation:fadeInUp .7s ease .25s both;">Gestiona áreas, eventos, documentos, foro y configuración de la intranet</p>
     </div>
     <div class="phw-wave">
-        <svg viewBox="0 0 1440 60" preserveAspectRatio="none"><path d="M0,32 C240,60 480,4 720,20 C960,36 1200,58 1440,28 L1440,60 L0,60 Z" fill="#f0f4f8"/></svg>
+        <svg viewBox="0 0 1440 60" preserveAspectRatio="none" style="display:block;width:100%;height:60px;">
+            <path d="M0,30 C360,60 1080,0 1440,30 L1440,60 L0,60 Z" fill="#f3f4f6"/>
+        </svg>
     </div>
 </div>
 
 <div class="intranet-shell">
     <div class="intranet-main">
         <div class="tab-content reveal">
-            <div id="adminContent">
-                <div class="intranet-loading"><i class="fas fa-spinner fa-spin"></i><span>Cargando panel de administración...</span></div>
+            <div id="admStats" class="adm-grid"></div>
+
+            <div class="adm-tabs">
+                <button class="adm-tab active" data-tab="areas"><i class="fas fa-layer-group"></i> Áreas</button>
+                <button class="adm-tab" data-tab="calendar"><i class="fas fa-calendar"></i> Calendario</button>
+                <button class="adm-tab" data-tab="conversations"><i class="fas fa-comments"></i> Foro</button>
+                <button class="adm-tab" data-tab="documents"><i class="fas fa-folder-open"></i> Documentos</button>
+                <button class="adm-tab" data-tab="pqrs"><i class="fas fa-envelope-open-text"></i> PQRS</button>
+                <button class="adm-tab" data-tab="access"><i class="fas fa-user-shield"></i> Accesos</button>
             </div>
+
+            <div id="panel-areas" class="adm-panel active"></div>
+            <div id="panel-calendar" class="adm-panel"></div>
+            <div id="panel-conversations" class="adm-panel"></div>
+            <div id="panel-documents" class="adm-panel"></div>
+            <div id="panel-pqrs" class="adm-panel"></div>
+            <div id="panel-access" class="adm-panel"></div>
         </div>
     </div>
 </div>
@@ -124,185 +194,496 @@
 <script src="/js/api-service.js"></script>
 <script src="/js/intranet.js"></script>
 <script>
-    let adminEmail = "";
-    let adminName = "";
+let admEmail = "", admName = "";
+const esc = s => String(s == null ? "" : s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
 
-    function esc(s) { return String(s == null ? "" : s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"); }
+function fmtDT(s) {
+    if (!s) return "-";
+    const d = new Date(s);
+    if (isNaN(d.getTime())) return s;
+    return d.toLocaleDateString("es-CO",{year:"numeric",month:"short",day:"numeric"}) + " " + d.toLocaleTimeString("es-CO",{hour:"2-digit",minute:"2-digit"});
+}
 
-    function fmtDT(s) {
-        if (!s) return "-";
-        var iso = s;
-        if (/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}/.test(iso) && !/[Zz+\-]\d{2}:?\d{2}$/.test(iso)) iso += "Z";
-        const d = new Date(iso);
-        if (isNaN(d.getTime())) return s;
-        return d.toLocaleDateString("es-CO", { year: "numeric", month: "short", day: "numeric" }) +
-            " · " + d.toLocaleTimeString("es-CO", { hour: "2-digit", minute: "2-digit" });
-    }
-
-    async function loadAdmin(){
-        const cont = document.getElementById("adminContent");
-        const status = await getIntranetAccessStatus(adminEmail);
-        const forceOpen = (typeof IS_PRODUCTION !== "undefined" && IS_PRODUCTION === false) || isMockMode();
-        if ((!status || !status.isAdmin) && !forceOpen) {
-            cont.innerHTML = '<div class="intranet-loading"><i class="fas fa-shield-halved"></i><span>Solo el administrador de la intranet puede acceder a este panel.</span></div>';
-            return;
-        }
-        const stats = await getIntranetViewStats(adminEmail);
-        if (!stats) {
-            if (forceOpen) {
-                renderAdmin(cont, {
-                    totalDocuments: 0,
-                    totalViews: 0,
-                    adminEmails: [],
-                    viewerEmails: [],
-                    testMode: true
-                }, [], []);
-                return;
-            }
-            cont.innerHTML = '<div class="intranet-loading"><i class="fas fa-exclamation-triangle"></i><span>Error al cargar la información.</span></div>';
-            return;
-        }
-        const admins = stats.adminEmails || [];
-        const viewers = stats.viewerEmails || [];
-        renderAdmin(cont, stats, admins, viewers);
-    }
-
-    function renderAdmin(cont, stats, admins, viewers){
-        let html = '';
-        if (stats.testMode) {
-            html += '<div class="admin-badge-mode"><i class="fas fa-flask"></i> Modo de pruebas: los permisos están abiertos para demostrar la funcionalidad. En producción se validará cada cuenta.</div>';
-        }
-        html += '<div class="admin-grid">' +
-            '<div class="admin-stat"><div class="admin-stat-icon"><i class="fas fa-folder-open"></i></div><div><div class="admin-stat-val">' + (stats.totalDocuments || 0) + '</div><div class="admin-stat-lbl">Documentos</div></div></div>' +
-            '<div class="admin-stat"><div class="admin-stat-icon orange"><i class="fas fa-eye"></i></div><div><div class="admin-stat-val">' + (stats.totalViews || 0) + '</div><div class="admin-stat-lbl">Vistas registradas</div></div></div>' +
-            '<div class="admin-stat"><div class="admin-stat-icon green"><i class="fas fa-user-tie"></i></div><div><div class="admin-stat-val">' + admins.length + '</div><div class="admin-stat-lbl">Administradores</div></div></div>' +
-            '<div class="admin-stat"><div class="admin-stat-icon purple"><i class="fas fa-users"></i></div><div><div class="admin-stat-val">' + viewers.length + '</div><div class="admin-stat-lbl">Cuentas con acceso</div></div></div>' +
-            '</div>';
-
-        // Sección: habilitar cuentas para ver quiénes han visto el documento
-        html += '<div class="admin-sec">' +
-            '<div class="admin-sec-title"><i class="fas fa-user-plus"></i> Habilitar cuentas para ver "Quiénes han visto el documento"</div>' +
-            '<div class="admin-sec-desc">Agrega el correo de un colaborador para que pueda ver, en la sección de Documentos, el botón que muestra quiénes han visto cada documento (correo, veces, primera y última vez).</div>' +
-            '<div class="admin-form-row">' +
-            '<input type="email" id="viewerEmailInput" placeholder="correo@spmardique.co">' +
-            '<button class="admin-btn green" onclick="addViewer()"><i class="fas fa-plus"></i> Habilitar cuenta</button>' +
-            '</div>' +
-            '<div class="admin-list" id="viewerList">' + renderRoleList(viewers, "VIEWER") + '</div>' +
-            '</div>';
-
-        // Sección: administradores
-        html += '<div class="admin-sec">' +
-            '<div class="admin-sec-title"><i class="fas fa-user-cog"></i> Administradores de la intranet</div>' +
-            '<div class="admin-sec-desc">Estas cuentas tienen control absoluto: acceden a este panel y siempre pueden ver quiénes han visto los documentos. El administrador principal es el coordinador de sistemas.</div>' +
-            '<div class="admin-form-row">' +
-            '<input type="email" id="adminEmailInput" placeholder="correo@spmardique.co">' +
-            '<button class="admin-btn" onclick="addAdmin()"><i class="fas fa-plus"></i> Agregar administrador</button>' +
-            '</div>' +
-            '<div class="admin-list" id="adminList">' + renderRoleList(admins, "ADMIN") + '</div>' +
-            '</div>';
-
-        // Sección: registro de accesos a documentos
-        html += '<div class="admin-sec">' +
-            '<div class="admin-sec-title"><i class="fas fa-history"></i> Registro de accesos a documentos</div>' +
-            '<div class="admin-sec-desc">Cada vez que un colaborador abre un documento desde la intranet se registra su correo, el documento y la fecha y hora exacta.</div>' +
-            '<div class="admin-events-wrap" id="eventsWrap"></div>' +
-            '</div>';
-
-        cont.innerHTML = html;
-        loadEvents();
-    }
-
-    function renderRoleList(users, role){
-        if (!users || !users.length) return '<div class="admin-list-empty">No hay cuentas registradas con este rol.</div>';
-        return users.map(u => {
-            const email = u.email || u;
-            const createdAt = u.createdAt ? ' · ' + formatDate(u.createdAt) : '';
-            return '<div class="admin-list-item">' +
-                '<div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;"><span class="adm-email"><i class="fas fa-envelope"></i> ' + esc(email) + '</span>' +
-                '<span class="adm-role">' + role + '</span></div>' +
-                '<button class="admin-btn red small" onclick="removeRole(\'' + esc(email) + '\')"><i class="fas fa-trash"></i> Quitar</button>' +
-                '</div>';
-        }).join("");
-    }
-
-    async function addViewer(){
-        const input = document.getElementById("viewerEmailInput");
-        const email = (input.value || "").trim();
-        if (!email) { showIntranetToast("Escribe un correo para habilitar", "error"); return; }
-        const ok = await grantIntranetRole(email, "VIEWER", adminEmail);
-        if (ok) {
-            showIntranetToast("Cuenta habilitada correctamente", "success");
-            loadAdmin();
-        } else {
-            showIntranetToast("No se pudo habilitar la cuenta", "error");
-        }
-    }
-
-    async function addAdmin(){
-        const input = document.getElementById("adminEmailInput");
-        const email = (input.value || "").trim();
-        if (!email) { showIntranetToast("Escribe un correo para agregar", "error"); return; }
-        const ok = await grantIntranetRole(email, "ADMIN", adminEmail);
-        if (ok) {
-            showIntranetToast("Administrador agregado correctamente", "success");
-            loadAdmin();
-        } else {
-            showIntranetToast("No se pudo agregar el administrador", "error");
-        }
-    }
-
-    async function removeRole(email){
-        if (!confirm("¿Quitar el acceso de " + email + "?")) return;
-        const ok = await revokeIntranetRole(email, adminEmail);
-        if (ok) {
-            showIntranetToast("Acceso actualizado", "success");
-            loadAdmin();
-        } else {
-            showIntranetToast("No se pudo actualizar", "error");
-        }
-    }
-
-    async function loadEvents(){
-        const wrap = document.getElementById("eventsWrap");
-        if (!wrap) return;
-        wrap.innerHTML = '<div class="intranet-loading"><i class="fas fa-spinner fa-spin"></i><span>Cargando registro...</span></div>';
-        const data = await getIntranetViewEvents(adminEmail);
-        if (!data || !data.events) {
-            wrap.innerHTML = '<div class="admin-list-empty">No se pudo cargar el registro.</div>';
-            return;
-        }
-        const events = data.events || [];
-        if (!events.length) {
-            wrap.innerHTML = '<div class="admin-list-empty">Aún no hay vistas registradas. Cuando alguien abra un documento desde la intranet, aquí aparecerá su acceso.</div>';
-            return;
-        }
-        const rows = events.map(e => '<tr>' +
-            '<td class="adm-email-cell"><i class="fas fa-envelope"></i> ' + esc(e.email) + '</td>' +
-            '<td>' + esc(e.name || "-") + '</td>' +
-            '<td>' + esc(e.documentName || "-") + '</td>' +
-            '<td><span class="adm-sector">' + esc(e.sector || "general") + '</span></td>' +
-            '<td>' + fmtDT(e.viewedAt) + '</td>' +
-            '</tr>').join("");
-        wrap.innerHTML = '<table class="admin-events-table">' +
-            '<thead><tr><th>Correo</th><th>Nombre</th><th>Documento</th><th>Sector</th><th>Fecha y hora</th></tr></thead>' +
-            '<tbody>' + rows + '</tbody></table>';
-    }
-
-    document.addEventListener("DOMContentLoaded", async function() {
-        if (!isMsalAuthenticated()) { window.location.href = "/login"; return; }
-        if (isMockMode()) { const mb = document.getElementById("mockBadge"); if (mb) mb.style.display = "inline-flex"; }
-        try {
-            const user = await getCurrentUser();
-            adminName = user.displayName || user.userPrincipalName || "";
-            adminEmail = user.mail || user.userPrincipalName || "";
-            document.getElementById("userDisplay").textContent = adminName;
-        } catch (e) {}
-        await loadAdmin();
-        const revealObs = new IntersectionObserver(entries => {
-            entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
-        }, { threshold: 0.1 });
-        document.querySelectorAll('.reveal').forEach(el => revealObs.observe(el));
+/* ── TABS ── */
+document.querySelectorAll('.adm-tab').forEach(tab => {
+    tab.addEventListener('click', function() {
+        document.querySelectorAll('.adm-tab').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('.adm-panel').forEach(p => p.classList.remove('active'));
+        this.classList.add('active');
+        const panel = document.getElementById('panel-' + this.dataset.tab);
+        if (panel) panel.classList.add('active');
     });
+});
+
+/* ── STATS ── */
+async function loadStats() {
+    const cont = document.getElementById('admStats');
+    const [areas, convs, cals] = await Promise.all([getAreas(), getConversations(), getCalendarEvents()]);
+    cont.innerHTML =
+        '<div class="adm-stat"><div class="adm-stat-icon" style="background:linear-gradient(135deg,#1b4562,#26597e);"><i class="fas fa-layer-group"></i></div><div><div class="adm-stat-val">'+(areas||[]).length+'</div><div class="adm-stat-lbl">Áreas</div></div></div>' +
+        '<div class="adm-stat"><div class="adm-stat-icon" style="background:linear-gradient(135deg,#f09a36,#d67e1a);"><i class="fas fa-calendar"></i></div><div><div class="adm-stat-val">'+(cals||[]).length+'</div><div class="adm-stat-lbl">Eventos</div></div></div>' +
+        '<div class="adm-stat"><div class="adm-stat-icon" style="background:linear-gradient(135deg,#16a34a,#15803d);"><i class="fas fa-comments"></i></div><div><div class="adm-stat-val">'+(convs||[]).length+'</div><div class="adm-stat-lbl">Publicaciones</div></div></div>' +
+        '<div class="adm-stat"><div class="adm-stat-icon" style="background:linear-gradient(135deg,#7c3aed,#6d28d9);"><i class="fas fa-users"></i></div><div><div class="adm-stat-val" id="admViewers">-</div><div class="adm-stat-lbl">Cuentas con acceso</div></div></div>';
+    try {
+        const status = await getIntranetAccessStatus(admEmail);
+        if (status) {
+            const viewers = status.viewerEmails || [];
+            document.getElementById('admViewers').textContent = viewers.length;
+        }
+    } catch(e) {}
+}
+
+/* ── ÁREAS ── */
+async function loadAreas() {
+    const cont = document.getElementById('panel-areas');
+    cont.innerHTML = '<div class="adm-empty"><i class="fas fa-spinner fa-spin"></i>Cargando áreas...</div>';
+    const areas = await getAreas();
+    if (!areas || !areas.length) {
+        cont.innerHTML = '<div class="adm-empty"><i class="fas fa-layer-group"></i>No hay áreas registradas</div>';
+        return;
+    }
+    let html = '<div class="adm-sec"><div class="adm-sec-title"><i class="fas fa-layer-group"></i> Áreas de la empresa</div>' +
+        '<div class="adm-sec-desc">Edita nombres, descripciones, contactos y fotos de portada de cada área.</div></div>';
+    areas.forEach(a => {
+        const name = esc(a.nombre || a.Title || '');
+        const desc = esc(a.descripcion || '');
+        const cover = esc(a.cover || '');
+        const sitio = esc(a.Sitio || '');
+        let contacts = [];
+        const raw = a.Contactos || a.contactos;
+        if (Array.isArray(raw)) contacts = raw;
+        else if (typeof raw === 'string' && raw.trim()) try { contacts = JSON.parse(raw); } catch(e) {}
+        html += '<div class="adm-card" id="adm-area-'+a.id+'">' +
+            '<div class="adm-card-header"><div><div class="adm-card-name">'+name+'</div>' +
+            '<div class="adm-card-meta">'+contacts.length+' contacto(s) · '+esc(a.id)+'</div></div>' +
+            '<div style="display:flex;gap:6px;">' +
+            '<button class="adm-btn primary small" onclick="editArea('+a.id+')"><i class="fas fa-pen"></i> Editar</button>' +
+            '<button class="adm-btn red small" onclick="removeArea('+a.id+',\''+name+'\')"><i class="fas fa-trash"></i></button>' +
+            '</div></div>' +
+            '<div style="display:flex;flex-wrap:wrap;gap:4px;">' +
+            contacts.slice(0,3).map(c => '<span class="adm-contact-tag"><i class="fas fa-user"></i> '+esc(c.nombre||'')+' — '+esc(c.cargo||'')+'</span>').join('') +
+            (contacts.length > 3 ? '<span class="adm-contact-tag">+'+(contacts.length-3)+' más</span>' : '') +
+            '</div></div>';
+    });
+    cont.innerHTML = html;
+}
+
+function editArea(id) {
+    getAreas().then(areas => {
+        const a = (areas||[]).find(x => String(x.id) === String(id));
+        if (!a) return;
+        const name = esc(a.nombre||'');
+        const desc = esc(a.descripcion||'');
+        const cover = esc(a.cover||'');
+        const sitio = esc(a.Sitio||'');
+        let contacts = [];
+        const raw = a.Contactos || a.contactos;
+        if (Array.isArray(raw)) contacts = raw;
+        else if (typeof raw === 'string' && raw.trim()) try { contacts = JSON.parse(raw); } catch(e) {}
+        const contactsJson = esc(JSON.stringify(contacts, null, 2));
+        const cont = document.getElementById('panel-areas');
+        cont.innerHTML = '<div class="adm-sec"><div class="adm-sec-title"><i class="fas fa-pen"></i> Editar area: '+name+'</div>' +
+            '<div class="adm-sec-desc">Modifica los campos y guarda los cambios.</div></div>' +
+            '<div class="adm-card">' +
+            '<div class="adm-field"><label>Nombre del area</label><input type="text" id="admAreaName" value="'+name+'"></div>' +
+            '<div class="adm-field"><label>Descripcion</label><textarea id="admAreaDesc" rows="3">'+desc+'</textarea></div>' +
+            '<div class="adm-field"><label>Sitio web (URL)</label><input type="text" id="admAreaSitio" value="'+sitio+'"></div>' +
+            '<div class="adm-field"><label>Foto de portada</label>' +
+            '<div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap;">' +
+            '<div id="admCoverPreview" style="width:120px;height:70px;border-radius:10px;border:2px dashed #e2e8f2;display:flex;align-items:center;justify-content:center;overflow:hidden;background:#f9fafc;flex-shrink:0;">' +
+            (cover ? '<img src="'+cover+'" style="width:100%;height:100%;object-fit:cover;">' : '<i class="fas fa-image" style="font-size:24px;color:#cbd5e1;"></i>') +
+            '</div>' +
+            '<div style="flex:1;min-width:200px;"><input type="file" id="admCoverFile" accept="image/*" style="display:none;" onchange="previewCover(this)">' +
+            '<button class="adm-btn primary small" onclick="document.getElementById(\'admCoverFile\').click()"><i class="fas fa-upload"></i> Subir imagen</button>' +
+            '<input type="hidden" id="admAreaCover" value="'+cover+'">' +
+            '<div style="font-size:11px;color:var(--mx);margin-top:6px;">O pega una URL: <input type="text" id="admAreaCoverUrl" value="'+cover+'" style="width:100%;margin-top:4px;padding:6px 10px;border:1px solid #e2e8f2;border-radius:6px;font-size:12px;" onchange="document.getElementById(\'admAreaCover\').value=this.value;updateCoverPreview(this.value);"></div>' +
+            '</div></div></div>' +
+            '<div class="adm-field"><label>Contactos (JSON -编辑 nombre, cargo, email, telefono, foto)</label>' +
+            '<div id="admContactsList" style="display:flex;flex-direction:column;gap:10px;margin-bottom:12px;"></div>' +
+            '<button class="adm-btn small" style="background:#64748b;color:#fff;margin-bottom:12px;" onclick="addContactRow()"><i class="fas fa-plus"></i> Agregar contacto</button>' +
+            '<textarea id="admAreaContacts" rows="6" style="font-family:monospace;font-size:11px;display:none;">'+contactsJson+'</textarea></div>' +
+            '<div style="display:flex;gap:10px;margin-top:16px;">' +
+            '<button class="adm-btn green" onclick="saveArea('+a.id+')"><i class="fas fa-check"></i> Guardar cambios</button>' +
+            '<button class="adm-btn" style="background:#64748b;color:#fff;" onclick="loadAreas()"><i class="fas fa-arrow-left"></i> Volver</button>' +
+            '</div></div>';
+        renderContactsList(contacts);
+    });
+}
+
+function renderContactsList(contacts) {
+    const list = document.getElementById('admContactsList');
+    if (!list) return;
+    list.innerHTML = contacts.map((c, i) => {
+        const photo = c.foto || '/images/Logo.png';
+        return '<div style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:#f9fafc;border:1px solid #eef1f4;border-radius:10px;" id="adm-contact-'+i+'">' +
+        '<div style="width:44px;height:44px;border-radius:50%;overflow:hidden;border:2px solid #e2e8f2;flex-shrink:0;background:#fff;">' +
+        '<img src="'+esc(photo)+'" style="width:100%;height:100%;object-fit:cover;" onerror="this.src=\'/images/Logo.png\'"></div>' +
+        '<div style="flex:1;display:grid;grid-template-columns:1fr 1fr;gap:6px;">' +
+        '<input type="text" class="adm-ct-name" value="'+esc(c.nombre||'')+'" placeholder="Nombre" style="padding:6px 8px;border:1px solid #e2e8f2;border-radius:6px;font-size:12px;">' +
+        '<input type="text" class="adm-ct-cargo" value="'+esc(c.cargo||'')+'" placeholder="Cargo" style="padding:6px 8px;border:1px solid #e2e8f2;border-radius:6px;font-size:12px;">' +
+        '<input type="email" class="adm-ct-email" value="'+esc(c.email||'')+'" placeholder="Email" style="padding:6px 8px;border:1px solid #e2e8f2;border-radius:6px;font-size:12px;">' +
+        '<input type="text" class="adm-ct-phone" value="'+esc(c.telefono||'')+'" placeholder="Telefono" style="padding:6px 8px;border:1px solid #e2e8f2;border-radius:6px;font-size:12px;">' +
+        '<input type="hidden" class="adm-ct-foto" value="'+esc(photo)+'">' +
+        '</div>' +
+        '<div style="display:flex;flex-direction:column;gap:4px;flex-shrink:0;">' +
+        '<input type="file" class="adm-ct-file" accept="image/*" style="display:none;" onchange="uploadContactPhoto('+i+',this)">' +
+        '<button class="adm-btn primary small" style="padding:5px 8px;font-size:10px;" onclick="this.previousElementSibling.click()"><i class="fas fa-camera"></i></button>' +
+        '<button class="adm-btn red small" style="padding:5px 8px;font-size:10px;" onclick="removeContactRow('+i+')"><i class="fas fa-trash"></i></button>' +
+        '</div></div>';
+    }).join('');
+}
+
+function addContactRow() {
+    const textarea = document.getElementById('admAreaContacts');
+    let contacts = [];
+    try { contacts = JSON.parse(textarea.value); } catch(e) {}
+    contacts.push({nombre:'',cargo:'',email:'',telefono:'',foto:'/images/Logo.png'});
+    textarea.value = JSON.stringify(contacts, null, 2);
+    renderContactsList(contacts);
+}
+
+function removeContactRow(idx) {
+    const textarea = document.getElementById('admAreaContacts');
+    let contacts = [];
+    try { contacts = JSON.parse(textarea.value); } catch(e) {}
+    contacts.splice(idx, 1);
+    textarea.value = JSON.stringify(contacts, null, 2);
+    renderContactsList(contacts);
+}
+
+async function uploadContactPhoto(idx, fileInput) {
+    const file = fileInput.files[0];
+    if (!file) return;
+    const textarea = document.getElementById('admAreaContacts');
+    let contacts = [];
+    try { contacts = JSON.parse(textarea.value); } catch(e) {}
+    showIntranetToast('Subiendo imagen...', 'success');
+    const res = await uploadIntranetImage(file);
+    if (res && res.url) {
+        contacts[idx].foto = res.url;
+        textarea.value = JSON.stringify(contacts, null, 2);
+        renderContactsList(contacts);
+        showIntranetToast('Foto actualizada', 'success');
+    } else {
+        showIntranetToast('Error al subir imagen', 'error');
+    }
+}
+
+function collectContactsFromUI() {
+    const list = document.getElementById('admContactsList');
+    if (!list) return [];
+    const rows = list.children;
+    const contacts = [];
+    for (let i = 0; i < rows.length; i++) {
+        const row = rows[i];
+        contacts.push({
+            nombre: (row.querySelector('.adm-ct-name')||{}).value || '',
+            cargo: (row.querySelector('.adm-ct-cargo')||{}).value || '',
+            email: (row.querySelector('.adm-ct-email')||{}).value || '',
+            telefono: (row.querySelector('.adm-ct-phone')||{}).value || '',
+            foto: (row.querySelector('.adm-ct-foto')||{}).value || '/images/Logo.png'
+        });
+    }
+    return contacts;
+}
+
+async function uploadCoverPhoto(fileInput) {
+    const file = fileInput.files[0];
+    if (!file) return;
+    showIntranetToast('Subiendo imagen...', 'success');
+    const res = await uploadIntranetImage(file);
+    if (res && res.url) {
+        document.getElementById('admAreaCover').value = res.url;
+        document.getElementById('admAreaCoverUrl').value = res.url;
+        updateCoverPreview(res.url);
+        showIntranetToast('Portada actualizada', 'success');
+    } else {
+        showIntranetToast('Error al subir imagen', 'error');
+    }
+}
+
+function previewCover(input) { if (input.files[0]) uploadCoverPhoto(input); }
+
+function updateCoverPreview(url) {
+    const prev = document.getElementById('admCoverPreview');
+    if (prev && url) prev.innerHTML = '<img src="'+esc(url)+'" style="width:100%;height:100%;object-fit:cover;">';
+}
+
+async function saveArea(id) {
+    const contacts = collectContactsFromUI();
+    const data = {
+        nombre: document.getElementById('admAreaName').value.trim(),
+        descripcion: document.getElementById('admAreaDesc').value.trim(),
+        cover: document.getElementById('admAreaCover').value.trim(),
+        sitio: document.getElementById('admAreaSitio').value.trim(),
+        contactos: JSON.stringify(contacts)
+    };
+    const res = await updateArea(id, data);
+    if (res) { showIntranetToast('Área actualizada', 'success'); loadAreas(); loadStats(); }
+    else showIntranetToast('Error al guardar', 'error');
+}
+
+async function removeArea(id, name) {
+    if (!confirm('¿Eliminar el área "'+name+'"?')) return;
+    const ok = await deleteArea(id);
+    if (ok) { showIntranetToast('Área eliminada', 'success'); loadAreas(); loadStats(); }
+    else showIntranetToast('Error al eliminar', 'error');
+}
+
+/* ── CALENDARIO ── */
+async function loadCalendar() {
+    const cont = document.getElementById('panel-calendar');
+    cont.innerHTML = '<div class="adm-empty"><i class="fas fa-spinner fa-spin"></i>Cargando eventos...</div>';
+    const events = await getCalendarEvents();
+    let html = '<div class="adm-sec"><div class="adm-sec-title"><i class="fas fa-calendar-plus"></i> Crear evento</div>' +
+        '<div class="adm-sec-desc">Agrega un nuevo evento al calendario de la intranet.</div></div>' +
+        '<div class="adm-card"><div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">' +
+        '<div class="adm-field"><label>Título</label><input type="text" id="admCalTitle" placeholder="Nombre del evento"></div>' +
+        '<div class="adm-field"><label>Fecha</label><input type="date" id="admCalDate"></div>' +
+        '<div class="adm-field"><label>Tipo</label><select id="admCalType">' +
+        '<option value="general">General</option><option value="reunion">Reunión</option><option value="capacitacion">Capacitación</option>' +
+        '<option value="cumple">Cumpleaños</option><option value="feriado">Feriado</option></select></div>' +
+        '<div class="adm-field"><label>Autor</label><input type="text" id="admCalAuthor" value="'+esc(admName)+'" readonly></div>' +
+        '</div>' +
+        '<div class="adm-field"><label>Descripción</label><textarea id="admCalDesc" rows="2" placeholder="Detalles del evento"></textarea></div>' +
+        '<button class="adm-btn green" onclick="createCalEvent()"><i class="fas fa-plus"></i> Crear evento</button></div>';
+
+    if (events && events.length) {
+        html += '<div class="adm-sec" style="margin-top:28px;"><div class="adm-sec-title"><i class="fas fa-calendar"></i> Eventos existentes ('+events.length+')</div></div>';
+        html += '<div class="adm-events-wrap"><table class="adm-events-table"><thead><tr><th>Fecha</th><th>Evento</th><th>Tipo</th><th>Acciones</th></tr></thead><tbody>';
+        events.forEach(e => {
+            html += '<tr><td>'+esc(e.date||'')+'</td><td style="font-weight:700;">'+esc(e.title||'')+'</td>' +
+                '<td><span class="adm-sector">'+esc(e.type||'')+'</span></td>' +
+                '<td><button class="adm-btn red small" onclick="removeCalEvent('+e.id+')"><i class="fas fa-trash"></i></button></td></tr>';
+        });
+        html += '</tbody></table></div>';
+    }
+    cont.innerHTML = html;
+}
+
+async function createCalEvent() {
+    const title = document.getElementById('admCalTitle').value.trim();
+    const date = document.getElementById('admCalDate').value;
+    if (!title || !date) { showIntranetToast('Completa título y fecha', 'error'); return; }
+    const data = {
+        title, date,
+        type: document.getElementById('admCalType').value,
+        description: document.getElementById('admCalDesc').value.trim(),
+        authorName: admName
+    };
+    const res = await createCalendarEvent(data);
+    if (res) { showIntranetToast('Evento creado', 'success'); loadCalendar(); loadStats(); }
+    else showIntranetToast('Error al crear evento', 'error');
+}
+
+async function removeCalEvent(id) {
+    if (!confirm('¿Eliminar este evento?')) return;
+    const ok = await deleteCalendarEvent(id);
+    if (ok) { showIntranetToast('Evento eliminado', 'success'); loadCalendar(); loadStats(); }
+}
+
+/* ── FORO ── */
+async function loadForum() {
+    const cont = document.getElementById('panel-conversations');
+    cont.innerHTML = '<div class="adm-empty"><i class="fas fa-spinner fa-spin"></i>Cargando publicaciones...</div>';
+    const convs = await getConversations();
+    if (!convs || !convs.length) {
+        cont.innerHTML = '<div class="adm-empty"><i class="fas fa-comments"></i>No hay publicaciones en el foro</div>';
+        return;
+    }
+    let html = '<div class="adm-sec"><div class="adm-sec-title"><i class="fas fa-comments"></i> Publicaciones del foro ('+convs.length+')</div>' +
+        '<div class="adm-sec-desc">Gestiona las publicaciones de los colaboradores.</div></div>';
+    convs.forEach(c => {
+        const author = esc(c.authorName||'Anónimo');
+        const text = esc((c.text||'').substring(0,120));
+        const type = esc(c.type||'Discusión');
+        const time = fmtDT(c.createdAt);
+        html += '<div class="adm-card"><div class="adm-card-header"><div>' +
+            '<div class="adm-card-name">'+author+'</div>' +
+            '<div class="adm-card-meta">'+time+' · '+type+' · '+c.likes+' like(s) · '+c.comments+' comentario(s)</div></div>' +
+            '<button class="adm-btn red small" onclick="removeConv('+c.id+')"><i class="fas fa-trash"></i> Eliminar</button></div>' +
+            '<div style="font-size:13px;color:var(--tx);line-height:1.5;">'+text+'</div></div>';
+    });
+    cont.innerHTML = html;
+}
+
+async function removeConv(id) {
+    if (!confirm('¿Eliminar esta publicación?')) return;
+    const ok = await deleteConversation(id);
+    if (ok) { showIntranetToast('Publicación eliminada', 'success'); loadForum(); loadStats(); }
+}
+
+/* ── DOCUMENTOS (access logs) ── */
+async function loadDocuments() {
+    const cont = document.getElementById('panel-documents');
+    cont.innerHTML = '<div class="adm-empty"><i class="fas fa-spinner fa-spin"></i>Cargando registro...</div>';
+    try {
+        const data = await getIntranetViewEvents(admEmail);
+        const events = (data && data.events) || [];
+        if (!events.length) {
+            cont.innerHTML = '<div class="adm-empty"><i class="fas fa-folder-open"></i>Aún no hay vistas registradas de documentos.</div>';
+            return;
+        }
+        let html = '<div class="adm-sec"><div class="adm-sec-title"><i class="fas fa-history"></i> Registro de accesos a documentos ('+events.length+')</div></div>';
+        html += '<div class="adm-events-wrap"><table class="adm-events-table"><thead><tr><th>Correo</th><th>Nombre</th><th>Documento</th><th>Sector</th><th>Fecha</th></tr></thead><tbody>';
+        events.forEach(e => {
+            html += '<tr><td style="font-weight:700;color:#1b4562;"><i class="fas fa-envelope" style="margin-right:4px;"></i>'+esc(e.email)+'</td>' +
+                '<td>'+esc(e.name||'-')+'</td><td>'+esc(e.documentName||'-')+'</td>' +
+                '<td><span class="adm-sector">'+esc(e.sector||'general')+'</span></td><td>'+fmtDT(e.viewedAt)+'</td></tr>';
+        });
+        html += '</tbody></table></div>';
+        cont.innerHTML = html;
+    } catch(e) {
+        cont.innerHTML = '<div class="adm-empty"><i class="fas fa-exclamation-triangle"></i>Error al cargar el registro</div>';
+    }
+}
+
+/* ── ACCESOS ── */
+async function loadAccess() {
+    const cont = document.getElementById('panel-access');
+    cont.innerHTML = '<div class="adm-empty"><i class="fas fa-spinner fa-spin"></i>Cargando accesos...</div>';
+    const status = await getIntranetAccessStatus(admEmail);
+    const admins = (status && status.adminEmails) || [];
+    const viewers = (status && status.viewerEmails) || [];
+    let html = '<div class="adm-sec"><div class="adm-sec-title"><i class="fas fa-user-plus"></i> Habilitar cuentas</div>' +
+        '<div class="adm-sec-desc">Agrega el correo de un colaborador para que pueda ver quiénes han visto los documentos.</div>' +
+        '<div class="adm-form-row"><input type="email" id="admViewerEmail" placeholder="correo@spmardique.co">' +
+        '<button class="adm-btn green" onclick="addViewer()"><i class="fas fa-plus"></i> Habilitar</button></div>' +
+        '<div class="adm-list" id="admViewerList">' + renderList(viewers, 'VIEWER') + '</div></div>';
+
+    html += '<div class="adm-sec"><div class="adm-sec-title"><i class="fas fa-user-cog"></i> Administradores</div>' +
+        '<div class="adm-sec-desc">Estas cuentas tienen acceso total al panel de administración.</div>' +
+        '<div class="adm-form-row"><input type="email" id="admAdminEmail" placeholder="correo@spmardique.co">' +
+        '<button class="adm-btn" onclick="addAdminUser()"><i class="fas fa-plus"></i> Agregar</button></div>' +
+        '<div class="adm-list" id="admAdminList">' + renderList(admins, 'ADMIN') + '</div></div>';
+    cont.innerHTML = html;
+}
+
+function renderList(users, role) {
+    if (!users || !users.length) return '<div style="font-size:12.5px;color:#94a3b8;font-style:italic;padding:8px 0;">No hay cuentas registradas.</div>';
+    return users.map(u => {
+        const email = u.email || u;
+        return '<div class="adm-list-item"><div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">' +
+            '<span class="adm-email"><i class="fas fa-envelope"></i> '+esc(email)+'</span><span class="adm-role">'+role+'</span></div>' +
+            '<button class="adm-btn red small" onclick="removeAccess(\''+esc(email)+'\')"><i class="fas fa-trash"></i></button></div>';
+    }).join('');
+}
+
+async function addViewer() {
+    const email = (document.getElementById('admViewerEmail').value||'').trim();
+    if (!email) { showIntranetToast('Escribe un correo', 'error'); return; }
+    const ok = await grantIntranetRole(email, 'VIEWER', admEmail);
+    if (ok) { showIntranetToast('Cuenta habilitada', 'success'); loadAccess(); }
+    else showIntranetToast('Error', 'error');
+}
+
+async function addAdminUser() {
+    const email = (document.getElementById('admAdminEmail').value||'').trim();
+    if (!email) { showIntranetToast('Escribe un correo', 'error'); return; }
+    const ok = await grantIntranetRole(email, 'ADMIN', admEmail);
+    if (ok) { showIntranetToast('Administrador agregado', 'success'); loadAccess(); }
+    else showIntranetToast('Error', 'error');
+}
+
+async function removeAccess(email) {
+    if (!confirm('¿Quitar acceso de '+email+'?')) return;
+    const ok = await revokeIntranetRole(email, admEmail);
+    if (ok) { showIntranetToast('Acceso actualizado', 'success'); loadAccess(); }
+}
+
+/* ── PQRS ── */
+function loadPqrs() {
+    const cont = document.getElementById('panel-pqrs');
+    const pqrsUrl = window.location.origin + '/contacto#pqrs';
+    let html = '<div class="adm-sec">' +
+        '<div class="adm-sec-title"><i class="fas fa-qrcode"></i> Buzón de PQRS</div>' +
+        '<div class="adm-sec-desc">Código QR para el buzón físico de la empresa. Imprime este código y colócalo en las zonas de atención al colaborador.</div>' +
+        '<div style="display:flex;align-items:flex-start;gap:28px;flex-wrap:wrap;margin-top:16px;">' +
+            '<div id="admPqrsQrWrap" style="background:#fff;padding:16px;border-radius:16px;border:2px solid #e2e8f2;box-shadow:0 4px 16px rgba(0,0,0,.06);flex-shrink:0;">' +
+                '<img id="admPqrsQrImg" src="" alt="QR PQRS" style="width:180px;height:180px;display:block;">' +
+            '</div>' +
+            '<div style="flex:1;min-width:220px;">' +
+                '<div style="font-size:16px;font-weight:800;color:#1b4562;margin-bottom:6px;">Buzón de PQRS</div>' +
+                '<p style="font-size:13px;color:#64748b;line-height:1.6;margin:0 0 16px;">Escanea este código para acceder al formulario de PQRS. Ideal para el buzón físico de la empresa.</p>' +
+                '<div style="display:flex;gap:10px;flex-wrap:wrap;">' +
+                    '<button onclick="printPqrsQr()" style="display:inline-flex;align-items:center;gap:8px;padding:12px 28px;border-radius:10px;border:none;background:#1b4562;color:#fff;font-size:13px;font-weight:800;text-transform:uppercase;letter-spacing:.5px;cursor:pointer;font-family:inherit;box-shadow:0 4px 16px rgba(27,69,98,.3);transition:all .2s;">' +
+                        '<i class="fas fa-print"></i> Imprimir QR' +
+                    '</button>' +
+                    '<a href="/contacto#pqrs" target="_blank" style="display:inline-flex;align-items:center;gap:8px;padding:12px 28px;border-radius:10px;border:2px solid #1b4562;background:transparent;color:#1b4562;font-size:13px;font-weight:800;text-transform:uppercase;letter-spacing:.5px;cursor:pointer;font-family:inherit;text-decoration:none;transition:all .2s;">' +
+                        '<i class="fas fa-eye"></i> Ver página' +
+                    '</a>' +
+                '</div>' +
+            '</div>' +
+        '</div>' +
+    '</div>';
+    cont.innerHTML = html;
+    const qr = document.getElementById('admPqrsQrImg');
+    if (qr) qr.src = 'https://api.qrserver.com/v1/create-qr-code/?size=360x360&data=' + encodeURIComponent(pqrsUrl) + '&margin=8&color=1b4562&bgcolor=ffffff';
+}
+
+function printPqrsQr() {
+    const img = document.getElementById('admPqrsQrImg');
+    if (!img || !img.src) return;
+    const qrUrl = img.src;
+    const logoEl = document.querySelector('.logo-box img, header img[alt], img[src*="Logo"]');
+    const logoSrc = logoEl ? logoEl.src : '/images/Logo.png';
+    const win = window.open("", "_blank", "width=600,height=800");
+    if (!win) return;
+    win.document.write('<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8"><title>Buzón de PQRS — QR</title>' +
+    '<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800;900&display=swap" rel="stylesheet">' +
+    '<style>' +
+    '@page{size:A4;margin:0;}' +
+    '@media print{body{background:#fff!important;padding:0!important;}' +
+    '*{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important;}' +
+    '.no-print{display:none!important;}}' +
+    'body{font-family:"Plus Jakarta Sans",system-ui,sans-serif;display:flex;align-items:center;justify-content:center;min-height:100vh;background:#f0f4f8;padding:40px 20px;margin:0;}' +
+    '.sheet{width:100%;max-width:420px;background:#fff;border-radius:20px;overflow:hidden;box-shadow:0 24px 64px rgba(15,30,50,.15);text-align:center;padding:40px 32px 36px;}' +
+    '.logo-box{display:inline-flex;background:#fff;padding:8px 16px;border-radius:12px;box-shadow:0 4px 16px rgba(0,0,0,.1);margin-bottom:24px;}' +
+    '.logo-box img{height:36px;width:auto;}' +
+    '.title{font-size:22px;font-weight:900;color:#1b4562;margin-bottom:6px;letter-spacing:-.3px;}' +
+    '.title span{color:#f09a36;}' +
+    '.subtitle{font-size:13px;color:#64748b;margin-bottom:28px;line-height:1.5;}' +
+    '.qr-box{display:inline-block;background:#fff;padding:16px;border-radius:16px;border:2px solid #e2e8f2;box-shadow:0 4px 20px rgba(0,0,0,.06);margin-bottom:24px;}' +
+    '.qr-box img{width:180px;height:180px;display:block;}' +
+    '.footer{font-size:11px;color:#94a3b8;margin-top:20px;border-top:1px solid #f1f5f9;padding-top:16px;}' +
+    '.footer strong{color:#1b4562;}' +
+    '</style></head><body>' +
+    '<div class="sheet">' +
+    '<div class="logo-box"><img src="' + logoSrc + '" alt="Mardique"></div>' +
+    '<div class="title">Buzón de <span>PQRS</span></div>' +
+    '<div class="subtitle">Escanee este código para radicar su Petición, Queja, Reclamo o Sugerencia de forma digital.</div>' +
+    '<div class="qr-box"><img src="' + qrUrl + '" alt="QR PQRS"></div>' +
+    '<div class="footer"><strong>Sociedad Portuaria Mardique S.A.</strong><br>www.mardique.com</div>' +
+    '</div></body></html>');
+    win.document.close();
+    setTimeout(function(){ win.focus(); win.print(); }, 800);
+}
+
+/* ── INIT ── */
+document.addEventListener("DOMContentLoaded", async function() {
+    if (!isMsalAuthenticated()) { window.location.href = "/login"; return; }
+    try {
+        const user = await getCurrentUser();
+        admName = user.displayName || user.userPrincipalName || '';
+        admEmail = user.mail || user.userPrincipalName || '';
+        document.getElementById("userDisplay").textContent = admName;
+    } catch(e) {}
+    await loadStats();
+    loadAreas();
+    loadCalendar();
+    loadForum();
+    loadDocuments();
+    loadPqrs();
+    loadAccess();
+
+    const loader = document.getElementById('pageLoader');
+    if (loader) { loader.classList.add('hidden'); setTimeout(() => loader.remove(), 600); }
+
+    const revealObs = new IntersectionObserver(entries => {
+        entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+    }, { threshold: 0.1 });
+    document.querySelectorAll('.reveal').forEach(el => revealObs.observe(el));
+});
 </script>
 </body>
 </html>

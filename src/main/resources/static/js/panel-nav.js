@@ -5,7 +5,7 @@ document.addEventListener('DOMContentLoaded', function () {
        Al bajar 80px: aparece fondo azul semitransparente + blur + animación.
        Al volver arriba: vuelve a transparente (vía CSS transition).
     ─────────────────────────────────────────────────────────────────── */
-    var hdr = document.getElementById('main-header') || document.querySelector('header');
+    var hdr = document.getElementById('main-header');
     if (!hdr) return;
 
     var THRESHOLD = 80; // px — funciona en todas las páginas

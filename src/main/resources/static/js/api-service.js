@@ -577,10 +577,12 @@ async function deleteCalendarEvent(id) {
 }
 
 /* ── Conversaciones / Foro intranet ────────────────── */
-async function getConversations() {
+async function getConversations(userId) {
     try {
-        const res = await fetch("/api/intranet/conversations");
-        return await res.json();
+        const url = userId ? "/api/intranet/conversations?userId=" + encodeURIComponent(userId) : "/api/intranet/conversations";
+        const res = await fetch(url);
+        const text = await res.text();
+        try { return JSON.parse(text); } catch(e) { return []; }
     } catch (e) {
         return [];
     }
@@ -593,16 +595,60 @@ async function submitConversation(data) {
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(data)
         });
+        const text = await res.text();
+        try { return JSON.parse(text); } catch(e) { return null; }
+    } catch (e) {
+        return null;
+    }
+}
+
+async function likeConversation(id, userId) {
+    try {
+        const res = await fetch("/api/intranet/conversations/" + id + "/like", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ userId: userId || "user-" + Date.now() })
+        });
+        if (!res.ok) return null;
         return await res.json();
     } catch (e) {
         return null;
     }
 }
 
-async function likeConversation(id) {
+async function reactToConversation(id, userId, type) {
     try {
-        const res = await fetch("/api/intranet/conversations/" + id + "/like", { method: "POST" });
+        const res = await fetch("/api/intranet/conversations/" + id + "/reaction", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ userId: userId, type: type })
+        });
+        if (!res.ok) return null;
         return await res.json();
+    } catch (e) {
+        return null;
+    }
+}
+
+async function getConversationComments(id) {
+    try {
+        const res = await fetch("/api/intranet/conversations/" + id + "/comments");
+        const text = await res.text();
+        try { return JSON.parse(text); } catch(e) { return { comments: [], count: 0 }; }
+    } catch (e) {
+        return { comments: [], count: 0 };
+    }
+}
+
+async function addConversationComment(id, text, authorName, authorEmail) {
+    try {
+        const res = await fetch("/api/intranet/conversations/" + id + "/comments", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ text: text, authorName: authorName || "Empleado", authorEmail: authorEmail || "" })
+        });
+        const responseText = await res.text();
+        try { return JSON.parse(responseText); } catch(e) { return null; }
     } catch (e) {
         return null;
     }
@@ -618,12 +664,41 @@ async function deleteConversation(id) {
     }
 }
 
+async function updateConversation(id, data) {
+    try {
+        const res = await fetch("/api/intranet/conversations/" + id, {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(data)
+        });
+        const text = await res.text();
+        try { return JSON.parse(text); } catch(e) { return null; }
+    } catch (e) {
+        return null;
+    }
+}
+
+async function pinConversation(id) {
+    try {
+        const res = await fetch("/api/intranet/conversations/" + id + "/pin", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" }
+        });
+        const text = await res.text();
+        try { return JSON.parse(text); } catch(e) { return null; }
+    } catch (e) {
+        return null;
+    }
+}
+
 /* ── Áreas intranet ───────────────────────────────── */
 async function getAreas() {
     try {
         const res = await fetch("/api/intranet/areas");
-        const data = await res.json();
-        return data.map(a => ({
+        const text = await res.text();
+        let data;
+        try { data = JSON.parse(text); } catch(e) { return []; }
+        return (data || []).map(a => ({
             id: String(a.id),
             Title: a.nombre,
             nombre: a.nombre,
@@ -646,7 +721,8 @@ async function createArea(data) {
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(data)
         });
-        return await res.json();
+        const text = await res.text();
+        try { return JSON.parse(text); } catch(e) { return null; }
     } catch (e) {
         return null;
     }
@@ -659,7 +735,174 @@ async function updateArea(id, data) {
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(data)
         });
+        const text = await res.text();
+        try { return JSON.parse(text); } catch(e) { return null; }
+    } catch (e) {
+        return null;
+    }
+}
+
+async function deleteArea(id) {
+    try {
+        const res = await fetch("/api/intranet/areas/" + id, { method: "DELETE" });
+        const json = await res.json().catch(() => ({}));
+        return json.ok === true;
+    } catch (e) {
+        return false;
+    }
+}
+
+/* ── Upload intranet images ──────────────────────── */
+async function uploadIntranetImage(file) {
+    try {
+        const formData = new FormData();
+        formData.append("file", file);
+        const res = await fetch("/api/intranet/upload", { method: "POST", body: formData });
+        const text = await res.text();
+        try { return JSON.parse(text); } catch(e) { return { error: "Respuesta inesperada del servidor (" + res.status + ")" }; }
+    } catch (e) {
+        return { error: e.message || "Error de red" };
+    }
+}
+
+/* ── Autoservicio Talento Humano ──────────────────── */
+function intranetHrQrUrl(sectionId) {
+    return "/api/intranet/hr/" + encodeURIComponent(sectionId) + "/qr";
+}
+
+async function recordHrSectionView(sectionId, email, name) {
+    try {
+        const res = await fetch("/api/intranet/hr/" + encodeURIComponent(sectionId) + "/view", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ email: email || "", name: name || "" })
+        });
+        return res.ok;
+    } catch (e) {
+        return false;
+    }
+}
+
+async function getHrSectionViews(sectionId) {
+    try {
+        const res = await fetch("/api/intranet/hr/" + encodeURIComponent(sectionId) + "/views");
+        const text = await res.text();
+        try { return JSON.parse(text); } catch(e) { return []; }
+    } catch (e) {
+        return [];
+    }
+}
+
+async function getHrViewStats() {
+    try {
+        const res = await fetch("/api/intranet/hr/views/stats");
+        const text = await res.text();
+        try { return JSON.parse(text); } catch(e) { return null; }
+    } catch (e) {
+        return null;
+    }
+}
+
+async function getHrDocs(sectionId) {
+    try {
+        const res = await fetch("/api/intranet/hr/" + encodeURIComponent(sectionId) + "/docs");
+        const text = await res.text();
+        try { return JSON.parse(text); } catch(e) { return []; }
+    } catch (e) {
+        return [];
+    }
+}
+
+async function addHrDoc(sectionId, fileName, fileUrl, description, uploadedBy) {
+    try {
+        const res = await fetch("/api/intranet/hr/" + encodeURIComponent(sectionId) + "/docs", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ fileName: fileName, fileUrl: fileUrl, description: description || "", uploadedBy: uploadedBy || "" })
+        });
+        const text = await res.text();
+        try { return JSON.parse(text); } catch(e) { return null; }
+    } catch (e) {
+        return null;
+    }
+}
+
+async function deleteHrDoc(docId) {
+    try {
+        const res = await fetch("/api/intranet/hr/docs/" + docId, { method: "DELETE" });
+        const text = await res.text();
+        try { const json = JSON.parse(text); return json.ok === true; } catch(e) { return false; }
+    } catch (e) {
+        return false;
+    }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   SOLICITUDES HR — envío, recibidos, respuesta, firma
+   ═══════════════════════════════════════════════════════════════════════ */
+
+async function getStaffDirectory() {
+    try {
+        const res = await fetch("/api/intranet/solicitudes-hr/staff");
         return await res.json();
+    } catch (e) {
+        return [];
+    }
+}
+
+async function createSolicitudHr(data) {
+    try {
+        const res = await fetch("/api/intranet/solicitudes-hr", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(data)
+        });
+        const text = await res.text();
+        try { return JSON.parse(text); } catch(e) { return null; }
+    } catch (e) {
+        return null;
+    }
+}
+
+async function getSentSolicitudes(email) {
+    try {
+        const res = await fetch("/api/intranet/solicitudes-hr/sent?email=" + encodeURIComponent(email));
+        const text = await res.text();
+        try { return JSON.parse(text); } catch(e) { return []; }
+    } catch (e) {
+        return [];
+    }
+}
+
+async function getReceivedSolicitudes(email) {
+    try {
+        const res = await fetch("/api/intranet/solicitudes-hr/received?email=" + encodeURIComponent(email));
+        const text = await res.text();
+        try { return JSON.parse(text); } catch(e) { return []; }
+    } catch (e) {
+        return [];
+    }
+}
+
+async function getSolicitudHr(id) {
+    try {
+        const res = await fetch("/api/intranet/solicitudes-hr/" + id);
+        const text = await res.text();
+        try { return JSON.parse(text); } catch(e) { return null; }
+    } catch (e) {
+        return null;
+    }
+}
+
+async function respondToSolicitudHr(id, data) {
+    try {
+        const res = await fetch("/api/intranet/solicitudes-hr/" + id + "/respond", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(data)
+        });
+        const text = await res.text();
+        try { return JSON.parse(text); } catch(e) { return null; }
     } catch (e) {
         return null;
     }
